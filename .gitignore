@@ -1,0 +1,22 @@
+# compiled python files
+*.pyc
+
+# Setuptools distribution folder.
+/dist/
+
+# Python egg metadata, regenerated from source files by setuptools.
+/*.egg-info
+/*.egg
+*egg*
+
+# Build folder
+/build
+
+# cache
+.cache/*
+
+# Ipython checkpoints
+.ipynb_checkpoints/*
+
+# autosaved python version of index.ipynb
+index.py
