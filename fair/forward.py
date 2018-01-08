@@ -64,9 +64,9 @@ def fair_scm(emissions=False,
   # Goes through all variables in scope and converts them.
   frame = inspect.currentframe()
   args, _, _, values = inspect.getargvalues(frame)
-  for i in args:
-    if type(values[i]) is list:
-      exec(i + '= np.array(' + i + ')')
+  for arg_to_check in args:
+    if type(values[arg_to_check]) is list:
+      exec(arg_to_check + '= np.array(' + arg_to_check + ')')
 
   # Set up the output timeseries variables depending on options and perform
   # basic sense checks
