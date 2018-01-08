@@ -1,7 +1,8 @@
 import numpy as np
 import os
 
-forcing_filename = os.path.join(os.path.dirname(__file__), 'cmip5_annex2.csv')
+forcing_filename = os.path.join(os.path.dirname(__file__),
+    'cmip5_annex2_forcing.csv')
 
 class Forcing:
     forcing  = np.loadtxt(forcing_filename, skiprows=1, delimiter=',')
