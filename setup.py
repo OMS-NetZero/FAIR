@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # @Author: Zebedee Nicholls
 # @Date:   2017-04-10 13:42:11
-# @Last Modified by:   Zebedee Nicholls
-# @Last Modified time: 2017-04-16 19:15:00
+# @Last Modified by:   Chris Smith
+# @Last Modified time: 2018-04-16 12:32:00
 
 from setuptools import setup
 from setuptools import find_packages
@@ -14,7 +14,7 @@ def readme():
 
 # VERSION #
 import re
-VERSIONFILE="_version.py"
+VERSIONFILE="fair/_version.py"
 verstrline = open(VERSIONFILE, "rt").read()
 VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
 mo = re.search(VSRE, verstrline, re.M)
