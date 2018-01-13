@@ -44,7 +44,6 @@ def test_ten_GtC_pulse():
     assert np.allclose(T, T_expected)
 
 
-def test_rcp3pd():
-    C,F,T = fair.forward.fair_scm(emissions=rcp3pd.Emissions.emissions)
-    # Currently fails as useMultigas = False
-    # Build in an exception in code to handle this.
+def test_rcp3pd_multigas_error():
+    with pytest.raises(ValueError):
+        fair.forward.fair_scm(emissions=rcp3pd.Emissions.emissions)
