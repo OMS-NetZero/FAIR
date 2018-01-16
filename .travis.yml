@@ -12,4 +12,4 @@ before_install:
 install:
   - pip install -e .
 script:
-  - pytest
+  - python -m pytest tests/
