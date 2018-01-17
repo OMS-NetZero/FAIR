@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/OMS-NetZero/FAIR.svg?branch=master)](https://travis-ci.org/OMS-NetZero/FAIR)
+
 # FAIR
 Finite Amplitude Impulse-Response simple climate-carbon-cycle model 
 

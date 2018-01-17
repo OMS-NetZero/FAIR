@@ -99,13 +99,17 @@ def fair_scm(emissions=False,
     ngas = 1
     nF   = 1
     if type(emissions) is np.ndarray:
-      carbon_boxes_shape = (emissions.shape[0], a.shape[0])
-      thermal_boxes_shape = (emissions.shape[0], d.shape[0])
+      if emissions.ndim != 1:
+        raise ValueError("In CO2-only mode, emissions should be a 1D array")
       nt = emissions.shape[0]
+      carbon_boxes_shape = (nt, a.shape[0])
+      thermal_boxes_shape = (nt, d.shape[0])
     elif type(other_rf) is np.ndarray:
-      carbon_boxes_shape = (other_rf.shape[0], a.shape[0])
-      thermal_boxes_shape = (other_rf.shape[0], d.shape[0])
+      if other_rf.ndim != 1:
+        raise ValueError("In CO2-only mode, other_rf should be a 1D array")
       nt = other_rf.shape[0]
+      carbon_boxes_shape = (nt, a.shape[0])
+      thermal_boxes_shape = (nt, d.shape[0])
       emissions = np.zeros(nt)
     else:
       raise ValueError(
