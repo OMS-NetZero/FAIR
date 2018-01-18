@@ -1,3 +1,5 @@
+from __future__ import division
+
 import numpy as np
 
 def etminan(C, Cpi, F2x=3.74):

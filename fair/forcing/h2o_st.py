@@ -1,3 +1,5 @@
+from __future__ import division
+
 import numpy as np
 
 def linear(F_CH4, ratio=0.15):
