@@ -24,6 +24,7 @@ setup(name='fair',
       author_email='c.j.smith1@leeds.ac.uk/richard.millar@physics.ox.ac.uk',
       license='Apache 2.0',
       packages=find_packages(exclude=['tests*']),
+      package_data={'': ['*.csv']},
       install_requires=[
           'numpy',
           'scipy',
