@@ -1,10 +1,10 @@
 import inspect
 import numpy as np
 from scipy.optimize import root
-from constants import molwt, lifetime, radeff
-from constants.general import M_ATMOS
-from forcing import ozone_tr, ozone_st, h2o_st, contrails, aerosols, bc_snow,\
-                    landuse
+from .constants import molwt, lifetime, radeff
+from .constants.general import M_ATMOS
+from .forcing import ozone_tr, ozone_st, h2o_st, contrails, aerosols, bc_snow,\
+                     landuse
 
 def iirf_interp_funct(alp_b,a,tau,targ_iirf):
 	# ref eq. (7) of Millar et al ACP (2017)
@@ -89,9 +89,9 @@ def fair_scm(emissions=False,
       lifetimes = lifetime.aslist
     # Select the desired GHG forcing relationship
     if ghg_forcing.lower()=="etminan":
-      from forcing.ghg import etminan as ghg
+      from .forcing.ghg import etminan as ghg
     elif ghg_forcing.lower()=="myhre":
-      from forcing.ghg import myhre as ghg
+      from .forcing.ghg import myhre as ghg
     else:
       raise ValueError("ghg_forcing should be 'etminan' (default) or 'myhre'")
       
