@@ -31,9 +31,9 @@ def test_ten_GtC_pulse():
     other_rf = np.zeros(emissions.size)
     for x in range(0,emissions.size):
         other_rf[x] = 0.5*np.sin(2*np.pi*(x)/14.0)
-    
+
     C,F,T = fair.forward.fair_scm(emissions=emissions, other_rf=other_rf)
-    
+
     datadir = os.path.join(os.path.dirname(__file__), 'ten_GtC_pulse/')
     C_expected = np.load(datadir + 'C.npy')
     F_expected = np.load(datadir + 'F.npy')
@@ -104,3 +104,21 @@ def test_rcp85():
     assert np.allclose(C, C_expected)
     assert np.allclose(F, F_expected)
     assert np.allclose(T, T_expected)
+
+
+def test_division():
+    # Ensure parameters given as integers are treated as floats when dividing
+    # (Python2 compatibility).
+    _, _, T = fair.forward.fair_scm(
+        emissions=fair.RCPs.rcp6.Emissions.emissions,
+        useMultigas=True,
+        d=np.array([239.0, 4.0]),
+        tcr_dbl=70.0
+    )
+    _, _, T_int_params = fair.forward.fair_scm(
+        emissions=fair.RCPs.rcp6.Emissions.emissions,
+        useMultigas=True,
+        d=np.array([239, 4]),
+        tcr_dbl=70
+    )
+    assert (T == T_int_params).all()
