@@ -183,3 +183,15 @@ def test_ozone_regression_zero():
     )
     # Index 4 is ozone forcing
     assert (F[:,4]==np.zeros(736)).all()
+
+
+def test_timevarying_ecs():
+    emissions = np.zeros(250)
+    emissions[125:] = 10.0
+    tcr = np.ones(250)*1.6
+    ecs = np.linspace(1.5,4.5,num=250)
+    tcrecs = np.vstack((tcr,ecs)).T
+    C,F,T = fair.forward.fair_scm(
+        emissions=emissions,
+        tcrecs=tcrecs
+    )
