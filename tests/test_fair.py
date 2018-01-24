@@ -122,3 +122,21 @@ def test_division():
         tcr_dbl=70
     )
     assert (T == T_int_params).all()
+
+
+def test_strat_h2o_scale_factor():
+    # Default scale factor changed to 0.12 for Etminan but can be overridden
+    _, F1, _ = fair.forward.fair_scm(
+        emissions=fair.RCPs.rcp85.Emissions.emissions,
+        useMultigas=True,
+        ghg_forcing='Etminan'
+    )
+
+    _, F2, _ = fair.forward.fair_scm(
+        emissions=fair.RCPs.rcp85.Emissions.emissions,
+        useMultigas=True,
+        ghg_forcing='Etminan',
+        h2o_strat_from_methane=0.15
+    )
+    # from year 1 as year 0 is zero. Index 6 is stratospheric water vapour
+    assert (F1[1:,6] != F2[1:,6]).all()
