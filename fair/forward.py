@@ -54,14 +54,6 @@ def fair_scm(emissions=False,
   n2o_sf = molwt.N2O/molwt.N2
   emis2conc[2] = emis2conc[2] / n2o_sf
 
-  # If TCR and ECS are supplied, calculate the q1 and q2 model coefficients 
-  # (overwriting any other q array that might have been supplied)
-  # ref eq. (4) and (5) of Millar et al ACP (2017)
-  k = 1.0 - (d/tcr_dbl)*(1.0 - np.exp(-tcr_dbl/d))  # Allow TCR to vary
-  if type(tcrecs) in [np.ndarray,list]:
-    q =  (1.0 / F2x) * (1.0/(k[0]-k[1])) * np.array([
-      tcrecs[0]-tcrecs[1]*k[1],tcrecs[1]*k[0]-tcrecs[0]])
-
   # Convert any list to a numpy array for (a) speed and (b) consistency.
   # Goes through all variables in scope and converts them.
   frame = inspect.currentframe()
@@ -116,6 +108,22 @@ def fair_scm(emissions=False,
     else:
       raise ValueError(
         "Neither emissions or other_rf is defined as a timeseries")
+
+  # If TCR and ECS are supplied, calculate the q1 and q2 model coefficients 
+  # (overwriting any other q array that might have been supplied)
+  # ref eq. (4) and (5) of Millar et al ACP (2017)
+  k = 1.0 - (d/tcr_dbl)*(1.0 - np.exp(-tcr_dbl/d))  # Allow TCR to vary
+  if type(tcrecs) is np.ndarray:
+    # if ECS and TCR are not time-varying, expand them to 2D array anyway
+    if tcrecs.ndim==1:
+      if len(tcrecs)!=2:
+        raise ValueError("Constant TCR and ECS should be a 2-element array")
+      tcrecs = np.ones((nt, 2)) * tcrecs
+    elif tcrecs.ndim==2:
+      if tcrecs.shape!=(nt, 2):
+        raise ValueError("Transient TCR and ECS should be a nt x 2 array")
+    q  = (1.0 / F2x) * (1.0/(k[0]-k[1])) * np.array([
+      tcrecs[:,0]-tcrecs[:,1]*k[1],tcrecs[:,1]*k[0]-tcrecs[:,0]]).T
 
   # Check natural emissions and convert to 2D array if necessary
   if type(natural) in [float,int]:
@@ -213,7 +221,7 @@ def fair_scm(emissions=False,
 
   if restart_in == False:
     # Update the thermal response boxes
-    T_j[0,:] = (q/d)*(np.sum(F[0,:]))
+    T_j[0,:] = (q[0,:]/d)*(np.sum(F[0,:]))
 
   # Sum the thermal response boxes to get the total temperature anomaly
   T[0]=np.sum(T_j[0,:],axis=-1)
@@ -277,8 +285,8 @@ def fair_scm(emissions=False,
 
       # 3. Temperature
       # Update the thermal response boxes
-      T_j[t,:] = T_j[t-1,:]*np.exp(-1.0/d) + q*(1-np.exp((-1.0)/d))*np.sum(
-        F[t,:]*efficacy)
+      T_j[t,:] = T_j[t-1,:]*np.exp(-1.0/d) + q[t,:]*(
+        1-np.exp((-1.0)/d))*np.sum(F[t,:]*efficacy)
       # Sum the thermal response boxes to get the total temperature anomaly
       T[t]=np.sum(T_j[t,:],axis=-1)
 
@@ -298,7 +306,7 @@ def fair_scm(emissions=False,
         F[t,0] = (F2x/np.log(2.)) * np.log(
           (C[t,0] + C_pi[0]) / C_pi[0]) + other_rf[t]
 
-      T_j[t,:] = T_j[t-1,:]*np.exp(-1.0/d) + q*(1-np.exp((-1.0)/d))*F[t,:]
+      T_j[t,:] = T_j[t-1,:]*np.exp(-1.0/d) + q[t,:]*(1-np.exp((-1.0)/d))*F[t,:]
       T[t]=np.sum(T_j[t,:],axis=-1)
 
   # add delta CO2 concentrations to initial value
