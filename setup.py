@@ -26,8 +26,8 @@ setup(name='fair',
       packages=find_packages(exclude=['tests*']),
       package_data={'': ['*.csv']},
       install_requires=[
-          'numpy',
-          'scipy',
+          'numpy>=1.11.3',
+          'scipy>=0.19.0',
       ],
       zip_safe=False,
 )
