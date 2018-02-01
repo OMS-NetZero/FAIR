@@ -42,7 +42,7 @@ def fair_scm(emissions=False,
              oxCH4_frac=0.61,
              lifetimes=False,
              ghg_forcing="Etminan",
-             h2o_strat_from_methane=None):
+             stwv_from_ch4=None):
 
   # Conversion between ppm CO2 and GtC emissions
   ppm_gtc   = M_ATMOS/1e18*molwt.C/molwt.AIR
@@ -94,10 +94,10 @@ def fair_scm(emissions=False,
     # water vapour from methane scale factor if not specified by user
     if ghg_forcing.lower()=="etminan":
       from .forcing.ghg import etminan as ghg
-      if h2o_strat_from_methane==None: h2o_strat_from_methane=0.12
+      if stwv_from_ch4==None: stwv_from_ch4=0.12
     elif ghg_forcing.lower()=="myhre":
       from .forcing.ghg import myhre as ghg
-      if h2o_strat_from_methane==None: h2o_strat_from_methane=0.15
+      if stwv_from_ch4==None: stwv_from_ch4=0.15
     else:
       raise ValueError("ghg_forcing should be 'etminan' (default) or 'myhre'")
       
@@ -182,7 +182,7 @@ def fair_scm(emissions=False,
     F[0,5] = ozone_st.magicc(C[0,15:], C_pi[15:])
 
     # Stratospheric water vapour is a function of the methane radiative forcing
-    F[0,6] = h2o_st.linear(F[0,1], ratio=h2o_strat_from_methane)
+    F[0,6] = h2o_st.linear(F[0,1], ratio=stwv_from_ch4)
 
     # Forcing from contrails. As with tr O3, no feedback dependence
     F[:,7] = contrails.from_aviNOx(emissions, aviNOx_frac)
@@ -274,7 +274,7 @@ def fair_scm(emissions=False,
       F[t,0:3] = ghg(C[t,0:3], C_pi[0:3], F2x=F2x)
       F[t,3] = np.sum((C[t,3:] - C_pi[3:]) * radeff.aslist[3:] * 0.001)
       F[t,5] = ozone_st.magicc(C[t,15:], C_pi[15:])
-      F[t,6] = h2o_st.linear(F[t,1], ratio=h2o_strat_from_methane)
+      F[t,6] = h2o_st.linear(F[t,1], ratio=stwv_from_ch4)
 
       # multiply by scale factors
       F[t,1:] = F[t,1:] * scale[1:]

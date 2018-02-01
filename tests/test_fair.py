@@ -159,7 +159,7 @@ def test_strat_h2o_scale_factor():
         emissions=fair.RCPs.rcp85.Emissions.emissions,
         useMultigas=True,
         ghg_forcing='Etminan',
-        h2o_strat_from_methane=0.15
+        stwv_from_ch4=0.15
     )
-    # from year 1 as year 0 is zero. Index 6 is stratospheric water vapour
-    assert (F1[1:,6] != F2[1:,6]).all()
+    # Index 6 is stratospheric water vapour. Check latter is 80% of former
+    assert np.allclose(F1[:,6],F2[:,6]*0.8)
