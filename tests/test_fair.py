@@ -4,6 +4,7 @@ import fair
 import os
 import numpy as np
 from fair.RCPs import rcp3pd, rcp45, rcp6, rcp85
+from fair.tools import magicc
 
 
 def test_import():
@@ -122,3 +123,25 @@ def test_division():
         tcr_dbl=70
     )
     assert (T == T_int_params).all()
+
+
+def test_scenfile():
+    datadir = os.path.join(os.path.dirname(__file__), 'rcp45/')
+    # Purpose of this test is to determine whether the SCEN file for RCP4.5
+    # which does not include CFCs, years before 2000, or emissions from every 
+    # year from 2000 to 2500, equals the emissions file from RCP4.5 
+    # after reconstruction.
+    # The .SCEN and .XLS files at http://www.pik-potsdam.de/~mmalte/rcps
+    # sometimes differ in the 4th decimal place. Thus we allow a tolerance of 
+    # 0.0002 in addition to machine error in this instance.
+
+    E1 = magicc.scen_open(datadir + 'RCP45.SCEN')
+    assert np.allclose(E1, rcp45.Emissions.emissions, rtol=1e-8, atol=2e-4)
+
+    E2 = magicc.scen_open(datadir + 'RCP45.SCEN', include_cfcs=False)
+    assert np.allclose(E2, rcp45.Emissions.emissions[:,:24], rtol=1e-8,
+        atol=2e-4)
+
+    E3 = magicc.scen_open(datadir + 'RCP45.SCEN', startyear=1950)
+    assert np.allclose(E3, rcp45.Emissions.emissions[185:,:], rtol=1e-8,
+        atol=2e-4)
