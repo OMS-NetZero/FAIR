@@ -163,3 +163,23 @@ def test_strat_h2o_scale_factor():
     )
     # Index 6 is stratospheric water vapour. Check latter is 80% of former
     assert np.allclose(F1[:,6],F2[:,6]*0.8)
+
+
+def test_aerosol_regression_zeros():
+    _, F, _ = fair.forward.fair_scm(
+        emissions=fair.RCPs.rcp85.Emissions.emissions,
+        useMultigas=True,
+        b_aero = np.zeros(5)
+    )
+    # Index 7 is aerosol forcing
+    assert (F[:,7]==np.zeros(736)).all()
+
+
+def test_ozone_regression_zero():
+    _, F, _ = fair.forward.fair_scm(
+        emissions=fair.RCPs.rcp85.Emissions.emissions,
+        useMultigas=True,
+        b_tro3 = np.zeros(4)
+    )
+    # Index 4 is ozone forcing
+    assert (F[:,4]==np.zeros(736)).all()

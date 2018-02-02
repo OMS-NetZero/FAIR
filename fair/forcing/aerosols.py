@@ -3,12 +3,8 @@ from __future__ import division
 import numpy as np
 from ..constants import molwt
 
-def regress(emissions,
-           aNOx =  -2.62e-3,
-           aSOx =  -5.66e-3,
-           aBC  =  14.28e-3,
-           aOC  =  -8.90e-3,
-           aNH3 =  -5.89e-3):
+def regress(emissions, 
+            beta=np.array([-2.62e-3,-5.66e-3,14.28e-3,-8.90e-3,-5.89e-3])):
 
     """Calculates aerosol forcing based on a multi-linear regression of
     aerosol emissions to the aerosol ERF time series in AR5.
@@ -16,8 +12,9 @@ def regress(emissions,
     Input:
         emissions:   anthropogenic emissions database
     Keywords:
-        aSOx, aNOx, aBC, aOC, aNH3:  radiative efficiency of each aerosol
+        beta:        5-element array of radiative efficiency of each aerosol
                      precursor, W/m2/(Mt/yr)
+                     order is [SOx, NOx, BC, OC, NH3]
     Output:
         F:           aerosol effective radiative forcing
     """
@@ -29,7 +26,6 @@ def regress(emissions,
     em_NH3   = emissions[:,11]
 
     em       = np.array([em_SOx, em_NOx, em_BC, em_OC, em_NH3]).T
-    beta     = np.array([aSOx, aNOx, aBC, aOC, aNH3])
 
     F = np.sum(beta * em, axis=-1)
     return F

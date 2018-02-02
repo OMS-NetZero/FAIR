@@ -42,7 +42,10 @@ def fair_scm(emissions=False,
              oxCH4_frac=0.61,
              lifetimes=False,
              ghg_forcing="Etminan",
-             stwv_from_ch4=None):
+             stwv_from_ch4=None,
+             b_aero = np.array([-5.66e-3,-2.62e-3,14.28e-3,-8.90e-3,-5.89e-3]),
+             b_tro3 = np.array([2.8249e-4, 1.0695e-4, -9.3604e-4, 99.7831e-4]),
+            ):
 
   # Conversion between ppm CO2 and GtC emissions
   ppm_gtc   = M_ATMOS/1e18*molwt.C/molwt.AIR
@@ -176,7 +179,7 @@ def fair_scm(emissions=False,
 
     # Tropospheric ozone. Assuming no temperature/chemistry feedback it can live
     # outside the forward model.
-    F[:,4] = ozone_tr.regress(emissions)
+    F[:,4] = ozone_tr.regress(emissions, beta=b_tro3)
 
     # Stratospheric ozone depends on concentrations of ODSs (index 15-30)
     F[0,5] = ozone_st.magicc(C[0,15:], C_pi[15:])
@@ -191,7 +194,7 @@ def fair_scm(emissions=False,
     if useStevens:
       F[:,8] = aerosols.Stevens(emissions)
     else:
-      F[:,8] = aerosols.regress(emissions)
+      F[:,8] = aerosols.regress(emissions, beta=b_aero)
 
     # Black carbon on snow - no feedback dependence
     F[:,9] = bc_snow.linear(emissions)
