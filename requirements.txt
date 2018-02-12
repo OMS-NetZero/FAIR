@@ -1,0 +1,4 @@
+# Requirements for mybinder.org
+matplotlib
+numpy
+scipy
