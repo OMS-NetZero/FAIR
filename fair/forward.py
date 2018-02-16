@@ -149,6 +149,17 @@ def fair_scm(emissions=False,
     raise ValueError(
       "natural emissions should be a scalar, 2-element, or nt x 2 array")
 
+  # Check a and tau are same size
+  if a.ndim != 1:
+    raise ValueError("a should be a 1D array")
+  if tau.ndim != 1:
+    raise ValueError("tau should be a 1D array")
+  if len(a) != len(tau):
+    raise ValueError("a and tau should be the same size")
+  print np.sum(a)
+  if not np.isclose(np.sum(a), 1.0):
+    raise ValueError("a should sum to one")
+
   F = np.zeros((nt, nF))
   C_acc = np.zeros(nt)
   iirf = np.zeros(nt)
