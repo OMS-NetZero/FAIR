@@ -18,7 +18,8 @@ def _import_emis_file(rcp):
 
 def scen_open(filename,
               include_cfcs='rcp45',
-              startyear=1765):
+              startyear=1765,
+              harmonise=2005):
 
     """
     Opens a MAGICC6 .SCEN file and extracts the data. Interpolates linearly
@@ -38,6 +39,9 @@ def scen_open(filename,
             - Provide an array to tack your own chlorinated gases onto the SCEN
         startyear: First year of output file. If before first year of the SCEN
             file, use RCP4.5 to fill
+        harmonise: None, or year
+            Linearly interpolate between 2000 in the RCP file and the specified
+            year. If None, do not harmonise
 
     Returns: 
         nt x 40 numpy emissions array
@@ -116,5 +120,20 @@ def scen_open(filename,
             else:
                 rcp_all = np.array([rcp_emis[mapping[key],:] for key in rcp_years])
             emissions_filled = np.insert(emissions_filled, 0, rcp_all, axis=0)
+
+        # harmonise?
+        if harmonise is not None:
+            harmonise = int(harmonise)
+            if harmonise < 2000:
+                raise ValueError("Cannot harmonise before 2000.")
+            elif harmonise > scen_years[-1]:
+                 raise ValueError("Cannot harmonise after last year of "      +
+                 "input dataset")
+            rcp_emis_2000 = rcp_emis[2000-startyear,:]
+            for j in range(1,emissions_filled.shape[1]):
+                f = interp1d((2000,harmonise), (rcp_emis_2000[j],
+                    emissions_filled[harmonise-startyear,j]))
+                emissions_filled[2000-startyear:harmonise-startyear,j] = f(
+                    np.arange(2000,harmonise))
 
     return emissions_filled
