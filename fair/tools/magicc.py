@@ -19,7 +19,7 @@ def _import_emis_file(rcp):
 def scen_open(filename,
               include_cfcs='rcp45',
               startyear=1765,
-              harmonise=2005):
+              harmonise=None):
 
     """
     Opens a MAGICC6 .SCEN file and extracts the data. Interpolates linearly
