@@ -199,8 +199,9 @@ def fair_scm(emissions=False,
 
     # Tropospheric ozone: 
     if useStevenson:
-      F[0,4] = ozone_tr.stevenson(C[0,1], emissions[0,6], emissions[0,7],
-        emissions[0,8], C_CH4pi=C_pi[1], T=np.sum(T_j[0,:]))
+      F[0,4] = ozone_tr.stevenson(emissions[0,0], C[0,1], emissions[0,6],
+        emissions[0,7], emissions[0,8], T=np.sum(T_j[0,:]), feedback=True,
+        fix_pre1850_RCP=True)
     else:
       F[0,4] = ozone_tr.regress(emissions[0,3], emissions[0,6], emissions[0,7],
         emissions[0,8], beta=b_tro3)
@@ -301,8 +302,9 @@ def fair_scm(emissions=False,
       F[t,0:3] = ghg(C[t,0:3], C_pi[0:3], F2x=F2x)
       F[t,3] = np.sum((C[t,3:] - C_pi[3:]) * radeff.aslist[3:] * 0.001)
       if useStevenson:
-        F[t,4] = ozone_tr.stevenson(C[t,1], emissions[t,6], emissions[t,7], 
-          emissions[t,8], C_CH4pi=C_pi[1], T=T[t-1])
+        F[t,4] = ozone_tr.stevenson(emissions[t,0], C[t,1], emissions[t,6],
+          emissions[t,7], emissions[t,8], T=T[t-1], feedback=True,
+          fix_pre1850_RCP=True)
       else:
         F[t,4] = ozone_tr.regress(emissions[t,3], emissions[t,6],
           emissions[t,7], emissions[t,8], beta=b_tro3)

@@ -20,3 +20,6 @@
 
 # autosaved python version of index.ipynb
 index.py
+
+# vim autosave files
+*.swp
