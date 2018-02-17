@@ -195,3 +195,23 @@ def test_timevarying_ecs():
         emissions=emissions,
         tcrecs=tcrecs
     )
+
+
+def test_varyinglifetime():
+    C, F, _ = fair.forward.fair_scm(
+        emissions=fair.RCPs.rcp85.Emissions.emissions,
+        useMultigas=True,
+        useVariableCH4 = True
+    )
+    assert (C[:,1]==np.zeros(736)).all()
+
+
+def test_stevenson():
+    o3tr = np.loadtxt('tests/rcp85/stevenson.txt')
+    _, F, _ = fair.forward.fair_scm(
+        emissions=fair.RCPs.rcp85.Emissions.emissions,
+        useMultigas=True,
+        useStevenson = True
+    )
+    assert (F[:,4]==o3tr).all()
+

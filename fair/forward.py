@@ -45,6 +45,8 @@ def fair_scm(emissions=False,
              stwv_from_ch4=None,
              b_aero = np.array([-5.66e-3,-2.62e-3,14.28e-3,-8.90e-3,-5.89e-3]),
              b_tro3 = np.array([2.8249e-4, 1.0695e-4, -9.3604e-4, 99.7831e-4]),
+             useVariableCH4=False,
+             useStevenson=False,
             ):
 
   # Conversion between ppm CO2 and GtC emissions
@@ -156,7 +158,6 @@ def fair_scm(emissions=False,
     raise ValueError("tau should be a 1D array")
   if len(a) != len(tau):
     raise ValueError("a and tau should be the same size")
-  print np.sum(a)
   if not np.isclose(np.sum(a), 1.0):
     raise ValueError("a should sum to one")
 
@@ -196,9 +197,13 @@ def fair_scm(emissions=False,
     # in W/m2/ppb and concentrations of minor gases are in ppt.
     F[0,3] = np.sum((C[0,3:] - C_pi[3:]) * radeff.aslist[3:] * 0.001)
 
-    # Tropospheric ozone. Assuming no temperature/chemistry feedback it can live
-    # outside the forward model.
-    F[:,4] = ozone_tr.regress(emissions, beta=b_tro3)
+    # Tropospheric ozone: 
+    if useStevenson:
+      F[0,4] = ozone_tr.stevenson(C[0,1], emissions[0,6], emissions[0,7],
+        emissions[0,8], C_CH4pi=C_pi[1], T=np.sum(T_j[0,:]))
+    else:
+      F[0,4] = ozone_tr.regress(emissions[0,3], emissions[0,6], emissions[0,7],
+        emissions[0,8], beta=b_tro3)
 
     # Stratospheric ozone depends on concentrations of ODSs (index 15-30)
     F[0,5] = ozone_st.magicc(C[0,15:], C_pi[15:])
@@ -295,6 +300,12 @@ def fair_scm(emissions=False,
       # 2. Radiative forcing
       F[t,0:3] = ghg(C[t,0:3], C_pi[0:3], F2x=F2x)
       F[t,3] = np.sum((C[t,3:] - C_pi[3:]) * radeff.aslist[3:] * 0.001)
+      if useStevenson:
+        F[t,4] = ozone_tr.stevenson(C[t,1], emissions[t,6], emissions[t,7], 
+          emissions[t,8], C_CH4pi=C_pi[1], T=T[t-1])
+      else:
+        F[t,4] = ozone_tr.regress(emissions[t,3], emissions[t,6],
+          emissions[t,7], emissions[t,8], beta=b_tro3)
       F[t,5] = ozone_st.magicc(C[t,15:], C_pi[15:])
       F[t,6] = h2o_st.linear(F[t,1], ratio=stwv_from_ch4)
 
