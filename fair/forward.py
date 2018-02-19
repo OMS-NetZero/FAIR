@@ -45,7 +45,6 @@ def fair_scm(emissions=False,
              stwv_from_ch4=None,
              b_aero = np.array([-5.66e-3,-2.62e-3,14.28e-3,-8.90e-3,-5.89e-3]),
              b_tro3 = np.array([2.8249e-4, 1.0695e-4, -9.3604e-4, 99.7831e-4]),
-             useVariableCH4=False,
              useStevenson=False,
             ):
 
