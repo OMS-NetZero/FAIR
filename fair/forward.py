@@ -3,6 +3,7 @@ from __future__ import division
 import inspect
 import numpy as np
 from scipy.optimize import root
+from .ancil import natural
 from .constants import molwt, lifetime, radeff
 from .constants.general import M_ATMOS
 from .forcing import ozone_tr, ozone_st, h2o_st, contrails, aerosols, bc_snow,\
@@ -35,7 +36,7 @@ def fair_scm(emissions=False,
              F_solar=0.0,
              aviNOx_frac=0.,
              fossilCH4_frac=0.,
-             natural=np.array([202., 10.]),
+             natural=natural.Emissions.emissions,
              useStevens=False,
              efficacy=np.array([1.]*13),
              scale=np.array([1.]*13),
@@ -97,6 +98,23 @@ def fair_scm(emissions=False,
     else:
       raise ValueError("ghg_forcing should be 'etminan' (default) or 'myhre'")
       
+    # Check natural emissions and convert to 2D array if necessary
+    if type(natural) in [float,int]:
+      natural = natural * np.ones((nt,2))
+    elif type(natural) is np.ndarray:
+      if natural.ndim==1:
+        if natural.shape[0]!=2:
+          raise ValueError(
+            "natural emissions should be a 2-element or nt x 2 array")
+        natural = np.tile(natural, nt).reshape((nt,2))
+      elif natural.ndim==2:
+        if natural.shape[1]!=2 or natural.shape[0]!=nt:
+          raise ValueError(
+            "natural emissions should be a 2-element or nt x 2 array")
+    else:
+      raise ValueError(
+        "natural emissions should be a scalar, 2-element, or nt x 2 array")
+
   else:
     ngas = 1
     nF   = 1
@@ -132,23 +150,6 @@ def fair_scm(emissions=False,
         raise ValueError("Transient TCR and ECS should be a nt x 2 array")
     q  = (1.0 / F2x) * (1.0/(k[0]-k[1])) * np.array([
       tcrecs[:,0]-tcrecs[:,1]*k[1],tcrecs[:,1]*k[0]-tcrecs[:,0]]).T
-
-  # Check natural emissions and convert to 2D array if necessary
-  if type(natural) in [float,int]:
-    natural = natural * np.ones((nt,2))
-  elif type(natural) is np.ndarray:
-    if natural.ndim==1:
-      if natural.shape[0]!=2:
-        raise ValueError(
-          "natural emissions should be a 2-element or nt x 2 array")
-      natural = np.tile(natural, nt).reshape((nt,2))
-    elif natural.ndim==2:
-      if natural.shape[1]!=2 or natural.shape[0]!=nt:
-        raise ValueError(
-          "natural emissions should be a 2-element or nt x 2 array")
-  else:
-    raise ValueError(
-      "natural emissions should be a scalar, 2-element, or nt x 2 array")
 
   # Check a and tau are same size
   if a.ndim != 1:
