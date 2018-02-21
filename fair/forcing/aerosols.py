@@ -2,6 +2,7 @@ from __future__ import division
 
 import pickle
 import os
+import sys
 import numpy as np
 from scipy.interpolate import Rbf
 from ..constants import molwt
@@ -121,7 +122,10 @@ def ghan_indirect_emulator(emissions, fix_pre1850_RCP=True,
     RBFfile = open(os.path.join(os.path.dirname(__file__),
         'ghan_emulator.pickle'),'rb')
     RBFunpickler = pickle.Unpickler(RBFfile)
-    RBFdict = RBFunpickler.load(encoding='latin1')
+    if sys.version_info > (3,0):
+        RBFdict = RBFunpickler.load(encoding='latin1')
+    else:
+        RBFdict = RBFunpickler.load()
     RBFfile.close()
 
     # This is a dummy but creates an Rbf with 4 predictors and a response
