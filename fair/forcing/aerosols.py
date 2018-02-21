@@ -121,11 +121,11 @@ def ghan_indirect_emulator(emissions, fix_pre1850_RCP=True,
     # http://atucla.blogspot.co.uk/2016/01/save-and-load-rbf-object-fromto-file.html
     RBFfile = open(os.path.join(os.path.dirname(__file__),
         'ghan_emulator.pickle'),'rb')
-    RBFunpickler = pickle.Unpickler(RBFfile)
     if sys.version_info > (3,0):
-        RBFdict = RBFunpickler.load(encoding='latin1')
+        RBFunpickler = pickle.Unpickler(RBFfile, encoding='latin1')
     else:
-        RBFdict = RBFunpickler.load()
+        RBFunpickler = pickle.Unpickler(RBFfile)
+    RBFdict = RBFunpickler.load()
     RBFfile.close()
 
     # This is a dummy but creates an Rbf with 4 predictors and a response
