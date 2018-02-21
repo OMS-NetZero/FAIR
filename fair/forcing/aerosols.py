@@ -133,7 +133,7 @@ def ghan_indirect_emulator(emissions, fix_pre1850_RCP=True,
         np.array([100,200,300]), np.array([1000,2000,3000]),
         function = RBFdict['function'])
 
-    for key, value in RBFdict.iteritems():
+    for key, value in RBFdict.items():
         ghan_emulator.__setattr__(key,value) 
 
     # PI forcing was not zero as there were some emissions. Use estimates
