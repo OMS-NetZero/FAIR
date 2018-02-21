@@ -36,7 +36,7 @@ def test_ten_GtC_pulse():
         other_rf[x] = 0.5*np.sin(2*np.pi*(x)/14.0)
 
     C,F,T = fair.forward.fair_scm(
-        emissions=emissions, other_rf=other_rf, useMultigas=False, F2x=3.74, 
+        emissions=emissions, other_rf=other_rf, useMultigas=False, 
         r0=32.4, tcr_dbl=70)
 
     datadir = os.path.join(os.path.dirname(__file__), 'ten_GtC_pulse/')
@@ -222,3 +222,17 @@ def test_ozone_stevenson_zero_nofix():
     # won't be exactly zero due to numerical precision in eyeballing natural
     # CH4 to balance
     assert np.allclose(F[:,4],np.zeros(736))
+
+
+# Test if changing the scale factor for CO2 forcing feeds through to 
+# temperature and forcing 
+def test_co2_scale():
+    emissions = fair.RCPs.rcp85.Emissions.emissions
+    scale = np.ones(13)
+    scale[0] = 1.15
+    C1, F1, T1 = fair.forward.fair_scm(emissions)
+    C2, F2, T2 = fair.forward.fair_scm(emissions, scale=scale)
+    assert (C2[:,0]  >= C1[:,0]).all()
+    assert (C2[:,1:] == C1[:,1:]).all()
+    assert (F2[:,0]  >= F1[:,0]).all()
+    assert (T2 >= T1).all()

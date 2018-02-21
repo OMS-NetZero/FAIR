@@ -1,2 +1,3 @@
 include versioneer.py
 include fair/_version.py
+include fair/forcing/aerosols_sample*.txt
