@@ -1,7 +1,8 @@
 from __future__ import division
 
-import numpy as np
+import cPickle
 import os
+import numpy as np
 from scipy.interpolate import Rbf
 from ..constants import molwt
 
@@ -113,17 +114,23 @@ def ghan_indirect_emulator(emissions, fix_pre1850_RCP=True,
         Forcing timeseries
     """
 
-    sampleE = np.loadtxt(os.path.join(os.path.dirname(__file__),
-        'aerosols_sampleE.txt'))
-    sampleF = np.loadtxt(os.path.join(os.path.dirname(__file__),
-        'aerosols_sampleF.txt'))
-    s_sox, s_nmvoc, s_bc, s_oc = sampleE.T
     year, em_SOx, em_NMVOC, em_BC, em_OC = emissions[:,[0, 5, 7, 9, 10]].T
 
-    # Elimiate NaNs and build radial basis function from valid points
-    bad = np.isnan(sampleF)
-    ghan_emulator = Rbf(s_sox[~bad], s_nmvoc[~bad], s_bc[~bad], s_oc[~bad], 
-        sampleF[~bad])
+    # load up prepared radial basis function. Thanks to
+    # http://atucla.blogspot.co.uk/2016/01/save-and-load-rbf-object-fromto-file.html
+    RBFfile = open(os.path.join(os.path.dirname(__file__),
+        'ghan_emulator.pickle'),'rb')
+    RBFunpickler = cPickle.Unpickler(RBFfile)
+    RBFdict = RBFunpickler.load()
+    RBFfile.close()
+
+    # This is a dummy but creates an Rbf with 4 predictors and a response
+    ghan_emulator = Rbf(np.array([1,2,3]), np.array([10,20,30]), 
+        np.array([100,200,300]), np.array([1000,2000,3000]),
+        function = RBFdict['function'])
+
+    for key, value in RBFdict.iteritems():
+        ghan_emulator.__setattr__(key,value) 
 
     # PI forcing was not zero as there were some emissions. Use estimates
     # from Skeie et al, 2011 for 1750 forcing. NMVOC is estimated as half of
