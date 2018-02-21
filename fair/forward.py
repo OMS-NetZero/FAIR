@@ -3,51 +3,57 @@ from __future__ import division
 import inspect
 import numpy as np
 from scipy.optimize import root
-from .ancil import natural
+from .ancil import natural, cmip6_volcanic, cmip6_solar
 from .constants import molwt, lifetime, radeff
 from .constants.general import M_ATMOS
 from .forcing import ozone_tr, ozone_st, h2o_st, contrails, aerosols, bc_snow,\
                      landuse
+
 
 def iirf_interp_funct(alp_b,a,tau,targ_iirf):
 	# ref eq. (7) of Millar et al ACP (2017)
     iirf_arr = alp_b*(np.sum(a*tau*(1.0 - np.exp(-100.0/(tau*alp_b)))))
     return iirf_arr   -  targ_iirf
 
-def fair_scm(emissions=False,
-             other_rf=0.0,
-             q=np.array([0.33,0.41]),
-             tcrecs=np.array([1.6,2.75]),
-             d=np.array([239.0,4.1]),
-             a=np.array([0.2173,0.2240,0.2824,0.2763]),
-             tau=np.array([1000000,394.4,36.54,4.304]),
-             r0=32.40,
-             rc=0.019,
-             rt=4.165,
-             F2x=3.74,
-             C_pi=np.array([278., 722., 273., 34.497] + [0.]*25 +
-                          [13.0975, 547.996]),
-             iirf_max=97.0,
-             restart_in=False,
-             restart_out=False,
-             useMultigas=False,
-             tcr_dbl=70.0,
-             F_volcanic=0.0,
-             F_solar=0.0,
-             aviNOx_frac=0.,
-             fossilCH4_frac=0.,
-             natural=natural.Emissions.emissions,
-             useStevens=False,
-             efficacy=np.array([1.]*13),
-             scale=np.array([1.]*13),
-             oxCH4_frac=0.61,
-             lifetimes=False,
-             ghg_forcing="Etminan",
-             stwv_from_ch4=None,
-             b_aero = np.array([-5.66e-3,-2.62e-3,14.28e-3,-8.90e-3,-5.89e-3]),
-             b_tro3 = np.array([2.8249e-4, 1.0695e-4, -9.3604e-4, 99.7831e-4]),
-             useStevenson=False,
-            ):
+
+def fair_scm(
+    emissions=False,
+    other_rf=0.0,
+    q=np.array([0.33,0.41]),
+    tcrecs=np.array([1.6,2.75]),
+    d=np.array([239.0,4.1]),
+    a=np.array([0.2173,0.2240,0.2824,0.2763]),
+    tau=np.array([1000000,394.4,36.54,4.304]),
+    r0=35.0,
+    rc=0.019,
+    rt=4.165,
+    F2x=3.802,
+    iirf_max=97.0,
+    tcr_dbl=69.661,
+    C_pi=np.array([278., 722., 273., 34.497] + [0.]*25 + [13.0975, 547.996]),
+    restart_in=False,
+    restart_out=False,
+    F_volcanic=cmip6_volcanic.Forcing.volcanic,
+    F_solar=cmip6_solar.Forcing.solar,
+    aviNOx_frac=0.,
+    fossilCH4_frac=0.,
+    natural=natural.Emissions.emissions,
+    efficacy=np.array([1.]*13),
+    scale=np.array([1.]*13),
+    oxCH4_frac=0.61,
+    ghg_forcing="Etminan",
+    stwv_from_ch4=None,
+    b_aero = np.array([-35.29e-4, 0.0, -5.034e-4, -5.763e-4, 453e-4,
+        -37.83e-4, -10.35e-4]),
+    b_tro3 = np.array([2.8249e-4, 1.0695e-4, -9.3604e-4, 99.7831e-4]),
+    useMultigas=True,
+    useStevenson=True,
+    lifetimes=False,
+    aerosol_forcing="aerocom+ghan",
+    scaleAerosolAR5=True,
+    fixPre1850RCP=True,
+    useTropO3TFeedback=True,
+    ):
 
   # Conversion between ppm CO2 and GtC emissions
   ppm_gtc   = M_ATMOS/1e18*molwt.C/molwt.AIR
@@ -199,12 +205,10 @@ def fair_scm(emissions=False,
 
     # Tropospheric ozone: 
     if useStevenson:
-      F[0,4] = ozone_tr.stevenson(emissions[0,0], C[0,1], emissions[0,6],
-        emissions[0,7], emissions[0,8], T=np.sum(T_j[0,:]), feedback=True,
-        fix_pre1850_RCP=True)
+      F[0,4] = ozone_tr.stevenson(emissions[0,:], C[0,1], T=np.sum(T_j[0,:]),
+        feedback=useTropO3TFeedback, fix_pre1850_RCP=fixPre1850RCP)
     else:
-      F[0,4] = ozone_tr.regress(emissions[0,3], emissions[0,6], emissions[0,7],
-        emissions[0,8], beta=b_tro3)
+      F[0,4] = ozone_tr.regress(emissions[0,:], beta=b_tro3)
 
     # Stratospheric ozone depends on concentrations of ODSs (index 15-30)
     F[0,5] = ozone_st.magicc(C[0,15:], C_pi[15:])
@@ -212,14 +216,22 @@ def fair_scm(emissions=False,
     # Stratospheric water vapour is a function of the methane radiative forcing
     F[0,6] = h2o_st.linear(F[0,1], ratio=stwv_from_ch4)
 
-    # Forcing from contrails. As with tr O3, no feedback dependence
+    # Forcing from contrails. No climate feedback so can live outside of forward
+    # model
     F[:,7] = contrails.from_aviNOx(emissions, aviNOx_frac)
 
     # Forcing from aerosols - again no feedback dependence
-    if useStevens:
+    if aerosol_forcing.lower()=='stevens':
       F[:,8] = aerosols.Stevens(emissions)
+    elif 'aerocom' in aerosol_forcing.lower():
+      F[:,8] = aerosols.aerocom_direct(emissions, beta=b_aero,
+        scale_AR5=scaleAerosolAR5)
+      if 'ghan' in aerosol_forcing.lower():
+        F[:,8] = F[:,8] + aerosols.ghan_indirect_emulator(emissions,
+          scale_AR5=scaleAerosolAR5)
     else:
-      F[:,8] = aerosols.regress(emissions, beta=b_aero)
+      raise ValueError("aerosol_forcing should be one of 'stevens', "+
+        "aerocom, aerocom+ghan")
 
     # Black carbon on snow - no feedback dependence
     F[:,9] = bc_snow.linear(emissions)
@@ -302,12 +314,10 @@ def fair_scm(emissions=False,
       F[t,0:3] = ghg(C[t,0:3], C_pi[0:3], F2x=F2x)
       F[t,3] = np.sum((C[t,3:] - C_pi[3:]) * radeff.aslist[3:] * 0.001)
       if useStevenson:
-        F[t,4] = ozone_tr.stevenson(emissions[t,0], C[t,1], emissions[t,6],
-          emissions[t,7], emissions[t,8], T=T[t-1], feedback=True,
-          fix_pre1850_RCP=True)
+        F[t,4] = ozone_tr.stevenson(emissions[t,:], C[t,1], T=T[t-1], 
+          feedback=useTropO3TFeedback, fix_pre1850_RCP=fixPre1850RCP)
       else:
-        F[t,4] = ozone_tr.regress(emissions[t,3], emissions[t,6],
-          emissions[t,7], emissions[t,8], beta=b_tro3)
+        F[t,4] = ozone_tr.regress(emissions[t,:], beta=b_tro3)
       F[t,5] = ozone_st.magicc(C[t,15:], C_pi[15:])
       F[t,6] = h2o_st.linear(F[t,1], ratio=stwv_from_ch4)
 

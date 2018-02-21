@@ -5,11 +5,8 @@ import os
 import numpy as np
 from fair.RCPs import rcp3pd, rcp45, rcp6, rcp85
 from fair.tools import magicc
-
-
-def test_import():
-    version = fair.__version__
-    assert version[:3] == '1.1'
+from fair.ancil import natural
+from fair.constants import molwt
 
 
 def test_no_arguments():
@@ -20,10 +17,15 @@ def test_no_arguments():
 def test_zero_emissions():
     nt = 250
     emissions = np.zeros(nt)
-    C,F,T = fair.forward.fair_scm(emissions=emissions, other_rf=0.)
+    C,F,T = fair.forward.fair_scm(
+        emissions=emissions, other_rf=0., useMultigas=False)
     assert np.allclose(C,np.ones(nt)*278.)
     assert np.allclose(F,np.zeros(nt))
     assert np.allclose(T,np.zeros(nt))
+
+
+# Rather than change the testing values, I am going to check the old results
+# can still be recreated with non-default options.
 
 
 def test_ten_GtC_pulse():
@@ -33,7 +35,9 @@ def test_ten_GtC_pulse():
     for x in range(0,emissions.size):
         other_rf[x] = 0.5*np.sin(2*np.pi*(x)/14.0)
 
-    C,F,T = fair.forward.fair_scm(emissions=emissions, other_rf=other_rf)
+    C,F,T = fair.forward.fair_scm(
+        emissions=emissions, other_rf=other_rf, useMultigas=False, F2x=3.74, 
+        r0=32.4, tcr_dbl=70)
 
     datadir = os.path.join(os.path.dirname(__file__), 'ten_GtC_pulse/')
     C_expected = np.load(datadir + 'C.npy')
@@ -47,14 +51,13 @@ def test_ten_GtC_pulse():
 
 def test_multigas_fullemissions_error():
     with pytest.raises(ValueError):
-        fair.forward.fair_scm(emissions=rcp3pd.Emissions.emissions)
+        fair.forward.fair_scm(emissions=rcp3pd.Emissions.emissions,
+            useMultigas=False)
 
 
 # There must be a good way to avoid duplication here
 def test_rcp3pd():
-    C,F,T = fair.forward.fair_scm(emissions=rcp3pd.Emissions.emissions,
-        useMultigas=True)
-
+    C,F,T = fair.forward.fair_scm(emissions=rcp3pd.Emissions.emissions)
     datadir = os.path.join(os.path.dirname(__file__), 'rcp3pd/')
     C_expected = np.load(datadir + 'C.npy')
     F_expected = np.load(datadir + 'F.npy')
@@ -66,9 +69,7 @@ def test_rcp3pd():
 
 
 def test_rcp45():
-    C,F,T = fair.forward.fair_scm(emissions=rcp45.Emissions.emissions,
-        useMultigas=True)
-
+    C,F,T = fair.forward.fair_scm(emissions=rcp45.Emissions.emissions)
     datadir = os.path.join(os.path.dirname(__file__), 'rcp45/')
     C_expected = np.load(datadir + 'C.npy')
     F_expected = np.load(datadir + 'F.npy')
@@ -80,9 +81,7 @@ def test_rcp45():
 
 
 def test_rcp6():
-    C,F,T = fair.forward.fair_scm(emissions=rcp6.Emissions.emissions,
-        useMultigas=True)
-
+    C,F,T = fair.forward.fair_scm(emissions=rcp6.Emissions.emissions)
     datadir = os.path.join(os.path.dirname(__file__), 'rcp6/')
     C_expected = np.load(datadir + 'C.npy')
     F_expected = np.load(datadir + 'F.npy')
@@ -94,9 +93,7 @@ def test_rcp6():
 
 
 def test_rcp85():
-    C,F,T = fair.forward.fair_scm(emissions=rcp85.Emissions.emissions,
-        useMultigas=True)
-
+    C,F,T = fair.forward.fair_scm(emissions=rcp85.Emissions.emissions)
     datadir = os.path.join(os.path.dirname(__file__), 'rcp85/')
     C_expected = np.load(datadir + 'C.npy')
     F_expected = np.load(datadir + 'F.npy')
@@ -165,11 +162,20 @@ def test_strat_h2o_scale_factor():
     assert np.allclose(F1[:,6],F2[:,6]*0.8)
 
 
-def test_aerosol_regression_zeros():
+def test_aerosol_regression_zeros_fix():
     _, F, _ = fair.forward.fair_scm(
         emissions=fair.RCPs.rcp85.Emissions.emissions,
-        useMultigas=True,
-        b_aero = np.zeros(5)
+        b_aero = np.zeros(7)
+    )
+    # Index 7 is aerosol forcing
+    assert (F[:,7]==np.zeros(736)).all()
+
+
+def test_aerosol_regression_zeros_nofix():
+    _, F, _ = fair.forward.fair_scm(
+        emissions=fair.RCPs.rcp85.Emissions.emissions,
+        b_aero = np.zeros(7),
+        fixPre1850RCP=False
     )
     # Index 7 is aerosol forcing
     assert (F[:,7]==np.zeros(736)).all()
@@ -178,7 +184,7 @@ def test_aerosol_regression_zeros():
 def test_ozone_regression_zero():
     _, F, _ = fair.forward.fair_scm(
         emissions=fair.RCPs.rcp85.Emissions.emissions,
-        useMultigas=True,
+        useStevenson=False,
         b_tro3 = np.zeros(4)
     )
     # Index 4 is ozone forcing
@@ -193,16 +199,26 @@ def test_timevarying_ecs():
     tcrecs = np.vstack((tcr,ecs)).T
     C,F,T = fair.forward.fair_scm(
         emissions=emissions,
-        tcrecs=tcrecs
+        tcrecs=tcrecs,
+        useMultigas=False
     )
 
 
-def test_stevenson():
-    o3tr = np.loadtxt('tests/rcp85/stevenson.txt')
+def test_ozone_stevenson_zero_nofix():
+    emissions = fair.RCPs.rcp85.Emissions.emissions
+    # zero all emissions except methane which we fix to pi steady state and
+    # CO, NMVOC and NOx which we fix to 1750 anthro values from Skeie et al
+    emissions[:,1:] = 0
+    emissions[:,3] = 209.279889
+    emissions[:,6] = 170.
+    emissions[:,7] = 10.
+    emissions[:,8] = 4.29 * molwt.N / molwt.NO
     _, F, _ = fair.forward.fair_scm(
-        emissions=fair.RCPs.rcp85.Emissions.emissions,
-        useMultigas=True,
-        useStevenson = True
-    )
-    assert (F[:,4]==o3tr).all()
+        emissions=emissions,
+        natural=0,
+        fixPre1850RCP=False,
+        useTropO3TFeedback=False)
 
+    # won't be exactly zero due to numerical precision in eyeballing natural
+    # CH4 to balance
+    assert np.allclose(F[:,4],np.zeros(736))
