@@ -1,6 +1,6 @@
 from __future__ import division
 
-import cPickle
+import pickle
 import os
 import numpy as np
 from scipy.interpolate import Rbf
@@ -120,7 +120,7 @@ def ghan_indirect_emulator(emissions, fix_pre1850_RCP=True,
     # http://atucla.blogspot.co.uk/2016/01/save-and-load-rbf-object-fromto-file.html
     RBFfile = open(os.path.join(os.path.dirname(__file__),
         'ghan_emulator.pickle'),'rb')
-    RBFunpickler = cPickle.Unpickler(RBFfile)
+    RBFunpickler = pickle.Unpickler(RBFfile)
     RBFdict = RBFunpickler.load()
     RBFfile.close()
 
