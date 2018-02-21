@@ -121,7 +121,7 @@ def ghan_indirect_emulator(emissions, fix_pre1850_RCP=True,
     RBFfile = open(os.path.join(os.path.dirname(__file__),
         'ghan_emulator.pickle'),'rb')
     RBFunpickler = pickle.Unpickler(RBFfile)
-    RBFdict = RBFunpickler.load()
+    RBFdict = RBFunpickler.load(encoding='latin1')
     RBFfile.close()
 
     # This is a dummy but creates an Rbf with 4 predictors and a response
