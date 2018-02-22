@@ -196,7 +196,7 @@ def fair_scm(
     C[0,1:] = C_0[1:]
 
     # CO2, CH4 and methane are co-dependent
-    F[0,0:3] = ghg(C[0,0:3]+np.array([C_pi[0],0,0]), C_pi[0:3])
+    F[0,0:3] = ghg(C[0,0:3]+np.array([C_pi[0],0,0]), C_pi[0:3], F2x=F2x)
 
     # Minor (F- and H-gases) are linear in concentration
     # the factor of 0.001 here is because radiative efficiencies are given
@@ -244,10 +244,10 @@ def fair_scm(
     F[:,11] = F_volcanic
     F[:,12] = F_solar
 
-    # multiply by scale factors
-    F[0,:] = F[0,:] * scale
+    # multiply by scale factors for non-CO2 forcing
+    F[0,1:] = F[0,1:] * scale[1:]
 
-  else:
+  else: # this needs to be included in the forcing.ghg module really
     if np.isscalar(other_rf):
       F[0,0] = (F2x/np.log(2.)) * np.log(
         (C[0,0] + C_pi[0]) / C_pi[0]) + other_rf
@@ -311,7 +311,7 @@ def fair_scm(
         emissions[t,12:] + emissions[t-1,12:])) / emis2conc[3:]
 
       # 2. Radiative forcing
-      F[t,0:3] = ghg(C[t,0:3]+np.array([C_pi[0],0,0]), C_pi[0:3])
+      F[t,0:3] = ghg(C[t,0:3]+np.array([C_pi[0],0,0]), C_pi[0:3], F2x=F2x)
       F[t,3] = np.sum((C[t,3:] - C_pi[3:]) * radeff.aslist[3:] * 0.001)
       if useStevenson:
         F[t,4] = ozone_tr.stevenson(emissions[t,:], C[t,1], T=T[t-1], 
@@ -321,8 +321,8 @@ def fair_scm(
       F[t,5] = ozone_st.magicc(C[t,15:], C_pi[15:])
       F[t,6] = h2o_st.linear(F[t,1], ratio=stwv_from_ch4)
 
-      # multiply by scale factors
-      F[t,:] = F[t,:] * scale
+      # multiply non-CO2 forcing by scale factors
+      F[t,1:] = F[t,1:] * scale[1:]
 
       # 3. Temperature
       # Update the thermal response boxes
