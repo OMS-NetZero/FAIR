@@ -3,6 +3,7 @@ import pytest
 import fair
 import os
 import numpy as np
+from numpy.testing import assert_allclose
 from fair.RCPs import rcp3pd, rcp45, rcp6, rcp85
 from fair.tools import magicc
 from fair.ancil import natural
@@ -36,7 +37,7 @@ def test_ten_GtC_pulse():
         other_rf[x] = 0.5*np.sin(2*np.pi*(x)/14.0)
 
     C,F,T = fair.forward.fair_scm(
-        emissions=emissions, other_rf=other_rf, useMultigas=False, 
+        emissions=emissions, other_rf=other_rf, useMultigas=False,
         r0=32.4, tcr_dbl=70)
 
     datadir = os.path.join(os.path.dirname(__file__), 'ten_GtC_pulse/')
@@ -119,17 +120,17 @@ def test_division():
         d=np.array([239, 4]),
         tcr_dbl=70
     )
-    assert (T == T_int_params).all()
+    assert_allclose(T, T_int_params)
 
 
 def test_scenfile():
     datadir = os.path.join(os.path.dirname(__file__), 'rcp45/')
     # Purpose of this test is to determine whether the SCEN file for RCP4.5
-    # which does not include CFCs, years before 2000, or emissions from every 
-    # year from 2000 to 2500, equals the emissions file from RCP4.5 
+    # which does not include CFCs, years before 2000, or emissions from every
+    # year from 2000 to 2500, equals the emissions file from RCP4.5
     # after reconstruction.
     # The .SCEN and .XLS files at http://www.pik-potsdam.de/~mmalte/rcps
-    # sometimes differ in the 4th decimal place. Thus we allow a tolerance of 
+    # sometimes differ in the 4th decimal place. Thus we allow a tolerance of
     # 0.0002 in addition to machine error in this instance.
 
     E1 = magicc.scen_open(datadir + 'RCP45.SCEN')
@@ -224,8 +225,8 @@ def test_ozone_stevenson_zero_nofix():
     assert np.allclose(F[:,4],np.zeros(736))
 
 
-# Test if changing the scale factor for CO2 forcing feeds through to 
-# temperature and forcing 
+# Test if changing the scale factor for CO2 forcing feeds through to
+# temperature and forcing
 def test_co2_scale():
     emissions = fair.RCPs.rcp85.Emissions.emissions
     scale = np.ones(13)
@@ -233,6 +234,6 @@ def test_co2_scale():
     C1, F1, T1 = fair.forward.fair_scm(emissions)
     C2, F2, T2 = fair.forward.fair_scm(emissions, scale=scale)
     assert (C2[:,0]  >= C1[:,0]).all()
-    assert (C2[:,1:] == C1[:,1:]).all()
+    assert_allclose(C2[:,1:], C1[:,1:])
     assert (F2[:,0]  >= F1[:,0]).all()
     assert (T2 >= T1).all()
