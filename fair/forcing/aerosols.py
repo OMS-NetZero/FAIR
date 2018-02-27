@@ -67,14 +67,19 @@ def aerocom_direct(emissions, beta = np.array(
     F_SOx    = beta[0] * em_SOx    * molwt.SO2 / molwt.S
     F_CO     = beta[1] * em_CO
     F_NMVOC  = beta[2] * em_NMVOC
-    F_NOx    = beta[3] * em_NOx    * molwt.NO / molwt.S
+    F_NOx    = beta[3] * em_NOx    * molwt.NO / molwt.N
     F_BC     = beta[4] * em_BC
     F_OC     = beta[5] * em_OC
     F_NH3    = beta[6] * em_NH3
 
     F = F_SOx+F_CO+F_NMVOC+F_NOx+F_BC+F_OC+F_NH3
 
-    return 1.500 * scale_AR5 * F
+    if scale_AR5:
+        scale=1.3741
+    else:
+        scale=1.0
+
+    return scale * F
 
 
 def ghan_indirect_emulator(emissions, fix_pre1850_RCP=True,
@@ -164,4 +169,9 @@ def ghan_indirect_emulator(emissions, fix_pre1850_RCP=True,
                                       1.2+em_BC/3.09855*(3.09855-1.2),
                                       10+em_OC/22.0414*(22.0414-10))
 
-    return 0.392 * scale_AR5 * (F_pdtotal-F_1750)
+    if scale_AR5:
+        scale=0.392
+    else:
+        scale=1.0
+
+    return scale * (F_pdtotal-F_1750)

@@ -70,7 +70,7 @@ def stevenson(emissions, C_CH4, T=0, feedback=False, fix_pre1850_RCP=False):
     for i in range(nt):
         if year[i]>=1850 or fix_pre1850_RCP==False:
             F_CH4[i]   = 0.166/960    * (C_CH4[i]-722)
-            F_CO[i]    = 0.058/893.39 * (em_CO[i]-170)
+            F_CO[i]    = 0.058/681.8 * (em_CO[i]-170)
             F_NMVOC[i] = 0.035/155.84 * (em_NMVOC[i]-10)
             F_NOx[i]   = 0.119/61.16  * (em_NOx[i] * 
                 molwt.NO / molwt.N - 4.29)
@@ -80,7 +80,7 @@ def stevenson(emissions, C_CH4, T=0, feedback=False, fix_pre1850_RCP=False):
         # to give a more linear behaviour.
         else:
             F_CH4[i]   = 0.166/960    * (C_CH4[i]-722)
-            F_CO[i]    = 0.058/893.39 * 215.59  * em_CO[i] / 385.59
+            F_CO[i]    = 0.058/681.8 * 215.59  * em_CO[i] / 385.59
             F_NMVOC[i] = 0.035/155.84 * 51.97 * em_NMVOC[i] / 61.97
             F_NOx[i]   = 0.119/61.16  * 7.31 * (em_NOx[i]
                  * molwt.NO / molwt.N) / 11.6
