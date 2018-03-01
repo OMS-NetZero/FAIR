@@ -227,7 +227,7 @@ def fair_scm(
       F[:,8] = aerosols.aerocom_direct(emissions, beta=b_aero,
         scale_AR5=scaleAerosolAR5)
       if 'ghan' in aerosol_forcing.lower():
-        F[:,8] = F[:,8] + aerosols.ghan_indirect_emulator(emissions,
+        F[:,8] = F[:,8] + aerosols.ghan_indirect(emissions,
           scale_AR5=scaleAerosolAR5, fix_pre1850_RCP=fixPre1850RCP)
     else:
       raise ValueError("aerosol_forcing should be one of 'stevens', "+

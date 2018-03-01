@@ -6,6 +6,7 @@ import sys
 import numpy as np
 from scipy.interpolate import Rbf
 from ..constants import molwt
+from ..RCPs.rcp45 import Emissions as r45e
 
 
 def Stevens(emissions, E_SOx_nat=60, alpha=0.001875, beta=0.634, ref_isSO2=True):
@@ -82,8 +83,7 @@ def aerocom_direct(emissions, beta = np.array(
     return scale * F
 
 
-def ghan_indirect_emulator(emissions, fix_pre1850_RCP=True,
-    scale_AR5=False):
+def ghan_indirect(emissions, fix_pre1850_RCP=True, scale_AR5=False):
     """Estimates the aerosol indirect effect based on the simple model in
     Ghan et al., (2013), doi:10.1002/jgrd.50567.
 
@@ -92,17 +92,12 @@ def ghan_indirect_emulator(emissions, fix_pre1850_RCP=True,
     optimisation before it can be used in FAIR. I hope to make the full version
     available in a future version.
 
-    A 100-member Latin Hypercube sample of emissions of SOx, NMVOC, BC and OC
-    was prepared offline and run through the Ghan simple model. A radial basis
-    function interpolator then estimates the radiative forcing based on the 
-    sampled points.
-
-    A word of caution: this function may be unreliable outside of the points
-    on which it has been trained - generally anything greater than about 5x
-    present day emissions (of course there is no guarantee that the underlying
-    model will perform well in such high emission scenarios, either) - but may
-    also struggle for other parameter combinations as it has not been
-    extensively tested. Use common sense at all times!
+    A 500-member Latin Hypercube sample of emissions of SOx, NMVOC, BC and OC
+    was prepared offline and run through the Ghan simple model and a functional
+    relationship fit to the output. SOA aerosol (based on NMVOC emissions) is
+    sometimes unreliable and does not exert a strong dependence on the ERF, and
+    OC+BC is parameterised as primary organic matter, so the resulting output
+    is a function of SOx and (BC+OC) emissions.
 
     Inputs:
         emissions: (nt x 40) numpy emissions array
@@ -120,58 +115,33 @@ def ghan_indirect_emulator(emissions, fix_pre1850_RCP=True,
         Forcing timeseries
     """
 
-    year, em_SOx, em_NMVOC, em_BC, em_OC = emissions[:,[0, 5, 7, 9, 10]].T
+    year, em_SOx, em_BC, em_OC = emissions[:,[0, 5, 9, 10]].T
 
-    # load up prepared radial basis function. Thanks to
-    # http://atucla.blogspot.co.uk/2016/01/save-and-load-rbf-object-fromto-file.html
-    RBFfile = open(os.path.join(os.path.dirname(__file__),
-        'ghan_emulator.pickle'),'rb')
-    if sys.version_info > (3,0):
-        RBFunpickler = pickle.Unpickler(RBFfile, encoding='latin1')
-    else:
-        RBFunpickler = pickle.Unpickler(RBFfile)
-    RBFdict = RBFunpickler.load()
-    RBFfile.close()
-
-    # This is a dummy but creates an Rbf with 4 predictors and a response
-    ghan_emulator = Rbf(np.array([1,2,3]), np.array([10,20,30]), 
-        np.array([100,200,300]), np.array([1000,2000,3000]),
-        function = RBFdict['function'])
-
-    for key, value in RBFdict.items():
-        ghan_emulator.__setattr__(key,value) 
+    def _ERFaci(em, scale=-1.95011431, b_SOx=0.01107147, b_POM=0.01387492):
+        return scale*np.log(1+b_SOx*em[0]+b_POM*em[1])
 
     # PI forcing was not zero as there were some emissions. Use estimates
-    # from Skeie et al, 2011 for 1750 forcing. NMVOC is estimated as half of
-    # 1850 - different sources use different measurement units. As for 
-    # tropospheric ozone a fix can be applied
-    F_1750 = ghan_emulator(1, 5, 1.2, 10)
-    if isinstance(year, np.ndarray):
-        F_pdtotal = np.zeros_like(year)
-        for i in range(len(year)):
-            if year[i]>=1850 or fix_pre1850_RCP==False:
-                F_pdtotal[i] = ghan_emulator(em_SOx[i], 
-                                             em_NMVOC[i], 
-                                             em_BC[i], 
-                                             em_OC[i])
-            else:
-                F_1850 = ghan_emulator(2.34586, 68.6829, 3.09885, 22.0414)
-                F_pdtotal[i] = ghan_emulator(1+em_SOx[i]/2.34586*(2.34586-1),
-                                             5+em_NMVOC[i]/68.6829*(68.6829-5),
-                                             1.2+em_BC[i]/3.09855*(3.09855-1.2),
-                                             10+em_OC[i]/22.0414*(22.0414-10))
-    else:
-        if year>=1850 or fix_pre1850_RCP==False:
-            F_pdtotal = ghan_emulator(em_SOx, em_NMVOC, em_BC, em_OC)
+    # from Skeie et al, 2011 for 1750 forcing. 
+    E_1765 = np.array([1.0, 11.2])
+    nt = len(year)
+    F_pd = np.zeros(nt)
+    for i in range(nt):
+        if year[i]>=1850 or fix_pre1850_RCP==False:
+            F_pd[i] = _ERFaci([em_SOx[i], em_BC[i]+em_OC[i]])
         else:
-            F_pdtotal = ghan_emulator(1+em_SOx/2.34586*(2.34586-1),
-                                      5+em_NMVOC/68.6829*(68.6829-5),
-                                      1.2+em_BC/3.09855*(3.09855-1.2),
-                                      10+em_OC/22.0414*(22.0414-10))
+            # linearly interpolate between 1765 and 1850
+            E_1850 = np.array([r45e.sox[85], r45e.bc[85]+r45e.oc[85]])
+            F_pd[i] = _ERFaci((year[i]-1765)/85.*E_1850 + 
+                              (1850-year[i])/85.*E_1765 )
 
+    # 1765 emissions = zero forcing
+    F_1765 = _ERFaci(E_1765)
+
+    # are we rescaling to AR5 best estimate?
     if scale_AR5:
-        scale=0.392
+        F_2011 = _ERFaci([r45e.sox[246], r45e.bc[246]+r45e.oc[246]])
+        scale=-0.45/(F_2011-F_1765)
     else:
         scale=1.0
 
-    return scale * (F_pdtotal-F_1750)
+    return (F_pd - F_1765) * scale
