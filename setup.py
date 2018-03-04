@@ -25,6 +25,7 @@ setup(name='fair',
       license='Apache 2.0',
       packages=find_packages(exclude=['tests*']),
       package_data={'': ['*.csv']},
+      include_package_data=True,
       install_requires=[
           'numpy>=1.11.3',
           'scipy>=0.19.0',
