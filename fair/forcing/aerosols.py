@@ -9,20 +9,24 @@ from ..constants import molwt
 from ..RCPs.rcp45 import Emissions as r45e
 
 
-def Stevens(emissions, E_SOx_nat=60, alpha=0.001875, beta=0.634, ref_isSO2=True):
+def Stevens(emissions, stevens_params=np.array([0.001875, 0.634, 60.]),
+    ref_isSO2=True):
     """Calculates aerosol forcing based on Stevens (2015) that relates sulphate
     aerosol forcing to SOx emissions in a logarithmic fashion.
 
     Input:
         emissions:   anthropogenic emissions database
     Keywords:
-        E_SOx_nat:   natural emissions of SOx in Mt/yr
-        alpha:       scaling parameter for ERFari
-        beta:        scaling parameter for ERFaci
+        stevens_params: 3 element array
+            0. natural emissions of SOx in Mt/yr
+            1. scaling parameter for ERFari (alpha)
+            2. scaling parameter for ERFaci (beta)
         ref_isSO2:   True if E_SOx_nat is in units of SO2 rather than S.
     Output:
         F:           aerosol effective radiative forcing
     """
+
+    E_SOx_nat, alpha, beta = stevens_params
 
     factor = 1
     if ref_isSO2:

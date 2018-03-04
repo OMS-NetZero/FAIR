@@ -46,6 +46,7 @@ def fair_scm(
     b_aero = np.array([-35.29e-4, 0.0, -5.034e-4, -5.763e-4, 453e-4,
         -37.83e-4, -10.35e-4]),
     b_tro3 = np.array([2.8249e-4, 1.0695e-4, -9.3604e-4, 99.7831e-4]),
+    stevens_params = np.array([0.001875, 0.634, 60.]),
     useMultigas=True,
     useStevenson=True,
     lifetimes=False,
@@ -222,7 +223,7 @@ def fair_scm(
 
     # Forcing from aerosols - again no feedback dependence
     if aerosol_forcing.lower()=='stevens':
-      F[:,8] = aerosols.Stevens(emissions)
+      F[:,8] = aerosols.Stevens(emissions, stevens_params=stevens_params)
     elif 'aerocom' in aerosol_forcing.lower():
       F[:,8] = aerosols.aerocom_direct(emissions, beta=b_aero,
         scale_AR5=scaleAerosolAR5)

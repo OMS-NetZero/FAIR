@@ -1,3 +1,2 @@
 include versioneer.py
 include fair/_version.py
-include fair/forcing/ghan_emulator.pickle

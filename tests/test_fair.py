@@ -224,15 +224,14 @@ def test_ozone_stevenson_zero_nofix():
     assert np.allclose(F[:,4],np.zeros(736))
 
 
-# Test if changing the scale factor for CO2 forcing feeds through to 
-# temperature and forcing 
+# Test if changing the scale factor for CO2 forcing has no effect on concs, 
+# temperature and forcing (this is desired: change F2x to change CO2 forcing)
 def test_co2_scale():
     emissions = fair.RCPs.rcp85.Emissions.emissions
     scale = np.ones(13)
     scale[0] = 1.15
     C1, F1, T1 = fair.forward.fair_scm(emissions)
     C2, F2, T2 = fair.forward.fair_scm(emissions, scale=scale)
-    assert (C2[:,0]  >= C1[:,0]).all()
-    assert (C2[:,1:] == C1[:,1:]).all()
-    assert (F2[:,0]  >= F1[:,0]).all()
-    assert (T2 >= T1).all()
+    assert (C2 == C1).all()
+    assert (F2 == F1).all()
+    assert (T2 == T1).all()
