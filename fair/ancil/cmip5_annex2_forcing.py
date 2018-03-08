@@ -18,3 +18,4 @@ class Forcing:
     contrails= forcing[:,9]
     solar    = forcing[:,10]
     volcanic = forcing[:,11]
+    total    = np.sum(forcing[:,1:], axis=1)

@@ -24,7 +24,11 @@ def hist_temp(Tobs, Tmodel, years, inflate=True, CI=0.9):
             constrained. Default 0.9.
 
     returns:
-        True if ensemble member agrees with observations or False if not.
+        accept: True if ensemble member agrees with observations else False.
+        slope_m: regression slope of modelled temperature
+        intercept_m: intercept of modelled temperature
+        slope_o: regression slope of observed temperature
+        intercept_o: intercept of observed temperature
     """
 
     n = float(len(years))
@@ -45,9 +49,10 @@ def hist_temp(Tobs, Tmodel, years, inflate=True, CI=0.9):
     CI_o = s * gamma * tcrit * g
 
     # check modelled T against observed
-    slope_m,_,_,_,stderr_m = stats.linregress(years, Tmodel)
+    slope_m,intercept_m,_,_,stderr_m = stats.linregress(years, Tmodel)
 
     if slope_o-CI_o <= slope_m <= slope_o+CI_o:
-        return True
+        accept = True
     else:
-        return False
+        accept = False
+    return accept, slope_m, intercept_m, slope_o, intercept_o
