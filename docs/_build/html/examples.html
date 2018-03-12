@@ -1,0 +1,588 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Examples &#8212; FAIR 1.2.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<p>This notebook gives some simple examples of how to run and use the
+Finite Amplitude Impulse Response (FAIR) model. For this demonstration
+we will use the IPython notebook.</p>
+<div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+</pre></div>
+</div>
+<div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">fair</span>
+<span class="n">fair</span><span class="o">.</span><span class="n">__version__</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;seaborn-darkgrid&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;figure.figsize&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s1">&#39;1.2.1+3.g64f29ef&#39;</span>
+</pre></div>
+</div>
+<p>The &#8220;engine&#8221; of FAIR is the <code class="docutils literal"><span class="pre">fair_scm</span></code> function in the <code class="docutils literal"><span class="pre">forward</span></code>
+module.</p>
+<div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fair.forward</span> <span class="k">import</span> <span class="n">fair_scm</span>
+</pre></div>
+</div>
+<div class="section" id="co2-driven-run">
+<h2>CO2 driven run<a class="headerlink" href="#co2-driven-run" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="basic-example">
+<h3>Basic example<a class="headerlink" href="#basic-example" title="Permalink to this headline">¶</a></h3>
+<p>Here we show how FAIR can be run with step change CO
+emissions and sinusoidal non-CO forcing timeseries. This is
+a FAIR v1.0-style setup in which CO is the only emitted
+species.</p>
+<p>In almost every application of FAIR you will probably want to vary the
+<code class="docutils literal"><span class="pre">emissions</span></code> time series going in to <code class="docutils literal"><span class="pre">fair_scm</span></code>. In
+CO-only mode this is a 1D array of CO emissions.
+Setting <code class="docutils literal"><span class="pre">useMultigas=False</span></code> turns off the emissions from
+non-CO species.</p>
+<p>The output from FAIR is a 3-tuple of <code class="docutils literal"><span class="pre">(C,F,T)</span></code> arrays. In
+CO mode, both <code class="docutils literal"><span class="pre">C</span></code> (representing CO
+concentrations in ppm) and <code class="docutils literal"><span class="pre">F</span></code> (total radiative forcing in W
+m) are 1D arrays. <code class="docutils literal"><span class="pre">T</span></code> (temperature change since the
+pre-industrial) is always output as a 1D array.</p>
+<div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="c1"># set up emissions and forcing arrays</span>
+<span class="n">emissions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">250</span><span class="p">)</span>   <span class="c1"># Unit: GtC</span>
+<span class="n">emissions</span><span class="p">[</span><span class="mi">125</span><span class="p">:]</span> <span class="o">=</span> <span class="mf">10.0</span>
+<span class="n">other_rf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+    <span class="n">other_rf</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="mf">14.0</span><span class="p">)</span>
+
+<span class="c1"># run the model</span>
+<span class="n">C</span><span class="p">,</span><span class="n">F</span><span class="p">,</span><span class="n">T</span> <span class="o">=</span> <span class="n">fair</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="n">fair_scm</span><span class="p">(</span>
+    <span class="n">emissions</span><span class="o">=</span><span class="n">emissions</span><span class="p">,</span>
+    <span class="n">other_rf</span><span class="o">=</span><span class="n">other_rf</span><span class="p">,</span>
+    <span class="n">useMultigas</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+
+<span class="c1"># plot the output</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">221</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">emissions</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Emissions (GtC)&#39;</span><span class="p">)</span>
+<span class="n">ax2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">222</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">C</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;CO$_2$ concentrations (ppm)&#39;</span><span class="p">)</span>
+<span class="n">ax3</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">223</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">F</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Radiative forcing (W.m$^{-2}$)&#39;</span><span class="p">)</span>
+<span class="n">ax4</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">224</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">T</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Temperature anomaly (K)&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<img alt="_images/examples_6_0.png" src="_images/examples_6_0.png" />
+</div>
+<div class="section" id="forcing-only-runs">
+<h3>Forcing-only runs<a class="headerlink" href="#forcing-only-runs" title="Permalink to this headline">¶</a></h3>
+<p>If you want to specify a pure forcing and bypass the carbon cycle
+routine this is also possible by setting <code class="docutils literal"><span class="pre">emissions=False</span></code>. This time,
+we will add a linear forcing to the sinusodal forcing above. Note that
+the CO concentrations are not updated from their
+pre-industrial value.</p>
+<div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="c1"># Define a forcing time series</span>
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+    <span class="n">other_rf</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.02</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="mf">14.0</span><span class="p">)</span>
+
+<span class="c1"># run the model with emissions off</span>
+<span class="n">_</span><span class="p">,</span><span class="n">F</span><span class="p">,</span><span class="n">T</span> <span class="o">=</span> <span class="n">fair</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="n">fair_scm</span><span class="p">(</span>
+    <span class="n">emissions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">other_rf</span><span class="o">=</span><span class="n">other_rf</span><span class="p">,</span>
+    <span class="n">useMultigas</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+
+<span class="c1"># plot the output</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">221</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">other_rf</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">F</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Radiative forcing (W.m$^{-2}$)&#39;</span><span class="p">)</span>
+<span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">222</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">other_rf</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">T</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Temperature anomaly (K)&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<img alt="_images/examples_8_0.png" src="_images/examples_8_0.png" />
+</div>
+<div class="section" id="varying-the-carbon-cycle-parameters">
+<h3>Varying the carbon cycle parameters<a class="headerlink" href="#varying-the-carbon-cycle-parameters" title="Permalink to this headline">¶</a></h3>
+<p>FAIR is set up to simulate the responses to more complex earth system
+models. This is achieved by a scaling of a four-box decay model for
+atmospheric carbon dioxide emissions based on the airborne fraction of
+carbon dioxide. This in turn depends on the efficiency of carbon sinks,
+which is a function of temperature change and total accumulated carbon
+uptake. Much of the technical detail is described in <a class="reference external" href="https://www.atmos-chem-phys.net/17/7213/2017/acp-17-7213-2017.html">Millar et al.,
+(2017)</a>.</p>
+<p>In the carbon cycle, the important variables are <code class="docutils literal"><span class="pre">r0</span></code>, <code class="docutils literal"><span class="pre">rc</span></code> and
+<code class="docutils literal"><span class="pre">rt</span></code> which are in turn the pre-industrial sensitivity of carbon sinks,
+the sensitivity to cumulative carbon dioxide emissions, and sensitivity
+to temperature change.</p>
+<p>This time we will demonstrate with a 10 Gt constant pulse and use a
+10-member ensemble.</p>
+<div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="c1"># set up emissions and forcing arrays</span>
+<span class="n">emissions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">250</span><span class="p">)</span> <span class="o">*</span> <span class="mf">10.0</span>   <span class="c1"># Unit: GtC</span>
+<span class="n">emissions</span><span class="p">[</span><span class="mi">125</span><span class="p">:]</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">other_rf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+    <span class="n">other_rf</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="mf">14.0</span><span class="p">)</span>
+
+<span class="c1"># create output arrays</span>
+<span class="n">nrun</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">nrun</span><span class="p">))</span>
+<span class="n">F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">nrun</span><span class="p">))</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">nrun</span><span class="p">))</span>
+
+<span class="c1"># Generate some random values of carbon cycle parameters</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="k">import</span> <span class="n">norm</span>
+<span class="n">r0</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">nrun</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>
+<span class="n">rc</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">nrun</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mf">0.019</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.003</span><span class="p">)</span>
+<span class="n">rt</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">nrun</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mf">4.165</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="nb">print</span> <span class="p">(</span><span class="n">r0</span><span class="p">)</span>
+<span class="nb">print</span> <span class="p">(</span><span class="n">rc</span><span class="p">)</span>
+<span class="nb">print</span> <span class="p">(</span><span class="n">rt</span><span class="p">)</span>
+
+<span class="c1"># run the model</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrun</span><span class="p">):</span>
+    <span class="n">C</span><span class="p">[:,</span><span class="n">i</span><span class="p">],</span><span class="n">F</span><span class="p">[:,</span><span class="n">i</span><span class="p">],</span><span class="n">T</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">fair</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="n">fair_scm</span><span class="p">(</span>
+        <span class="n">emissions</span><span class="o">=</span><span class="n">emissions</span><span class="p">,</span>
+        <span class="n">other_rf</span><span class="o">=</span><span class="n">other_rf</span><span class="p">,</span>
+        <span class="n">useMultigas</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">r0</span> <span class="o">=</span> <span class="n">r0</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+        <span class="n">rc</span> <span class="o">=</span> <span class="n">rc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+        <span class="n">rt</span> <span class="o">=</span> <span class="n">rt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="p">)</span>
+
+<span class="c1"># plot the output</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">221</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">emissions</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Emissions (GtC)&#39;</span><span class="p">)</span>
+<span class="n">ax2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">222</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">C</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;CO$_2$ concentrations (ppm)&#39;</span><span class="p">)</span>
+<span class="n">ax3</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">223</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">F</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Radiative forcing (W.m$^{-2}$)&#39;</span><span class="p">)</span>
+<span class="n">ax4</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">224</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">T</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Temperature anomaly (K)&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="mf">31.0587648</span>  <span class="mf">27.73528132</span> <span class="mf">39.0325918</span>  <span class="mf">31.50586045</span> <span class="mf">40.17227681</span> <span class="mf">28.9323189</span>
+ <span class="mf">33.79840708</span> <span class="mf">29.6779254</span>  <span class="mf">24.20317026</span> <span class="mf">33.82558451</span><span class="p">]</span>
+<span class="p">[</span><span class="mf">0.01495035</span> <span class="mf">0.02152929</span> <span class="mf">0.0185049</span>  <span class="mf">0.02253518</span> <span class="mf">0.020316</span>   <span class="mf">0.02296456</span>
+ <span class="mf">0.01583876</span> <span class="mf">0.02025348</span> <span class="mf">0.02114155</span> <span class="mf">0.01736782</span><span class="p">]</span>
+<span class="p">[</span><span class="mf">4.2992202</span>  <span class="mf">4.26948499</span> <span class="mf">5.08742388</span> <span class="mf">4.08681291</span> <span class="mf">4.71214769</span> <span class="mf">4.21114884</span>
+ <span class="mf">4.18007727</span> <span class="mf">3.45074113</span> <span class="mf">4.29462521</span> <span class="mf">4.88244346</span><span class="p">]</span>
+</pre></div>
+</div>
+<img alt="_images/examples_10_1.png" src="_images/examples_10_1.png" />
+</div>
+<div class="section" id="changing-co2-lifetime-and-partitioning-coefficients">
+<h3>Changing CO2 lifetime and partitioning coefficients<a class="headerlink" href="#changing-co2-lifetime-and-partitioning-coefficients" title="Permalink to this headline">¶</a></h3>
+<p>The CO lifetime and partitioning coefficients are quantified
+by the <code class="docutils literal"><span class="pre">tau</span></code> and <code class="docutils literal"><span class="pre">a</span></code> parameters respectively. The rationale follows
+the four-box model in AR5. First we&#8217;ll run with the defaults and then
+change them.</p>
+<p>In the second figure it can be seen that these parameter settings are
+important for the rate of decay of atmospheric CO.</p>
+<div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="c1"># set up emissions and forcing arrays</span>
+<span class="n">emissions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">250</span><span class="p">)</span> <span class="o">*</span> <span class="mf">10.0</span>   <span class="c1"># Unit: GtC</span>
+<span class="n">emissions</span><span class="p">[</span><span class="mi">125</span><span class="p">:]</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">other_rf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+    <span class="n">other_rf</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="mf">14.0</span><span class="p">)</span>
+
+<span class="c1"># create output arrays</span>
+<span class="n">nrun</span><span class="o">=</span><span class="mi">3</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">nrun</span><span class="p">))</span>
+<span class="n">F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">nrun</span><span class="p">))</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">nrun</span><span class="p">))</span>
+
+<span class="c1"># Play with the carbon boxes</span>
+<span class="n">tau2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="n">e6</span><span class="p">,</span> <span class="mf">400.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">])</span>
+<span class="n">a2</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.25</span>
+
+<span class="c1"># Nobody said we had to stick to a four-box model...</span>
+<span class="n">tau3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="n">e6</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="mf">150.0</span><span class="p">,</span> <span class="mf">70.0</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">])</span>
+<span class="n">a3</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">])</span>
+
+<span class="c1"># run the model for default case</span>
+<span class="n">C</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">F</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">T</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">fair</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="n">fair_scm</span><span class="p">(</span>
+    <span class="n">emissions</span><span class="o">=</span><span class="n">emissions</span><span class="p">,</span>
+    <span class="n">other_rf</span><span class="o">=</span><span class="n">other_rf</span><span class="p">,</span>
+    <span class="n">useMultigas</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="c1"># ... and for our alternatives</span>
+<span class="n">C</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span><span class="n">F</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span><span class="n">T</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">fair</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="n">fair_scm</span><span class="p">(</span>
+    <span class="n">emissions</span><span class="o">=</span><span class="n">emissions</span><span class="p">,</span>
+    <span class="n">other_rf</span><span class="o">=</span><span class="n">other_rf</span><span class="p">,</span>
+    <span class="n">useMultigas</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">tau</span><span class="o">=</span><span class="n">tau2</span><span class="p">,</span>
+    <span class="n">a</span><span class="o">=</span><span class="n">a2</span><span class="p">)</span>
+<span class="n">C</span><span class="p">[:,</span><span class="mi">2</span><span class="p">],</span><span class="n">F</span><span class="p">[:,</span><span class="mi">2</span><span class="p">],</span><span class="n">T</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">fair</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="n">fair_scm</span><span class="p">(</span>
+    <span class="n">emissions</span><span class="o">=</span><span class="n">emissions</span><span class="p">,</span>
+    <span class="n">other_rf</span><span class="o">=</span><span class="n">other_rf</span><span class="p">,</span>
+    <span class="n">useMultigas</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">tau</span><span class="o">=</span><span class="n">tau3</span><span class="p">,</span>
+    <span class="n">a</span><span class="o">=</span><span class="n">a3</span><span class="p">)</span>
+
+<span class="c1"># plot the output</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">221</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">emissions</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Emissions (GtC)&#39;</span><span class="p">)</span>
+<span class="n">ax2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">222</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">C</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;CO$_2$ concentrations (ppm)&#39;</span><span class="p">)</span>
+<span class="n">ax3</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">223</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">F</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Radiative forcing (W.m$^{-2}$)&#39;</span><span class="p">)</span>
+<span class="n">ax4</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">224</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">emissions</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="n">T</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Temperature anomaly (K)&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<img alt="_images/examples_12_0.png" src="_images/examples_12_0.png" />
+</div>
+</div>
+<div class="section" id="rcps">
+<h2>RCPs<a class="headerlink" href="#rcps" title="Permalink to this headline">¶</a></h2>
+<p>We can run FAIR with the CO emissions and non-CO
+forcing from the four representative concentration pathway scenarios. To
+use the emissions-based version specify <code class="docutils literal"><span class="pre">useMultigas=True</span></code> in the call
+to <code class="docutils literal"><span class="pre">fair_scm()</span></code>.</p>
+<p>By default in multi-gas mode, volcanic and solar forcing plus natural
+emissions of methane and nitrous oxide are switched on.</p>
+<div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fair.RCPs</span> <span class="k">import</span> <span class="n">rcp3pd</span><span class="p">,</span> <span class="n">rcp45</span><span class="p">,</span> <span class="n">rcp6</span><span class="p">,</span> <span class="n">rcp85</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">221</span><span class="p">)</span>
+<span class="n">ax2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">222</span><span class="p">)</span>
+<span class="n">ax3</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">223</span><span class="p">)</span>
+<span class="n">ax4</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">224</span><span class="p">)</span>
+
+<span class="n">C26</span><span class="p">,</span> <span class="n">F26</span><span class="p">,</span> <span class="n">T26</span> <span class="o">=</span> <span class="n">fair</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="n">fair_scm</span><span class="p">(</span><span class="n">emissions</span><span class="o">=</span><span class="n">rcp3pd</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">emissions</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp3pd</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">rcp3pd</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">co2_fossil</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP3PD&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp3pd</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">C26</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp3pd</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">F26</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp3pd</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">T26</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
+
+<span class="n">C45</span><span class="p">,</span> <span class="n">F45</span><span class="p">,</span> <span class="n">T45</span> <span class="o">=</span> <span class="n">fair</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="n">fair_scm</span><span class="p">(</span><span class="n">emissions</span><span class="o">=</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">emissions</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">co2_fossil</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP4.5&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">C45</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">F45</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">T45</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">)</span>
+
+<span class="n">C60</span><span class="p">,</span> <span class="n">F60</span><span class="p">,</span> <span class="n">T60</span> <span class="o">=</span> <span class="n">fair</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="n">fair_scm</span><span class="p">(</span><span class="n">emissions</span><span class="o">=</span><span class="n">rcp6</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">emissions</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp6</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">rcp6</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">co2_fossil</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP6&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp6</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">C60</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp6</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">F60</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp6</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">T60</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+
+<span class="n">C85</span><span class="p">,</span> <span class="n">F85</span><span class="p">,</span> <span class="n">T85</span> <span class="o">=</span> <span class="n">fair</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="n">fair_scm</span><span class="p">(</span><span class="n">emissions</span><span class="o">=</span><span class="n">rcp85</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">emissions</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp85</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">rcp85</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">co2_fossil</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP8.5&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp85</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">C85</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp85</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">F85</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp85</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">T85</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Fossil CO$_2$ Emissions (GtC)&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;CO$_2$ concentrations (ppm)&#39;</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Total radiative forcing (W.m$^{-2}$)&#39;</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Temperature anomaly (K)&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<img alt="_images/examples_14_0.png" src="_images/examples_14_0.png" />
+</div>
+<div class="section" id="concentrations-of-well-mixed-greenhouse-gases">
+<h2>Concentrations of well-mixed greenhouse gases<a class="headerlink" href="#concentrations-of-well-mixed-greenhouse-gases" title="Permalink to this headline">¶</a></h2>
+<p>The output of FAIR (in most cases) is a 3-element tuple of
+concentrations, effective radiative forcing and temperature change since
+pre-industrial. Concentrations are a 31-column array of greenhouse
+gases. The indices correspond to the order given in the RCP
+concentration datasets (table 2 in Smith et al.,
+<a class="reference external" href="https://www.geosci-model-dev-discuss.net/gmd-2017-266/">https://www.geosci-model-dev-discuss.net/gmd-2017-266/</a>). We can
+investigate the GHG concentrations coming out of the model:</p>
+<div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">221</span><span class="p">)</span>
+<span class="n">ax2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">222</span><span class="p">)</span>
+<span class="n">ax3</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">223</span><span class="p">)</span>
+<span class="n">ax4</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">224</span><span class="p">)</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp3pd</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">C26</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP3PD&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">C45</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP4.5&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp6</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">C60</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP6&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp85</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">C85</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP8.5&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Methane concentrations, ppb&quot;</span><span class="p">)</span>
+
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp3pd</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">C26</span><span class="p">[:,</span><span class="mi">2</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP3PD&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">C45</span><span class="p">[:,</span><span class="mi">2</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP4.5&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp6</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">C60</span><span class="p">[:,</span><span class="mi">2</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP6&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp85</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">C85</span><span class="p">[:,</span><span class="mi">2</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP8.5&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Nitrous oxide concentrations, ppb&quot;</span><span class="p">)</span>
+
+<span class="c1"># How to convert the H and F gases to single-species equivalents? Weight by radiative efficiency.</span>
+<span class="kn">from</span> <span class="nn">fair.constants</span> <span class="k">import</span> <span class="n">radeff</span>
+<span class="n">C26_hfc134a_eq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">C26</span><span class="p">[:,</span><span class="mi">3</span><span class="p">:</span><span class="mi">15</span><span class="p">]</span><span class="o">*</span><span class="n">radeff</span><span class="o">.</span><span class="n">aslist</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">15</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">radeff</span><span class="o">.</span><span class="n">HFC134A</span>   <span class="c1"># indices 3:15 are HFCs and PFCs</span>
+<span class="n">C45_hfc134a_eq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">C45</span><span class="p">[:,</span><span class="mi">3</span><span class="p">:</span><span class="mi">15</span><span class="p">]</span><span class="o">*</span><span class="n">radeff</span><span class="o">.</span><span class="n">aslist</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">15</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">radeff</span><span class="o">.</span><span class="n">HFC134A</span>
+<span class="n">C60_hfc134a_eq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">C60</span><span class="p">[:,</span><span class="mi">3</span><span class="p">:</span><span class="mi">15</span><span class="p">]</span><span class="o">*</span><span class="n">radeff</span><span class="o">.</span><span class="n">aslist</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">15</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">radeff</span><span class="o">.</span><span class="n">HFC134A</span>
+<span class="n">C85_hfc134a_eq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">C85</span><span class="p">[:,</span><span class="mi">3</span><span class="p">:</span><span class="mi">15</span><span class="p">]</span><span class="o">*</span><span class="n">radeff</span><span class="o">.</span><span class="n">aslist</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">15</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">radeff</span><span class="o">.</span><span class="n">HFC134A</span>
+
+<span class="n">C26_cfc12_eq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">C26</span><span class="p">[:,</span><span class="mi">15</span><span class="p">:</span><span class="mi">31</span><span class="p">]</span><span class="o">*</span><span class="n">radeff</span><span class="o">.</span><span class="n">aslist</span><span class="p">[</span><span class="mi">15</span><span class="p">:</span><span class="mi">31</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">radeff</span><span class="o">.</span><span class="n">CFC12</span>   <span class="c1"># indices 15:31 are ozone depleters</span>
+<span class="n">C45_cfc12_eq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">C45</span><span class="p">[:,</span><span class="mi">15</span><span class="p">:</span><span class="mi">31</span><span class="p">]</span><span class="o">*</span><span class="n">radeff</span><span class="o">.</span><span class="n">aslist</span><span class="p">[</span><span class="mi">15</span><span class="p">:</span><span class="mi">31</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">radeff</span><span class="o">.</span><span class="n">CFC12</span>
+<span class="n">C60_cfc12_eq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">C60</span><span class="p">[:,</span><span class="mi">15</span><span class="p">:</span><span class="mi">31</span><span class="p">]</span><span class="o">*</span><span class="n">radeff</span><span class="o">.</span><span class="n">aslist</span><span class="p">[</span><span class="mi">15</span><span class="p">:</span><span class="mi">31</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">radeff</span><span class="o">.</span><span class="n">CFC12</span>
+<span class="n">C85_cfc12_eq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">C85</span><span class="p">[:,</span><span class="mi">15</span><span class="p">:</span><span class="mi">31</span><span class="p">]</span><span class="o">*</span><span class="n">radeff</span><span class="o">.</span><span class="n">aslist</span><span class="p">[</span><span class="mi">15</span><span class="p">:</span><span class="mi">31</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">radeff</span><span class="o">.</span><span class="n">CFC12</span>
+
+<span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp3pd</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">C26_hfc134a_eq</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP3PD&#39;</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">C45_hfc134a_eq</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP4.5&#39;</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp6</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">C60_hfc134a_eq</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP6&#39;</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp85</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">C85_hfc134a_eq</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP8.5&#39;</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;HFC134a equivalent concentrations, ppt&quot;</span><span class="p">)</span>
+
+<span class="n">ax4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp3pd</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">C26_cfc12_eq</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP3PD&#39;</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">C45_cfc12_eq</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP4.5&#39;</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp6</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">C60_cfc12_eq</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP6&#39;</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp85</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">C85_cfc12_eq</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP8.5&#39;</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;CFC12 equivalent concentrations, ppt&quot;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">legend</span><span class="o">.</span><span class="n">Legend</span> <span class="n">at</span> <span class="mh">0x7f7ef86e6850</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<img alt="_images/examples_16_1.png" src="_images/examples_16_1.png" />
+</div>
+<div class="section" id="radiative-forcing">
+<h2>Radiative forcing<a class="headerlink" href="#radiative-forcing" title="Permalink to this headline">¶</a></h2>
+<p>We consider 13 separate species of radiative forcing: CO,
+CH, NO, minor GHGs, tropospheric ozone,
+stratospheric ozone, stratospheric water vapour from methane oxidation,
+contrails, aerosols, black carbon on snow, land use change, volcanic and
+solar (table 1 in Smith et al.,
+<a class="reference external" href="https://www.geosci-model-dev-discuss.net/gmd-2017-266/">https://www.geosci-model-dev-discuss.net/gmd-2017-266/</a>). Here we show
+some of the more interesting examples.</p>
+<div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">221</span><span class="p">)</span>
+<span class="n">ax2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">222</span><span class="p">)</span>
+<span class="n">ax3</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">223</span><span class="p">)</span>
+<span class="n">ax4</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">224</span><span class="p">)</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp3pd</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">F26</span><span class="p">[:,</span><span class="mi">4</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP3PD&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">F45</span><span class="p">[:,</span><span class="mi">4</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP4.5&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp6</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">F60</span><span class="p">[:,</span><span class="mi">4</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP6&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp85</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">F85</span><span class="p">[:,</span><span class="mi">4</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP8.5&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Tropospheric ozone forcing, W m$^{-2}$&quot;</span><span class="p">)</span>
+
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp3pd</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">F26</span><span class="p">[:,</span><span class="mi">5</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP3PD&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">F45</span><span class="p">[:,</span><span class="mi">5</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP4.5&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp6</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">F60</span><span class="p">[:,</span><span class="mi">5</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP6&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp85</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">F85</span><span class="p">[:,</span><span class="mi">5</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP8.5&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Stratospheric ozone forcing, W m$^{-2}$&quot;</span><span class="p">)</span>
+
+<span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp3pd</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">F26</span><span class="p">[:,</span><span class="mi">8</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP3PD&#39;</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">F45</span><span class="p">[:,</span><span class="mi">8</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP4.5&#39;</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp6</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">F60</span><span class="p">[:,</span><span class="mi">8</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP6&#39;</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp85</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">F85</span><span class="p">[:,</span><span class="mi">8</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP8.5&#39;</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Aerosol forcing, W ~m$^{-2}$&quot;</span><span class="p">)</span>
+
+<span class="n">ax4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp3pd</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">F26</span><span class="p">[:,</span><span class="mi">10</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP3PD&#39;</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">F45</span><span class="p">[:,</span><span class="mi">10</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP4.5&#39;</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp6</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">F60</span><span class="p">[:,</span><span class="mi">10</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP6&#39;</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp85</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">F85</span><span class="p">[:,</span><span class="mi">10</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;RCP8.5&#39;</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Land use forcing, W m$^{-2}$&quot;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span>
+</pre></div>
+</div>
+<img alt="_images/examples_18_0.png" src="_images/examples_18_0.png" />
+</div>
+<div class="section" id="ensemble-generation">
+<h2>Ensemble generation<a class="headerlink" href="#ensemble-generation" title="Permalink to this headline">¶</a></h2>
+<p>An advantage of FAIR is that it is very quick to run (much less than a
+second on an average machine). Therefore it can be used to generate
+probabilistic future ensembles. We&#8217;ll show a 100-member ensemble.</p>
+<div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
+
+<span class="c1"># generate some (bad) TCR and ECS pairs</span>
+<span class="n">tcrecs</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">loc</span><span class="o">=</span><span class="p">[</span><span class="mf">1.75</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">scale</span><span class="o">=</span><span class="p">[</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.8</span><span class="p">],</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">38571</span><span class="p">)</span>
+
+<span class="c1"># generate some forcing scale factors with SD of 10% of the best estimate</span>
+<span class="n">F_scale</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="mi">13</span><span class="p">),</span> <span class="n">loc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">40000</span><span class="p">)</span>
+
+<span class="c1"># do the same for the carbon cycle parameters</span>
+<span class="n">r0</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">3.5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">41000</span><span class="p">)</span>
+<span class="n">rc</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mf">0.019</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.0019</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42000</span><span class="p">)</span>
+<span class="n">rt</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mf">4.165</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.4165</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">45000</span><span class="p">)</span>
+
+<span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">736</span><span class="p">,</span><span class="mi">100</span><span class="p">))</span>
+
+<span class="o">%</span><span class="n">time</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">T</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">fair</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="n">fair_scm</span><span class="p">(</span><span class="n">emissions</span><span class="o">=</span><span class="n">rcp85</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">emissions</span><span class="p">,</span>
+                        <span class="n">r0</span> <span class="o">=</span> <span class="n">r0</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                        <span class="n">rc</span> <span class="o">=</span> <span class="n">rc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                        <span class="n">rt</span> <span class="o">=</span> <span class="n">rt</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                        <span class="n">tcrecs</span> <span class="o">=</span> <span class="n">tcrecs</span><span class="p">[</span><span class="n">i</span><span class="p">,:],</span>
+                        <span class="n">scale</span> <span class="o">=</span> <span class="n">F_scale</span><span class="p">[</span><span class="n">i</span><span class="p">,:],</span>
+                        <span class="n">F2x</span> <span class="o">=</span> <span class="mf">3.74</span><span class="o">*</span><span class="n">F_scale</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>   <span class="c1"># scale F2x with the CO2 scaling factor for consistency</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">CPU</span> <span class="n">times</span><span class="p">:</span> <span class="n">user</span> <span class="mi">0</span> <span class="n">ns</span><span class="p">,</span> <span class="n">sys</span><span class="p">:</span> <span class="mi">0</span> <span class="n">ns</span><span class="p">,</span> <span class="n">total</span><span class="p">:</span> <span class="mi">0</span> <span class="n">ns</span>
+<span class="n">Wall</span> <span class="n">time</span><span class="p">:</span> <span class="mf">7.15</span> <span class="n">µs</span>
+</pre></div>
+</div>
+<div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp85</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">T</span><span class="p">);</span>
+</pre></div>
+</div>
+<img alt="_images/examples_21_0.png" src="_images/examples_21_0.png" />
+<p>The resulting projections show a large spread. Some of these ensemble
+members are unrealistic, ranging from around 0.4 to 2.0 K temperature
+change in the present day, whereas we know in reality it is more like
+0.9 (plus or minus 0.2). Therefore we can constrain this ensemble to
+observations.</p>
+<div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fair.tools.constrain</span> <span class="k">import</span> <span class="n">hist_temp</span>
+<span class="n">CW</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s1">&#39;fair/tools/tempobs/had4_krig_annual_v2_0_0.txt&#39;</span><span class="p">)</span>  <span class="c1"># Cowtan &amp; Way in-filled dataset of global temperatures</span>
+<span class="n">constrained</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+    <span class="c1"># we use observed trend from 1880 to 2016</span>
+    <span class="n">constrained</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">hist_temp</span><span class="p">(</span><span class="n">CW</span><span class="p">[</span><span class="mi">30</span><span class="p">:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">T</span><span class="p">[</span><span class="mi">1880</span><span class="o">-</span><span class="mi">1765</span><span class="p">:</span><span class="mi">2017</span><span class="o">-</span><span class="mi">1765</span><span class="p">,</span><span class="n">i</span><span class="p">],</span> <span class="n">CW</span><span class="p">[</span><span class="mi">30</span><span class="p">:,</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="c1"># How many ensemble members passed the constraint?</span>
+<span class="nb">print</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">constrained</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mi">54</span>
+</pre></div>
+</div>
+<div class="code ipython2 highlight-default"><div class="highlight"><pre><span></span><span class="c1"># What does this do to the ensemble?</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp85</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">T</span><span class="p">[:,</span><span class="n">constrained</span><span class="p">]);</span>
+</pre></div>
+</div>
+<img alt="_images/examples_25_0.png" src="_images/examples_25_0.png" />
+<p>Some, but not all, of the higher end scenarios have been constrained
+out, but there is still quite a large range of total temperature change
+projected for 2500 even under this constraint.</p>
+<p>From these constraints it is possible to obtain posterior distributions
+on effective radiative forcing, ECS, TCR, TCRE and other metrics.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Examples</a><ul>
+<li><a class="reference internal" href="#co2-driven-run">CO2 driven run</a><ul>
+<li><a class="reference internal" href="#basic-example">Basic example</a></li>
+<li><a class="reference internal" href="#forcing-only-runs">Forcing-only runs</a></li>
+<li><a class="reference internal" href="#varying-the-carbon-cycle-parameters">Varying the carbon cycle parameters</a></li>
+<li><a class="reference internal" href="#changing-co2-lifetime-and-partitioning-coefficients">Changing CO2 lifetime and partitioning coefficients</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#rcps">RCPs</a></li>
+<li><a class="reference internal" href="#concentrations-of-well-mixed-greenhouse-gases">Concentrations of well-mixed greenhouse gases</a></li>
+<li><a class="reference internal" href="#radiative-forcing">Radiative forcing</a></li>
+<li><a class="reference internal" href="#ensemble-generation">Ensemble generation</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="installation.html" title="previous chapter">Installation</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/examples.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, FAIR development team.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/examples.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
