@@ -42,7 +42,7 @@
 
 
 \title{FAIR Documentation}
-\date{Mar 12, 2018}
+\date{Mar 13, 2018}
 \release{1.2.1}
 \author{FAIR development team}
 \newcommand{\sphinxlogo}{}
@@ -57,19 +57,8 @@
 
 
 
-\chapter{Installation}
-\label{\detokenize{installation:installation}}\label{\detokenize{installation:fair-finite-amplitude-impulse-response-simple-climate-model}}\label{\detokenize{installation::doc}}
-
-\section{From the Python Package Index (PyPI)}
-\label{\detokenize{installation:from-the-python-package-index-pypi}}
-Probably the easiest way: simply type \sphinxcode{pip install fair} from a terminal.
-
-
-\chapter{FAIR}
-\label{\detokenize{Example-Usage::doc}}\label{\detokenize{Example-Usage:fair}}
-This notebook gives some simple examples of how to run and use the
-Finite Amplitude Impulse Response (FAIR) model.
-
+\chapter{Introduction}
+\label{\detokenize{intro:introduction}}\label{\detokenize{intro:fair-finite-amplitude-impulse-response-simple-climate-model}}\label{\detokenize{intro::doc}}
 The Finite Amplitude Impulse Response (FAIR) model is a simple
 emissions-based climate model. It allows the user to input emissions of
 greenhouse gases and short lived climate forcers in order to estimate
@@ -77,24 +66,38 @@ global mean atmospheric GHG concentrations, radiative forcing and
 temperature anomalies.
 
 The original FAIR model (v1.0) was developed to simulate the earth
-system response to CO emissions, with all non-CO
-forcing implemented as an \sphinxquotedblleft{}external\sphinxquotedblright{} source. It was developed by Richard
+system response to CO$_{\text{2}}$ emissions, with all non-CO$_{\text{2}}$ forcing implemented as an \sphinxquotedblleft{}external\sphinxquotedblright{} source. It was developed by Richard
 Millar, Zebedee Nicholls, Pierre Friedlingstein and Myles Allen. The
 motivation for developing it and its formulation is documented in a
-paper published in Atmospheric Chemistry and Physics in 2017
-(doi:10.5194/acp-2016-405).
+\sphinxhref{https://www.atmos-chem-phys.net/17/7213/2017/acp-17-7213-2017.html}{paper published in Atmospheric Chemistry and Physics in 2017}.
 
-The emissions-based model extends FAIR by replacing all sources of
-non-CO forcing with relationships that are based on the
-source emissions, with the exception of natural forcings (viz.
-variations in solar irradiance and volcanic eruptions). It is useful for
+The emissions-based model (v1.2) extends FAIR by replacing all sources of
+non-CO$_{\text{2}}$ forcing with relationships that are based on the
+source emissions, with the exception of natural forcings (variations
+in solar irradiance and volcanic eruptions). It is useful for
 assessing future policy commitments to anthropogenic emissions
 (something which we can control) than to radiative forcing (something
 which is less certain and which we can only partially control).
 
-The emissions based model was developed by Chris Smith with input from
-Piers Forster, Leighton Regayre and Giovanni Passerello, in parallel
-with Nicolas Leach, Richard Millar and Myles Allen.
+
+\chapter{Installation}
+\label{\detokenize{installation:installation}}\label{\detokenize{installation::doc}}
+
+\section{From the Python Package Index (PyPI)}
+\label{\detokenize{installation:from-the-python-package-index-pypi}}
+Probably the easiest way: simply type \sphinxcode{pip install fair} from a terminal.
+
+
+\section{From GitHub}
+\label{\detokenize{installation:from-github}}
+The latest release (as a tar.gz or zip file) can be obtained from \sphinxurl{https://github.com/OMS-NetZero/FAIR/releases}, or the most current unreleased version can be cloned from \sphinxurl{https://github.com/OMS-NetZero/FAIR}.
+
+
+\chapter{Examples}
+\label{\detokenize{examples::doc}}\label{\detokenize{examples:examples}}
+This notebook gives some simple examples of how to run and use the
+Finite Amplitude Impulse Response (FAIR) model. For this demonstration
+we will use the IPython notebook.
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{o}{\PYGZpc{}}\PYG{n}{matplotlib} \PYG{n}{inline}
@@ -103,13 +106,7 @@ with Nicolas Leach, Richard Millar and Myles Allen.
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{k+kn}{import} \PYG{n+nn}{fair}
 \PYG{n}{fair}\PYG{o}{.}\PYG{n}{\PYGZus{}\PYGZus{}version\PYGZus{}\PYGZus{}}
-\end{sphinxVerbatim}
 
-\begin{sphinxVerbatim}[commandchars=\\\{\}]
-\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{1.1.3+39.g35f5e83.dirty}\PYG{l+s+s1}{\PYGZsq{}}
-\end{sphinxVerbatim}
-
-\begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{k+kn}{import} \PYG{n+nn}{numpy} \PYG{k}{as} \PYG{n+nn}{np}
 
 \PYG{k+kn}{from} \PYG{n+nn}{matplotlib} \PYG{k}{import} \PYG{n}{pyplot} \PYG{k}{as} \PYG{n}{plt}
@@ -117,25 +114,52 @@ with Nicolas Leach, Richard Millar and Myles Allen.
 \PYG{n}{plt}\PYG{o}{.}\PYG{n}{rcParams}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{figure.figsize}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{p}{(}\PYG{l+m+mi}{16}\PYG{p}{,} \PYG{l+m+mi}{9}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-
-\section{Basic run}
-\label{\detokenize{Example-Usage:basic-run}}
-Here we show how FAIR can be run with step change CO
-emissions and sinusoidal non-CO forcing timeseries.
+The \sphinxquotedblleft{}engine\sphinxquotedblright{} of FAIR is the \sphinxcode{fair\_scm} function in the \sphinxcode{forward}
+module.
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-\PYG{n}{emissions} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{(}\PYG{l+m+mi}{250}\PYG{p}{)}
+\PYG{k+kn}{from} \PYG{n+nn}{fair}\PYG{n+nn}{.}\PYG{n+nn}{forward} \PYG{k}{import} \PYG{n}{fair\PYGZus{}scm}
+\end{sphinxVerbatim}
+
+
+\section{CO2 driven run}
+\label{\detokenize{examples:co2-driven-run}}
+
+\subsection{Basic example}
+\label{\detokenize{examples:basic-example}}
+Here we show how FAIR can be run with step change CO
+emissions and sinusoidal non-CO forcing timeseries. This is
+a FAIR v1.0-style setup in which CO is the only emitted
+species.
+
+In almost every application of FAIR you will probably want to vary the
+\sphinxcode{emissions} time series going in to \sphinxcode{fair\_scm}. In
+CO-only mode this is a 1D array of CO emissions.
+Setting \sphinxcode{useMultigas=False} turns off the emissions from
+non-CO species.
+
+The output from FAIR is a 3-tuple of \sphinxcode{(C,F,T)} arrays. In
+CO mode, both \sphinxcode{C} (representing CO
+concentrations in ppm) and \sphinxcode{F} (total radiative forcing in W
+m) are 1D arrays. \sphinxcode{T} (temperature change since the
+pre-industrial) is always output as a 1D array.
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} set up emissions and forcing arrays}
+\PYG{n}{emissions} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{(}\PYG{l+m+mi}{250}\PYG{p}{)}   \PYG{c+c1}{\PYGZsh{} Unit: GtC}
 \PYG{n}{emissions}\PYG{p}{[}\PYG{l+m+mi}{125}\PYG{p}{:}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mf}{10.0}
 \PYG{n}{other\PYGZus{}rf} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{(}\PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}
 \PYG{k}{for} \PYG{n}{x} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{:}
     \PYG{n}{other\PYGZus{}rf}\PYG{p}{[}\PYG{n}{x}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mf}{0.5} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sin}\PYG{p}{(}\PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{pi} \PYG{o}{*} \PYG{p}{(}\PYG{n}{x}\PYG{p}{)} \PYG{o}{/} \PYG{l+m+mf}{14.0}\PYG{p}{)}
 
+\PYG{c+c1}{\PYGZsh{} run the model}
 \PYG{n}{C}\PYG{p}{,}\PYG{n}{F}\PYG{p}{,}\PYG{n}{T} \PYG{o}{=} \PYG{n}{fair}\PYG{o}{.}\PYG{n}{forward}\PYG{o}{.}\PYG{n}{fair\PYGZus{}scm}\PYG{p}{(}
     \PYG{n}{emissions}\PYG{o}{=}\PYG{n}{emissions}\PYG{p}{,}
     \PYG{n}{other\PYGZus{}rf}\PYG{o}{=}\PYG{n}{other\PYGZus{}rf}\PYG{p}{,}
     \PYG{n}{useMultigas}\PYG{o}{=}\PYG{k+kc}{False}
 \PYG{p}{)}
 
+\PYG{c+c1}{\PYGZsh{} plot the output}
 \PYG{n}{fig} \PYG{o}{=} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{figure}\PYG{p}{(}\PYG{p}{)}
 \PYG{n}{ax1} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{221}\PYG{p}{)}
 \PYG{n}{ax1}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{emissions}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{black}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
@@ -144,18 +168,685 @@ emissions and sinusoidal non-CO forcing timeseries.
 \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{C}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{blue}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{CO\PYGZdl{}\PYGZus{}2\PYGZdl{} concentrations (ppm)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax3} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{223}\PYG{p}{)}
-\PYG{n}{ax3}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{other\PYGZus{}rf}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{orange}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
-\PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Other radiative forcing (W.m\PYGZdl{}\PYGZca{}}\PYG{l+s+s1}{\PYGZob{}}\PYG{l+s+s1}{\PYGZhy{}2\PYGZcb{}\PYGZdl{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax3}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{F}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{orange}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Radiative forcing (W.m\PYGZdl{}\PYGZca{}}\PYG{l+s+s1}{\PYGZob{}}\PYG{l+s+s1}{\PYGZhy{}2\PYGZcb{}\PYGZdl{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax4} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{224}\PYG{p}{)}
 \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{T}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{red}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Temperature anomaly (K)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{Example-Usage_5_0}.png}
+\noindent\sphinxincludegraphics{{examples_6_0}.png}
+
+
+\subsection{Forcing-only runs}
+\label{\detokenize{examples:forcing-only-runs}}
+If you want to specify a pure forcing and bypass the carbon cycle
+routine this is also possible by setting \sphinxcode{emissions=False}. This time,
+we will add a linear forcing to the sinusodal forcing above. Note that
+the CO concentrations are not updated from their
+pre-industrial value.
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} Define a forcing time series}
+\PYG{k}{for} \PYG{n}{x} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{:}
+    \PYG{n}{other\PYGZus{}rf}\PYG{p}{[}\PYG{n}{x}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mf}{0.02}\PYG{o}{*}\PYG{n}{x} \PYG{o}{+} \PYG{l+m+mf}{0.5} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sin}\PYG{p}{(}\PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{pi} \PYG{o}{*} \PYG{p}{(}\PYG{n}{x}\PYG{p}{)} \PYG{o}{/} \PYG{l+m+mf}{14.0}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} run the model with emissions off}
+\PYG{n}{\PYGZus{}}\PYG{p}{,}\PYG{n}{F}\PYG{p}{,}\PYG{n}{T} \PYG{o}{=} \PYG{n}{fair}\PYG{o}{.}\PYG{n}{forward}\PYG{o}{.}\PYG{n}{fair\PYGZus{}scm}\PYG{p}{(}
+    \PYG{n}{emissions}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,}
+    \PYG{n}{other\PYGZus{}rf}\PYG{o}{=}\PYG{n}{other\PYGZus{}rf}\PYG{p}{,}
+    \PYG{n}{useMultigas}\PYG{o}{=}\PYG{k+kc}{False}
+\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} plot the output}
+\PYG{n}{fig} \PYG{o}{=} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{figure}\PYG{p}{(}\PYG{p}{)}
+\PYG{n}{ax1} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{221}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{other\PYGZus{}rf}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{F}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{orange}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Radiative forcing (W.m\PYGZdl{}\PYGZca{}}\PYG{l+s+s1}{\PYGZob{}}\PYG{l+s+s1}{\PYGZhy{}2\PYGZcb{}\PYGZdl{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax1} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{222}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{other\PYGZus{}rf}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{T}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{red}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Temperature anomaly (K)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
+\end{sphinxVerbatim}
+
+\noindent\sphinxincludegraphics{{examples_8_0}.png}
+
+
+\subsection{Varying the carbon cycle parameters}
+\label{\detokenize{examples:varying-the-carbon-cycle-parameters}}
+FAIR is set up to simulate the responses to more complex earth system
+models. This is achieved by a scaling of a four-box decay model for
+atmospheric carbon dioxide emissions based on the airborne fraction of
+carbon dioxide. This in turn depends on the efficiency of carbon sinks,
+which is a function of temperature change and total accumulated carbon
+uptake. Much of the technical detail is described in \sphinxhref{https://www.atmos-chem-phys.net/17/7213/2017/acp-17-7213-2017.html}{Millar et al.,
+(2017)}.
+
+In the carbon cycle, the important variables are \sphinxcode{r0}, \sphinxcode{rc} and
+\sphinxcode{rt} which are in turn the pre-industrial sensitivity of carbon sinks,
+the sensitivity to cumulative carbon dioxide emissions, and sensitivity
+to temperature change.
+
+This time we will demonstrate with a 10 Gt constant pulse and use a
+10-member ensemble.
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} set up emissions and forcing arrays}
+\PYG{n}{emissions} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ones}\PYG{p}{(}\PYG{l+m+mi}{250}\PYG{p}{)} \PYG{o}{*} \PYG{l+m+mf}{10.0}   \PYG{c+c1}{\PYGZsh{} Unit: GtC}
+\PYG{n}{emissions}\PYG{p}{[}\PYG{l+m+mi}{125}\PYG{p}{:}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mf}{0.0}
+\PYG{n}{other\PYGZus{}rf} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{(}\PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}
+\PYG{k}{for} \PYG{n}{x} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{:}
+    \PYG{n}{other\PYGZus{}rf}\PYG{p}{[}\PYG{n}{x}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mf}{0.5} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sin}\PYG{p}{(}\PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{pi} \PYG{o}{*} \PYG{p}{(}\PYG{n}{x}\PYG{p}{)} \PYG{o}{/} \PYG{l+m+mf}{14.0}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} create output arrays}
+\PYG{n}{nrun} \PYG{o}{=} \PYG{l+m+mi}{10}
+\PYG{n}{C} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{empty}\PYG{p}{(}\PYG{p}{(}\PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{,} \PYG{n}{nrun}\PYG{p}{)}\PYG{p}{)}
+\PYG{n}{F} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{empty}\PYG{p}{(}\PYG{p}{(}\PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{,} \PYG{n}{nrun}\PYG{p}{)}\PYG{p}{)}
+\PYG{n}{T} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{empty}\PYG{p}{(}\PYG{p}{(}\PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{,} \PYG{n}{nrun}\PYG{p}{)}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} Generate some random values of carbon cycle parameters}
+\PYG{c+c1}{\PYGZsh{} use a seed for reproducible results}
+\PYG{k+kn}{from} \PYG{n+nn}{scipy}\PYG{n+nn}{.}\PYG{n+nn}{stats} \PYG{k}{import} \PYG{n}{norm}
+\PYG{n}{r0} \PYG{o}{=} \PYG{n}{norm}\PYG{o}{.}\PYG{n}{rvs}\PYG{p}{(}\PYG{n}{size}\PYG{o}{=}\PYG{n}{nrun}\PYG{p}{,} \PYG{n}{loc}\PYG{o}{=}\PYG{l+m+mi}{35}\PYG{p}{,} \PYG{n}{scale}\PYG{o}{=}\PYG{l+m+mf}{5.0}\PYG{p}{,} \PYG{n}{random\PYGZus{}state}\PYG{o}{=}\PYG{l+m+mi}{42}\PYG{p}{)}
+\PYG{n}{rc} \PYG{o}{=} \PYG{n}{norm}\PYG{o}{.}\PYG{n}{rvs}\PYG{p}{(}\PYG{n}{size}\PYG{o}{=}\PYG{n}{nrun}\PYG{p}{,} \PYG{n}{loc}\PYG{o}{=}\PYG{l+m+mf}{0.019}\PYG{p}{,} \PYG{n}{scale}\PYG{o}{=}\PYG{l+m+mf}{0.003}\PYG{p}{,} \PYG{n}{random\PYGZus{}state}\PYG{o}{=}\PYG{l+m+mi}{77}\PYG{p}{)}
+\PYG{n}{rt} \PYG{o}{=} \PYG{n}{norm}\PYG{o}{.}\PYG{n}{rvs}\PYG{p}{(}\PYG{n}{size}\PYG{o}{=}\PYG{n}{nrun}\PYG{p}{,} \PYG{n}{loc}\PYG{o}{=}\PYG{l+m+mf}{4.165}\PYG{p}{,} \PYG{n}{scale}\PYG{o}{=}\PYG{l+m+mf}{0.5}\PYG{p}{,} \PYG{n}{random\PYGZus{}state}\PYG{o}{=}\PYG{l+m+mi}{1729}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} initialise plot}
+\PYG{n}{fig} \PYG{o}{=} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{figure}\PYG{p}{(}\PYG{p}{)}
+\PYG{n}{ax1} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{221}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{emissions}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{black}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Emissions (GtC)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax2} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{222}\PYG{p}{)}
+\PYG{n}{ax3} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{223}\PYG{p}{)}
+\PYG{n}{ax4} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{224}\PYG{p}{)}
+\PYG{c+c1}{\PYGZsh{} run the model and plot outputs}
+\PYG{n+nb}{print} \PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{run      r0     rc    rt}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+\PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{nrun}\PYG{p}{)}\PYG{p}{:}
+    \PYG{n+nb}{print} \PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{  }\PYG{l+s+si}{\PYGZpc{}d}\PYG{l+s+s2}{  }\PYG{l+s+si}{\PYGZpc{}5.3f}\PYG{l+s+s2}{ }\PYG{l+s+si}{\PYGZpc{}5.4f}\PYG{l+s+s2}{ }\PYG{l+s+si}{\PYGZpc{}5.3f}\PYG{l+s+s2}{\PYGZdq{}} \PYG{o}{\PYGZpc{}} \PYG{p}{(}\PYG{n}{i}\PYG{p}{,} \PYG{n}{r0}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{p}{,} \PYG{n}{rc}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{p}{,} \PYG{n}{rt}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{p}{)}\PYG{p}{)}
+    \PYG{n}{C}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{n}{i}\PYG{p}{]}\PYG{p}{,}\PYG{n}{F}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{n}{i}\PYG{p}{]}\PYG{p}{,}\PYG{n}{T}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{n}{fair}\PYG{o}{.}\PYG{n}{forward}\PYG{o}{.}\PYG{n}{fair\PYGZus{}scm}\PYG{p}{(}
+        \PYG{n}{emissions}\PYG{o}{=}\PYG{n}{emissions}\PYG{p}{,}
+        \PYG{n}{other\PYGZus{}rf}\PYG{o}{=}\PYG{n}{other\PYGZus{}rf}\PYG{p}{,}
+        \PYG{n}{useMultigas}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,}
+        \PYG{n}{r0} \PYG{o}{=} \PYG{n}{r0}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{p}{,}
+        \PYG{n}{rc} \PYG{o}{=} \PYG{n}{rc}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{p}{,}
+        \PYG{n}{rt} \PYG{o}{=} \PYG{n}{rt}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}
+    \PYG{p}{)}
+    \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{C}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{n}{i}\PYG{p}{]}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{run }\PYG{l+s+si}{\PYGZpc{}d}\PYG{l+s+s1}{\PYGZsq{}} \PYG{o}{\PYGZpc{}} \PYG{n}{i}\PYG{p}{)}
+    \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{CO\PYGZdl{}\PYGZus{}2\PYGZdl{} concentrations (ppm)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{ax3}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{F}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{n}{i}\PYG{p}{]}\PYG{p}{)}
+    \PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Radiative forcing (W.m\PYGZdl{}\PYGZca{}}\PYG{l+s+s1}{\PYGZob{}}\PYG{l+s+s1}{\PYGZhy{}2\PYGZcb{}\PYGZdl{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{T}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{n}{i}\PYG{p}{]}\PYG{p}{)}
+    \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Temperature anomaly (K)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{(}\PYG{p}{)}\PYG{p}{;}
+\end{sphinxVerbatim}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{run}      \PYG{n}{r0}     \PYG{n}{rc}    \PYG{n}{rt}
+  \PYG{l+m+mi}{0}  \PYG{l+m+mf}{37.484} \PYG{l+m+mf}{0.0197} \PYG{l+m+mf}{3.821}
+  \PYG{l+m+mi}{1}  \PYG{l+m+mf}{34.309} \PYG{l+m+mf}{0.0210} \PYG{l+m+mf}{3.755}
+  \PYG{l+m+mi}{2}  \PYG{l+m+mf}{38.238} \PYG{l+m+mf}{0.0173} \PYG{l+m+mf}{4.991}
+  \PYG{l+m+mi}{3}  \PYG{l+m+mf}{42.615} \PYG{l+m+mf}{0.0202} \PYG{l+m+mf}{3.877}
+  \PYG{l+m+mi}{4}  \PYG{l+m+mf}{33.829} \PYG{l+m+mf}{0.0204} \PYG{l+m+mf}{4.714}
+  \PYG{l+m+mi}{5}  \PYG{l+m+mf}{33.829} \PYG{l+m+mf}{0.0131} \PYG{l+m+mf}{4.628}
+  \PYG{l+m+mi}{6}  \PYG{l+m+mf}{42.896} \PYG{l+m+mf}{0.0198} \PYG{l+m+mf}{3.668}
+  \PYG{l+m+mi}{7}  \PYG{l+m+mf}{38.837} \PYG{l+m+mf}{0.0143} \PYG{l+m+mf}{3.736}
+  \PYG{l+m+mi}{8}  \PYG{l+m+mf}{32.653} \PYG{l+m+mf}{0.0237} \PYG{l+m+mf}{4.202}
+  \PYG{l+m+mi}{9}  \PYG{l+m+mf}{37.713} \PYG{l+m+mf}{0.0168} \PYG{l+m+mf}{4.430}
+\end{sphinxVerbatim}
+
+\noindent\sphinxincludegraphics{{examples_10_1}.png}
+
+
+\subsection{Changing CO2 lifetime and partitioning coefficients}
+\label{\detokenize{examples:changing-co2-lifetime-and-partitioning-coefficients}}
+The CO initial lifetime and partitioning coefficients are
+quantified by the \sphinxcode{tau} and \sphinxcode{a} parameters respectively. The
+rationale follows the four-box model in AR5. First we'll run with the
+defaults and then change them.
+
+In the second figure it can be seen that these parameter settings are
+important for the rate of decay of atmospheric CO.
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} set up emissions and forcing arrays}
+\PYG{n}{emissions} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ones}\PYG{p}{(}\PYG{l+m+mi}{250}\PYG{p}{)} \PYG{o}{*} \PYG{l+m+mf}{10.0}   \PYG{c+c1}{\PYGZsh{} Unit: GtC}
+\PYG{n}{emissions}\PYG{p}{[}\PYG{l+m+mi}{125}\PYG{p}{:}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mf}{0.0}
+\PYG{n}{other\PYGZus{}rf} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{(}\PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}
+\PYG{k}{for} \PYG{n}{x} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{:}
+    \PYG{n}{other\PYGZus{}rf}\PYG{p}{[}\PYG{n}{x}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mf}{0.5} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sin}\PYG{p}{(}\PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{pi} \PYG{o}{*} \PYG{p}{(}\PYG{n}{x}\PYG{p}{)} \PYG{o}{/} \PYG{l+m+mf}{14.0}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} create output arrays}
+\PYG{n}{nrun}\PYG{o}{=}\PYG{l+m+mi}{3}
+\PYG{n}{C} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{empty}\PYG{p}{(}\PYG{p}{(}\PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{,} \PYG{n}{nrun}\PYG{p}{)}\PYG{p}{)}
+\PYG{n}{F} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{empty}\PYG{p}{(}\PYG{p}{(}\PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{,} \PYG{n}{nrun}\PYG{p}{)}\PYG{p}{)}
+\PYG{n}{T} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{empty}\PYG{p}{(}\PYG{p}{(}\PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{,} \PYG{n}{nrun}\PYG{p}{)}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} Play with the carbon boxes}
+\PYG{n}{tau2} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{n}{e6}\PYG{p}{,} \PYG{l+m+mf}{400.0}\PYG{p}{,} \PYG{l+m+mf}{100.0}\PYG{p}{,} \PYG{l+m+mf}{5.0}\PYG{p}{]}\PYG{p}{)}
+\PYG{n}{a2}   \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ones}\PYG{p}{(}\PYG{l+m+mi}{4}\PYG{p}{)} \PYG{o}{*} \PYG{l+m+mf}{0.25}
+
+\PYG{c+c1}{\PYGZsh{} Nobody said we had to stick to a four\PYGZhy{}box model...}
+\PYG{n}{tau3} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{n}{e6}\PYG{p}{,} \PYG{l+m+mf}{1000.0}\PYG{p}{,} \PYG{l+m+mf}{150.0}\PYG{p}{,} \PYG{l+m+mf}{70.0}\PYG{p}{,} \PYG{l+m+mf}{15.0}\PYG{p}{,} \PYG{l+m+mf}{3.0}\PYG{p}{]}\PYG{p}{)}
+\PYG{n}{a3}   \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{p}{[}\PYG{l+m+mf}{0.1}\PYG{p}{,} \PYG{l+m+mf}{0.2}\PYG{p}{,} \PYG{l+m+mf}{0.2}\PYG{p}{,} \PYG{l+m+mf}{0.2}\PYG{p}{,} \PYG{l+m+mf}{0.2}\PYG{p}{,} \PYG{l+m+mf}{0.1}\PYG{p}{]}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} run the model for default case}
+\PYG{n}{C}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{p}{,}\PYG{n}{F}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{p}{,}\PYG{n}{T}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{0}\PYG{p}{]} \PYG{o}{=} \PYG{n}{fair}\PYG{o}{.}\PYG{n}{forward}\PYG{o}{.}\PYG{n}{fair\PYGZus{}scm}\PYG{p}{(}
+    \PYG{n}{emissions}\PYG{o}{=}\PYG{n}{emissions}\PYG{p}{,}
+    \PYG{n}{other\PYGZus{}rf}\PYG{o}{=}\PYG{n}{other\PYGZus{}rf}\PYG{p}{,}
+    \PYG{n}{useMultigas}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} ... and for our alternatives}
+\PYG{n}{C}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{p}{,}\PYG{n}{F}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{p}{,}\PYG{n}{T}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{=} \PYG{n}{fair}\PYG{o}{.}\PYG{n}{forward}\PYG{o}{.}\PYG{n}{fair\PYGZus{}scm}\PYG{p}{(}
+    \PYG{n}{emissions}\PYG{o}{=}\PYG{n}{emissions}\PYG{p}{,}
+    \PYG{n}{other\PYGZus{}rf}\PYG{o}{=}\PYG{n}{other\PYGZus{}rf}\PYG{p}{,}
+    \PYG{n}{useMultigas}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,}
+    \PYG{n}{tau}\PYG{o}{=}\PYG{n}{tau2}\PYG{p}{,}
+    \PYG{n}{a}\PYG{o}{=}\PYG{n}{a2}\PYG{p}{)}
+\PYG{n}{C}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{p}{,}\PYG{n}{F}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{2}\PYG{p}{]}\PYG{p}{,}\PYG{n}{T}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{2}\PYG{p}{]} \PYG{o}{=} \PYG{n}{fair}\PYG{o}{.}\PYG{n}{forward}\PYG{o}{.}\PYG{n}{fair\PYGZus{}scm}\PYG{p}{(}
+    \PYG{n}{emissions}\PYG{o}{=}\PYG{n}{emissions}\PYG{p}{,}
+    \PYG{n}{other\PYGZus{}rf}\PYG{o}{=}\PYG{n}{other\PYGZus{}rf}\PYG{p}{,}
+    \PYG{n}{useMultigas}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,}
+    \PYG{n}{tau}\PYG{o}{=}\PYG{n}{tau3}\PYG{p}{,}
+    \PYG{n}{a}\PYG{o}{=}\PYG{n}{a3}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} plot the output}
+\PYG{n}{fig} \PYG{o}{=} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{figure}\PYG{p}{(}\PYG{p}{)}
+\PYG{n}{ax1} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{221}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{emissions}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{black}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Emissions (GtC)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax2} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{222}\PYG{p}{)}
+\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{C}\PYG{p}{)}
+\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{CO\PYGZdl{}\PYGZus{}2\PYGZdl{} concentrations (ppm)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax3} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{223}\PYG{p}{)}
+\PYG{n}{ax3}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{F}\PYG{p}{)}
+\PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Radiative forcing (W.m\PYGZdl{}\PYGZca{}}\PYG{l+s+s1}{\PYGZob{}}\PYG{l+s+s1}{\PYGZhy{}2\PYGZcb{}\PYGZdl{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax4} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{224}\PYG{p}{)}
+\PYG{n}{ax4}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{T}\PYG{p}{)}
+\PYG{n}{ax4}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Temperature anomaly (K)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
+\end{sphinxVerbatim}
+
+\noindent\sphinxincludegraphics{{examples_12_0}.png}
+
+
+\subsection{ECS and TCR}
+\label{\detokenize{examples:ecs-and-tcr}}
+The equilibrium climate sensitivity (defined as the equilibrium warming
+for an abrupt doubling of CO concentrations) and transient
+climate response (defined as the temperature change after a
+CO doubling to a 1\% per year compound increase in
+CO concentrations - approximately 70 years) are both key
+uncertainties in climate science. The temperature response in FAIR
+depends on both. The \sphinxcode{tcrecs} parameter, a 2-element array, controls
+this.
+
+This next example shows the effect of varying the ECS and TCR. (Note
+that by definition the case ECS=1.0, TCR=1.75 is not possible, but FAIR
+can handle such pathological cases!)
+
+The biggest effect is on the temperature response, but as the
+temperature feeds back into the carbon cycle, this also affects the
+CO concentrations and the radiative forcing.
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} set up emissions and forcing arrays}
+\PYG{n}{emissions} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{(}\PYG{l+m+mi}{250}\PYG{p}{)}
+\PYG{n}{emissions}\PYG{p}{[}\PYG{p}{:}\PYG{l+m+mi}{125}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mf}{10.0}
+
+\PYG{c+c1}{\PYGZsh{} create output arrays}
+\PYG{n}{nrun}\PYG{o}{=}\PYG{l+m+mi}{9}
+\PYG{n}{C} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{empty}\PYG{p}{(}\PYG{p}{(}\PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{,} \PYG{n}{nrun}\PYG{p}{)}\PYG{p}{)}
+\PYG{n}{F} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{empty}\PYG{p}{(}\PYG{p}{(}\PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{,} \PYG{n}{nrun}\PYG{p}{)}\PYG{p}{)}
+\PYG{n}{T} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{empty}\PYG{p}{(}\PYG{p}{(}\PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{,} \PYG{n}{nrun}\PYG{p}{)}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} initialise plot}
+\PYG{n}{fig} \PYG{o}{=} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{figure}\PYG{p}{(}\PYG{p}{)}
+\PYG{n}{ax1} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{221}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{emissions}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{black}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Emissions (GtC)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax2} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{222}\PYG{p}{)}
+\PYG{n}{ax3} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{223}\PYG{p}{)}
+\PYG{n}{ax4} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{224}\PYG{p}{)}
+
+\PYG{n}{ecs} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{p}{[}\PYG{l+m+mf}{1.0}\PYG{p}{,} \PYG{l+m+mf}{2.0}\PYG{p}{,} \PYG{l+m+mf}{3.0}\PYG{p}{,} \PYG{l+m+mf}{4.0}\PYG{p}{,} \PYG{l+m+mf}{5.0}\PYG{p}{,} \PYG{l+m+mf}{3.0}\PYG{p}{,} \PYG{l+m+mf}{3.0}\PYG{p}{,} \PYG{l+m+mf}{3.0}\PYG{p}{,} \PYG{l+m+mf}{3.0}\PYG{p}{]}\PYG{p}{)}
+\PYG{n}{tcr} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{p}{[}\PYG{l+m+mf}{1.75}\PYG{p}{,} \PYG{l+m+mf}{1.75}\PYG{p}{,} \PYG{l+m+mf}{1.75}\PYG{p}{,} \PYG{l+m+mf}{1.75}\PYG{p}{,} \PYG{l+m+mf}{1.75}\PYG{p}{,} \PYG{l+m+mf}{0.75}\PYG{p}{,} \PYG{l+m+mf}{1.25}\PYG{p}{,} \PYG{l+m+mf}{2.25}\PYG{p}{,} \PYG{l+m+mf}{2.75}\PYG{p}{]}\PYG{p}{)}
+\PYG{n}{colors} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{\PYGZsh{}800000}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{\PYGZsh{}808000}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{\PYGZsh{}008000}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{\PYGZsh{}008080}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{\PYGZsh{}000080}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{\PYGZsh{}000000}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{\PYGZsh{}004000}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{\PYGZsh{}00c000}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{\PYGZsh{}00ff00}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}
+
+\PYG{c+c1}{\PYGZsh{} run the model and plot outputs}
+\PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{nrun}\PYG{p}{)}\PYG{p}{:}
+    \PYG{n}{C}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{n}{i}\PYG{p}{]}\PYG{p}{,}\PYG{n}{F}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{n}{i}\PYG{p}{]}\PYG{p}{,}\PYG{n}{T}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{n}{fair}\PYG{o}{.}\PYG{n}{forward}\PYG{o}{.}\PYG{n}{fair\PYGZus{}scm}\PYG{p}{(}
+        \PYG{n}{emissions}\PYG{o}{=}\PYG{n}{emissions}\PYG{p}{,}
+        \PYG{n}{useMultigas}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,}
+        \PYG{n}{tcrecs}\PYG{o}{=}\PYG{p}{[}\PYG{n}{tcr}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{p}{,} \PYG{n}{ecs}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{p}{]}\PYG{p}{,}
+    \PYG{p}{)}
+
+    \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{C}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{n}{i}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{n}{colors}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{ECS=}\PYG{l+s+si}{\PYGZpc{}3.1f}\PYG{l+s+s1}{K, TCR=}\PYG{l+s+si}{\PYGZpc{}4.2f}\PYG{l+s+s1}{K}\PYG{l+s+s1}{\PYGZsq{}} \PYG{o}{\PYGZpc{}} \PYG{p}{(}\PYG{n}{ecs}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{p}{,} \PYG{n}{tcr}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{p}{)}\PYG{p}{)}
+    \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{CO\PYGZdl{}\PYGZus{}2\PYGZdl{} concentrations (ppm)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{ax3}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{F}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{n}{i}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{n}{colors}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{p}{)}
+    \PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Radiative forcing (W.m\PYGZdl{}\PYGZca{}}\PYG{l+s+s1}{\PYGZob{}}\PYG{l+s+s1}{\PYGZhy{}2\PYGZcb{}\PYGZdl{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{T}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{n}{i}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{n}{colors}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{p}{)}
+    \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Temperature anomaly (K)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{(}\PYG{p}{)}\PYG{p}{;}
+\end{sphinxVerbatim}
+
+\noindent\sphinxincludegraphics{{examples_14_0}.png}
+
+Some recent studies (\sphinxhref{https://www.nature.com/articles/nclimate3278}{Armour
+2017}; \sphinxhref{http://onlinelibrary.wiley.com/doi/10.1002/2016GL068406/abstract}{Gregory and
+Andrews
+2016})
+suggest that ECS and TCR may not be constant. Fortunately we can
+investigate this in FAIR by specifying \sphinxcode{tcrecs} as a two dimensional
+((number of years, 2)) array. Notice the effect that a varying ECS/TCR
+has on the temperature.
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{from} \PYG{n+nn}{scipy}\PYG{n+nn}{.}\PYG{n+nn}{stats} \PYG{k}{import} \PYG{n}{lognorm}\PYG{p}{,} \PYG{n}{truncnorm}
+
+\PYG{c+c1}{\PYGZsh{} generate an ECS time series that roughly follows the AR5 likely range}
+\PYG{n}{ecs} \PYG{o}{=} \PYG{n}{lognorm}\PYG{o}{.}\PYG{n}{rvs}\PYG{p}{(}\PYG{l+m+mf}{0.4}\PYG{p}{,} \PYG{n}{size}\PYG{o}{=}\PYG{l+m+mi}{250}\PYG{p}{,} \PYG{n}{scale}\PYG{o}{=}\PYG{l+m+mi}{3}\PYG{p}{,} \PYG{n}{random\PYGZus{}state}\PYG{o}{=}\PYG{l+m+mi}{299}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} define TCR in terms of a realised warming fraction}
+\PYG{n}{rwf} \PYG{o}{=} \PYG{n}{truncnorm}\PYG{o}{.}\PYG{n}{rvs}\PYG{p}{(}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{3}\PYG{p}{,} \PYG{l+m+mi}{3}\PYG{p}{,} \PYG{n}{loc}\PYG{o}{=}\PYG{l+m+mf}{0.6}\PYG{p}{,} \PYG{n}{scale}\PYG{o}{=}\PYG{l+m+mf}{0.1}\PYG{p}{,} \PYG{n}{size}\PYG{o}{=}\PYG{l+m+mi}{250}\PYG{p}{,} \PYG{n}{random\PYGZus{}state}\PYG{o}{=}\PYG{l+m+mi}{301}\PYG{p}{)}
+\PYG{n}{tcr} \PYG{o}{=} \PYG{n}{rwf}\PYG{o}{*}\PYG{n}{ecs}
+
+\PYG{n}{emissions} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{zeros}\PYG{p}{(}\PYG{l+m+mi}{250}\PYG{p}{)}
+\PYG{n}{emissions}\PYG{p}{[}\PYG{p}{:}\PYG{l+m+mi}{125}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mf}{10.0}
+
+\PYG{n}{C}\PYG{p}{,}\PYG{n}{F}\PYG{p}{,}\PYG{n}{T} \PYG{o}{=} \PYG{n}{fair}\PYG{o}{.}\PYG{n}{forward}\PYG{o}{.}\PYG{n}{fair\PYGZus{}scm}\PYG{p}{(}
+    \PYG{n}{emissions}\PYG{o}{=}\PYG{n}{emissions}\PYG{p}{,}
+    \PYG{n}{useMultigas}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,}
+    \PYG{n}{tcrecs}\PYG{o}{=}\PYG{n}{np}\PYG{o}{.}\PYG{n}{vstack}\PYG{p}{(}\PYG{p}{[}\PYG{n}{tcr}\PYG{p}{,} \PYG{n}{ecs}\PYG{p}{]}\PYG{p}{)}\PYG{o}{.}\PYG{n}{T}\PYG{p}{,}
+\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} plot the output}
+\PYG{n}{fig} \PYG{o}{=} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{figure}\PYG{p}{(}\PYG{p}{)}
+\PYG{n}{ax1} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{221}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{ecs}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{black}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{ECS}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{tcr}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{black}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{ls}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{:}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{TCR}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{(}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{ECS/TCR (K)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax2} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{222}\PYG{p}{)}
+\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{C}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{blue}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{CO\PYGZdl{}\PYGZus{}2\PYGZdl{} concentrations (ppm)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax3} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{223}\PYG{p}{)}
+\PYG{n}{ax3}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{F}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{orange}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Radiative forcing (W.m\PYGZdl{}\PYGZca{}}\PYG{l+s+s1}{\PYGZob{}}\PYG{l+s+s1}{\PYGZhy{}2\PYGZcb{}\PYGZdl{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax4} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{224}\PYG{p}{)}
+\PYG{n}{ax4}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{T}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{red}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax4}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Temperature anomaly (K)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
+\end{sphinxVerbatim}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{p}{(}\PYG{l+m+mi}{250}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{)}
+\end{sphinxVerbatim}
+
+\noindent\sphinxincludegraphics{{examples_16_1}.png}
+
+The alternative is to specify the values of \sphinxcode{q} directly (a 2D array)
+that go into the temperature calculation, bypassing \sphinxcode{tcrecs}
+completely (setting \sphinxcode{tcrecs=None}). It is not known under what
+circumstances the user may want to do this, but be assured it's
+possible!
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} set up emissions and forcing arrays}
+\PYG{n}{emissions} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ones}\PYG{p}{(}\PYG{l+m+mi}{250}\PYG{p}{)} \PYG{o}{*} \PYG{l+m+mf}{10.0}
+\PYG{n}{emissions}\PYG{p}{[}\PYG{l+m+mi}{125}\PYG{p}{:}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mf}{0.0}
+
+\PYG{n}{q} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{ones}\PYG{p}{(}\PYG{p}{(}\PYG{l+m+mi}{250}\PYG{p}{,}\PYG{l+m+mi}{2}\PYG{p}{)}\PYG{p}{)}
+\PYG{n}{q}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{0}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mf}{0.2}
+\PYG{n}{q}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{1}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mf}{0.6}
+\PYG{n}{C}\PYG{p}{,}\PYG{n}{F}\PYG{p}{,}\PYG{n}{T} \PYG{o}{=} \PYG{n}{fair}\PYG{o}{.}\PYG{n}{forward}\PYG{o}{.}\PYG{n}{fair\PYGZus{}scm}\PYG{p}{(}
+    \PYG{n}{emissions}\PYG{o}{=}\PYG{n}{emissions}\PYG{p}{,}
+    \PYG{n}{useMultigas}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,}
+    \PYG{n}{tcrecs}\PYG{o}{=}\PYG{k+kc}{None}\PYG{p}{,}
+    \PYG{n}{q}\PYG{o}{=}\PYG{n}{q}\PYG{p}{,}
+\PYG{p}{)}
+\PYG{n+nb}{print} \PYG{p}{(}\PYG{n}{C}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{p}{,} \PYG{n}{F}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{p}{,} \PYG{n}{T}\PYG{p}{[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{p}{)}
+\end{sphinxVerbatim}
+
+
+\section{Multi-species mode}
+\label{\detokenize{examples:multi-species-mode}}
+More interesting scenarios can be created with the full suite of forcing
+agents. The key changes from CO-only mode that should be
+remembered are:
+\begin{itemize}
+\item {} 
+This time the emissions dataset is a (nt, 40) array of inputs
+
+\item {} 
+\sphinxcode{useMultigas} should be set to \sphinxcode{True}, or omitted (this is the
+default option)
+
+\item {} 
+The concentration and forcing outputs are themselves 2-dimensional
+arrays of size (nt, 31) and (nt, 13) respectively.
+
+\end{itemize}
+
+
+\subsection{Emissions}
+\label{\detokenize{examples:emissions}}
+Specify an (nt, 40) emissions array. The index order and units of the
+columns are as follows:
+
+\begin{longtable}{|l|l|l|}
+\hline
+\sphinxstylethead{\relax 
+Index
+\unskip}\relax &\sphinxstylethead{\relax 
+Species
+\unskip}\relax &\sphinxstylethead{\relax 
+Units
+\unskip}\relax \\
+\hline\endfirsthead
+
+\multicolumn{3}{c}%
+{\makebox[0pt]{\tablecontinued{\tablename\ \thetable{} -- continued from previous page}}}\\
+\hline
+\sphinxstylethead{\relax 
+Index
+\unskip}\relax &\sphinxstylethead{\relax 
+Species
+\unskip}\relax &\sphinxstylethead{\relax 
+Units
+\unskip}\relax \\
+\hline\endhead
+
+\hline \multicolumn{3}{|r|}{\makebox[0pt][r]{\tablecontinued{Continued on next page}}}\\\hline
+\endfoot
+
+\endlastfoot
+
+
+0
+&
+Year
+&
+year
+\\
+\hline
+1
+&
+CO-fossil
+&
+GtC/yr
+\\
+\hline
+2
+&
+CO-landuse
+&
+GtC/yr
+\\
+\hline
+3
+&
+CH
+&
+Mt/yr
+\\
+\hline
+4
+&
+NO
+&
+MtN/yr
+\\
+\hline
+5
+&
+SOx
+&
+MtS/yr
+\\
+\hline
+6
+&
+CO
+&
+Mt/yr
+\\
+\hline
+7
+&
+NMVOC
+&
+Mt/yr
+\\
+\hline
+8
+&
+NOx
+&
+MtN/yr
+\\
+\hline
+9
+&
+BC
+&
+Mt/yr
+\\
+\hline
+10
+&
+OC
+&
+Mt/yr
+\\
+\hline
+11
+&
+NH
+&
+Mt/yr
+\\
+\hline
+12
+&
+CF
+&
+kt/yr
+\\
+\hline
+13
+&
+CF
+&
+kt/yr
+\\
+\hline
+14
+&
+CF
+&
+kt/yr
+\\
+\hline
+15
+&
+HFC23
+&
+kt/yr
+\\
+\hline
+16
+&
+HFC32
+&
+kt/yr
+\\
+\hline
+17
+&
+HFC43-10
+&
+kt/yr
+\\
+\hline
+18
+&
+HFC125
+&
+kt/yr
+\\
+\hline
+19
+&
+HFC134a
+&
+kt/yr
+\\
+\hline
+20
+&
+HFC143a
+&
+kt/yr
+\\
+\hline
+21
+&
+HFC227ea
+&
+kt/yr
+\\
+\hline
+22
+&
+HFC245fa
+&
+kt/yr
+\\
+\hline
+23
+&
+SF
+&
+kt/yr
+\\
+\hline
+24
+&
+CFC11
+&
+kt/yr
+\\
+\hline
+25
+&
+CFC12
+&
+kt/yr
+\\
+\hline
+26
+&
+CFC113
+&
+kt/yr
+\\
+\hline
+27
+&
+CFC114
+&
+kt/yr
+\\
+\hline
+28
+&
+CFC115
+&
+kt/yr
+\\
+\hline
+29
+&
+CCl
+&
+kt/yr
+\\
+\hline
+30
+&
+Methyl chloroform
+&
+kt/yr
+\\
+\hline
+31
+&
+HCFC22
+&
+kt/yr
+\\
+\hline
+32
+&
+HCFC141b
+&
+kt/yr
+\\
+\hline
+33
+&
+HCFC142b
+&
+kt/yr
+\\
+\hline
+34
+&
+Halon 1211
+&
+kt/yr
+\\
+\hline
+35
+&
+Halon 1202
+&
+kt/yr
+\\
+\hline
+36
+&
+Halon 1301
+&
+kt/yr
+\\
+\hline
+37
+&
+Halon 2401
+&
+kt/yr
+\\
+\hline
+38
+&
+CHBr
+&
+kt/yr
+\\
+\hline
+39
+&
+CHCl
+&
+kt/yr
+\\
+\hline\end{longtable}
+
+
+The index order of the columns follows that of the RCP datasets at
+\sphinxurl{http://www.pik-potsdam.de/~mmalte/rcps/}.
 
 
 \section{RCPs}
-\label{\detokenize{Example-Usage:rcps}}
+\label{\detokenize{examples:rcps}}
 We can run FAIR with the CO emissions and non-CO
 forcing from the four representative concentration pathway scenarios. To
 use the emissions-based version specify \sphinxcode{useMultigas=True} in the call
@@ -204,11 +895,9 @@ emissions of methane and nitrous oxide are switched on.
 \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Temperature anomaly (K)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{Example-Usage_7_0}.png}
-
 
 \section{Concentrations of well-mixed greenhouse gases}
-\label{\detokenize{Example-Usage:concentrations-of-well-mixed-greenhouse-gases}}
+\label{\detokenize{examples:concentrations-of-well-mixed-greenhouse-gases}}
 The output of FAIR (in most cases) is a 3-element tuple of
 concentrations, effective radiative forcing and temperature change since
 pre-industrial. Concentrations are a 31-column array of greenhouse
@@ -262,15 +951,9 @@ investigate the GHG concentrations coming out of the model:
 \PYG{n}{ax1}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{(}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\begin{sphinxVerbatim}[commandchars=\\\{\}]
-\PYG{o}{\PYGZlt{}}\PYG{n}{matplotlib}\PYG{o}{.}\PYG{n}{legend}\PYG{o}{.}\PYG{n}{Legend} \PYG{n}{at} \PYG{l+m+mh}{0x7f7ef86e6850}\PYG{o}{\PYGZgt{}}
-\end{sphinxVerbatim}
-
-\noindent\sphinxincludegraphics{{Example-Usage_9_1}.png}
-
 
 \section{Radiative forcing}
-\label{\detokenize{Example-Usage:radiative-forcing}}
+\label{\detokenize{examples:radiative-forcing}}
 We consider 13 separate species of radiative forcing: CO,
 CH, NO, minor GHGs, tropospheric ozone,
 stratospheric ozone, stratospheric water vapour from methane oxidation,
@@ -312,11 +995,9 @@ some of the more interesting examples.
 \PYG{n}{ax1}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{(}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{Example-Usage_11_0}.png}
-
 
 \section{Ensemble generation}
-\label{\detokenize{Example-Usage:ensemble-generation}}
+\label{\detokenize{examples:ensemble-generation}}
 An advantage of FAIR is that it is very quick to run (much less than a
 second on an average machine). Therefore it can be used to generate
 probabilistic future ensembles. We'll show a 100-member ensemble.
@@ -349,17 +1030,10 @@ probabilistic future ensembles. We'll show a 100-member ensemble.
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-\PYG{n}{CPU} \PYG{n}{times}\PYG{p}{:} \PYG{n}{user} \PYG{l+m+mi}{0} \PYG{n}{ns}\PYG{p}{,} \PYG{n}{sys}\PYG{p}{:} \PYG{l+m+mi}{0} \PYG{n}{ns}\PYG{p}{,} \PYG{n}{total}\PYG{p}{:} \PYG{l+m+mi}{0} \PYG{n}{ns}
-\PYG{n}{Wall} \PYG{n}{time}\PYG{p}{:} \PYG{l+m+mf}{7.15} \PYG{n}{µs}
-\end{sphinxVerbatim}
-
-\begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{n}{fig} \PYG{o}{=} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{figure}\PYG{p}{(}\PYG{p}{)}
 \PYG{n}{ax1} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{111}\PYG{p}{)}
 \PYG{n}{ax1}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp85}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{T}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
-
-\noindent\sphinxincludegraphics{{Example-Usage_14_0}.png}
 
 The resulting projections show a large spread. Some of these ensemble
 members are unrealistic, ranging from around 0.4 to 2.0 K temperature
@@ -382,17 +1056,11 @@ observations.
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-\PYG{l+m+mi}{54}
-\end{sphinxVerbatim}
-
-\begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{c+c1}{\PYGZsh{} What does this do to the ensemble?}
 \PYG{n}{fig} \PYG{o}{=} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{figure}\PYG{p}{(}\PYG{p}{)}
 \PYG{n}{ax1} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{111}\PYG{p}{)}
 \PYG{n}{ax1}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp85}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{T}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{n}{constrained}\PYG{p}{]}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
-
-\noindent\sphinxincludegraphics{{Example-Usage_18_0}.png}
 
 Some, but not all, of the higher end scenarios have been constrained
 out, but there is still quite a large range of total temperature change

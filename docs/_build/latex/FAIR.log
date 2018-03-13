@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.9.28)  12 MAR 2018 18:08
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.9.28)  13 MAR 2018 18:23
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1260,119 +1260,128 @@ LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <10> not available
 
 ]
 Chapter 1.
-LaTeX Font Info:    Try loading font information for T1+pcr on input line 1.
-
-(/apps/applications/texlive/2017/1/default/2017/texmf-dist/tex/latex/psnfss/t1p
-cr.fd
-File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
-) [1
+[1
 
 ] [2
 
 ]
 Chapter 2.
+LaTeX Font Info:    Try loading font information for T1+pcr on input line 1.
+
+(/apps/applications/texlive/2017/1/default/2017/texmf-dist/tex/latex/psnfss/t1p
+cr.fd
+File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
+) [3] [4
+
+]
+Chapter 3.
 LaTeX Font Info:    Font shape `T1/pcr/bx/n' in size <9> not available
-(Font)              Font shape `T1/pcr/b/n' tried instead on input line 104.
-LaTeX Font Info:    Try loading font information for TS1+pcr on input line 109.
+(Font)              Font shape `T1/pcr/b/n' tried instead on input line 107.
+LaTeX Font Info:    Try loading font information for TS1+pcr on input line 113.
 
 
 (/apps/applications/texlive/2017/1/default/2017/texmf-dist/tex/latex/psnfss/ts1
 pcr.fd
 File: ts1pcr.fd 2001/06/04 font definitions for TS1/pcr.
-) [3]
-<Example-Usage_5_0.png, id=100, 953.5625pt x 517.935pt>
-File: Example-Usage_5_0.png Graphic file (type png)
-<use Example-Usage_5_0.png>
-Package pdftex.def Info: Example-Usage_5_0.png  used on input line 154. on inpu
-t line 154.
-Package pdftex.def Info: Requested size: 469.75502pt x 255.15758pt on input lin
-e 154.
- [4 <./Example-Usage_5_0.png>]
-<Example-Usage_7_0.png, id=107, 944.52875pt x 519.9425pt>
-File: Example-Usage_7_0.png Graphic file (type png)
-<use Example-Usage_7_0.png>
-Package pdftex.def Info: Example-Usage_7_0.png  used on input line 207. on inpu
-t line 207.
-Package pdftex.def Info: Requested size: 469.75502pt x 258.59015pt on input lin
-e 207.
- [5]
+)
 LaTeX Font Info:    Font shape `T1/pcr/m/it' in size <9> not available
-(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 239.
+(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 148.
+ [5]
+<examples_6_0.png, id=129, 939.51pt x 517.935pt>
+File: examples_6_0.png Graphic file (type png)
+<use examples_6_0.png>
+Package pdftex.def Info: examples_6_0.png  used on input line 178. on input lin
+e 178.
+Package pdftex.def Info: Requested size: 469.75502pt x 258.96686pt on input lin
+e 178.
+ [6 <./examples_6_0.png>]
+<examples_8_0.png, id=137, 939.51pt x 249.93375pt>
+File: examples_8_0.png Graphic file (type png)
+<use examples_8_0.png>
+Package pdftex.def Info: examples_8_0.png  used on input line 211. on input lin
+e 211.
+Package pdftex.def Info: Requested size: 469.75502pt x 124.96657pt on input lin
+e 211.
 
-Overfull \vbox (1.61751pt too high) detected at line 263
+Overfull \vbox (1.09422pt too high) detected at line 280
  []
 
-[6 <./Example-Usage_7_0.png>]
-<Example-Usage_9_1.png, id=122, 935.495pt x 531.9875pt>
-File: Example-Usage_9_1.png Graphic file (type png)
-<use Example-Usage_9_1.png>
-Package pdftex.def Info: Example-Usage_9_1.png  used on input line 269. on inpu
-t line 269.
-Package pdftex.def Info: Requested size: 469.75502pt x 267.13766pt on input lin
-e 269.
- [7 <./Example-Usage_9_1.png>]
-<Example-Usage_11_0.png, id=129, 933.4875pt x 538.01pt>
-File: Example-Usage_11_0.png Graphic file (type png)
-<use Example-Usage_11_0.png>
-Package pdftex.def Info: Example-Usage_11_0.png  used on input line 315. on inp
-ut line 315.
-Package pdftex.def Info: Requested size: 469.75502pt x 270.74472pt on input lin
-e 315.
- [8 <./Example-Usage_11_0.png>]
-<Example-Usage_14_0.png, id=135, 933.4875pt x 517.935pt>
-File: Example-Usage_14_0.png Graphic file (type png)
-<use Example-Usage_14_0.png>
-Package pdftex.def Info: Example-Usage_14_0.png  used on input line 362. on inp
-ut line 362.
-Package pdftex.def Info: Requested size: 469.75502pt x 260.64229pt on input lin
-e 362.
- [9]
-<Example-Usage_18_0.png, id=141, 933.4875pt x 517.935pt>
-File: Example-Usage_18_0.png Graphic file (type png)
-<use Example-Usage_18_0.png>
-Package pdftex.def Info: Example-Usage_18_0.png  used on input line 395. on inp
-ut line 395.
-Package pdftex.def Info: Requested size: 469.75502pt x 260.64229pt on input lin
-e 395.
- [10 <./Example-Usage_14_0.png>] [11 <./Example-Usage_18_0.png>] [12
+[7 <./examples_8_0.png>]
+<examples_10_1.png, id=145, 939.51pt x 517.935pt>
+File: examples_10_1.png Graphic file (type png)
+<use examples_10_1.png>
+Package pdftex.def Info: examples_10_1.png  used on input line 296. on input li
+ne 296.
+Package pdftex.def Info: Requested size: 469.75502pt x 258.96686pt on input lin
+e 296.
+ [8] [9 <./examples_10_1.png>]
+<examples_12_0.png, id=157, 947.54pt x 517.935pt>
+File: examples_12_0.png Graphic file (type png)
+<use examples_12_0.png>
+Package pdftex.def Info: examples_12_0.png  used on input line 367. on input li
+ne 367.
+Package pdftex.def Info: Requested size: 469.75502pt x 256.7698pt on input line
+ 367.
+ [10 <./examples_12_0.png>]
+<examples_14_0.png, id=164, 947.54pt x 517.935pt>
+File: examples_14_0.png Graphic file (type png)
+<use examples_14_0.png>
+Package pdftex.def Info: examples_14_0.png  used on input line 430. on input li
+ne 430.
+Package pdftex.def Info: Requested size: 469.75502pt x 256.7698pt on input line
+ 430.
+ [11]
+Underfull \vbox (badness 2837) detected at line 476
+ []
 
-]
-Chapter 3.
-LaTeX Font Info:    Try loading font information for TS1+ptm on input line 407.
+[12 <./examples_14_0.png>]
+<examples_16_1.png, id=179, 947.54pt x 517.935pt>
+File: examples_16_1.png Graphic file (type png)
+<use examples_16_1.png>
+Package pdftex.def Info: examples_16_1.png  used on input line 482. on input li
+ne 482.
+Package pdftex.def Info: Requested size: 469.75502pt x 256.7698pt on input line
+ 482.
+LaTeX Font Info:    Try loading font information for TS1+ptm on input line 514.
 
 
 (/apps/applications/texlive/2017/1/default/2017/texmf-dist/tex/latex/psnfss/ts1
 ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-) [13] [14
+) [13 <./examples_16_1.png>] [14] [15] [16] [17] [18]
+Chapter 4.
+[19
 
-] [15
+] [20
+
+] [21
 
 
-] (./FAIR.ind [16
+] (./FAIR.ind [22
 
 
-] [17
+] [23
 
 
 ])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 428.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 428.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1096.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1096.
  (./FAIR.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 428.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 428.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1096.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1096.
+
 Package rerunfilecheck Info: File `FAIR.out' has not changed.
-(rerunfilecheck)             Checksum: 54A5E6B9DC78732C09A91F4993BB9201;1537.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 428.
+(rerunfilecheck)             Checksum: E2AB9CB86555C84207F0E32ABA41177B;1950.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1096.
  ) 
 Here is how much of TeX's memory you used:
- 13821 strings out of 492990
- 196427 string characters out of 6121926
- 331278 words of memory out of 5000000
- 17017 multiletter control sequences out of 15000+600000
- 44363 words of font info for 68 fonts, out of 8000000 for 9000
+ 13866 strings out of 492990
+ 196974 string characters out of 6121926
+ 344106 words of memory out of 5000000
+ 17040 multiletter control sequences out of 15000+600000
+ 53263 words of font info for 74 fonts, out of 8000000 for 9000
  1142 hyphenation exceptions out of 8191
- 37i,12n,45p,494b,449s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 37i,12n,45p,837b,449s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/apps/applications/texlive/2017/1/default/2017/texmf-dist/fonts/enc/dvips/ba
 se/8r.enc}</apps/applications/texlive/2017/1/default/2017/texmf-dist/fonts/type
 1/public/amsfonts/cm/cmmi5.pfb></apps/applications/texlive/2017/1/default/2017/
@@ -1387,10 +1396,10 @@ onts/type1/urw/helvetic/uhvb8a.pfb></apps/applications/texlive/2017/1/default/2
 ications/texlive/2017/1/default/2017/texmf-dist/fonts/type1/urw/times/utmb8a.pf
 b></apps/applications/texlive/2017/1/default/2017/texmf-dist/fonts/type1/urw/ti
 mes/utmr8a.pfb>
-Output written on FAIR.pdf (21 pages, 707002 bytes).
+Output written on FAIR.pdf (27 pages, 564797 bytes).
 PDF statistics:
- 225 PDF objects out of 1000 (max. 8388607)
- 173 compressed objects within 2 object streams
- 34 named destinations out of 1000 (max. 500000)
- 139 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 286 PDF objects out of 1000 (max. 8388607)
+ 227 compressed objects within 3 object streams
+ 50 named destinations out of 1000 (max. 500000)
+ 163 words of extra memory for PDF output out of 10000 (max. 10000000)
 
