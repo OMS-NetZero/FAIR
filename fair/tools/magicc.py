@@ -109,7 +109,7 @@ def scen_open(filename,
             raise ValueError("Can only fill in history unambiguously if "    +
             "first year in SCEN file is 2000 or earlier. You have requested "+
             "startyear=%d and the first year in SCEN file is %d"
-            % (startyear, scen_year0))
+            % (startyear, scen_years[0]))
         else:
             # tack RCP45 on to beginning
             rcp_emis = _import_emis_file('rcp45').emissions
