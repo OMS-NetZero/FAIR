@@ -143,6 +143,36 @@ def test_scenfile():
     assert np.allclose(E3, rcp45.Emissions.emissions[185:,:], rtol=1e-8,
         atol=2e-4)
 
+    # Test `_import_emis_file`
+    assert magicc._import_emis_file('rcp26') == rcp3pd.Emissions
+    assert magicc._import_emis_file('rcp6') == rcp6.Emissions
+    assert magicc._import_emis_file('rcp85') == rcp85.Emissions
+    with pytest.raises(ValueError):
+        magicc._import_emis_file('rcp19')
+
+    test_files = os.path.join(os.path.dirname(__file__), "scenfiles")
+    scenfile_2000 = os.path.join(test_files, "WORLD_ONLY.SCEN")
+    scenfile_2010 = os.path.join(test_files, "WORLD_ONLY_2010.SCEN")
+
+    # Test CFCs inclusion.
+    with pytest.raises(ValueError):
+        magicc.scen_open(datadir + 'RCP45.SCEN', include_cfcs=np.zeros(0))
+    E4 = magicc.scen_open(
+            scenfile_2000, startyear=2000, include_cfcs=np.ones((51, 16)))
+    assert E4[0, -1] == 1
+    with pytest.raises(ValueError):
+        magicc.scen_open(datadir + 'RCP45.SCEN', include_cfcs="foo")
+
+    # Test filling of history and harmonisation.
+    with pytest.raises(ValueError):
+        magicc.scen_open(scenfile_2010)
+    with pytest.raises(ValueError):
+        magicc.scen_open(scenfile_2000, harmonise=1950)
+    with pytest.raises(ValueError):
+        magicc.scen_open(scenfile_2000, harmonise=2060)
+    E5 = magicc.scen_open(scenfile_2000, harmonise=2010)
+    assert E5[0, 1] == rcp45.Emissions.co2_fossil[0]
+
 
 def test_strat_h2o_scale_factor():
     # Default scale factor changed to 0.12 for Etminan but can be overridden
