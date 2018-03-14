@@ -3,7 +3,7 @@ from __future__ import division
 import inspect
 import numpy as np
 from scipy.optimize import root
-from .ancil import natural, cmip6_volcanic, cmip6_solar
+from .ancil import natural, cmip6_volcanic, cmip6_solar, historical_scale
 from .constants import molwt, lifetime, radeff
 from .constants.general import M_ATMOS
 from .forcing import ozone_tr, ozone_st, h2o_st, contrails, aerosols, bc_snow,\
@@ -55,6 +55,7 @@ def fair_scm(
     scaleAerosolAR5=True,
     fixPre1850RCP=True,
     useTropO3TFeedback=True,
+    scaleHistoricalAR5=False,
     ):
 
   # Conversion between ppm CO2 and GtC emissions
@@ -131,6 +132,11 @@ def fair_scm(
         scale = np.tile(scale, nt).reshape((nt,nF))
     else:
       raise ValueError("scale should be a (13,) or (nt, 13) array")
+
+    # if scaling the historical time series to match AR5, apply these factors
+    # to whatever the user specifies
+    if scaleHistoricalAR5:
+      scale=scale*historical_scale.all[:nt,:]
 
   else:
     ngas = 1
