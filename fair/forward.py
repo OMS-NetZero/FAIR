@@ -3,7 +3,7 @@ from __future__ import division
 import inspect
 import numpy as np
 from scipy.optimize import root
-from .ancil import natural, cmip6_volcanic, cmip6_solar, historical_scale
+from .ancil import natural, cmip6_volcanic, cmip6_solar, historical_scaling
 from .constants import molwt, lifetime, radeff
 from .constants.general import M_ATMOS
 from .forcing import ozone_tr, ozone_st, h2o_st, contrails, aerosols, bc_snow,\
@@ -136,7 +136,7 @@ def fair_scm(
     # if scaling the historical time series to match AR5, apply these factors
     # to whatever the user specifies
     if scaleHistoricalAR5:
-      scale=scale*historical_scale.all[:nt,:]
+      scale=scale*historical_scaling.all[:nt,:]
 
   else:
     ngas = 1
