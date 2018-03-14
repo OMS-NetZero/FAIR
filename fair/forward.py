@@ -123,6 +123,15 @@ def fair_scm(
       raise ValueError(
         "natural emissions should be a scalar, 2-element, or nt x 2 array")
 
+    # check scale factor is correct shape. If 1D inflate to 2D
+    if scale.shape[-1]==nF:
+      if scale.ndim==2 and scale.shape[0]==nt:
+        pass
+      elif scale.ndim==1:
+        scale = np.tile(scale, nt).reshape((nt,nF))
+    else:
+      raise ValueError("scale should be a (13,) or (nt, 13) array")
+
   else:
     ngas = 1
     nF   = 1
@@ -247,8 +256,8 @@ def fair_scm(
     F[:,11] = F_volcanic
     F[:,12] = F_solar
 
-    # multiply by scale factors for non-CO2 forcing
-    F[0,1:] = F[0,1:] * scale[1:]
+    # multiply by scale factors
+    F[0,:] = F[0,:] * scale[0,:]
 
   else: # this needs to be included in the forcing.ghg module really
     if np.isscalar(other_rf):
@@ -324,8 +333,8 @@ def fair_scm(
       F[t,5] = ozone_st.magicc(C[t,15:], C_pi[15:])
       F[t,6] = h2o_st.linear(F[t,1], ratio=stwv_from_ch4)
 
-      # multiply non-CO2 forcing by scale factors
-      F[t,1:] = F[t,1:] * scale[1:]
+      # multiply by scale factors
+      F[t,:] = F[t,:] * scale[t,:]
 
       # 3. Temperature
       # Update the thermal response boxes
