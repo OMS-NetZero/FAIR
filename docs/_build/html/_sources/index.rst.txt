@@ -14,12 +14,12 @@ FAIR: Finite Amplitude Impulse Response simple climate model
    installation.rst
    examples.rst
 
-.. automodule:: fair
+.. .. autofunction:: fair.forcing.aerosols.aerocom_direct
 
 
-Indices and tables
-==================
+.. Indices and tables
+.. ==================
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. * :ref:`genindex`
+.. * :ref:`modindex`
+.. * :ref:`search`

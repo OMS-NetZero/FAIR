@@ -1,7 +1,0 @@
-\begin{sphinxtheindex}
-\def\bigletter#1{{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
-
-  \bigletter F
-  \item fair (module), \hyperpage{18}
-
-\end{sphinxtheindex}

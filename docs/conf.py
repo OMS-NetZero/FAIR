@@ -120,6 +120,15 @@ latex_elements = {
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
+'passoptionstopackages' : """
+\\let\\originalPassOptionsToPackage\\PassOptionsToPackage
+\\makeatletter
+\\def\\PassOptionsToPackage#1{%
+  \\def\\@tempa{#1}\\def\\@tempb{pdfencoding=unicode}%
+  \\ifx\\@tempa\\@tempb\\expandafter\\@gobbletwo
+  \\else\\expandafter\\originalPassOptionsToPackage\\fi {#1}}
+\\makeatother
+""",
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
