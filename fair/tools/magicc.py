@@ -83,10 +83,10 @@ def scen_open(filename,
 
     # Add CFCs if requested
     if type(include_cfcs) is np.ndarray:
-        if include_cfcs.shape != (nt,16):
+        if include_cfcs.shape != (len(full_years), 16):
             raise ValueError("If chlorinated gas emissions are provided by " +
             "the user they should be of size nt x 16 where nt is the number "+
-            "of consecutive years.")
+            "of consecutive years. Size is %s." % str(include_cfcs.shape))
         emissions_filled = np.append(emissions_filled, include_cfcs, axis=1)
     elif include_cfcs==False:
         pass
@@ -109,7 +109,7 @@ def scen_open(filename,
             raise ValueError("Can only fill in history unambiguously if "    +
             "first year in SCEN file is 2000 or earlier. You have requested "+
             "startyear=%d and the first year in SCEN file is %d"
-            % (startyear, scen_year0))
+            % (startyear, scen_years[0]))
         else:
             # tack RCP45 on to beginning
             rcp_emis = _import_emis_file('rcp45').emissions
