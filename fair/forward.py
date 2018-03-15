@@ -90,7 +90,7 @@ def fair_scm(
     # If custom gas lifetimes are supplied, use them, else import defaults
     if type(lifetimes) is np.ndarray:
       if len(lifetimes)!=ngas:
-        raise ValueError("custom GHG lifetime array must have " + str(ngas) + 
+        raise ValueError("custom GHG lifetime array must have " + str(ngas) +
         " elements")
     else:
       lifetimes = lifetime.aslist
@@ -104,7 +104,7 @@ def fair_scm(
       if stwv_from_ch4==None: stwv_from_ch4=0.15
     else:
       raise ValueError("ghg_forcing should be 'etminan' (default) or 'myhre'")
-      
+
     # Check natural emissions and convert to 2D array if necessary
     if type(natural) in [float,int]:
       natural = natural * np.ones((nt,2))
@@ -142,7 +142,7 @@ def fair_scm(
       raise ValueError(
         "Neither emissions or other_rf is defined as a timeseries")
 
-  # If TCR and ECS are supplied, calculate the q1 and q2 model coefficients 
+  # If TCR and ECS are supplied, calculate the q1 and q2 model coefficients
   # (overwriting any other q array that might have been supplied)
   # ref eq. (4) and (5) of Millar et al ACP (2017)
   k = 1.0 - (d/tcr_dbl)*(1.0 - np.exp(-tcr_dbl/d))  # Allow TCR to vary
@@ -204,7 +204,7 @@ def fair_scm(
     # in W/m2/ppb and concentrations of minor gases are in ppt.
     F[0,3] = np.sum((C[0,3:] - C_pi[3:]) * radeff.aslist[3:] * 0.001)
 
-    # Tropospheric ozone: 
+    # Tropospheric ozone:
     if useStevenson:
       F[0,4] = ozone_tr.stevenson(emissions[0,:], C[0,1], T=np.sum(T_j[0,:]),
         feedback=useTropO3TFeedback, fix_pre1850_RCP=fixPre1850RCP)
@@ -264,12 +264,12 @@ def fair_scm(
   T[0]=np.sum(T_j[0,:],axis=-1)
 
   for t in range(1,nt):
-    # Calculate the parametrised iIRF and check if it is over the maximum 
+    # Calculate the parametrised iIRF and check if it is over the maximum
     # allowed value
     iirf[t] = rc * C_acc[t-1]  + rt*T[t-1]  + r0
     if iirf[t] >= iirf_max:
       iirf[t] = iirf_max
-      
+
     # Linearly interpolate a solution for alpha
     if t == 1:
       time_scale_sf = (root(iirf_interp_funct,0.16,args=(a,tau,iirf[t])))['x']
@@ -315,7 +315,7 @@ def fair_scm(
       F[t,0:3] = ghg(C[t,0:3]+np.array([C_pi[0],0,0]), C_pi[0:3], F2x=F2x)
       F[t,3] = np.sum((C[t,3:] - C_pi[3:]) * radeff.aslist[3:] * 0.001)
       if useStevenson:
-        F[t,4] = ozone_tr.stevenson(emissions[t,:], C[t,1], T=T[t-1], 
+        F[t,4] = ozone_tr.stevenson(emissions[t,:], C[t,1], T=T[t-1],
           feedback=useTropO3TFeedback, fix_pre1850_RCP=fixPre1850RCP)
       else:
         F[t,4] = ozone_tr.regress(emissions[t,:], beta=b_tro3)
