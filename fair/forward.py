@@ -3,7 +3,7 @@ from __future__ import division
 import inspect
 import numpy as np
 from scipy.optimize import root
-from .ancil import natural, cmip6_volcanic, cmip6_solar
+from .ancil import natural, cmip6_volcanic, cmip6_solar, historical_scaling
 from .constants import molwt, lifetime, radeff
 from .constants.general import M_ATMOS
 from .forcing import ozone_tr, ozone_st, h2o_st, contrails, aerosols, bc_snow,\
@@ -46,6 +46,7 @@ def fair_scm(
     b_aero = np.array([-35.29e-4, 0.0, -5.034e-4, -5.763e-4, 453e-4,
         -37.83e-4, -10.35e-4]),
     b_tro3 = np.array([2.8249e-4, 1.0695e-4, -9.3604e-4, 99.7831e-4]),
+    ghan_params = np.array([-1.95011431, 0.01107147, 0.01387492]),
     stevens_params = np.array([0.001875, 0.634, 60.]),
     useMultigas=True,
     useStevenson=True,
@@ -54,6 +55,7 @@ def fair_scm(
     scaleAerosolAR5=True,
     fixPre1850RCP=True,
     useTropO3TFeedback=True,
+    scaleHistoricalAR5=False,
     ):
 
   # Conversion between ppm CO2 and GtC emissions
@@ -121,6 +123,20 @@ def fair_scm(
     else:
       raise ValueError(
         "natural emissions should be a scalar, 2-element, or nt x 2 array")
+
+    # check scale factor is correct shape. If 1D inflate to 2D
+    if scale.shape[-1]==nF:
+      if scale.ndim==2 and scale.shape[0]==nt:
+        pass
+      elif scale.ndim==1:
+        scale = np.tile(scale, nt).reshape((nt,nF))
+    else:
+      raise ValueError("scale should be a (13,) or (nt, 13) array")
+
+    # if scaling the historical time series to match AR5, apply these factors
+    # to whatever the user specifies
+    if scaleHistoricalAR5:
+      scale=scale*historical_scaling.all[:nt,:]
 
   else:
     ngas = 1
@@ -229,7 +245,8 @@ def fair_scm(
         scale_AR5=scaleAerosolAR5)
       if 'ghan' in aerosol_forcing.lower():
         F[:,8] = F[:,8] + aerosols.ghan_indirect(emissions,
-          scale_AR5=scaleAerosolAR5, fix_pre1850_RCP=fixPre1850RCP)
+          scale_AR5=scaleAerosolAR5, fix_pre1850_RCP=fixPre1850RCP,
+          ghan_params=ghan_params)
     else:
       raise ValueError("aerosol_forcing should be one of 'stevens', "+
         "aerocom, aerocom+ghan")
@@ -245,8 +262,8 @@ def fair_scm(
     F[:,11] = F_volcanic
     F[:,12] = F_solar
 
-    # multiply by scale factors for non-CO2 forcing
-    F[0,1:] = F[0,1:] * scale[1:]
+    # multiply by scale factors
+    F[0,:] = F[0,:] * scale[0,:]
 
   else: # this needs to be included in the forcing.ghg module really
     if np.isscalar(other_rf):
@@ -322,8 +339,8 @@ def fair_scm(
       F[t,5] = ozone_st.magicc(C[t,15:], C_pi[15:])
       F[t,6] = h2o_st.linear(F[t,1], ratio=stwv_from_ch4)
 
-      # multiply non-CO2 forcing by scale factors
-      F[t,1:] = F[t,1:] * scale[1:]
+      # multiply by scale factors
+      F[t,:] = F[t,:] * scale[t,:]
 
       # 3. Temperature
       # Update the thermal response boxes

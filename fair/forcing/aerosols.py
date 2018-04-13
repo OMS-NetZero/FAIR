@@ -87,7 +87,8 @@ def aerocom_direct(emissions, beta = np.array(
     return scale * F
 
 
-def ghan_indirect(emissions, fix_pre1850_RCP=True, scale_AR5=False):
+def ghan_indirect(emissions, fix_pre1850_RCP=True, scale_AR5=False,
+    ghan_params=np.array([-1.95011431, 0.01107147, 0.01387492])):
     """Estimates the aerosol indirect effect based on the simple model in
     Ghan et al., (2013), doi:10.1002/jgrd.50567.
 
@@ -115,13 +116,21 @@ def ghan_indirect(emissions, fix_pre1850_RCP=True, scale_AR5=False):
                          results from the CAM5 GCM. As reported in AR5 WG1 Ch7,
                          GCMs tend to overestimate forcing from aerosol-cloud
                          interactions.
+        ghan_params:     3-element numpy array
+                         0: scale factor
+                         1: sensitivity to SOx emissions
+                         2: sensitivity to BC+OC emissions
     Outputs:
         Forcing timeseries
     """
 
     year, em_SOx, em_BC, em_OC = emissions[:,[0, 5, 9, 10]].T
 
-    def _ERFaci(em, scale=-1.95011431, b_SOx=0.01107147, b_POM=0.01387492):
+    def _ERFaci(em,
+        ghan_params=np.array([-1.95011431, 0.01107147, 0.01387492])):
+        scale = ghan_params[0]
+        b_SOx = ghan_params[1]
+        b_POM = ghan_params[2]
         return scale*np.log(1+b_SOx*em[0]+b_POM*em[1])
 
     # PI forcing was not zero as there were some emissions. Use estimates
@@ -131,19 +140,21 @@ def ghan_indirect(emissions, fix_pre1850_RCP=True, scale_AR5=False):
     F_pd = np.zeros(nt)
     for i in range(nt):
         if year[i]>=1850 or fix_pre1850_RCP==False:
-            F_pd[i] = _ERFaci([em_SOx[i], em_BC[i]+em_OC[i]])
+            F_pd[i] = _ERFaci([em_SOx[i], em_BC[i]+em_OC[i]],
+                              ghan_params=ghan_params)
         else:
             # linearly interpolate between 1765 and 1850
             E_1850 = np.array([r45e.sox[85], r45e.bc[85]+r45e.oc[85]])
             F_pd[i] = _ERFaci((year[i]-1765)/85.*E_1850 + 
-                              (1850-year[i])/85.*E_1765 )
+                              (1850-year[i])/85.*E_1765,
+                              ghan_params=ghan_params)
 
     # 1765 emissions = zero forcing
-    F_1765 = _ERFaci(E_1765)
+    F_1765 = -0.3002836449793625
+    F_2011 = -1.5236182344467388
 
-    # are we rescaling to AR5 best estimate?
+    # are we rescaling to AR5 best estimate with the default parameters?
     if scale_AR5:
-        F_2011 = _ERFaci([r45e.sox[246], r45e.bc[246]+r45e.oc[246]])
         scale=-0.45/(F_2011-F_1765)
     else:
         scale=1.0
