@@ -39,7 +39,7 @@ def fair_scm(
     fossilCH4_frac=0.,
     natural=natural.Emissions.emissions,
     efficacy=np.array([1.]*13),
-    scale=np.array([1.]*13),
+    scale=None,
     oxCH4_frac=0.61,
     ghg_forcing="Etminan",
     stwv_from_ch4=None,
@@ -125,13 +125,15 @@ def fair_scm(
         "natural emissions should be a scalar, 2-element, or nt x 2 array")
 
     # check scale factor is correct shape. If 1D inflate to 2D
-    if scale.shape[-1]==nF:
+    if scale is None:
+        scale = np.ones((nt,nF))
+    elif scale.shape[-1]==nF:
       if scale.ndim==2 and scale.shape[0]==nt:
         pass
       elif scale.ndim==1:
         scale = np.tile(scale, nt).reshape((nt,nF))
     else:
-      raise ValueError("scale should be a (13,) or (nt, 13) array")
+      raise ValueError("scale should be None, or a (13,) or (nt, 13) array")
 
     # if scaling the historical time series to match AR5, apply these factors
     # to whatever the user specifies
@@ -157,6 +159,16 @@ def fair_scm(
     else:
       raise ValueError(
         "Neither emissions or other_rf is defined as a timeseries")
+
+    # check scale factor is correct shape. If 0D inflate to 1D
+    if scale is None:
+      scale = np.ones(nt)
+    elif np.isscalar(scale) or scale.shape==(1,):
+      scale = np.ones(nt)*scale
+    elif scale.ndim==1 and scale.shape[0]==nt:
+      pass
+    else:
+      raise ValueError("scale should be None, a scalar or a (nt,) array")
 
   # If TCR and ECS are supplied, calculate the q1 and q2 model coefficients 
   # (overwriting any other q array that might have been supplied)
@@ -268,10 +280,10 @@ def fair_scm(
   else: # this needs to be included in the forcing.ghg module really
     if np.isscalar(other_rf):
       F[0,0] = (F2x/np.log(2.)) * np.log(
-        (C[0,0] + C_pi[0]) / C_pi[0]) + other_rf
+        (C[0,0] + C_pi[0]) / C_pi[0]) * scale[0] + other_rf
     else:
       F[0,0] = (F2x/np.log(2.)) * np.log(
-        (C[0,0] + C_pi[0]) / C_pi[0]) + other_rf[0]
+        (C[0,0] + C_pi[0]) / C_pi[0]) * scale[0] + other_rf[0]
 
   if restart_in == False:
     # Update the thermal response boxes
@@ -360,10 +372,10 @@ def fair_scm(
 
       if np.isscalar(other_rf):
         F[t,0] = (F2x/np.log(2.)) * np.log(
-          (C[t,0] + C_pi[0]) / C_pi[0]) + other_rf
+          (C[t,0] + C_pi[0]) / C_pi[0]) * scale[t] + other_rf
       else:
         F[t,0] = (F2x/np.log(2.)) * np.log(
-          (C[t,0] + C_pi[0]) / C_pi[0]) + other_rf[t]
+          (C[t,0] + C_pi[0]) / C_pi[0]) * scale[t] + other_rf[t]
 
       T_j[t,:] = T_j[t-1,:]*np.exp(-1.0/d) + q[t,:]*(1-np.exp((-1.0)/d))*F[t,:]
       T[t]=np.sum(T_j[t,:],axis=-1)
