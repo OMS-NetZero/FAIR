@@ -137,8 +137,8 @@ def fair_scm(
         elif scale.shape[-1]==nF:
             if scale.ndim==2 and scale.shape[0]==nt:
                 pass
-        elif scale.ndim==1:
-            scale = np.tile(scale, nt).reshape((nt,nF))
+            elif scale.ndim==1:
+                scale = np.tile(scale, nt).reshape((nt,nF))
         else:
             raise ValueError("scale should be None, or a (13,) or (nt, 13) array")
 
