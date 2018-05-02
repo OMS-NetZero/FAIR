@@ -39,7 +39,7 @@ def fair_scm(
     fossilCH4_frac=0.,
     natural=natural.Emissions.emissions,
     efficacy=np.array([1.]*13),
-    scale=np.array([1.]*13),
+    scale=None,
     oxCH4_frac=0.61,
     ghg_forcing="Etminan",
     stwv_from_ch4=None,
@@ -132,13 +132,15 @@ def fair_scm(
               "array")
 
         # check scale factor is correct shape. If 1D inflate to 2D
-        if scale.shape[-1]==nF:
+        if scale is None:
+            scale = np.ones((nt,nF))
+        elif scale.shape[-1]==nF:
             if scale.ndim==2 and scale.shape[0]==nt:
                 pass
             elif scale.ndim==1:
                 scale = np.tile(scale, nt).reshape((nt,nF))
         else:
-            raise ValueError("scale should be a (13,) or (nt, 13) array")
+            raise ValueError("scale should be None, or a (13,) or (nt, 13) array")
 
         # if scaling the historical time series to match AR5, apply these
         # factors to whatever the user specifies
