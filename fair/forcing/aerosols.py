@@ -39,9 +39,11 @@ def Stevens(emissions, stevens_params=np.array([0.001875, 0.634, 60.]),
     return F
 
 
-def aerocom_direct(emissions, beta = np.array(
-    [-35.29e-4, 0.0, -5.034e-4, -5.763e-4, 453e-4, -37.83e-4, -10.35e-4]),
-    scale_AR5=False):
+def aerocom_direct(emissions,
+        beta = np.array(
+          [-6.2227e-3, 0.0, -3.8392e-4, -1.16551e-3, 1.601537e-2, -1.45339e-3,
+           -1.55605e-3])
+    ):
 
     """Calculates direct aerosol forcing based on linear relationships between
     emissions and forcing in Aerocom models.
@@ -69,22 +71,17 @@ def aerocom_direct(emissions, beta = np.array(
     em_SOx, em_CO, em_NMVOC, em_NOx, em_BC, em_OC, em_NH3 = \
         emissions[:,[5, 6, 7, 8, 9, 10, 11]].T
 
-    F_SOx    = beta[0] * em_SOx    * molwt.SO2 / molwt.S
+    F_SOx    = beta[0] * em_SOx
     F_CO     = beta[1] * em_CO
     F_NMVOC  = beta[2] * em_NMVOC
-    F_NOx    = beta[3] * em_NOx    * molwt.NO / molwt.N
+    F_NOx    = beta[3] * em_NOx
     F_BC     = beta[4] * em_BC
     F_OC     = beta[5] * em_OC
     F_NH3    = beta[6] * em_NH3
 
     F = F_SOx+F_CO+F_NMVOC+F_NOx+F_BC+F_OC+F_NH3
 
-    if scale_AR5:
-        scale=1.3741
-    else:
-        scale=1.0
-
-    return scale * F
+    return F
 
 
 def ghan_indirect(emissions, fix_pre1850_RCP=True, scale_AR5=False,
