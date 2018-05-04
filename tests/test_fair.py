@@ -10,7 +10,16 @@ from fair.constants import molwt
 from fair.forcing.ghg import myhre
 
 
+def test_landuse_ext():
+    # we impose a land-use ERF of -0.1 W/m2 and a forcing scale factor if 1.2
+    # land use forcing should be -0.12 W/m2
+    C,F,T = fair.forward.fair_scm(emissions=rcp45.Emissions.emissions,
+        landuse_forcing='external', scale=np.ones(13)*1.2, F_landuse=-0.1)
+    assert np.allclose(F[:,10],np.ones(736)*(-0.12))
+
+    
 def test_contrails_nox():
+    # default option, should not break anything
     C,F,T = fair.forward.fair_scm(emissions=rcp45.Emissions.emissions,
         contrail_forcing='NOx')
 
@@ -52,7 +61,10 @@ def test_contrails_fuel():
         0.04835439])
     assert np.allclose(F[174:,7], F_expected)
 
+    
 def test_contrails_ext():
+    # impose contrail forcing of +0.2 W/m2 and scale factor of 1.5; verify that
+    # contrail forcing of 0.3 W/m2 returned
     C,F,T = fair.forward.fair_scm(emissions=rcp45.Emissions.emissions,
         contrail_forcing='ext', F_contrails=0.2, scale=np.ones(13)*1.5)
     assert np.allclose(F[:,7],np.ones(736)*0.3)

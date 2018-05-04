@@ -36,6 +36,7 @@ def fair_scm(
     F_volcanic=cmip6_volcanic.Forcing.volcanic,
     F_solar=cmip6_solar.Forcing.solar,
     F_contrails=0.,
+    F_landuse=0.,
     aviNOx_frac=0.,
     fossilCH4_frac=0.,
     natural=natural.Emissions.emissions,
@@ -59,6 +60,7 @@ def fair_scm(
     scaleHistoricalAR5=False,
     contrail_forcing='NOx',
     kerosene_supply=0.,
+    landuse_forcing='co2',
     ):
 
     # Conversion between ppm CO2 and GtC emissions
@@ -281,11 +283,16 @@ def fair_scm(
         # Black carbon on snow - no feedback dependence
         F[:,9] = bc_snow.linear(emissions)
 
-        # Land use change - scales fairly well with cumulative land use C
-        # emissions. We assume no feedbacks from the carbon cycle. Perhaps
-        # future improvement.
-        F[:,10] = landuse.cumulative(emissions)
-
+        # Land use change - either use a scaling with cumulative CO2 emissions
+        # or an external time series
+        if landuse_forcing.lower()[0]=='c':
+            F[:,10] = landuse.cumulative(emissions)
+        elif landuse_forcing.lower()[0]=='e':
+            F[:,10] = F_landuse
+        else:
+            raise ValueError(
+              "landuse_forcing should be one of 'co2' or 'external'")
+            
         # Volcanic and solar copied straight to the output arrays
         F[:,11] = F_volcanic
         F[:,12] = F_solar
