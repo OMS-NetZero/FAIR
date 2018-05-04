@@ -14,6 +14,7 @@
 
 # cache
 .cache/*
+.pytest_cache/*
 
 # Ipython checkpoints
 .ipynb_checkpoints/*
