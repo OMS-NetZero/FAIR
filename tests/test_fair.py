@@ -63,7 +63,8 @@ def test_multigas_fullemissions_error():
 def test_rcp3pd():
     C,F,T = fair.forward.fair_scm(
         emissions=rcp3pd.Emissions.emissions,
-        b_aero = np.array([-35.29e-4*1.3741*molwt.SO2/molwt.S, 0.0, -5.034e-4*1.3741, -5.763e-4*1.3741*molwt.NO/molwt.N, 453e-4*1.3741,-37.83e-4*1.3741, -10.35e-4*1.3741])
+        b_aero = np.array([-35.29e-4*1.3741*molwt.SO2/molwt.S, 0.0, -5.034e-4*1.3741, -5.763e-4*1.3741*molwt.NO/molwt.N, 453e-4*1.3741,-37.83e-4*1.3741, -10.35e-4*1.3741]),
+        efficacy=np.ones(13)
     )
     datadir = os.path.join(os.path.dirname(__file__), 'rcp3pd/')
     C_expected = np.load(datadir + 'C.npy')
@@ -78,7 +79,8 @@ def test_rcp3pd():
 def test_rcp45():
     C,F,T = fair.forward.fair_scm(
         emissions=rcp45.Emissions.emissions,
-        b_aero = np.array([-35.29e-4*1.3741*molwt.SO2/molwt.S, 0.0, -5.034e-4*1.3741, -5.763e-4*1.3741*molwt.NO/molwt.N, 453e-4*1.3741,-37.83e-4*1.3741, -10.35e-4*1.3741])
+        b_aero = np.array([-35.29e-4*1.3741*molwt.SO2/molwt.S, 0.0, -5.034e-4*1.3741, -5.763e-4*1.3741*molwt.NO/molwt.N, 453e-4*1.3741,-37.83e-4*1.3741, -10.35e-4*1.3741]),
+        efficacy=np.ones(13)
     )
     datadir = os.path.join(os.path.dirname(__file__), 'rcp45/')
     C_expected = np.load(datadir + 'C.npy')
@@ -93,7 +95,8 @@ def test_rcp45():
 def test_rcp6():
     C,F,T = fair.forward.fair_scm(
         emissions=rcp6.Emissions.emissions,
-        b_aero = np.array([-35.29e-4*1.3741*molwt.SO2/molwt.S, 0.0, -5.034e-4*1.3741, -5.763e-4*1.3741*molwt.NO/molwt.N, 453e-4*1.3741,-37.83e-4*1.3741, -10.35e-4*1.3741])
+        b_aero = np.array([-35.29e-4*1.3741*molwt.SO2/molwt.S, 0.0, -5.034e-4*1.3741, -5.763e-4*1.3741*molwt.NO/molwt.N, 453e-4*1.3741,-37.83e-4*1.3741, -10.35e-4*1.3741]),
+        efficacy=np.ones(13)
     )
     datadir = os.path.join(os.path.dirname(__file__), 'rcp6/')
     C_expected = np.load(datadir + 'C.npy')
@@ -108,7 +111,8 @@ def test_rcp6():
 def test_rcp85():
     C,F,T = fair.forward.fair_scm(
         emissions=rcp85.Emissions.emissions,
-        b_aero = np.array([-35.29e-4*1.3741*molwt.SO2/molwt.S, 0.0, -5.034e-4*1.3741, -5.763e-4*1.3741*molwt.NO/molwt.N, 453e-4*1.3741,-37.83e-4*1.3741, -10.35e-4*1.3741])
+        b_aero = np.array([-35.29e-4*1.3741*molwt.SO2/molwt.S, 0.0, -5.034e-4*1.3741, -5.763e-4*1.3741*molwt.NO/molwt.N, 453e-4*1.3741,-37.83e-4*1.3741, -10.35e-4*1.3741]),
+        efficacy=np.ones(13)
     )
     datadir = os.path.join(os.path.dirname(__file__), 'rcp85/')
     C_expected = np.load(datadir + 'C.npy')

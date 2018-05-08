@@ -40,7 +40,7 @@ def fair_scm(
     aviNOx_frac=0.,
     fossilCH4_frac=0.,
     natural=natural.Emissions.emissions,
-    efficacy=np.array([1.]*13),
+    efficacy=np.array([1.]*9 + [3.] + [1.]*3),
     scale=None,
     oxCH4_frac=0.61,
     ghg_forcing="Etminan",
