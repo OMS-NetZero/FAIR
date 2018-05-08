@@ -50,8 +50,8 @@
 
 
 \title{FAIR Documentation}
-\date{Mar 14, 2018}
-\release{1.2.1}
+\date{May 08, 2018}
+\release{1.3}
 \author{FAIR development team}
 \newcommand{\sphinxlogo}{}
 \renewcommand{\releasename}{Release}
@@ -79,7 +79,7 @@ Millar, Zebedee Nicholls, Pierre Friedlingstein and Myles Allen. The
 motivation for developing it and its formulation is documented in a
 \sphinxhref{https://www.atmos-chem-phys.net/17/7213/2017/acp-17-7213-2017.html}{paper published in Atmospheric Chemistry and Physics in 2017}.
 
-The emissions-based model (v1.2) extends FAIR by replacing all sources of
+The emissions-based model (v1.3) extends FAIR by replacing all sources of
 non-CO$_{\text{2}}$ forcing with relationships that are based on the
 source emissions, with the exception of natural forcings (variations
 in solar irradiance and volcanic eruptions). It is useful for
@@ -170,10 +170,10 @@ since the pre-industrial) is always output as a 1D array.
 \PYG{n}{ax1}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Emissions (GtC)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax2} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{222}\PYG{p}{)}
 \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{C}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{blue}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
-\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{CO\PYGZlt{}sub\PYGZgt{}2\PYGZlt{}/sub\PYGZgt{} concentrations (ppm)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{CO\PYGZdl{}\PYGZus{}2\PYGZdl{} concentrations (ppm)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax3} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{223}\PYG{p}{)}
 \PYG{n}{ax3}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{F}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{orange}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
-\PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Radiative forcing (W.m\PYGZlt{}sup\PYGZgt{}\PYGZhy{}2\PYGZlt{}/sup\PYGZgt{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Radiative forcing (W m\PYGZdl{}\PYGZca{}}\PYG{l+s+s1}{\PYGZob{}}\PYG{l+s+s1}{\PYGZhy{}2\PYGZcb{}\PYGZdl{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax4} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{224}\PYG{p}{)}
 \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{T}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{red}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Temperature anomaly (K)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
@@ -205,7 +205,7 @@ the CO2 concentrations are not updated from their pre-industrial value.
 \PYG{n}{fig} \PYG{o}{=} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{figure}\PYG{p}{(}\PYG{p}{)}
 \PYG{n}{ax1} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{221}\PYG{p}{)}
 \PYG{n}{ax1}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{other\PYGZus{}rf}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{F}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{orange}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
-\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Radiative forcing (W.m\PYGZlt{}sup\PYGZgt{}\PYGZhy{}2\PYGZlt{}/sup\PYGZgt{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Radiative forcing (W m\PYGZdl{}\PYGZca{}}\PYG{l+s+s1}{\PYGZob{}}\PYG{l+s+s1}{\PYGZhy{}2\PYGZcb{}\PYGZdl{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax1} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{222}\PYG{p}{)}
 \PYG{n}{ax1}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{other\PYGZus{}rf}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{T}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{red}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax1}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Temperature anomaly (K)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
@@ -274,9 +274,9 @@ This time we will demonstrate with a 10 Gt constant pulse and use a
         \PYG{n}{rt} \PYG{o}{=} \PYG{n}{rt}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}
     \PYG{p}{)}
     \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{C}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{n}{i}\PYG{p}{]}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{run }\PYG{l+s+si}{\PYGZpc{}d}\PYG{l+s+s1}{\PYGZsq{}} \PYG{o}{\PYGZpc{}} \PYG{n}{i}\PYG{p}{)}
-    \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{CO\PYGZlt{}sub\PYGZgt{}2\PYGZlt{}/sub\PYGZgt{} concentrations (ppm)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{CO\PYGZdl{}\PYGZus{}2\PYGZdl{} concentrations (ppm)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
     \PYG{n}{ax3}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{F}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{n}{i}\PYG{p}{]}\PYG{p}{)}
-    \PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Radiative forcing (W.m\PYGZlt{}sup\PYGZgt{}\PYGZhy{}2\PYGZlt{}/sup\PYGZgt{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Radiative forcing (W m\PYGZdl{}\PYGZca{}}\PYG{l+s+s1}{\PYGZob{}}\PYG{l+s+s1}{\PYGZhy{}2\PYGZcb{}\PYGZdl{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
     \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{T}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{n}{i}\PYG{p}{]}\PYG{p}{)}
     \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Temperature anomaly (K)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{(}\PYG{p}{)}\PYG{p}{;}
@@ -384,10 +384,10 @@ important for the rate of decay of atmospheric CO2 in particular.
 \PYG{n}{handles} \PYG{o}{=} \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{C}\PYG{p}{)}
 \PYG{n}{labels} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{4\PYGZhy{}box default}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{4\PYGZhy{}box alternative}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{6\PYGZhy{}box}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{pathological}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}
 \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{(}\PYG{n}{handles}\PYG{p}{,} \PYG{n}{labels}\PYG{p}{)}
-\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{CO\PYGZlt{}sub\PYGZgt{}2\PYGZlt{}/sub\PYGZgt{} concentrations (ppm)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{CO\PYGZdl{}\PYGZus{}2\PYGZdl{} concentrations (ppm)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax3} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{223}\PYG{p}{)}
 \PYG{n}{ax3}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{F}\PYG{p}{)}
-\PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Radiative forcing (W.m\PYGZlt{}sup\PYGZgt{}\PYGZhy{}2\PYGZlt{}/sup\PYGZgt{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Radiative forcing (W m\PYGZdl{}\PYGZca{}}\PYG{l+s+s1}{\PYGZob{}}\PYG{l+s+s1}{\PYGZhy{}2\PYGZcb{}\PYGZdl{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax4} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{224}\PYG{p}{)}
 \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{T}\PYG{p}{)}
 \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Temperature anomaly (K)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
@@ -447,9 +447,9 @@ concentrations and the radiative forcing.
     \PYG{p}{)}
 
     \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{C}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{n}{i}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{n}{colors}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{ECS=}\PYG{l+s+si}{\PYGZpc{}3.1f}\PYG{l+s+s1}{K, TCR=}\PYG{l+s+si}{\PYGZpc{}4.2f}\PYG{l+s+s1}{K}\PYG{l+s+s1}{\PYGZsq{}} \PYG{o}{\PYGZpc{}} \PYG{p}{(}\PYG{n}{ecs}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{p}{,} \PYG{n}{tcr}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{p}{)}\PYG{p}{)}
-    \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{CO\PYGZlt{}sub\PYGZgt{}2\PYGZlt{}/sub\PYGZgt{} concentrations (ppm)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{CO\PYGZdl{}\PYGZus{}2\PYGZdl{} concentrations (ppm)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
     \PYG{n}{ax3}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{F}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{n}{i}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{n}{colors}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{p}{)}
-    \PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Radiative forcing (W.m\PYGZlt{}sup\PYGZgt{}\PYGZhy{}2\PYGZlt{}/sup\PYGZgt{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Radiative forcing (W m\PYGZdl{}\PYGZca{}}\PYG{l+s+s1}{\PYGZob{}}\PYG{l+s+s1}{\PYGZhy{}2\PYGZcb{}\PYGZdl{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
     \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{T}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{n}{i}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{n}{colors}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{p}{)}
     \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Temperature anomaly (K)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{(}\PYG{p}{)}\PYG{p}{;}
@@ -494,10 +494,10 @@ temperature.
 \PYG{n}{ax1}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{ECS/TCR (K)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax2} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{222}\PYG{p}{)}
 \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{C}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{blue}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
-\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{CO\PYGZlt{}sub\PYGZgt{}2\PYGZlt{}/sub\PYGZgt{} concentrations (ppm)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{CO\PYGZdl{}\PYGZus{}2\PYGZdl{} concentrations (ppm)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax3} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{223}\PYG{p}{)}
 \PYG{n}{ax3}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{F}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{orange}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
-\PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Radiative forcing (W.m\PYGZlt{}sup\PYGZgt{}\PYGZhy{}2\PYGZlt{}/sup\PYGZgt{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Radiative forcing (W m\PYGZdl{}\PYGZca{}}\PYG{l+s+s1}{\PYGZob{}}\PYG{l+s+s1}{\PYGZhy{}2\PYGZcb{}\PYGZdl{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax4} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{224}\PYG{p}{)}
 \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{T}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{red}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Temperature anomaly (K)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
@@ -586,10 +586,10 @@ temperature.
 \PYG{n}{handles} \PYG{o}{=} \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{C}\PYG{p}{)}
 \PYG{n}{labels} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{default}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{slow repsonse}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{quick mixed layer response}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{quick deep ocean response}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}
 \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{(}\PYG{n}{handles}\PYG{p}{,} \PYG{n}{labels}\PYG{p}{)}
-\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{CO\PYGZlt{}sub\PYGZgt{}2\PYGZlt{}/sub\PYGZgt{} concentrations (ppm)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{CO\PYGZdl{}\PYGZus{}2\PYGZdl{} concentrations (ppm)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax3} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{223}\PYG{p}{)}
 \PYG{n}{ax3}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{F}\PYG{p}{)}
-\PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Radiative forcing (W.m\PYGZlt{}sup\PYGZgt{}\PYGZhy{}2\PYGZlt{}/sup\PYGZgt{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Radiative forcing (W m\PYGZdl{}\PYGZca{}}\PYG{l+s+s1}{\PYGZob{}}\PYG{l+s+s1}{\PYGZhy{}2\PYGZcb{}\PYGZdl{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax4} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{224}\PYG{p}{)}
 \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{emissions}\PYG{o}{.}\PYG{n}{size}\PYG{p}{)}\PYG{p}{,} \PYG{n}{T}\PYG{p}{)}
 \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Temperature anomaly (K)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
@@ -1422,10 +1422,10 @@ Meinshausen's convention RCP3PD is an alias for RCP2.6.
 \PYG{n}{ax3}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp85}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sum}\PYG{p}{(}\PYG{n}{F85}\PYG{p}{,} \PYG{n}{axis}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{black}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp85}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{T85}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{black}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 
-\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Fossil CO\PYGZlt{}sub\PYGZgt{}2\PYGZlt{}/sub\PYGZgt{} Emissions (GtC)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Fossil CO\PYGZdl{}\PYGZus{}2\PYGZdl{} Emissions (GtC)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax1}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{(}\PYG{p}{)}
-\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{CO\PYGZlt{}sub\PYGZgt{}2\PYGZlt{}/sub\PYGZgt{} concentrations (ppm)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
-\PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Total radiative forcing (W m\PYGZlt{}sup\PYGZgt{}\PYGZhy{}2\PYGZlt{}/sup\PYGZgt{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{CO\PYGZdl{}\PYGZus{}2\PYGZdl{} concentrations (ppm)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Total radiative forcing (W m\PYGZdl{}\PYGZca{}}\PYG{l+s+s1}{\PYGZob{}}\PYG{l+s+s1}{\PYGZhy{}2\PYGZcb{}\PYGZdl{})}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{set\PYGZus{}ylabel}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Temperature anomaly (K)}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
@@ -1504,25 +1504,25 @@ radiative forcing time series coming out of FAIR.
 \PYG{n}{ax1}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp45}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{F45}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{4}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{blue}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{RCP4.5}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax1}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp6}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{F60}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{4}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{red}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{RCP6}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax1}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp85}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{F85}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{4}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{black}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{RCP8.5}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
-\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Tropospheric ozone forcing, W m\PYGZlt{}sup\PYGZgt{}\PYGZhy{}2\PYGZlt{}/sup\PYGZgt{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Tropospheric ozone forcing, W m\PYGZdl{}\PYGZca{}}\PYG{l+s+s2}{\PYGZob{}}\PYG{l+s+s2}{\PYGZhy{}2\PYGZcb{}\PYGZdl{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
 
 \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp3pd}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{F26}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{5}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{green}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{RCP2.6}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp45}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{F45}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{5}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{blue}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{RCP4.5}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp6}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{F60}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{5}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{red}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{RCP6}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax2}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp85}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{F85}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{5}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{black}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{RCP8.5}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
-\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Stratospheric ozone forcing, W m\PYGZlt{}sup\PYGZgt{}\PYGZhy{}2\PYGZlt{}/sup\PYGZgt{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Stratospheric ozone forcing, W m\PYGZdl{}\PYGZca{}}\PYG{l+s+s2}{\PYGZob{}}\PYG{l+s+s2}{\PYGZhy{}2\PYGZcb{}\PYGZdl{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
 
 \PYG{n}{ax3}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp3pd}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{F26}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{8}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{green}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{RCP2.6}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax3}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp45}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{F45}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{8}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{blue}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{RCP4.5}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax3}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp6}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{F60}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{8}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{red}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{RCP6}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax3}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp85}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{F85}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{8}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{black}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{RCP8.5}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
-\PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Aerosol forcing, W m\PYGZlt{}sup\PYGZgt{}\PYGZhy{}2\PYGZlt{}/sup\PYGZgt{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{ax3}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Aerosol forcing, W m\PYGZdl{}\PYGZca{}}\PYG{l+s+s2}{\PYGZob{}}\PYG{l+s+s2}{\PYGZhy{}2\PYGZcb{}\PYGZdl{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
 
 \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp3pd}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{F26}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{10}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{green}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{RCP2.6}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp45}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{F45}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{10}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{blue}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{RCP4.5}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp6}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{F60}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{10}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{red}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{RCP6}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
 \PYG{n}{ax4}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp85}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{F85}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{l+m+mi}{10}\PYG{p}{]}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{black}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{RCP8.5}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
-\PYG{n}{ax4}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Land use forcing, W m\PYGZlt{}sup\PYGZgt{}\PYGZhy{}2\PYGZlt{}/sup\PYGZgt{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{ax4}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{Land use forcing, W m\PYGZdl{}\PYGZca{}}\PYG{l+s+s2}{\PYGZob{}}\PYG{l+s+s2}{\PYGZhy{}2\PYGZcb{}\PYGZdl{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
 \PYG{n}{ax1}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{(}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
@@ -1662,7 +1662,7 @@ observations.
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-\PYG{l+m+mi}{43}
+\PYG{l+m+mi}{28}
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]

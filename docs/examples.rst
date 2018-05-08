@@ -70,10 +70,10 @@ since the pre-industrial) is always output as a 1D array.
     ax1.set_ylabel('Emissions (GtC)')
     ax2 = fig.add_subplot(222)
     ax2.plot(range(0, emissions.size), C, color='blue')
-    ax2.set_ylabel('CO<sub>2</sub> concentrations (ppm)')
+    ax2.set_ylabel('CO$_2$ concentrations (ppm)')
     ax3 = fig.add_subplot(223)
     ax3.plot(range(0, emissions.size), F, color='orange')
-    ax3.set_ylabel('Radiative forcing (W.m<sup>-2</sup>)')
+    ax3.set_ylabel('Radiative forcing (W m$^{-2}$)')
     ax4 = fig.add_subplot(224)
     ax4.plot(range(0, emissions.size), T, color='red')
     ax4.set_ylabel('Temperature anomaly (K)');
@@ -108,7 +108,7 @@ the CO2 concentrations are not updated from their pre-industrial value.
     fig = plt.figure()
     ax1 = fig.add_subplot(221)
     ax1.plot(range(0, other_rf.size), F, color='orange')
-    ax1.set_ylabel('Radiative forcing (W.m<sup>-2</sup>)')
+    ax1.set_ylabel('Radiative forcing (W m$^{-2}$)')
     ax1 = fig.add_subplot(222)
     ax1.plot(range(0, other_rf.size), T, color='red')
     ax1.set_ylabel('Temperature anomaly (K)');
@@ -180,9 +180,9 @@ This time we will demonstrate with a 10 Gt constant pulse and use a
             rt = rt[i]
         )
         ax2.plot(range(0, emissions.size), C[:,i], label='run %d' % i)
-        ax2.set_ylabel('CO<sub>2</sub> concentrations (ppm)')
+        ax2.set_ylabel('CO$_2$ concentrations (ppm)')
         ax3.plot(range(0, emissions.size), F[:,i])
-        ax3.set_ylabel('Radiative forcing (W.m<sup>-2</sup>)')
+        ax3.set_ylabel('Radiative forcing (W m$^{-2}$)')
         ax4.plot(range(0, emissions.size), T[:,i])
         ax4.set_ylabel('Temperature anomaly (K)');
     ax2.legend();
@@ -294,10 +294,10 @@ important for the rate of decay of atmospheric CO2 in particular.
     handles = ax2.plot(range(0, emissions.size), C)
     labels = ['4-box default','4-box alternative','6-box','pathological']
     ax2.legend(handles, labels)
-    ax2.set_ylabel('CO<sub>2</sub> concentrations (ppm)')
+    ax2.set_ylabel('CO$_2$ concentrations (ppm)')
     ax3 = fig.add_subplot(223)
     ax3.plot(range(0, emissions.size), F)
-    ax3.set_ylabel('Radiative forcing (W.m<sup>-2</sup>)')
+    ax3.set_ylabel('Radiative forcing (W m$^{-2}$)')
     ax4 = fig.add_subplot(224)
     ax4.plot(range(0, emissions.size), T)
     ax4.set_ylabel('Temperature anomaly (K)');
@@ -360,9 +360,9 @@ concentrations and the radiative forcing.
         )
         
         ax2.plot(range(0, emissions.size), C[:,i], color=colors[i], label='ECS=%3.1fK, TCR=%4.2fK' % (ecs[i], tcr[i]))
-        ax2.set_ylabel('CO<sub>2</sub> concentrations (ppm)')
+        ax2.set_ylabel('CO$_2$ concentrations (ppm)')
         ax3.plot(range(0, emissions.size), F[:,i], color=colors[i])
-        ax3.set_ylabel('Radiative forcing (W.m<sup>-2</sup>)')
+        ax3.set_ylabel('Radiative forcing (W m$^{-2}$)')
         ax4.plot(range(0, emissions.size), T[:,i], color=colors[i])
         ax4.set_ylabel('Temperature anomaly (K)');
     ax2.legend();
@@ -410,10 +410,10 @@ temperature.
     ax1.set_ylabel('ECS/TCR (K)')
     ax2 = fig.add_subplot(222)
     ax2.plot(range(0, emissions.size), C, color='blue')
-    ax2.set_ylabel('CO<sub>2</sub> concentrations (ppm)')
+    ax2.set_ylabel('CO$_2$ concentrations (ppm)')
     ax3 = fig.add_subplot(223)
     ax3.plot(range(0, emissions.size), F, color='orange')
-    ax3.set_ylabel('Radiative forcing (W.m<sup>-2</sup>)')
+    ax3.set_ylabel('Radiative forcing (W m$^{-2}$)')
     ax4 = fig.add_subplot(224)
     ax4.plot(range(0, emissions.size), T, color='red')
     ax4.set_ylabel('Temperature anomaly (K)');
@@ -507,10 +507,10 @@ temperature.
     handles = ax2.plot(range(0, emissions.size), C)
     labels = ['default','slow repsonse','quick mixed layer response','quick deep ocean response']
     ax2.legend(handles, labels)
-    ax2.set_ylabel('CO<sub>2</sub> concentrations (ppm)')
+    ax2.set_ylabel('CO$_2$ concentrations (ppm)')
     ax3 = fig.add_subplot(223)
     ax3.plot(range(0, emissions.size), F)
-    ax3.set_ylabel('Radiative forcing (W.m<sup>-2</sup>)')
+    ax3.set_ylabel('Radiative forcing (W m$^{-2}$)')
     ax4 = fig.add_subplot(224)
     ax4.plot(range(0, emissions.size), T)
     ax4.set_ylabel('Temperature anomaly (K)');
@@ -890,10 +890,10 @@ Meinshausen's convention RCP3PD is an alias for RCP2.6.
     ax3.plot(rcp85.Emissions.year, np.sum(F85, axis=1), color='black')
     ax4.plot(rcp85.Emissions.year, T85, color='black')
     
-    ax1.set_ylabel('Fossil CO<sub>2</sub> Emissions (GtC)')
+    ax1.set_ylabel('Fossil CO$_2$ Emissions (GtC)')
     ax1.legend()
-    ax2.set_ylabel('CO<sub>2</sub> concentrations (ppm)')
-    ax3.set_ylabel('Total radiative forcing (W m<sup>-2</sup>)')
+    ax2.set_ylabel('CO$_2$ concentrations (ppm)')
+    ax3.set_ylabel('Total radiative forcing (W m$^{-2}$)')
     ax4.set_ylabel('Temperature anomaly (K)');
 
 
@@ -978,25 +978,25 @@ radiative forcing time series coming out of FAIR.
     ax1.plot(rcp45.Emissions.year, F45[:,4], color='blue', label='RCP4.5')
     ax1.plot(rcp6.Emissions.year, F60[:,4], color='red', label='RCP6')
     ax1.plot(rcp85.Emissions.year, F85[:,4], color='black', label='RCP8.5')
-    ax1.set_title("Tropospheric ozone forcing, W m<sup>-2</sup>")
+    ax1.set_title("Tropospheric ozone forcing, W m$^{-2}$")
     
     ax2.plot(rcp3pd.Emissions.year, F26[:,5], color='green', label='RCP2.6')
     ax2.plot(rcp45.Emissions.year, F45[:,5], color='blue', label='RCP4.5')
     ax2.plot(rcp6.Emissions.year, F60[:,5], color='red', label='RCP6')
     ax2.plot(rcp85.Emissions.year, F85[:,5], color='black', label='RCP8.5')
-    ax2.set_title("Stratospheric ozone forcing, W m<sup>-2</sup>")
+    ax2.set_title("Stratospheric ozone forcing, W m$^{-2}$")
     
     ax3.plot(rcp3pd.Emissions.year, F26[:,8], color='green', label='RCP2.6')
     ax3.plot(rcp45.Emissions.year, F45[:,8], color='blue', label='RCP4.5')
     ax3.plot(rcp6.Emissions.year, F60[:,8], color='red', label='RCP6')
     ax3.plot(rcp85.Emissions.year, F85[:,8], color='black', label='RCP8.5')
-    ax3.set_title("Aerosol forcing, W m<sup>-2</sup>")
+    ax3.set_title("Aerosol forcing, W m$^{-2}$")
     
     ax4.plot(rcp3pd.Emissions.year, F26[:,10], color='green', label='RCP2.6')
     ax4.plot(rcp45.Emissions.year, F45[:,10], color='blue', label='RCP4.5')
     ax4.plot(rcp6.Emissions.year, F60[:,10], color='red', label='RCP6')
     ax4.plot(rcp85.Emissions.year, F85[:,10], color='black', label='RCP8.5')
-    ax4.set_title("Land use forcing, W m<sup>-2</sup>")
+    ax4.set_title("Land use forcing, W m$^{-2}$")
     ax1.legend();
 
 
@@ -1147,7 +1147,7 @@ observations.
 
 .. parsed-literal::
 
-    43
+    28
 
 
 .. code:: ipython2

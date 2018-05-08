@@ -15,7 +15,7 @@ motivation for developing it and its formulation is documented in a
 `paper published in Atmospheric Chemistry and Physics in 2017
 <https://www.atmos-chem-phys.net/17/7213/2017/acp-17-7213-2017.html>`_.
 
-The emissions-based model (v1.2) extends FAIR by replacing all sources of
+The emissions-based model (v1.3) extends FAIR by replacing all sources of
 non-CO\ :sub:`2` \ forcing with relationships that are based on the
 source emissions, with the exception of natural forcings (variations 
 in solar irradiance and volcanic eruptions). It is useful for
