@@ -5,9 +5,10 @@ import os
 import numpy as np
 from fair.RCPs import rcp3pd, rcp45, rcp6, rcp85
 from fair.tools import magicc
-from fair.ancil import natural
+from fair.ancil import natural, cmip5_annex2_forcing
 from fair.constants import molwt
 from fair.forcing.ghg import myhre
+
 
 def test_no_arguments():
     with pytest.raises(ValueError):
@@ -26,6 +27,9 @@ def test_zero_emissions():
 
 # Rather than change the testing values, I am going to check the old results
 # can still be recreated with non-default options.
+
+# This means that all multi-gas scenarios will have aerosol scalings that
+# differ from the defaults.
 
 
 def test_ten_GtC_pulse():
@@ -57,7 +61,11 @@ def test_multigas_fullemissions_error():
 
 # There must be a good way to avoid duplication here
 def test_rcp3pd():
-    C,F,T = fair.forward.fair_scm(emissions=rcp3pd.Emissions.emissions)
+    C,F,T = fair.forward.fair_scm(
+        emissions=rcp3pd.Emissions.emissions,
+        b_aero = np.array([-35.29e-4*1.3741*molwt.SO2/molwt.S, 0.0, -5.034e-4*1.3741, -5.763e-4*1.3741*molwt.NO/molwt.N, 453e-4*1.3741,-37.83e-4*1.3741, -10.35e-4*1.3741]),
+        efficacy=np.ones(13)
+    )
     datadir = os.path.join(os.path.dirname(__file__), 'rcp3pd/')
     C_expected = np.load(datadir + 'C.npy')
     F_expected = np.load(datadir + 'F.npy')
@@ -69,7 +77,11 @@ def test_rcp3pd():
 
 
 def test_rcp45():
-    C,F,T = fair.forward.fair_scm(emissions=rcp45.Emissions.emissions)
+    C,F,T = fair.forward.fair_scm(
+        emissions=rcp45.Emissions.emissions,
+        b_aero = np.array([-35.29e-4*1.3741*molwt.SO2/molwt.S, 0.0, -5.034e-4*1.3741, -5.763e-4*1.3741*molwt.NO/molwt.N, 453e-4*1.3741,-37.83e-4*1.3741, -10.35e-4*1.3741]),
+        efficacy=np.ones(13)
+    )
     datadir = os.path.join(os.path.dirname(__file__), 'rcp45/')
     C_expected = np.load(datadir + 'C.npy')
     F_expected = np.load(datadir + 'F.npy')
@@ -81,7 +93,11 @@ def test_rcp45():
 
 
 def test_rcp6():
-    C,F,T = fair.forward.fair_scm(emissions=rcp6.Emissions.emissions)
+    C,F,T = fair.forward.fair_scm(
+        emissions=rcp6.Emissions.emissions,
+        b_aero = np.array([-35.29e-4*1.3741*molwt.SO2/molwt.S, 0.0, -5.034e-4*1.3741, -5.763e-4*1.3741*molwt.NO/molwt.N, 453e-4*1.3741,-37.83e-4*1.3741, -10.35e-4*1.3741]),
+        efficacy=np.ones(13)
+    )
     datadir = os.path.join(os.path.dirname(__file__), 'rcp6/')
     C_expected = np.load(datadir + 'C.npy')
     F_expected = np.load(datadir + 'F.npy')
@@ -93,7 +109,11 @@ def test_rcp6():
 
 
 def test_rcp85():
-    C,F,T = fair.forward.fair_scm(emissions=rcp85.Emissions.emissions)
+    C,F,T = fair.forward.fair_scm(
+        emissions=rcp85.Emissions.emissions,
+        b_aero = np.array([-35.29e-4*1.3741*molwt.SO2/molwt.S, 0.0, -5.034e-4*1.3741, -5.763e-4*1.3741*molwt.NO/molwt.N, 453e-4*1.3741,-37.83e-4*1.3741, -10.35e-4*1.3741]),
+        efficacy=np.ones(13)
+    )
     datadir = os.path.join(os.path.dirname(__file__), 'rcp85/')
     C_expected = np.load(datadir + 'C.npy')
     F_expected = np.load(datadir + 'F.npy')
@@ -272,3 +292,71 @@ def test_myhre():
     Cpi = np.array([278., 722., 273.])
     rf = myhre(C, Cpi)
     assert np.allclose(rf, np.array([1.232721, 0.150752, 0.659443]))
+
+
+def test_landuse_ext():
+    # we impose a land-use ERF of -0.1 W/m2 and a forcing scale factor if 1.2
+    # land use forcing should be -0.12 W/m2
+    C,F,T = fair.forward.fair_scm(emissions=rcp45.Emissions.emissions,
+        landuse_forcing='external', scale=np.ones(13)*1.2, F_landuse=-0.1)
+    assert np.allclose(F[:,10],np.ones(736)*(-0.12))
+
+    
+def test_contrails_nox():
+    # default option, should not break anything
+    C,F,T = fair.forward.fair_scm(emissions=rcp45.Emissions.emissions,
+        contrail_forcing='NOx')
+
+
+def test_contrails_fuel():
+    kerosene_supply = np.array([0.]*175 + [8.9534883721,
+        9.6511627907, 10.4651162791, 11.2790697674, 12.2093023256,
+        13.1395348837, 14.3023255814, 15.3488372093, 16.6279069767,
+        17.9069767442, 19.4186046512, 20.9302325581, 22.5581395349,
+        24.4186046512, 26.3953488372, 28.488372093, 30.8139534884,
+        33.2558139535, 35.9302325581, 38.7209302326, 41.8604651163,
+        45.9302325581, 50.5813953488, 53.3720930233, 55.8139534884,
+        59.6511627907, 64.6511627907, 76.2790697674, 86.3953488372,
+        90.4651162791, 90.6976744186, 104.6511627907, 111.6279069767,
+        115.5813953488, 111.6279069767, 111.7441860465, 112.0930232558,
+        118.7209302326, 122.9069767442, 128.023255814, 128.9534883721,
+        127.0930232558, 128.488372093, 130.2325581395, 138.9534883721,
+        143.488372093, 151.0465116279, 157.6744186047, 164.4186046512,
+        170.3488372093, 170.8139534884, 166.7441860465, 165.1162790698,
+        167.5581395349, 174.4186046512, 179.4186046512, 197.349, 204.095,
+        205.029, 211.022, 218.996, 213.021, 214.353, 215.012, 228.23, 236.063,
+        238.329, 244.104, 247.726, 239.072, 246.544, 254.792])
+    C,F,T = fair.forward.fair_scm(emissions=rcp45.Emissions.emissions[:247,:],
+        contrail_forcing='fuel', kerosene_supply=kerosene_supply, natural=0.,
+        F_volcanic=0., F_solar=0.)
+    F_expected = np.array([
+        0.        , 0.00169919, 0.0018316 , 0.00198607, 0.00214054, 0.00231708,
+        0.00249362, 0.00271429, 0.0029129 , 0.00315564, 0.00339838, 0.00368526,
+        0.00397214, 0.00428108, 0.00463416, 0.00500931, 0.00540652, 0.00584787,
+        0.00631128, 0.00681883, 0.00734845, 0.00794427, 0.00871663, 0.00959933,
+        0.01012895, 0.01059236, 0.01132059, 0.01226949, 0.01447623, 0.0163961 ,
+        0.01716846, 0.01721259, 0.01986068, 0.02118473, 0.02193502, 0.02118473,
+        0.02120679, 0.021273  , 0.02253084, 0.02332527, 0.02429623, 0.02447277,
+        0.02411969, 0.0243845 , 0.02471551, 0.02637057, 0.0272312 , 0.02866558,
+        0.02992343, 0.03120334, 0.03232878, 0.03241705, 0.03164469, 0.03133574,
+        0.03179916, 0.03310114, 0.03405004, 0.03745286, 0.03873312, 0.03891037,
+        0.04004772, 0.04156103, 0.04042709, 0.04067988, 0.04080494, 0.04331345,
+        0.0448    , 0.04523004, 0.04632602, 0.0470134 , 0.04537105, 0.04678908,
+        0.04835439])
+    assert np.allclose(F[174:,7], F_expected)
+
+    
+def test_contrails_ext():
+    # impose contrail forcing of +0.2 W/m2 and scale factor of 1.5; verify that
+    # contrail forcing of 0.3 W/m2 returned
+    C,F,T = fair.forward.fair_scm(emissions=rcp45.Emissions.emissions,
+        contrail_forcing='ext', F_contrails=0.2, scale=np.ones(13)*1.5)
+    assert np.allclose(F[:,7],np.ones(736)*0.3)
+
+
+def test_contrails_invalid():
+    with pytest.raises(ValueError):
+        fair.forward.fair_scm(emissions=rcp45.Emissions.emissions,
+            contrail_forcing='other')
+
+

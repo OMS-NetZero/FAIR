@@ -35,16 +35,18 @@ def fair_scm(
     restart_out=False,
     F_volcanic=cmip6_volcanic.Forcing.volcanic,
     F_solar=cmip6_solar.Forcing.solar,
+    F_contrails=0.,
+    F_landuse=0.,
     aviNOx_frac=0.,
     fossilCH4_frac=0.,
     natural=natural.Emissions.emissions,
-    efficacy=np.array([1.]*13),
+    efficacy=np.array([1.]*9 + [3.] + [1.]*3),
     scale=None,
     oxCH4_frac=0.61,
     ghg_forcing="Etminan",
     stwv_from_ch4=None,
-    b_aero = np.array([-35.29e-4, 0.0, -5.034e-4, -5.763e-4, 453e-4,
-            -37.83e-4, -10.35e-4]),
+    b_aero = np.array([-6.2227e-3, 0.0, -3.8392e-4, -1.16551e-3, 1.601537e-2,
+      -1.45339e-3, -1.55605e-3]),
     b_tro3 = np.array([2.8249e-4, 1.0695e-4, -9.3604e-4, 99.7831e-4]),
     ghan_params = np.array([-1.95011431, 0.01107147, 0.01387492]),
     stevens_params = np.array([0.001875, 0.634, 60.]),
@@ -56,6 +58,9 @@ def fair_scm(
     fixPre1850RCP=True,
     useTropO3TFeedback=True,
     scaleHistoricalAR5=False,
+    contrail_forcing='NOx',
+    kerosene_supply=0.,
+    landuse_forcing='co2',
     ):
 
     # Conversion between ppm CO2 and GtC emissions
@@ -250,15 +255,22 @@ def fair_scm(
 
         # Forcing from contrails. No climate feedback so can live outside
         # of forward model in this version
-        F[:,7] = contrails.from_aviNOx(emissions, aviNOx_frac)
+        if contrail_forcing.lower()[0]=='n':   # from NOx emissions
+            F[:,7] = contrails.from_aviNOx(emissions, aviNOx_frac)
+        elif contrail_forcing.lower()[0]=='f': # from kerosene production
+            F[:,7] = contrails.from_fuel(kerosene_supply)
+        elif contrail_forcing.lower()[0]=='e': # external forcing timeseries
+            F[:,7] = F_contrails
+        else:
+            raise ValueError("contrails must be one of 'NOx' (estimated "+
+              "from NOx emissions), 'fuel' (estimated from annual jet fuel "+
+              "supplied) or 'external' (an external forcing time series).")
 
         # Forcing from aerosols - again no feedback dependence
         if aerosol_forcing.lower()=='stevens':
             F[:,8] = aerosols.Stevens(emissions, stevens_params=stevens_params)
         elif 'aerocom' in aerosol_forcing.lower():
-            F[:,8] = aerosols.aerocom_direct(emissions,
-              beta=b_aero,
-              scale_AR5=scaleAerosolAR5)
+            F[:,8] = aerosols.aerocom_direct(emissions, beta=b_aero)
             if 'ghan' in aerosol_forcing.lower():
                 F[:,8] = F[:,8] + aerosols.ghan_indirect(emissions,
                   scale_AR5=scaleAerosolAR5,
@@ -271,11 +283,16 @@ def fair_scm(
         # Black carbon on snow - no feedback dependence
         F[:,9] = bc_snow.linear(emissions)
 
-        # Land use change - scales fairly well with cumulative land use C
-        # emissions. We assume no feedbacks from the carbon cycle. Perhaps
-        # future improvement.
-        F[:,10] = landuse.cumulative(emissions)
-
+        # Land use change - either use a scaling with cumulative CO2 emissions
+        # or an external time series
+        if landuse_forcing.lower()[0]=='c':
+            F[:,10] = landuse.cumulative(emissions)
+        elif landuse_forcing.lower()[0]=='e':
+            F[:,10] = F_landuse
+        else:
+            raise ValueError(
+              "landuse_forcing should be one of 'co2' or 'external'")
+            
         # Volcanic and solar copied straight to the output arrays
         F[:,11] = F_volcanic
         F[:,12] = F_solar
