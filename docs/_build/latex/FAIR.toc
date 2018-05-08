@@ -22,3 +22,4 @@
 \contentsline {section}{\numberline {3.7}Natural emissions and GHG lifetimes}{24}{section.3.7}
 \contentsline {section}{\numberline {3.8}Ensemble generation}{25}{section.3.8}
 \contentsline {subsection}{\numberline {3.8.1}Adding a temperature constraint}{26}{subsection.3.8.1}
+\contentsline {chapter}{\numberline {4}References}{29}{chapter.4}

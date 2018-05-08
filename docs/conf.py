@@ -47,7 +47,7 @@ master_doc = 'index'
 # General information about the project.
 project = u'FAIR'
 copyright = u'2018, FAIR development team'
-author = u'Chris Smith, Richard Millar, Zeb Nicholls'
+author = u'FAIR development team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
