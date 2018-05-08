@@ -57,13 +57,6 @@ def aerocom_direct(emissions,
     Keywords:
         beta: 7-element array of forcing efficiencies in W m-2 (Mt yr-1)-1 for
             SOx, CO, NMVOC, NOx, BC, OC, NH3 (in that order)
-        scale_AR5:       If True, scale the forcing output so that the best
-                         estimate forcing in 2011 is -0.45 W/m2 based on 2011
-                         emissions from the RCPs. The discrepancy between the
-                         Aerocom and RCP values comes from two sources; (1)
-                         there is no dust forcing considered in Aerocom/FAIR,
-                         and (2) the aerosol semi-direct is accounted for by
-                         applying this scaling factor.
     Outputs:
         Forcing time series
     """
