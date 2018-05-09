@@ -145,7 +145,8 @@ def fair_scm(
             elif scale.ndim==1:
                 scale = np.tile(scale, nt).reshape((nt,nF))
         else:
-            raise ValueError("scale should be None, or a (13,) or (nt, 13) array")
+            raise ValueError("in multi-gas mode, scale should be None, or a "+
+              "(13,) or (nt, 13) array")
 
         # if scaling the historical time series to match AR5, apply these
         # factors to whatever the user specifies
@@ -173,6 +174,20 @@ def fair_scm(
         else:
             raise ValueError(
               "Neither emissions or other_rf is defined as a timeseries")
+
+        # check scale factor is correct shape - either scalar or 1D
+        if scale is None:
+            scale = np.ones(nt)
+        elif scale.ndim==1 and scale.shape[0]==nt:
+            pass
+        else:
+            raise ValueError("in CO2-only mode, scale should be None, a "+
+              "scalar or a (nt,) array")
+
+        # if scaling the historical time series to match AR5, apply these
+        # factors to whatever the user specifies
+        if scaleHistoricalAR5:
+            scale=scale*historical_scaling.co2[:nt]
 
     # If TCR and ECS are supplied, calculate the q1 and q2 model coefficients 
     # (overwriting any other q array that might have been supplied)
@@ -308,6 +323,8 @@ def fair_scm(
             F[0,0] = (F2x/np.log(2.)) * np.log(
               (C[0,0] + C_pi[0]) / C_pi[0]) + other_rf[0]
 
+        F[0,0] = F[0,0] * scale[0]
+
     if restart_in == False:
         # Update the thermal response boxes
         T_j[0,:] = (q[0,:]/d)*(np.sum(F[0,:]))
@@ -404,6 +421,8 @@ def fair_scm(
             else:
                 F[t,0] = (F2x/np.log(2.)) * np.log(
                     (C[t,0] + C_pi[0]) / C_pi[0]) + other_rf[t]
+
+            F[t,0] = F[t,0] * scale[t]
 
             T_j[t,:] = T_j[t-1,:]*np.exp(-1.0/d) + q[t,:]*(
               1-np.exp((-1.0)/d))*F[t,:]
