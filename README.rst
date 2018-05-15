@@ -1,5 +1,6 @@
 | |Build Status|
 | |Binder|
+| |Docs Status|
 
 FAIR
 ====
@@ -76,9 +77,9 @@ References:
 -----------
 
 Smith, C. J., Forster, P. M., Allen, M., Leach, N., Millar, R. J.,
-Passerello, G. A., and Regayre, L. A.: FAIR v1.1: A simple
+Passerello, G. A., and Regayre, L. A.: FAIR v1.3: A simple
 emissions-based impulse response and carbon cycle model, Geosci. Model
-Dev. Discuss., https://doi.org/10.5194/gmd-2017-266, in review, 2017
+Dev., https://doi.org/10.5194/gmd-2017-266, 2018.
 
 Millar, R. J., Nicholls, Z. R., Friedlingstein, P., and Allen, M. R.: A
 modified impulse-response representation of the global near-surface air
@@ -90,3 +91,6 @@ https://doi.org/10.5194/acp-17-7213-2017, 2017.
    :target: https://travis-ci.org/OMS-NetZero/FAIR
 .. |Binder| image:: https://mybinder.org/badge.svg
    :target: https://mybinder.org/v2/gh/OMS-NetZero/FAIR/master?filepath=Example-Usage.ipynb
+.. |Docs Status| image:: https://readthedocs.org/projects/fair/badge/?version=latest
+   :target: http://fair.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
