@@ -2,3 +2,6 @@
 matplotlib
 numpy
 scipy
+sphinx>=1.4
+ipykernel
+nbsphinx

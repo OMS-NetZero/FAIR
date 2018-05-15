@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>fair.forcing package &#8212; FAIR 1.2.1 documentation</title>
+    <title>fair.forcing package &#8212; FAIR 1.3 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.2.1',
+        VERSION:     '1.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -24,6 +24,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
    
@@ -75,7 +76,7 @@ aerosol forcing to SOx emissions in a logarithmic fashion.</p>
 
 <dl class="function">
 <dt id="fair.forcing.aerosols.aerocom_direct">
-<code class="descclassname">fair.forcing.aerosols.</code><code class="descname">aerocom_direct</code><span class="sig-paren">(</span><em>emissions</em>, <em>beta=array([-0.003529</em>, <em>0.</em>, <em>-0.0005034</em>, <em>-0.0005763</em>, <em>0.0453</em>, <em>-0.003783</em>, <em>-0.001035 ])</em>, <em>scale_AR5=False</em><span class="sig-paren">)</span><a class="headerlink" href="#fair.forcing.aerosols.aerocom_direct" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">fair.forcing.aerosols.</code><code class="descname">aerocom_direct</code><span class="sig-paren">(</span><em>emissions</em>, <em>beta=array([-0.0062227</em>, <em>0.</em>, <em>-0.00038392</em>, <em>-0.00116551</em>, <em>0.01601537</em>, <em>-0.00145339</em>, <em>-0.00155605])</em><span class="sig-paren">)</span><a class="headerlink" href="#fair.forcing.aerosols.aerocom_direct" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates direct aerosol forcing based on linear relationships between
 emissions and forcing in Aerocom models.</p>
 <p>Reference: Myhre et al., 2013: <a class="reference external" href="https://www.atmos-chem-phys.net/13/1853/2013">https://www.atmos-chem-phys.net/13/1853/2013</a></p>
@@ -87,13 +88,6 @@ emissions and forcing in Aerocom models.</p>
 <dd><dl class="first last docutils">
 <dt>beta: 7-element array of forcing efficiencies in W m-2 (Mt yr-1)-1 for</dt>
 <dd>SOx, CO, NMVOC, NOx, BC, OC, NH3 (in that order)</dd>
-<dt>scale_AR5:       If True, scale the forcing output so that the best</dt>
-<dd>estimate forcing in 2011 is -0.45 W/m2 based on 2011
-emissions from the RCPs. The discrepancy between the
-Aerocom and RCP values comes from two sources; (1)
-there is no dust forcing considered in Aerocom/FAIR,
-and (2) the aerosol semi-direct is accounted for by
-applying this scaling factor.</dd>
 </dl>
 </dd>
 <dt>Outputs:</dt>
@@ -103,7 +97,7 @@ applying this scaling factor.</dd>
 
 <dl class="function">
 <dt id="fair.forcing.aerosols.ghan_indirect">
-<code class="descclassname">fair.forcing.aerosols.</code><code class="descname">ghan_indirect</code><span class="sig-paren">(</span><em>emissions</em>, <em>fix_pre1850_RCP=True</em>, <em>scale_AR5=False</em><span class="sig-paren">)</span><a class="headerlink" href="#fair.forcing.aerosols.ghan_indirect" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">fair.forcing.aerosols.</code><code class="descname">ghan_indirect</code><span class="sig-paren">(</span><em>emissions</em>, <em>fix_pre1850_RCP=True</em>, <em>scale_AR5=False</em>, <em>ghan_params=array([-1.95011431</em>, <em>0.01107147</em>, <em>0.01387492])</em><span class="sig-paren">)</span><a class="headerlink" href="#fair.forcing.aerosols.ghan_indirect" title="Permalink to this definition">¶</a></dt>
 <dd><p>Estimates the aerosol indirect effect based on the simple model in
 Ghan et al., (2013), doi:10.1002/jgrd.50567.</p>
 <p>This function is just an emulator - a full implementation in Python of the
@@ -130,6 +124,10 @@ emissions from the RCPs. The Ghan emulator is built on
 results from the CAM5 GCM. As reported in AR5 WG1 Ch7,
 GCMs tend to overestimate forcing from aerosol-cloud
 interactions.</dd>
+<dt>ghan_params:     3-element numpy array</dt>
+<dd>0: scale factor
+1: sensitivity to SOx emissions
+2: sensitivity to BC+OC emissions</dd>
 </dl>
 </dd>
 <dt>Outputs:</dt>
@@ -167,6 +165,35 @@ from Lee et al, 2009 (Atmos. Environ.,
 doi:10.1016/j.atmosenv.2009.04.024).</dd>
 </dl>
 <p class="last">ref_isNO2:  True if E_ref is in units of NO2 rather than N.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fair.forcing.contrails.from_fuel">
+<code class="descclassname">fair.forcing.contrails.</code><code class="descname">from_fuel</code><span class="sig-paren">(</span><em>keroseneGt</em>, <em>S_ref=236.063</em>, <em>F_ref=0.0448</em><span class="sig-paren">)</span><a class="headerlink" href="#fair.forcing.contrails.from_fuel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates contrail radiative forcing from fuel supply of jet kerosene.</p>
+<p>This method assumes a linear scaling of ERF with kerosene jet fuel
+supplied, which is a proxy for aircraft activity. The relationship may not
+be linear as suggested in IPCC (1999) and depends on many uncertain
+factors.
+IPCC (1999): Aviation and the Global Atmosphere. J.E.Penner, D.H.Lister,
+D.J.Griggs, D.J.Dokken, M.McFarland (Eds.). Cambridge University Press,
+UK. pp 373</p>
+<dl class="docutils">
+<dt>Inputs:</dt>
+<dd>keroseneGt:  Jet fuel supplied in Gt/yr</dd>
+<dt>Keywords:</dt>
+<dd><dl class="first last docutils">
+<dt>S_ref:       Jet fuel supplied for a reference year (2005), Gt. Source</dt>
+<dd>for default: International Energy Agency, 
+<a class="reference external" href="http://www.iea.org/statistics/statisticssearch/report/">http://www.iea.org/statistics/statisticssearch/report/</a>
+?country=WORLD&amp;product=oil&amp;year=2005</dd>
+<dt>F_ref:       Forcing from linear persistent contrails + contrail</dt>
+<dd>induced cirrus. The default of 0.0448 W/m2 for 2005 is
+from Lee et al, 2009 (Atmos. Environ.,
+doi:10.1016/j.atmosenv.2009.04.024).</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>

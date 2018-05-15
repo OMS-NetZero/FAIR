@@ -22,3 +22,11 @@ in solar irradiance and volcanic eruptions). It is useful for
 assessing future policy commitments to anthropogenic emissions
 (something which we can control) than to radiative forcing (something
 which is less certain and which we can only partially control).
+
+If you use this model, please cite the following references:
+
+1. Smith, C. J., Forster, P. M., Allen, M., Leach, N., Millar, R. J., Passerello, G. A., and Regayre, L. A.: FAIR v1.3: A simple emissions-based impulse response and carbon cycle model, Geosci. Model Dev. https://doi.org/10.5194/gmd-2017-266, 2018.
+
+2. Millar, R. J., Nicholls, Z. R., Friedlingstein, P., and Allen, M. R.: A modified impulse-response representation of the global near-surface air temperature and atmospheric concentration response to carbon dioxide emissions, Atmos. Chem. Phys., 17, 7213-7228, https://doi.org/10.5194/acp-17-7213-2017, 2017.
+
+For assistance, `set up an issue on the GitHub site <https://github.com/OMS-NetZero/FAIR/issues>`_ or contact Chris Smith (c.j.smith1 <AT> leeds <DOT> ac <DOT> uk).

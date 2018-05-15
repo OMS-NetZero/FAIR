@@ -12,7 +12,7 @@ FAIR: Finite Amplitude Impulse Response simple climate model
 
    intro.rst
    installation.rst
-   examples.rst
+   examples.ipynb
    references.rst
 
 .. .. autofunction:: fair.forcing.aerosols.aerocom_direct
