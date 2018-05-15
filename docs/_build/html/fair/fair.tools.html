@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>fair.tools package &#8212; FAIR 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="fair-tools-package">
+<h1>fair.tools package<a class="headerlink" href="#fair-tools-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-fair.tools.constrain">
+<span id="fair-tools-constrain-module"></span><h2>fair.tools.constrain module<a class="headerlink" href="#module-fair.tools.constrain" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fair.tools.constrain.hist_temp">
+<code class="descclassname">fair.tools.constrain.</code><code class="descname">hist_temp</code><span class="sig-paren">(</span><em>Tobs</em>, <em>Tmodel</em>, <em>years</em>, <em>inflate=True</em>, <em>CI=0.9</em><span class="sig-paren">)</span><a class="headerlink" href="#fair.tools.constrain.hist_temp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks to see whether model-derived temperatures fall in observational
+uncertainty.</p>
+<p>Uses the method of Thompson et al., 2015, also used in IPCC AR5 to derive
+temperature trends which includes autocorrelation. The regression slope of
+the observations is compared to the regression slope of the model. If the
+trend of the model is within observational uncertainty, the test passes.</p>
+<p>Reference: J. Climate, 28, 6443-6456 10.1175/JCLI-D-14-00830.1</p>
+<dl class="docutils">
+<dt>inputs:</dt>
+<dd>Tobs: observed temperature time series. Numpy array
+Tmodel: modelled temperature time series. Numpy array
+years: Numpy array of years covered by Tobs and Tmodel</dd>
+<dt>keywords:</dt>
+<dd><dl class="first last docutils">
+<dt>inflate: True (default) if the uncertainty bounds should be inflated</dt>
+<dd>for lag-1 autocorrelation - as used in Thompson.</dd>
+<dt>CI: confidence interval around the mean regression slope to count as</dt>
+<dd>constrained. Default 0.9.</dd>
+</dl>
+</dd>
+<dt>returns:</dt>
+<dd>accept: True if ensemble member agrees with observations else False.
+slope_m: regression slope of modelled temperature
+intercept_m: intercept of modelled temperature
+slope_o: regression slope of observed temperature
+intercept_o: intercept of observed temperature</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fair.tools.magicc">
+<span id="fair-tools-magicc-module"></span><h2>fair.tools.magicc module<a class="headerlink" href="#module-fair.tools.magicc" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fair.tools.magicc.scen_open">
+<code class="descclassname">fair.tools.magicc.</code><code class="descname">scen_open</code><span class="sig-paren">(</span><em>filename</em>, <em>include_cfcs='rcp45'</em>, <em>startyear=1765</em>, <em>harmonise=None</em><span class="sig-paren">)</span><a class="headerlink" href="#fair.tools.magicc.scen_open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens a MAGICC6 .SCEN file and extracts the data. Interpolates linearly
+between non-consecutive years in the SCEN file. Fills in chlorinated gases
+from a specified RCP scenario or from custom emissions.</p>
+<dl class="docutils">
+<dt>Inputs:</dt>
+<dd>filename: the .SCEN file to open</dd>
+<dt>Keywords:</dt>
+<dd><dl class="first last docutils">
+<dt>include_cfcs: string, False, or nt x 16 numpy array</dt>
+<dd>MAGICC files do not come loaded with CFCs (indices 24-39).
+They are given in the harmonised files at 
+<a class="reference external" href="http://www.pik-potsdam.de/~mmalte/rcps/">http://www.pik-potsdam.de/~mmalte/rcps/</a>. 
+- Specify &#8216;rcp3pd&#8217;, &#8216;rcp45&#8217;, &#8216;rcp6&#8217; or &#8216;rcp85&#8217; to use these RCPs.
+- Use False to ignore and create a 24-species emission file.
+- Provide an array to tack your own chlorinated gases onto the SCEN</dd>
+<dt>startyear: First year of output file. If before first year of the SCEN</dt>
+<dd>file, use RCP4.5 to fill</dd>
+<dt>harmonise: None, or year</dt>
+<dd>Linearly interpolate between 2000 in the RCP file and the specified
+year. If None, do not harmonise</dd>
+</dl>
+</dd>
+<dt>Returns: </dt>
+<dd>nt x 40 numpy emissions array</dd>
+<dt>nt is defined as &lt;last year of SCEN file&gt; - </dt>
+<dd>&lt;earlier of startyear and first year of SCEN file&gt; + 1</dd>
+</dl>
+<p>It is assumed that the .SCEN files follow the formatting convention on
+the MAGICC wiki at 
+<a class="reference external" href="http://wiki.magicc.org/index.php?title=Creating_MAGICC_Scenario_Files">http://wiki.magicc.org/index.php?title=Creating_MAGICC_Scenario_Files</a>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fair.tools">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-fair.tools" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">fair.tools package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-fair.tools.constrain">fair.tools.constrain module</a></li>
+<li><a class="reference internal" href="#module-fair.tools.magicc">fair.tools.magicc module</a></li>
+<li><a class="reference internal" href="#module-fair.tools">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/fair/fair.tools.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, FAIR development team.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/fair/fair.tools.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

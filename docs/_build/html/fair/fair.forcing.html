@@ -1,0 +1,390 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>fair.forcing package &#8212; FAIR 1.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="fair-forcing-package">
+<h1>fair.forcing package<a class="headerlink" href="#fair-forcing-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-fair.forcing.aerosols">
+<span id="fair-forcing-aerosols-module"></span><h2>fair.forcing.aerosols module<a class="headerlink" href="#module-fair.forcing.aerosols" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fair.forcing.aerosols.Stevens">
+<code class="descclassname">fair.forcing.aerosols.</code><code class="descname">Stevens</code><span class="sig-paren">(</span><em>emissions</em>, <em>stevens_params=array([1.875e-03</em>, <em>6.340e-01</em>, <em>6.000e+01])</em>, <em>ref_isSO2=True</em><span class="sig-paren">)</span><a class="headerlink" href="#fair.forcing.aerosols.Stevens" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates aerosol forcing based on Stevens (2015) that relates sulphate
+aerosol forcing to SOx emissions in a logarithmic fashion.</p>
+<dl class="docutils">
+<dt>Input:</dt>
+<dd>emissions:   anthropogenic emissions database</dd>
+<dt>Keywords:</dt>
+<dd><dl class="first docutils">
+<dt>stevens_params: 3 element array</dt>
+<dd><ol class="first last arabic simple" start="0">
+<li>natural emissions of SOx in Mt/yr</li>
+<li>scaling parameter for ERFari (alpha)</li>
+<li>scaling parameter for ERFaci (beta)</li>
+</ol>
+</dd>
+</dl>
+<p class="last">ref_isSO2:   True if E_SOx_nat is in units of SO2 rather than S.</p>
+</dd>
+<dt>Output:</dt>
+<dd>F:           aerosol effective radiative forcing</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fair.forcing.aerosols.aerocom_direct">
+<code class="descclassname">fair.forcing.aerosols.</code><code class="descname">aerocom_direct</code><span class="sig-paren">(</span><em>emissions</em>, <em>beta=array([-0.0062227</em>, <em>0.</em>, <em>-0.00038392</em>, <em>-0.00116551</em>, <em>0.01601537</em>, <em>-0.00145339</em>, <em>-0.00155605])</em><span class="sig-paren">)</span><a class="headerlink" href="#fair.forcing.aerosols.aerocom_direct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates direct aerosol forcing based on linear relationships between
+emissions and forcing in Aerocom models.</p>
+<p>Reference: Myhre et al., 2013: <a class="reference external" href="https://www.atmos-chem-phys.net/13/1853/2013">https://www.atmos-chem-phys.net/13/1853/2013</a></p>
+<p>If inputs from an RCPs SCEN file are used, the units will be correct.</p>
+<dl class="docutils">
+<dt>Inputs: </dt>
+<dd>emissions: (nt x 40) emissions array</dd>
+<dt>Keywords:</dt>
+<dd><dl class="first last docutils">
+<dt>beta: 7-element array of forcing efficiencies in W m-2 (Mt yr-1)-1 for</dt>
+<dd>SOx, CO, NMVOC, NOx, BC, OC, NH3 (in that order)</dd>
+</dl>
+</dd>
+<dt>Outputs:</dt>
+<dd>Forcing time series</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fair.forcing.aerosols.ghan_indirect">
+<code class="descclassname">fair.forcing.aerosols.</code><code class="descname">ghan_indirect</code><span class="sig-paren">(</span><em>emissions</em>, <em>fix_pre1850_RCP=True</em>, <em>scale_AR5=False</em>, <em>ghan_params=array([-1.95011431</em>, <em>0.01107147</em>, <em>0.01387492])</em><span class="sig-paren">)</span><a class="headerlink" href="#fair.forcing.aerosols.ghan_indirect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimates the aerosol indirect effect based on the simple model in
+Ghan et al., (2013), doi:10.1002/jgrd.50567.</p>
+<p>This function is just an emulator - a full implementation in Python of the
+Ghan routine (originally coded in Fortran) exists, but will require
+optimisation before it can be used in FAIR. I hope to make the full version
+available in a future version.</p>
+<p>A 500-member Latin Hypercube sample of emissions of SOx, NMVOC, BC and OC
+was prepared offline and run through the Ghan simple model and a functional
+relationship fit to the output. SOA aerosol (based on NMVOC emissions) is
+sometimes unreliable and does not exert a strong dependence on the ERF, and
+OC+BC is parameterised as primary organic matter, so the resulting output
+is a function of SOx and (BC+OC) emissions.</p>
+<dl class="docutils">
+<dt>Inputs:</dt>
+<dd>emissions: (nt x 40) numpy emissions array</dd>
+<dt>Keywords:</dt>
+<dd><dl class="first last docutils">
+<dt>fix_pre1850_RCP: Use different relationship for 1750/65 to 1850 based</dt>
+<dd>on anthropogenic emissions from Skeie et al (2011)
+for 1750 (atmos-chem-phys.net/11/11827/2011)</dd>
+<dt>scale_AR5:       If True, scale the forcing output so that the best</dt>
+<dd>estimate forcing in 2011 is -0.45 W/m2 based on 2011
+emissions from the RCPs. The Ghan emulator is built on
+results from the CAM5 GCM. As reported in AR5 WG1 Ch7,
+GCMs tend to overestimate forcing from aerosol-cloud
+interactions.</dd>
+<dt>ghan_params:     3-element numpy array</dt>
+<dd>0: scale factor
+1: sensitivity to SOx emissions
+2: sensitivity to BC+OC emissions</dd>
+</dl>
+</dd>
+<dt>Outputs:</dt>
+<dd>Forcing timeseries</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fair.forcing.bc_snow">
+<span id="fair-forcing-bc-snow-module"></span><h2>fair.forcing.bc_snow module<a class="headerlink" href="#module-fair.forcing.bc_snow" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fair.forcing.bc_snow.linear">
+<code class="descclassname">fair.forcing.bc_snow.</code><code class="descname">linear</code><span class="sig-paren">(</span><em>emissions</em>, <em>E_ref=8.09</em>, <em>F_ref=0.04</em><span class="sig-paren">)</span><a class="headerlink" href="#fair.forcing.bc_snow.linear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-fair.forcing.contrails">
+<span id="fair-forcing-contrails-module"></span><h2>fair.forcing.contrails module<a class="headerlink" href="#module-fair.forcing.contrails" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fair.forcing.contrails.from_aviNOx">
+<code class="descclassname">fair.forcing.contrails.</code><code class="descname">from_aviNOx</code><span class="sig-paren">(</span><em>emissions</em>, <em>frac</em>, <em>E_ref=2.946</em>, <em>F_ref=0.0448</em>, <em>ref_isNO2=True</em><span class="sig-paren">)</span><a class="headerlink" href="#fair.forcing.contrails.from_aviNOx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates contrail radiative forcing from emissions of aviation NOx.</p>
+<dl class="docutils">
+<dt>Inputs:</dt>
+<dd>emissions:  Raw emissions data.
+frac:       fraction of total NOx emissions due to aviation.</dd>
+<dt>Keywords:</dt>
+<dd><dl class="first docutils">
+<dt>E_ref:      reference-year emissions of aviation NOx, Mt/yr. 2.946 </dt>
+<dd>is 2005 emissions of aviation NOx in RCP4.5 measured in
+Mt NO2/yr.</dd>
+<dt>F_ref:      Forcing from linear persistent contrails + contrail </dt>
+<dd>induced cirrus. The default of 0.0448 W/m2 for 2005 is
+from Lee et al, 2009 (Atmos. Environ.,
+doi:10.1016/j.atmosenv.2009.04.024).</dd>
+</dl>
+<p class="last">ref_isNO2:  True if E_ref is in units of NO2 rather than N.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fair.forcing.contrails.from_fuel">
+<code class="descclassname">fair.forcing.contrails.</code><code class="descname">from_fuel</code><span class="sig-paren">(</span><em>keroseneGt</em>, <em>S_ref=236.063</em>, <em>F_ref=0.0448</em><span class="sig-paren">)</span><a class="headerlink" href="#fair.forcing.contrails.from_fuel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates contrail radiative forcing from fuel supply of jet kerosene.</p>
+<p>This method assumes a linear scaling of ERF with kerosene jet fuel
+supplied, which is a proxy for aircraft activity. The relationship may not
+be linear as suggested in IPCC (1999) and depends on many uncertain
+factors.
+IPCC (1999): Aviation and the Global Atmosphere. J.E.Penner, D.H.Lister,
+D.J.Griggs, D.J.Dokken, M.McFarland (Eds.). Cambridge University Press,
+UK. pp 373</p>
+<dl class="docutils">
+<dt>Inputs:</dt>
+<dd>keroseneGt:  Jet fuel supplied in Gt/yr</dd>
+<dt>Keywords:</dt>
+<dd><dl class="first last docutils">
+<dt>S_ref:       Jet fuel supplied for a reference year (2005), Gt. Source</dt>
+<dd>for default: International Energy Agency, 
+<a class="reference external" href="http://www.iea.org/statistics/statisticssearch/report/">http://www.iea.org/statistics/statisticssearch/report/</a>
+?country=WORLD&amp;product=oil&amp;year=2005</dd>
+<dt>F_ref:       Forcing from linear persistent contrails + contrail</dt>
+<dd>induced cirrus. The default of 0.0448 W/m2 for 2005 is
+from Lee et al, 2009 (Atmos. Environ.,
+doi:10.1016/j.atmosenv.2009.04.024).</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fair.forcing.ghg">
+<span id="fair-forcing-ghg-module"></span><h2>fair.forcing.ghg module<a class="headerlink" href="#module-fair.forcing.ghg" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fair.forcing.ghg.MN">
+<code class="descclassname">fair.forcing.ghg.</code><code class="descname">MN</code><span class="sig-paren">(</span><em>M</em>, <em>N</em><span class="sig-paren">)</span><a class="headerlink" href="#fair.forcing.ghg.MN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="fair.forcing.ghg.etminan">
+<code class="descclassname">fair.forcing.ghg.</code><code class="descname">etminan</code><span class="sig-paren">(</span><em>C</em>, <em>Cpi</em>, <em>F2x=3.71</em><span class="sig-paren">)</span><a class="headerlink" href="#fair.forcing.ghg.etminan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the radiative forcing from CO2, CH4 and N2O.</p>
+<p>This function uses the updated formulas of Etminan et al. (2016),
+including the overlaps between CO2, methane and nitrous oxide.</p>
+<p>Reference: Etminan et al, 2016, JGR, doi: 10.1002/2016GL071930</p>
+<dl class="docutils">
+<dt>Inputs:</dt>
+<dd>C: [CO2, CH4, N2O] concentrations, [ppm, ppb, ppb]
+Cpi: pre-industrial [CO2, CH4, N2O] concentrations</dd>
+<dt>Keywords:</dt>
+<dd>F2x: radiative forcing from a doubling of CO2.</dd>
+<dt>Returns:</dt>
+<dd>3-element array of radiative forcing: [F_CO2, F_CH4, F_N2O]</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fair.forcing.ghg.myhre">
+<code class="descclassname">fair.forcing.ghg.</code><code class="descname">myhre</code><span class="sig-paren">(</span><em>C</em>, <em>Cpi</em>, <em>F2x=3.71</em><span class="sig-paren">)</span><a class="headerlink" href="#fair.forcing.ghg.myhre" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the radiative forcing from CO2, CH4 and N2O.</p>
+<p>This uses the Myhre et al. (1998) relationships including the band
+overlaps between CH4 and N2O. It is also used in AR5.</p>
+<p>Reference: Myhre et al, 1998, JGR, doi: 10.1029/98GL01908</p>
+<dl class="docutils">
+<dt>Inputs:</dt>
+<dd>C: [CO2, CH4, N2O] concentrations, [ppm, ppb, ppb]
+Cpi: pre-industrial [CO2, CH4, N2O] concentrations</dd>
+<dt>Keywords:</dt>
+<dd>F2x: radiative forcing from a doubling of CO2.</dd>
+<dt>Returns:</dt>
+<dd>3-element array of radiative forcing: [F_CO2, F_CH4, F_N2O]</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fair.forcing.h2o_st">
+<span id="fair-forcing-h2o-st-module"></span><h2>fair.forcing.h2o_st module<a class="headerlink" href="#module-fair.forcing.h2o_st" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fair.forcing.h2o_st.linear">
+<code class="descclassname">fair.forcing.h2o_st.</code><code class="descname">linear</code><span class="sig-paren">(</span><em>F_CH4</em>, <em>ratio=0.15</em><span class="sig-paren">)</span><a class="headerlink" href="#fair.forcing.h2o_st.linear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates radiative forcing from oxidation of methane to H2O.</p>
+<p>Stratospheric water vapour forcing follows a practically linear
+relationship with the CH4 radiative forcing in MAGICC and AR5.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fair.forcing.landuse">
+<span id="fair-forcing-landuse-module"></span><h2>fair.forcing.landuse module<a class="headerlink" href="#module-fair.forcing.landuse" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fair.forcing.landuse.cumulative">
+<code class="descclassname">fair.forcing.landuse.</code><code class="descname">cumulative</code><span class="sig-paren">(</span><em>emissions</em>, <em>aCO2land=-0.00113789</em><span class="sig-paren">)</span><a class="headerlink" href="#fair.forcing.landuse.cumulative" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-fair.forcing.ozone_st">
+<span id="fair-forcing-ozone-st-module"></span><h2>fair.forcing.ozone_st module<a class="headerlink" href="#module-fair.forcing.ozone_st" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fair.forcing.ozone_st.magicc">
+<code class="descclassname">fair.forcing.ozone_st.</code><code class="descname">magicc</code><span class="sig-paren">(</span><em>C_ODS</em>, <em>C0</em>, <em>eta1=-1.46030698e-05</em>, <em>eta2=0.0020540127</em>, <em>eta3=1.03143308</em><span class="sig-paren">)</span><a class="headerlink" href="#fair.forcing.ozone_st.magicc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-fair.forcing.ozone_tr">
+<span id="fair-forcing-ozone-tr-module"></span><h2>fair.forcing.ozone_tr module<a class="headerlink" href="#module-fair.forcing.ozone_tr" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fair.forcing.ozone_tr.regress">
+<code class="descclassname">fair.forcing.ozone_tr.</code><code class="descname">regress</code><span class="sig-paren">(</span><em>emissions</em>, <em>beta=array([ 0.00028249</em>, <em>0.00010695</em>, <em>-0.00093604</em>, <em>0.00997831])</em><span class="sig-paren">)</span><a class="headerlink" href="#fair.forcing.ozone_tr.regress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates tropospheric ozone forcing from precursor emissions.</p>
+<p>Inputs: (nt x 40) emissions array</p>
+<dl class="docutils">
+<dt>Keywords:</dt>
+<dd><dl class="first last docutils">
+<dt>beta: 4-element array of regression coefficients of precursor</dt>
+<dd>radiative efficiency, W m-2 (Mt yr-1)-1.
+order is [CH4, CO, NMVOC, NOx]</dd>
+</dl>
+</dd>
+<dt>Outputs:</dt>
+<dd>tropospheric ozone ERF time series.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fair.forcing.ozone_tr.stevenson">
+<code class="descclassname">fair.forcing.ozone_tr.</code><code class="descname">stevenson</code><span class="sig-paren">(</span><em>emissions</em>, <em>C_CH4</em>, <em>T=0</em>, <em>feedback=False</em>, <em>fix_pre1850_RCP=False</em><span class="sig-paren">)</span><a class="headerlink" href="#fair.forcing.ozone_tr.stevenson" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates tropospheric ozone forcing from precursor emissions based on
+Stevenson et al, 2013 10.5194/acp-13-3063-2013</p>
+<dl class="docutils">
+<dt>Inputs:</dt>
+<dd>emissions: (nt x 40) numpy array     
+C_CH4    : (nt) numpy array of methane concentrations, ppb</dd>
+<dt>Keywords:</dt>
+<dd><p class="first">T              : change in surface temperature since pre-industrial
+feedback       : True or False - include temperature feedback on ozone</p>
+<blockquote>
+<div>forcing?</div></blockquote>
+<dl class="last docutils">
+<dt>fix_pre1850_RCP: Use different relationship for 1750/65 to 1850 based </dt>
+<dd>on anthropogenic emissions from Skeie et al (2011)
+for 1750 (atmos-chem-phys.net/11/11827/2011)</dd>
+</dl>
+</dd>
+<dt>Outputs:</dt>
+<dd>tropospheric ozone ERF time series.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fair.forcing">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-fair.forcing" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">fair.forcing package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-fair.forcing.aerosols">fair.forcing.aerosols module</a></li>
+<li><a class="reference internal" href="#module-fair.forcing.bc_snow">fair.forcing.bc_snow module</a></li>
+<li><a class="reference internal" href="#module-fair.forcing.contrails">fair.forcing.contrails module</a></li>
+<li><a class="reference internal" href="#module-fair.forcing.ghg">fair.forcing.ghg module</a></li>
+<li><a class="reference internal" href="#module-fair.forcing.h2o_st">fair.forcing.h2o_st module</a></li>
+<li><a class="reference internal" href="#module-fair.forcing.landuse">fair.forcing.landuse module</a></li>
+<li><a class="reference internal" href="#module-fair.forcing.ozone_st">fair.forcing.ozone_st module</a></li>
+<li><a class="reference internal" href="#module-fair.forcing.ozone_tr">fair.forcing.ozone_tr module</a></li>
+<li><a class="reference internal" href="#module-fair.forcing">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/fair/fair.forcing.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, FAIR development team.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/fair/fair.forcing.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
