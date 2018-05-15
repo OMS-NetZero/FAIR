@@ -23,7 +23,7 @@ setup(name='fair',
       author='OMS-NetZero, Chris Smith, Richard Millar, Zebedee Nicholls, Myles Allen',
       author_email='c.j.smith1@leeds.ac.uk, richard.millar@physics.ox.ac.uk',
       license='Apache 2.0',
-      packages=find_packages(exclude=['tests*']),
+      packages=find_packages(exclude=['tests*','docs*']),
       package_data={'': ['*.csv']},
       install_requires=[
           'numpy>=1.11.3',
