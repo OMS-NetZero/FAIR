@@ -1,2 +1,4 @@
 include versioneer.py
 include fair/_version.py
+prune tests*
+prune docs*
