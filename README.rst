@@ -1,6 +1,7 @@
 | |Build Status|
 | |Binder|
 | |Docs Status|
+| |Zenodo|
 
 FAIR
 ====
@@ -94,3 +95,5 @@ https://doi.org/10.5194/acp-17-7213-2017, 2017.
 .. |Docs Status| image:: https://readthedocs.org/projects/fair/badge/?version=latest
    :target: http://fair.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
+.. |Zenodo| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1247898.svg
+   :target: https://doi.org/10.5281/zenodo.1247898
