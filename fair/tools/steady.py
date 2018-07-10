@@ -18,10 +18,12 @@ def _lookup(species):
     # see if the species appears on the list of builtin gases and return
     # properties if so, otherwise raise error
     if species in named_gases:
-        out = {}
-        exec("C, L, M = preindconc."+species+", lt_builtin."+species+
-          ", molwt_builtin."+species, out)
-        return out['C'], out['L'], out['M']
+        inout = {}
+        inout['pi'] = preindconc
+        inout['lt'] = lt_builtin
+        inout['mw'] = molwt_builtin
+        exec("C, L, M = pi."+species+", lt."+species+", mw."+species, inout)
+        return inout['C'], inout['L'], inout['M']
     else:
         raise ValueError(species + ' is not in the list of recognised '+
           'greenhouse gases') 
