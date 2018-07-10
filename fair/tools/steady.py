@@ -15,12 +15,13 @@ def _lookup(species):
     include = [i[:2]!='__' and i!='aslist' for i in named_gases]
     named_gases = list(compress(named_gases, include))
 
-    # see if the species appears on the list of builtins and return
+    # see if the species appears on the list of builtin gases and return
     # properties if so, otherwise raise error
     if species in named_gases:
+        out = {}
         exec("C, L, M = preindconc."+species+", lt_builtin."+species+
-          ", molwt_builtin."+species)
-        return C, L, M
+          ", molwt_builtin."+species, out)
+        return out['C'], out['L'], out['M']
     else:
         raise ValueError(species + ' is not in the list of recognised '+
           'greenhouse gases') 
