@@ -4,11 +4,10 @@ import fair
 import os
 import numpy as np
 from fair.RCPs import rcp3pd, rcp45, rcp6, rcp85
-from fair.tools import magicc
+from fair.tools import magicc, steady
 from fair.ancil import natural, cmip5_annex2_forcing
 from fair.constants import molwt
 from fair.forcing.ghg import myhre
-
 
 def test_no_arguments():
     with pytest.raises(ValueError):
@@ -360,3 +359,23 @@ def test_contrails_invalid():
             contrail_forcing='other')
 
 
+def test_steady():
+    assert np.isclose(steady.emissions(species='CH4'), 209.2492053169677)
+    assert np.isclose(steady.emissions(species='N2O'), 11.155476818389447)
+    assert np.isclose(steady.emissions(species='CF4'), 0.010919593149304725)
+    assert steady.emissions(species='CFC11')==0.
+    assert np.isclose(steady.emissions(species='CH4', lifetime=12.4), 
+      159.0269945578832)
+    assert np.isclose(steady.emissions(species='CH4', molwt=17),
+      221.77284852795833)
+    assert np.isclose(steady.emissions(species='CH4', C=1750.),
+      507.2573722823332)
+    # verify override working
+    assert steady.emissions(species='CH4', lifetime=12.4, molwt=17, 
+      C=1750.) != steady.emissions(species='CH4')
+    # not a gas on the list - should report error
+    with pytest.raises(ValueError):
+        steady.emissions(species='chocolate')
+    # and no input equals no output, so again value error
+    with pytest.raises(ValueError):
+        steady.emissions()
