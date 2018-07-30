@@ -80,7 +80,7 @@ References:
 Smith, C. J., Forster, P. M., Allen, M., Leach, N., Millar, R. J.,
 Passerello, G. A., and Regayre, L. A.: FAIR v1.3: A simple
 emissions-based impulse response and carbon cycle model, Geosci. Model
-Dev., https://doi.org/10.5194/gmd-2017-266, 2018.
+Dev., https://doi.org/10.5194/gmd-11-2273-2018, 2018.
 
 Millar, R. J., Nicholls, Z. R., Friedlingstein, P., and Allen, M. R.: A
 modified impulse-response representation of the global near-surface air
