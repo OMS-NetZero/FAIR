@@ -379,3 +379,40 @@ def test_steady():
     # and no input equals no output, so again value error
     with pytest.raises(ValueError):
         steady.emissions()
+
+
+# rcp3pd and rcp6 have been renamed. The modules should still work otherwise
+# the tests would not have got to this point. But we import directly here to
+# ensure compatibility.
+def test_rcp_aliases():
+    from fair.RCPs import rcp26, rcp60
+
+    # 1. rcp26
+    C,F,T = fair.forward.fair_scm(
+        emissions=rcp26.Emissions.emissions,
+        b_aero = np.array([-35.29e-4*1.3741*molwt.SO2/molwt.S, 0.0, -5.034e-4*1.3741, -5.763e-4*1.3741*molwt.NO/molwt.N, 453e-4*1.3741,-37.83e-4*1.3741, -10.35e-4*1.3741]),
+        efficacy=np.ones(13)
+    )
+    datadir = os.path.join(os.path.dirname(__file__), 'rcp3pd/')
+    C_expected = np.load(datadir + 'C.npy')
+    F_expected = np.load(datadir + 'F.npy')
+    T_expected = np.load(datadir + 'T.npy')
+
+    assert np.allclose(C, C_expected)
+    assert np.allclose(F, F_expected)
+    assert np.allclose(T, T_expected) 
+
+    # 2. rcp60
+    C,F,T = fair.forward.fair_scm(
+        emissions=rcp60.Emissions.emissions,
+        b_aero = np.array([-35.29e-4*1.3741*molwt.SO2/molwt.S, 0.0, -5.034e-4*1.3741, -5.763e-4*1.3741*molwt.NO/molwt.N, 453e-4*1.3741,-37.83e-4*1.3741, -10.35e-4*1.3741]),
+        efficacy=np.ones(13)
+    )
+    datadir = os.path.join(os.path.dirname(__file__), 'rcp6/')
+    C_expected = np.load(datadir + 'C.npy')
+    F_expected = np.load(datadir + 'F.npy')
+    T_expected = np.load(datadir + 'T.npy')
+
+    assert np.allclose(C, C_expected)
+    assert np.allclose(F, F_expected)
+    assert np.allclose(T, T_expected)
