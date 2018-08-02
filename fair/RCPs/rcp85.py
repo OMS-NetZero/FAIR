@@ -8,13 +8,13 @@
 import numpy as np
 import os
 emissions_filename = os.path.join(
-    os.path.dirname(__file__), 'RCP85_EMISSIONS.csv')
+    os.path.dirname(__file__), 'data/RCP85_EMISSIONS.csv')
 forcing_filename = os.path.join(
-    os.path.dirname(__file__), 'RCP85_MIDYEAR_RADFORCING.csv')
+    os.path.dirname(__file__), 'data/RCP85_MIDYEAR_RADFORCING.csv')
 aviNOx_filename = os.path.join(
-    os.path.dirname(__file__), 'aviNOx_fraction.csv')
+    os.path.dirname(__file__), 'data/aviNOx_fraction.csv')
 fossilCH4_filename = os.path.join(
-    os.path.dirname(__file__), 'fossilCH4_fraction.csv')
+    os.path.dirname(__file__), 'data/fossilCH4_fraction.csv')
 
 aviNOx_frac = np.loadtxt(aviNOx_filename, skiprows=5, usecols=(4,),
     delimiter=',')

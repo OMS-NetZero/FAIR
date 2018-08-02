@@ -2,23 +2,23 @@
 #
 # Usage:
 #
-# import rcp45
-# rcp45.Emissions.co2
+# import rcp6
+# rcp6.Emissions.co2
 
 import numpy as np
 import os
 emissions_filename = os.path.join(
-    os.path.dirname(__file__), 'data/RCP45_EMISSIONS.csv')
+    os.path.dirname(__file__), 'data/RCP6_EMISSIONS.csv')
 forcing_filename = os.path.join(
-    os.path.dirname(__file__), 'data/RCP45_MIDYEAR_RADFORCING.csv')
+    os.path.dirname(__file__), 'data/RCP6_MIDYEAR_RADFORCING.csv')
 aviNOx_filename = os.path.join(
     os.path.dirname(__file__), 'data/aviNOx_fraction.csv')
 fossilCH4_filename = os.path.join(
     os.path.dirname(__file__), 'data/fossilCH4_fraction.csv')
 
-aviNOx_frac = np.loadtxt(aviNOx_filename, skiprows=5, usecols=(2,),
+aviNOx_frac = np.loadtxt(aviNOx_filename, skiprows=5, usecols=(3,),
     delimiter=',')
-fossilCH4_frac = np.loadtxt(fossilCH4_filename, skiprows=5, usecols=(2,),
+fossilCH4_frac = np.loadtxt(fossilCH4_filename, skiprows=5, usecols=(3,),
     delimiter=',')
 
 class Emissions:
