@@ -4,7 +4,7 @@ import fair
 import os
 import numpy as np
 from fair.RCPs import rcp3pd, rcp45, rcp6, rcp85
-from fair.tools import magicc, steady
+from fair.tools import magicc, steady, ensemble
 from fair.ancil import natural, cmip5_annex2_forcing
 from fair.constants import molwt
 from fair.forcing.ghg import myhre
@@ -416,3 +416,14 @@ def test_rcp_aliases():
     assert np.allclose(C, C_expected)
     assert np.allclose(F, F_expected)
     assert np.allclose(T, T_expected)
+
+
+def test_ensemble():
+    tcrecs = ensemble.tcrecs_generate('cmip5', dist='lognorm', n=100,
+      seed=40000)
+    # check first 100 lines
+    filepath = os.path.join(os.path.dirname(__file__), 
+      'tcrecs/tcrecs_output.txt')
+    tcrecs_compare = np.loadtxt(filepath)
+    assert np.allclose(tcrecs,tcrecs_compare)
+    
