@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.stats as st
 import os
+from functools import reduce
 
 def mvlognorm(data, n=1000, seed=None, correlated=True):
     """Returns joint lognormal random variables.
