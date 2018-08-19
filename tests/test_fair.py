@@ -427,3 +427,10 @@ def test_ensemble():
     tcrecs_compare = np.loadtxt(filepath)
     assert np.allclose(tcrecs,tcrecs_compare)
     
+
+def test_concentration_driven():
+    F, T = fair.forward.concentration_driven(
+        concentrations=rcp45.Concentrations.co2,
+        useMultigas=False
+        )
+    assert np.allclose(F==np.zeros(736))

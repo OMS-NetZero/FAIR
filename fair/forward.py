@@ -16,8 +16,32 @@ def iirf_interp_funct(alp_b,a,tau,targ_iirf):
     return iirf_arr     -  targ_iirf
 
 
+def emis_to_conc(c0, e0, e1, ts, lt, vm):
+    # This function is earmarked for future OO treatment and should probably
+    # be moved to a new module
+    """Calculate concentrations of well mixed GHGs from emissions for simple
+    one-box model.
+    
+    Inputs:
+        c0: concentrations in timestep t-1
+        e0: emissions in timestep t-1
+        e1: emissions in timestep t
+        ts: length of timestep. Use 1 for sensible results in FaIR 1.3.
+        lt: atmospheric (e-folding) lifetime of GHG
+        vm: conversion from emissions units (e.g. Mt) to concentrations units
+            (e.g. ppb)
+            
+    Outputs:
+        c1: concentrations in timestep t
+    """
+    c1 = c0 - c0 * (1.0 - np.exp(-ts/lt)) + 0.5 * ts * (e1 + e0) * vm
+    return c1
+
+
 def fair_scm(
     emissions=False,
+    emissions_driven=True,
+    C=None,
     other_rf=0.0,
     q=np.array([0.33,0.41]),
     tcrecs=np.array([1.6,2.75]),
@@ -223,7 +247,8 @@ def fair_scm(
     R_i = np.zeros(carbon_boxes_shape)
     T_j = np.zeros(thermal_boxes_shape)
 
-    C = np.zeros((nt, ngas))
+    if emissions_driven:
+        C = np.zeros((nt, ngas))
     T = np.zeros(nt)
     C_0 = np.copy(C_pi)
 
@@ -351,38 +376,55 @@ def fair_scm(
         tau_new = tau * time_scale_sf
 
         if useMultigas:
-            # 1. Concentrations
-            # a. CARBON DIOXIDE
-            # Firstly add any oxidised methane from last year to the CO2 pool
-            oxidised_CH4 = ((C[t-1,1]-C_pi[1]) *
-              (1.0 - np.exp(-1.0/lifetimes[1])) * 
-              (molwt.C/molwt.CH4 * 0.001 * oxCH4_frac * fossilCH4_frac[t]))
-            oxidised_CH4 = np.max((oxidised_CH4, 0))
+            if emissions_driven:
+                # Calculate concentrations
+                # a. CARBON DIOXIDE
+                # Firstly add any oxidised methane from last year to the CO2
+                # pool
+                oxidised_CH4 = ((C[t-1,1]-C_pi[1]) *
+                  (1.0 - np.exp(-1.0/lifetimes[1])) * 
+                  (molwt.C/molwt.CH4 * 0.001 * oxCH4_frac * fossilCH4_frac[t]))
+                oxidised_CH4 = np.max((oxidised_CH4, 0))
 
-            # Compute the updated concentrations box anomalies from the decay
-            # of the previous year and the additional emissions
-            R_i[t,:] = R_i[t-1,:]*np.exp(-1.0/tau_new) + a*(np.sum(
-                emissions[t,1:3]) + oxidised_CH4) / ppm_gtc
-            # Sum the boxes to get the total concentration anomaly
-            C[t,0] = np.sum(R_i[...,t,:],axis=-1)
-            # Calculate the additional carbon uptake
-            C_acc[t] =  C_acc[t-1] + 0.5*(np.sum(emissions[t-1:t+1,1:3])) - (
-                C[t,0] - C[t-1,0])*ppm_gtc
+                # Compute the updated concentrations box anomalies from the
+                # decay of the previous year and the additional emissions
+                R_i[t,:] = R_i[t-1,:]*np.exp(-1.0/tau_new) + a*(np.sum(
+                  emissions[t,1:3]) + oxidised_CH4) / ppm_gtc
+                # Sum the boxes to get the total concentration anomaly
+                C[t,0] = np.sum(R_i[...,t,:],axis=-1)
+                # Calculate the additional carbon uptake
+                C_acc[t] =  C_acc[t-1] + 0.5*(np.sum(
+                  emissions[t-1:t+1,1:3])) - (C[t,0] - C[t-1,0])*ppm_gtc
 
-            # b. METHANE
-            C[t,1] = C[t-1,1] - C[t-1,1]*(1.0 - np.exp(-1.0/lifetimes[1])) + (
-              natural[t,0] + 0.5*(emissions[t,3] + emissions[t-1,3])
-              ) / emis2conc[1]
+                # b. METHANE
+                C[t,1] = emis_to_conc(
+                    C[t-1,1],
+                    emissions[t-1,3]+natural[t,0], 
+                    emissions[t,3]+natural[t,0],
+                    1.0,
+                    lifetimes[1],
+                    1.0/emis2conc[1]
+                    )
 
-            # c. NITROUS OXIDE
-            C[t,2] = C[t-1,2] - C[t-1,2]*(1.0 - np.exp(-1.0/lifetimes[2])) + (
-              natural[t,1] + 0.5*(emissions[t,4] + emissions[t-1,4])
-              ) / emis2conc[2]
+                # c. NITROUS OXIDE
+                C[t,2] = emis_to_conc(
+                    C[t-1,2],
+                    emissions[t-1,4]+natural[t,1], 
+                    emissions[t,4]+natural[t,1],
+                    1.0,
+                    lifetimes[2],
+                    1.0/emis2conc[2]
+                    )
 
-            # d. OTHER WMGHGs
-            C[t,3:] = C[t-1,3:] - C[t-1,3:]*(1.0 - np.exp(-1.0/np.array(
-              lifetimes[3:]))) + (0.5 * (
-              emissions[t,12:] + emissions[t-1,12:])) / emis2conc[3:]
+                # d. OTHER WMGHGs
+                C[t,3:] = emis_to_conc(
+                    C[t-1,3:],
+                    emissions[t-1,12:], 
+                    emissions[t,12:],
+                    1.0,
+                    np.array(lifetimes[3:]),
+                    1.0/emis2conc[3:]
+                    )
 
             # 2. Radiative forcing
             F[t,0:3] = ghg(C[t,0:3]+np.array([C_pi[0],0,0]), C_pi[0:3], F2x=F2x)
