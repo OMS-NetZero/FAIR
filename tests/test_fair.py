@@ -428,9 +428,27 @@ def test_ensemble():
     assert np.allclose(tcrecs,tcrecs_compare)
     
 
-def test_concentration_driven():
-    F, T = fair.forward.concentration_driven(
-        concentrations=rcp45.Concentrations.co2,
+def test_co2_concentration_driven():
+    C, F, T = fair.forward.fair_scm(
+        emissions_driven=False,
+        C=rcp45.Concentrations.co2,
         useMultigas=False
         )
-    assert np.allclose(F==np.zeros(736))
+    assert (C==rcp45.Concentrations.co2).all()
+    datadir = os.path.join(os.path.dirname(__file__), 'rcp45/')
+    T_expected = np.load(datadir + 'T_concdriven.npy')
+    assert np.allclose(T, T_expected)
+
+
+def test_multigas_concentration_driven():
+    C, F, T = fair.forward.fair_scm(
+        emissions_driven=False,
+        C=rcp45.Concentrations.gases,
+        F_tropO3 = rcp45.Forcing.tropo3,
+        F_aerosol = rcp45.Forcing.aero+rcp45.Forcing.cloud,
+        F_bcsnow = rcp45.Forcing.bcsnow,
+        useMultigas=True
+        )
+    datadir = os.path.join(os.path.dirname(__file__), 'rcp45/')
+    T_expected = np.load(datadir + 'T_concdriven_multi.npy')
+    assert np.allclose(T, T_expected)

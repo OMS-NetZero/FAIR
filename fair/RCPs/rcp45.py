@@ -71,6 +71,8 @@ class Emissions:
 class Concentrations:
     concentrations = np.loadtxt(concentrations_filename, skiprows=38,
       delimiter=',')
+    gas_indices= np.concatenate(([3,4,5], np.arange(8,36)))
+    gases      = concentrations[:,gas_indices]
     year       = concentrations[:,0]
     co2eq      = concentrations[:,1]
     kyotoco2eq = concentrations[:,2]

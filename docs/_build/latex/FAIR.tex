@@ -83,7 +83,7 @@
 
 
 \title{FAIR Documentation}
-\date{May 15, 2018}
+\date{Aug 20, 2018}
 \release{1.3}
 \author{FAIR development team}
 \newcommand{\sphinxlogo}{}
@@ -1574,6 +1574,91 @@ radiative forcing time series coming out of FAIR.
 \noindent\sphinxincludegraphics{{examples_29_0}.png}
 
 
+\section{Running in concentration-driven mode}
+\label{\detokenize{examples:running-in-concentration-driven-mode}}
+It is possible to drive FAIR with concentrations rather than emissions.
+Set the \sphinxcode{emissions\_driven} keyword to \sphinxcode{False} and specify the
+concentrations with \sphinxcode{C}. The function still returns the \sphinxcode{C, F, T}
+tuple; comparison of the input concentrations with the output
+concentrations can be performed as a sense check to verify the code is
+not changing anything.
+
+
+\subsection{CO2 only}
+\label{\detokenize{examples:co2-only}}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} Produce a base emissions\PYGZhy{}driven RCP4.5 run}
+\PYG{n}{C1}\PYG{p}{,}\PYG{n}{F1}\PYG{p}{,}\PYG{n}{T1} \PYG{o}{=} \PYG{n}{fair}\PYG{o}{.}\PYG{n}{forward}\PYG{o}{.}\PYG{n}{fair\PYGZus{}scm}\PYG{p}{(}
+    \PYG{n}{emissions\PYGZus{}driven}\PYG{o}{=}\PYG{n+nb+bp}{True}\PYG{p}{,}
+    \PYG{n}{emissions}\PYG{o}{=}\PYG{n}{fair}\PYG{o}{.}\PYG{n}{RCPs}\PYG{o}{.}\PYG{n}{rcp45}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{co2}\PYG{p}{,}
+    \PYG{n}{useMultigas}\PYG{o}{=}\PYG{n+nb+bp}{False}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} Produce a concentration driven RCP4.5 run}
+\PYG{n}{C2}\PYG{p}{,}\PYG{n}{F2}\PYG{p}{,}\PYG{n}{T2} \PYG{o}{=} \PYG{n}{fair}\PYG{o}{.}\PYG{n}{forward}\PYG{o}{.}\PYG{n}{fair\PYGZus{}scm}\PYG{p}{(}
+    \PYG{n}{emissions\PYGZus{}driven}\PYG{o}{=}\PYG{n+nb+bp}{False}\PYG{p}{,}
+    \PYG{n}{C}\PYG{o}{=}\PYG{n}{fair}\PYG{o}{.}\PYG{n}{RCPs}\PYG{o}{.}\PYG{n}{rcp45}\PYG{o}{.}\PYG{n}{Concentrations}\PYG{o}{.}\PYG{n}{co2}\PYG{p}{,}
+    \PYG{n}{useMultigas}\PYG{o}{=}\PYG{n+nb+bp}{False}\PYG{p}{)}
+
+\PYG{n}{fig} \PYG{o}{=} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{figure}\PYG{p}{(}\PYG{p}{)}
+\PYG{n}{ax1} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{221}\PYG{p}{)}
+\PYG{n}{ax2} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{222}\PYG{p}{)}
+
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp45}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{F1}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{blue}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Emissions driven}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp45}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{F2}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{red}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Concentrations driven}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{RCP4.5 radiative forcing, W m\PYGZdl{}\PYGZca{}\PYGZob{}\PYGZhy{}2\PYGZcb{}\PYGZdl{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+
+\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp45}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{T1}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{blue}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Emissions driven}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp45}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{T2}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{red}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Concentrations driven}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{RCP4.5 temperature anomaly, K}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{(}\PYG{p}{)}\PYG{p}{;}
+\end{sphinxVerbatim}
+
+\noindent\sphinxincludegraphics{{examples_32_0}.png}
+
+
+\subsection{Multi-gas}
+\label{\detokenize{examples:multi-gas}}
+In multi-gas concentrations driven mode, all non-WMGHG forcing that is
+normally calculated from emissions (tropospheric ozone, aviation
+contrails, aerosols, black carbon on snow and land use) is provided
+externally. The default values for each are zero. WMGHG forcing that is
+calculated from concentrations or forcing (stratospheric ozone and
+stratospheric water vapour from methane) is not affected.
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} Produce a base emissions\PYGZhy{}driven RCP4.5 run}
+\PYG{n}{C1}\PYG{p}{,}\PYG{n}{F1}\PYG{p}{,}\PYG{n}{T1} \PYG{o}{=} \PYG{n}{fair}\PYG{o}{.}\PYG{n}{forward}\PYG{o}{.}\PYG{n}{fair\PYGZus{}scm}\PYG{p}{(}
+    \PYG{n}{emissions\PYGZus{}driven}\PYG{o}{=}\PYG{n+nb+bp}{True}\PYG{p}{,}
+    \PYG{n}{emissions}\PYG{o}{=}\PYG{n}{fair}\PYG{o}{.}\PYG{n}{RCPs}\PYG{o}{.}\PYG{n}{rcp45}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{emissions}\PYG{p}{,}
+    \PYG{n}{useMultigas}\PYG{o}{=}\PYG{n+nb+bp}{True}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} Produce a concentration driven RCP4.5 run}
+\PYG{c+c1}{\PYGZsh{} use Meinshausen\PYGZsq{}s external forcing here}
+\PYG{n}{C2}\PYG{p}{,}\PYG{n}{F2}\PYG{p}{,}\PYG{n}{T2} \PYG{o}{=} \PYG{n}{fair}\PYG{o}{.}\PYG{n}{forward}\PYG{o}{.}\PYG{n}{fair\PYGZus{}scm}\PYG{p}{(}
+    \PYG{n}{emissions\PYGZus{}driven}\PYG{o}{=}\PYG{n+nb+bp}{False}\PYG{p}{,}
+    \PYG{n}{C}\PYG{o}{=}\PYG{n}{fair}\PYG{o}{.}\PYG{n}{RCPs}\PYG{o}{.}\PYG{n}{rcp45}\PYG{o}{.}\PYG{n}{Concentrations}\PYG{o}{.}\PYG{n}{gases}\PYG{p}{,}
+    \PYG{n}{F\PYGZus{}tropO3} \PYG{o}{=} \PYG{n}{rcp45}\PYG{o}{.}\PYG{n}{Forcing}\PYG{o}{.}\PYG{n}{tropo3}\PYG{p}{,}
+    \PYG{n}{F\PYGZus{}aerosol} \PYG{o}{=} \PYG{n}{rcp45}\PYG{o}{.}\PYG{n}{Forcing}\PYG{o}{.}\PYG{n}{aero}\PYG{o}{+}\PYG{n}{rcp45}\PYG{o}{.}\PYG{n}{Forcing}\PYG{o}{.}\PYG{n}{cloud}\PYG{p}{,}
+    \PYG{n}{F\PYGZus{}bcsnow} \PYG{o}{=} \PYG{n}{rcp45}\PYG{o}{.}\PYG{n}{Forcing}\PYG{o}{.}\PYG{n}{bcsnow}\PYG{p}{,}
+    \PYG{n}{useMultigas}\PYG{o}{=}\PYG{n+nb+bp}{True}\PYG{p}{)}
+
+\PYG{n}{fig} \PYG{o}{=} \PYG{n}{plt}\PYG{o}{.}\PYG{n}{figure}\PYG{p}{(}\PYG{p}{)}
+\PYG{n}{ax1} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{221}\PYG{p}{)}
+\PYG{n}{ax2} \PYG{o}{=} \PYG{n}{fig}\PYG{o}{.}\PYG{n}{add\PYGZus{}subplot}\PYG{p}{(}\PYG{l+m+mi}{222}\PYG{p}{)}
+
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp45}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sum}\PYG{p}{(}\PYG{n}{F1}\PYG{p}{,}\PYG{n}{axis}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{blue}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Emissions driven}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp45}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sum}\PYG{p}{(}\PYG{n}{F2}\PYG{p}{,}\PYG{n}{axis}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{)}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{red}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Concentrations driven}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{RCP4.5 radiative forcing, W m\PYGZdl{}\PYGZca{}\PYGZob{}\PYGZhy{}2\PYGZcb{}\PYGZdl{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+
+\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp45}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{T1}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{blue}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Emissions driven}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp45}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{T2}\PYG{p}{,} \PYG{n}{color}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{red}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Concentrations driven}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{ax2}\PYG{o}{.}\PYG{n}{set\PYGZus{}title}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{RCP4.5 temperature anomaly, K}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+\PYG{n}{ax1}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{(}\PYG{p}{)}\PYG{p}{;}
+\end{sphinxVerbatim}
+
+\noindent\sphinxincludegraphics{{examples_34_0}.png}
+
+
 \section{Natural emissions and GHG lifetimes}
 \label{\detokenize{examples:natural-emissions-and-ghg-lifetimes}}
 In order to balance historical concentrations of methane and nitrous
@@ -1628,7 +1713,7 @@ maintaining historical concentrations.
 \PYG{p}{(}\PYG{l+m+mf}{9.3}\PYG{p}{,} \PYG{l+m+mf}{121.0}\PYG{p}{)}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{examples_31_1}.png}
+\noindent\sphinxincludegraphics{{examples_36_1}.png}
 
 
 \section{Ensemble generation}
@@ -1678,7 +1763,7 @@ from a doubling of CO2.
 \PYG{n}{ax1}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp85}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{T}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{examples_34_0}.png}
+\noindent\sphinxincludegraphics{{examples_39_0}.png}
 
 
 \subsection{Adding a temperature constraint}
@@ -1717,7 +1802,7 @@ observations.
 \PYG{n}{ax1}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{rcp85}\PYG{o}{.}\PYG{n}{Emissions}\PYG{o}{.}\PYG{n}{year}\PYG{p}{,} \PYG{n}{T}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,}\PYG{n}{constrained}\PYG{p}{]}\PYG{p}{)}\PYG{p}{;}
 \end{sphinxVerbatim}
 
-\noindent\sphinxincludegraphics{{examples_38_0}.png}
+\noindent\sphinxincludegraphics{{examples_43_0}.png}
 
 Some, but not all, of the higher end scenarios have been constrained
 out, but there is still quite a large range of total temperature change
