@@ -8,6 +8,7 @@ from .constants import molwt, lifetime, radeff
 from .constants.general import M_ATMOS
 from .forcing import ozone_tr, ozone_st, h2o_st, contrails, aerosols, bc_snow,\
                                          landuse
+from .forcing.ghg import co2_log
 
 
 def iirf_interp_funct(alp_b,a,tau,targ_iirf):
@@ -17,12 +18,10 @@ def iirf_interp_funct(alp_b,a,tau,targ_iirf):
 
 
 def emis_to_conc(c0, e0, e1, ts, lt, vm):
-    # This function is earmarked for future OO treatment and should probably
-    # be moved to a new module
     """Calculate concentrations of well mixed GHGs from emissions for simple
     one-box model.
     
-    Inputs:
+    Inputs (all can be scalar or 1D arrays for multiple species):
         c0: concentrations in timestep t-1
         e0: emissions in timestep t-1
         e1: emissions in timestep t
@@ -36,6 +35,29 @@ def emis_to_conc(c0, e0, e1, ts, lt, vm):
     """
     c1 = c0 - c0 * (1.0 - np.exp(-ts/lt)) + 0.5 * ts * (e1 + e0) * vm
     return c1
+
+
+def forc_to_temp(t0, q, d, f, e=1.0):
+    """Calculate temperature from a given radiative forcing.
+
+    Inputs:
+        t0: Temperature in timestep t-1
+        q: The matrix contributions to slow and fast temperature change
+           calculated from ECS and TCR (2 element array)
+        d: The slow and fast thermal response time constants (2 element array)
+        f: radiative forcing (can be scalar or 1D array representing multiple
+           species)
+
+    Keywords:
+        e: efficacy factor (default 1); if f is an array, e should be an array
+           of the same length.
+
+    Outputs:
+        t1: slow and fast contributions to total temperature (2 element array)
+        in timestep t
+    """
+    t1 = t0*np.exp(-1.0/d) + q*(1.0-np.exp((-1.0)/d))*np.sum(f*e)
+    return t1
 
 
 def fair_scm(
@@ -382,21 +404,17 @@ def fair_scm(
         # multiply by scale factors
         F[0,:] = F[0,:] * scale[0,:]
 
-    else: # this needs to be included in the forcing.ghg module really
+    else:
         if emissions_driven:
             if np.isscalar(other_rf):
-                F[0,0] = (F2x/np.log(2.)) * np.log(
-                  (C[0,0] + C_pi[0]) / C_pi[0]) + other_rf
+                F[0,0] = co2_log(C[0,0]+C_pi[0], C_pi[0], F2x) + other_rf
             else:
-                F[0,0] = (F2x/np.log(2.)) * np.log(
-                  (C[0,0] + C_pi[0]) / C_pi[0]) + other_rf[0]
+                F[0,0] = co2_log(C[0,0]+C_pi[0], C_pi[0], F2x) + other_rf[0]
         else:
             if np.isscalar(other_rf):
-                F[0,0] = (F2x/np.log(2.)) * np.log(
-                  (C[0,0]) / C_pi[0]) + other_rf
+                F[0,0] = co2_log(C[0,0], C_pi[0], F2x) + other_rf
             else:
-                F[0,0] = (F2x/np.log(2.)) * np.log(
-                  (C[0,0]) / C_pi[0]) + other_rf[0]
+                F[0,0] = co2_log(C[0,0], C_pi[0], F2x) + other_rf[0]
         F[0,0] = F[0,0] * scale[0]
 
     if restart_in == False:
@@ -497,8 +515,8 @@ def fair_scm(
 
                 # 3. Temperature
                 # Update the thermal response boxes
-                T_j[t,:] = T_j[t-1,:]*np.exp(-1.0/d) + q[t,:]*(
-                    1-np.exp((-1.0)/d))*np.sum(F[t,:]*efficacy)
+                T_j[t,:] = forc_to_temp(
+                  T_j[t-1,:], q[t,:], d, F[t,:], e=efficacy)
                 # Sum the thermal response boxes to get the total temperature
                 T[t]=np.sum(T_j[t,:],axis=-1)
 
@@ -512,16 +530,13 @@ def fair_scm(
                   C[t,0] - C[t-1,0])*ppm_gtc
 
                 if np.isscalar(other_rf):
-                    F[t,0] = (F2x/np.log(2.)) * np.log(
-                        (C[t,0] + C_pi[0]) / C_pi[0]) + other_rf
+                    F[t,0] = co2_log(C[t,0]+C_pi[0], C_pi[0], F2x) + other_rf
                 else:
-                    F[t,0] = (F2x/np.log(2.)) * np.log(
-                        (C[t,0] + C_pi[0]) / C_pi[0]) + other_rf[t]
+                    F[t,0] = co2_log(C[t,0]+C_pi[0], C_pi[0], F2x) + other_rf[t]
 
                 F[t,0] = F[t,0] * scale[t]
 
-                T_j[t,:] = T_j[t-1,:]*np.exp(-1.0/d) + q[t,:]*(
-                  1-np.exp((-1.0)/d))*F[t,:]
+                T_j[t,:] = forc_to_temp(T_j[t-1,:], q[t,:], d, F[t,:])
                 T[t]=np.sum(T_j[t,:],axis=-1)
 
         else:
@@ -538,23 +553,20 @@ def fair_scm(
 
                 # 3. Temperature
                 # Update the thermal response boxes
-                T_j[t,:] = T_j[t-1,:]*np.exp(-1.0/d) + q[t,:]*(
-                    1-np.exp((-1.0)/d))*np.sum(F[t,:]*efficacy)
+                T_j[t,:] = T_j[t,:] = forc_to_temp(
+                  T_j[t-1,:], q[t,:], d, F[t,:], e=efficacy)
                 # Sum the thermal response boxes to get the total temperature
                 T[t]=np.sum(T_j[t,:],axis=-1)
 
             else:
                 if np.isscalar(other_rf):
-                    F[t,0] = (F2x/np.log(2.)) * np.log(
-                        (C[t,0]) / C_pi[0]) + other_rf
+                    F[t,0] = co2_log(C[t,0], C_pi[0], F2x) + other_rf
                 else:
-                    F[t,0] = (F2x/np.log(2.)) * np.log(
-                        (C[t,0]) / C_pi[0]) + other_rf[t]
+                    F[t,0] = co2_log(C[t,0], C_pi[0], F2x) + other_rf[t]
 
                 F[t,0] = F[t,0] * scale[t]
 
-                T_j[t,:] = T_j[t-1,:]*np.exp(-1.0/d) + q[t,:]*(
-                  1-np.exp((-1.0)/d))*F[t,:]
+                T_j[t,:] = forc_to_temp(T_j[t-1,:], q[t,:], d, F[t,:])
                 T[t]=np.sum(T_j[t,:],axis=-1)
 
     if emissions_driven:
