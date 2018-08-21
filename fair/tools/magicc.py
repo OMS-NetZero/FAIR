@@ -4,15 +4,15 @@ from scipy.interpolate import interp1d
 
 def _import_emis_file(rcp):
     if rcp in ['rcp3pd', 'rcp26']:
-        from ..RCPs.rcp3pd import Emissions as rcp_emis
+        from ..RCPs.rcp26 import Emissions as rcp_emis
     elif rcp=='rcp45':
         from ..RCPs.rcp45 import Emissions as rcp_emis
-    elif rcp=='rcp6':
-        from ..RCPs.rcp6 import Emissions as rcp_emis
+    elif rcp in ['rcp6', 'rcp60']:
+        from ..RCPs.rcp60 import Emissions as rcp_emis
     elif rcp=='rcp85':
         from ..RCPs.rcp85 import Emissions as rcp_emis
     else:
-        raise ValueError('rcp must be rcp3pd, rcp45, rcp6 or rcp85')
+        raise ValueError('rcp must be rcp26, rcp45, rcp60 or rcp85')
     return rcp_emis
 
 

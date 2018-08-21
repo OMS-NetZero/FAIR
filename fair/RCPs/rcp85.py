@@ -9,6 +9,8 @@ import numpy as np
 import os
 emissions_filename = os.path.join(
     os.path.dirname(__file__), 'data/RCP85_EMISSIONS.csv')
+concentrations_filename = os.path.join(
+    os.path.dirname(__file__), 'data/RCP85_MIDYEAR_CONCENTRATIONS.csv')
 forcing_filename = os.path.join(
     os.path.dirname(__file__), 'data/RCP85_MIDYEAR_RADFORCING.csv')
 aviNOx_filename = os.path.join(
@@ -66,6 +68,47 @@ class Emissions:
     ch3cl     = emissions[:,39]
 
 
+class Concentrations:
+    concentrations = np.loadtxt(concentrations_filename, skiprows=39,
+      delimiter=',')
+    year       = concentrations[:,0]
+    co2eq      = concentrations[:,1]
+    kyotoco2eq = concentrations[:,2]
+    co2        = concentrations[:,3]
+    ch4        = concentrations[:,4]
+    n2o        = concentrations[:,5]
+    fgassum    = concentrations[:,6]
+    mhalosum   = concentrations[:,7]
+    cf4        = concentrations[:,8]
+    c2f6       = concentrations[:,9]
+    c6f14      = concentrations[:,10]
+    hfc23      = concentrations[:,11]
+    hfc32      = concentrations[:,12]
+    hfc43_10   = concentrations[:,13]
+    hfc125     = concentrations[:,14]
+    hfc134a    = concentrations[:,15]
+    hfc143a    = concentrations[:,16]
+    hfc227ea   = concentrations[:,17]
+    hfc245fa   = concentrations[:,18]
+    sf6        = concentrations[:,19]
+    cfc11      = concentrations[:,20]
+    cfc12      = concentrations[:,21]
+    cfc113     = concentrations[:,22]
+    cfc114     = concentrations[:,23]
+    cfc115     = concentrations[:,24]
+    carb_tet   = concentrations[:,25]
+    mcf        = concentrations[:,26]
+    hcfc22     = concentrations[:,27]
+    hcfc141b   = concentrations[:,28]
+    hcfc142b   = concentrations[:,29]
+    halon1211  = concentrations[:,30]
+    halon1202  = concentrations[:,31]
+    halon1301  = concentrations[:,32]
+    halon2402  = concentrations[:,33]
+    ch3br      = concentrations[:,34]
+    ch3cl      = concentrations[:,35]    
+
+    
 class Forcing:
     forcing   = np.loadtxt(forcing_filename, skiprows=59, delimiter=',')
     year      = forcing[:,0]

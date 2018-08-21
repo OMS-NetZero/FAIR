@@ -17,11 +17,11 @@
 .pytest_cache/*
 
 # Ipython checkpoints
-.ipynb_checkpoints/*
-notebooks/.ipynb_checkpoints/*
+*.ipynb_checkpoints*
 
 # autosaved python version of index.ipynb
 index.py
 
-# vim autosave files
+# vim and gedit autosave files
 *.swp
+*~

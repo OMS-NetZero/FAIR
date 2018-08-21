@@ -1134,6 +1134,85 @@ radiative forcing time series coming out of FAIR.</p>
 </div>
 <img alt="_images/examples_29_0.png" src="_images/examples_29_0.png" />
 </div>
+<div class="section" id="running-in-concentration-driven-mode">
+<h2>Running in concentration-driven mode<a class="headerlink" href="#running-in-concentration-driven-mode" title="Permalink to this headline">¶</a></h2>
+<p>It is possible to drive FAIR with concentrations rather than emissions.
+Set the <code class="docutils literal"><span class="pre">emissions_driven</span></code> keyword to <code class="docutils literal"><span class="pre">False</span></code> and specify the
+concentrations with <code class="docutils literal"><span class="pre">C</span></code>. The function still returns the <code class="docutils literal"><span class="pre">C,</span> <span class="pre">F,</span> <span class="pre">T</span></code>
+tuple; comparison of the input concentrations with the output
+concentrations can be performed as a sense check to verify the code is
+not changing anything.</p>
+<div class="section" id="co2-only">
+<h3>CO2 only<a class="headerlink" href="#co2-only" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-ipython2"><div class="highlight"><pre><span></span><span class="c1"># Produce a base emissions-driven RCP4.5 run</span>
+<span class="n">C1</span><span class="p">,</span><span class="n">F1</span><span class="p">,</span><span class="n">T1</span> <span class="o">=</span> <span class="n">fair</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="n">fair_scm</span><span class="p">(</span>
+    <span class="n">emissions_driven</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">emissions</span><span class="o">=</span><span class="n">fair</span><span class="o">.</span><span class="n">RCPs</span><span class="o">.</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">co2</span><span class="p">,</span>
+    <span class="n">useMultigas</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="c1"># Produce a concentration driven RCP4.5 run</span>
+<span class="n">C2</span><span class="p">,</span><span class="n">F2</span><span class="p">,</span><span class="n">T2</span> <span class="o">=</span> <span class="n">fair</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="n">fair_scm</span><span class="p">(</span>
+    <span class="n">emissions_driven</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">C</span><span class="o">=</span><span class="n">fair</span><span class="o">.</span><span class="n">RCPs</span><span class="o">.</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Concentrations</span><span class="o">.</span><span class="n">co2</span><span class="p">,</span>
+    <span class="n">useMultigas</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">221</span><span class="p">)</span>
+<span class="n">ax2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">222</span><span class="p">)</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">F1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Emissions driven&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">F2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Concentrations driven&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;RCP4.5 radiative forcing, W m$^{-2}$&quot;</span><span class="p">)</span>
+
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">T1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Emissions driven&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">T2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Concentrations driven&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;RCP4.5 temperature anomaly, K&quot;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span>
+</pre></div>
+</div>
+<img alt="_images/examples_32_0.png" src="_images/examples_32_0.png" />
+</div>
+<div class="section" id="multi-gas">
+<h3>Multi-gas<a class="headerlink" href="#multi-gas" title="Permalink to this headline">¶</a></h3>
+<p>In multi-gas concentrations driven mode, all non-WMGHG forcing that is
+normally calculated from emissions (tropospheric ozone, aviation
+contrails, aerosols, black carbon on snow and land use) is provided
+externally. The default values for each are zero. WMGHG forcing that is
+calculated from concentrations or forcing (stratospheric ozone and
+stratospheric water vapour from methane) is not affected.</p>
+<div class="highlight-ipython2"><div class="highlight"><pre><span></span><span class="c1"># Produce a base emissions-driven RCP4.5 run</span>
+<span class="n">C1</span><span class="p">,</span><span class="n">F1</span><span class="p">,</span><span class="n">T1</span> <span class="o">=</span> <span class="n">fair</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="n">fair_scm</span><span class="p">(</span>
+    <span class="n">emissions_driven</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="n">emissions</span><span class="o">=</span><span class="n">fair</span><span class="o">.</span><span class="n">RCPs</span><span class="o">.</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">emissions</span><span class="p">,</span>
+    <span class="n">useMultigas</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Produce a concentration driven RCP4.5 run</span>
+<span class="c1"># use Meinshausen&#39;s external forcing here</span>
+<span class="n">C2</span><span class="p">,</span><span class="n">F2</span><span class="p">,</span><span class="n">T2</span> <span class="o">=</span> <span class="n">fair</span><span class="o">.</span><span class="n">forward</span><span class="o">.</span><span class="n">fair_scm</span><span class="p">(</span>
+    <span class="n">emissions_driven</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">C</span><span class="o">=</span><span class="n">fair</span><span class="o">.</span><span class="n">RCPs</span><span class="o">.</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Concentrations</span><span class="o">.</span><span class="n">gases</span><span class="p">,</span>
+    <span class="n">F_tropO3</span> <span class="o">=</span> <span class="n">rcp45</span><span class="o">.</span><span class="n">Forcing</span><span class="o">.</span><span class="n">tropo3</span><span class="p">,</span>
+    <span class="n">F_aerosol</span> <span class="o">=</span> <span class="n">rcp45</span><span class="o">.</span><span class="n">Forcing</span><span class="o">.</span><span class="n">aero</span><span class="o">+</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Forcing</span><span class="o">.</span><span class="n">cloud</span><span class="p">,</span>
+    <span class="n">F_bcsnow</span> <span class="o">=</span> <span class="n">rcp45</span><span class="o">.</span><span class="n">Forcing</span><span class="o">.</span><span class="n">bcsnow</span><span class="p">,</span>
+    <span class="n">useMultigas</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">221</span><span class="p">)</span>
+<span class="n">ax2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">222</span><span class="p">)</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">F1</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Emissions driven&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">F2</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Concentrations driven&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;RCP4.5 radiative forcing, W m$^{-2}$&quot;</span><span class="p">)</span>
+
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">T1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Emissions driven&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp45</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">T2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Concentrations driven&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;RCP4.5 temperature anomaly, K&quot;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span>
+</pre></div>
+</div>
+<img alt="_images/examples_34_0.png" src="_images/examples_34_0.png" />
+</div>
+</div>
 <div class="section" id="natural-emissions-and-ghg-lifetimes">
 <h2>Natural emissions and GHG lifetimes<a class="headerlink" href="#natural-emissions-and-ghg-lifetimes" title="Permalink to this headline">¶</a></h2>
 <p>In order to balance historical concentrations of methane and nitrous
@@ -1184,7 +1263,7 @@ maintaining historical concentrations.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="mf">9.3</span><span class="p">,</span> <span class="mf">121.0</span><span class="p">)</span>
 </pre></div>
 </div>
-<img alt="_images/examples_31_1.png" src="_images/examples_31_1.png" />
+<img alt="_images/examples_36_1.png" src="_images/examples_36_1.png" />
 </div>
 <div class="section" id="ensemble-generation">
 <h2>Ensemble generation<a class="headerlink" href="#ensemble-generation" title="Permalink to this headline">¶</a></h2>
@@ -1229,7 +1308,7 @@ from a doubling of CO2.</p>
 <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp85</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">T</span><span class="p">);</span>
 </pre></div>
 </div>
-<img alt="_images/examples_34_0.png" src="_images/examples_34_0.png" />
+<img alt="_images/examples_39_0.png" src="_images/examples_39_0.png" />
 <div class="section" id="adding-a-temperature-constraint">
 <h3>Adding a temperature constraint<a class="headerlink" href="#adding-a-temperature-constraint" title="Permalink to this headline">¶</a></h3>
 <p>The resulting projections show a large spread. Some of these ensemble
@@ -1261,7 +1340,7 @@ observations.</p>
 <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rcp85</span><span class="o">.</span><span class="n">Emissions</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">T</span><span class="p">[:,</span><span class="n">constrained</span><span class="p">]);</span>
 </pre></div>
 </div>
-<img alt="_images/examples_38_0.png" src="_images/examples_38_0.png" />
+<img alt="_images/examples_43_0.png" src="_images/examples_43_0.png" />
 <p>Some, but not all, of the higher end scenarios have been constrained
 out, but there is still quite a large range of total temperature change
 projected for 2500 even under this constraint.</p>
@@ -1299,6 +1378,11 @@ on effective radiative forcing, ECS, TCR, TCRE and other metrics.</p>
 <li><a class="reference internal" href="#rcp-scenarios">RCP scenarios</a></li>
 <li><a class="reference internal" href="#concentrations-of-well-mixed-greenhouse-gases">Concentrations of well-mixed greenhouse gases</a></li>
 <li><a class="reference internal" href="#radiative-forcing">Radiative forcing</a></li>
+<li><a class="reference internal" href="#running-in-concentration-driven-mode">Running in concentration-driven mode</a><ul>
+<li><a class="reference internal" href="#co2-only">CO2 only</a></li>
+<li><a class="reference internal" href="#multi-gas">Multi-gas</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#natural-emissions-and-ghg-lifetimes">Natural emissions and GHG lifetimes</a></li>
 <li><a class="reference internal" href="#ensemble-generation">Ensemble generation</a><ul>
 <li><a class="reference internal" href="#adding-a-temperature-constraint">Adding a temperature constraint</a></li>

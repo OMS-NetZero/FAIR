@@ -1004,6 +1004,97 @@ radiative forcing time series coming out of FAIR.
 .. image:: examples_files/examples_29_0.png
 
 
+Running in concentration-driven mode
+------------------------------------
+
+It is possible to drive FAIR with concentrations rather than emissions.
+Set the ``emissions_driven`` keyword to ``False`` and specify the
+concentrations with ``C``. The function still returns the ``C, F, T``
+tuple; comparison of the input concentrations with the output
+concentrations can be performed as a sense check to verify the code is
+not changing anything.
+
+CO2 only
+~~~~~~~~
+
+.. code:: ipython2
+
+    # Produce a base emissions-driven RCP4.5 run
+    C1,F1,T1 = fair.forward.fair_scm(
+        emissions_driven=True,
+        emissions=fair.RCPs.rcp45.Emissions.co2,
+        useMultigas=False)
+    
+    # Produce a concentration driven RCP4.5 run
+    C2,F2,T2 = fair.forward.fair_scm(
+        emissions_driven=False,
+        C=fair.RCPs.rcp45.Concentrations.co2,
+        useMultigas=False)
+    
+    fig = plt.figure()
+    ax1 = fig.add_subplot(221)
+    ax2 = fig.add_subplot(222)
+    
+    ax1.plot(rcp45.Emissions.year, F1, color='blue', label='Emissions driven')
+    ax1.plot(rcp45.Emissions.year, F2, color='red', label='Concentrations driven')
+    ax1.set_title("RCP4.5 radiative forcing, W m$^{-2}$")
+    
+    ax2.plot(rcp45.Emissions.year, T1, color='blue', label='Emissions driven')
+    ax2.plot(rcp45.Emissions.year, T2, color='red', label='Concentrations driven')
+    ax2.set_title("RCP4.5 temperature anomaly, K")
+    ax1.legend();
+
+
+
+.. image:: examples_files/examples_32_0.png
+
+
+Multi-gas
+~~~~~~~~~
+
+In multi-gas concentrations driven mode, all non-WMGHG forcing that is
+normally calculated from emissions (tropospheric ozone, aviation
+contrails, aerosols, black carbon on snow and land use) is provided
+externally. The default values for each are zero. WMGHG forcing that is
+calculated from concentrations or forcing (stratospheric ozone and
+stratospheric water vapour from methane) is not affected.
+
+.. code:: ipython2
+
+    # Produce a base emissions-driven RCP4.5 run
+    C1,F1,T1 = fair.forward.fair_scm(
+        emissions_driven=True,
+        emissions=fair.RCPs.rcp45.Emissions.emissions,
+        useMultigas=True)
+    
+    # Produce a concentration driven RCP4.5 run
+    # use Meinshausen's external forcing here
+    C2,F2,T2 = fair.forward.fair_scm(
+        emissions_driven=False,
+        C=fair.RCPs.rcp45.Concentrations.gases,
+        F_tropO3 = rcp45.Forcing.tropo3,
+        F_aerosol = rcp45.Forcing.aero+rcp45.Forcing.cloud,
+        F_bcsnow = rcp45.Forcing.bcsnow,
+        useMultigas=True)
+    
+    fig = plt.figure()
+    ax1 = fig.add_subplot(221)
+    ax2 = fig.add_subplot(222)
+    
+    ax1.plot(rcp45.Emissions.year, np.sum(F1,axis=1), color='blue', label='Emissions driven')
+    ax1.plot(rcp45.Emissions.year, np.sum(F2,axis=1), color='red', label='Concentrations driven')
+    ax1.set_title("RCP4.5 radiative forcing, W m$^{-2}$")
+    
+    ax2.plot(rcp45.Emissions.year, T1, color='blue', label='Emissions driven')
+    ax2.plot(rcp45.Emissions.year, T2, color='red', label='Concentrations driven')
+    ax2.set_title("RCP4.5 temperature anomaly, K")
+    ax1.legend();
+
+
+
+.. image:: examples_files/examples_34_0.png
+
+
 Natural emissions and GHG lifetimes
 -----------------------------------
 
@@ -1062,7 +1153,7 @@ maintaining historical concentrations.
 
 
 
-.. image:: examples_files/examples_31_1.png
+.. image:: examples_files/examples_36_1.png
 
 
 Ensemble generation
@@ -1115,7 +1206,7 @@ from a doubling of CO2.
 
 
 
-.. image:: examples_files/examples_34_0.png
+.. image:: examples_files/examples_39_0.png
 
 
 Adding a temperature constraint
@@ -1159,7 +1250,7 @@ observations.
 
 
 
-.. image:: examples_files/examples_38_0.png
+.. image:: examples_files/examples_43_0.png
 
 
 Some, but not all, of the higher end scenarios have been constrained

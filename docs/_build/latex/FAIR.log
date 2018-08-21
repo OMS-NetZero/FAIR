@@ -1,4 +1,4 @@
-This is pdfTeXk, Version 3.141592-1.40.3 (Web2C 7.5.6) (format=pdflatex 2016.11.24)  15 MAY 2018 12:07
+This is pdfTeXk, Version 3.141592-1.40.3 (Web2C 7.5.6) (format=pdflatex 2016.11.24)  20 AUG 2018 12:12
 entering extended mode
  %&-line parsing enabled.
 **FAIR.tex
@@ -920,32 +920,32 @@ File: ts1pcr.fd 2001/06/04 font definitions for TS1/pcr.
 LaTeX Font Info:    Font shape `T1/pcr/m/it' in size <9> not available
 (Font)              Font shape `T1/pcr/m/sl' tried instead on input line 197.
  [5]
-<examples_6_0.png, id=134, 939.51pt x 517.935pt>
+<examples_6_0.png, id=139, 939.51pt x 517.935pt>
 File: examples_6_0.png Graphic file (type png)
  <use examples_6_0.png>
-[6 <./examples_6_0.png>] <examples_8_0.png, id=141, 939.51pt x 249.93375pt>
+[6 <./examples_6_0.png>] <examples_8_0.png, id=146, 939.51pt x 249.93375pt>
 File: examples_8_0.png Graphic file (type png)
 
 <use examples_8_0.png>
 Overfull \vbox (1.09422pt too high) detected at line 328
  []
 
-[7 <./examples_8_0.png>] <examples_10_1.png, id=149, 939.51pt x 517.935pt>
+[7 <./examples_8_0.png>] <examples_10_1.png, id=154, 939.51pt x 517.935pt>
 File: examples_10_1.png Graphic file (type png)
 
 <use examples_10_1.png> [8] [9 <./examples_10_1.png>]
-<examples_12_0.png, id=163, 947.54pt x 517.935pt>
+<examples_12_0.png, id=168, 947.54pt x 517.935pt>
 File: examples_12_0.png Graphic file (type png)
  <use examples_12_0.png>
 [10] [11 <./examples_12_0.png>]
-<examples_14_0.png, id=174, 947.54pt x 517.935pt>
+<examples_14_0.png, id=179, 947.54pt x 517.935pt>
 File: examples_14_0.png Graphic file (type png)
  <use examples_14_0.png>
-[12 <./examples_14_0.png>] <examples_16_0.png, id=184, 947.54pt x 517.935pt>
+[12 <./examples_14_0.png>] <examples_16_0.png, id=189, 947.54pt x 517.935pt>
 File: examples_16_0.png Graphic file (type png)
 
 <use examples_16_0.png> [13 <./examples_16_0.png>] [14]
-<examples_20_0.png, id=195, 947.54pt x 517.935pt>
+<examples_20_0.png, id=200, 947.54pt x 517.935pt>
 File: examples_20_0.png Graphic file (type png)
  <use examples_20_0.png>
 LaTeX Font Info:    Try loading font information for TS1+ptm on input line 652.
@@ -958,44 +958,52 @@ File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 LaTeX Font Info:    Font shape `TS1/pcr/m/it' in size <9> not available
 (Font)              Font shape `TS1/pcr/m/sl' tried instead on input line 1369.
 
- [18] <examples_23_1.png, id=221, 938.50626pt x 517.935pt>
+ [18] <examples_23_1.png, id=226, 938.50626pt x 517.935pt>
 File: examples_23_1.png Graphic file (type png)
 
 <use examples_23_1.png> [19] [20 <./examples_23_1.png>]
-<examples_25_0.png, id=231, 944.52875pt x 519.9425pt>
+<examples_25_0.png, id=236, 944.52875pt x 519.9425pt>
 File: examples_25_0.png Graphic file (type png)
  <use examples_25_0.png>
-[21 <./examples_25_0.png>] <examples_27_0.png, id=238, 935.495pt x 531.9875pt>
+[21 <./examples_25_0.png>] <examples_27_0.png, id=243, 935.495pt x 531.9875pt>
 File: examples_27_0.png Graphic file (type png)
 
 <use examples_27_0.png> [22] [23 <./examples_27_0.png>]
-<examples_29_0.png, id=248, 933.4875pt x 538.01pt>
+<examples_29_0.png, id=253, 933.4875pt x 538.01pt>
 File: examples_29_0.png Graphic file (type png)
  <use examples_29_0.png>
 [24 <./examples_29_0.png>]
-<examples_31_1.png, id=254, 935.495pt x 263.98625pt>
-File: examples_31_1.png Graphic file (type png)
- <use examples_31_1.png>
-Overfull \vbox (2.38808pt too high) detected at line 1673
+<examples_32_0.png, id=260, 927.465pt x 270.00874pt>
+File: examples_32_0.png Graphic file (type png)
+ <use examples_32_0.png>
+[25 <./examples_32_0.png>]
+<examples_34_0.png, id=267, 925.4575pt x 270.00874pt>
+File: examples_34_0.png Graphic file (type png)
+ <use examples_34_0.png>
+[26 <./examples_34_0.png>]
+<examples_36_1.png, id=273, 935.495pt x 263.98625pt>
+File: examples_36_1.png Graphic file (type png)
+ <use examples_36_1.png>
+Overfull \vbox (2.38808pt too high) detected at line 1758
  []
 
-[25 <./examples_31_1.png>] <examples_34_0.png, id=260, 933.4875pt x 517.935pt>
-File: examples_34_0.png Graphic file (type png)
+[27 <./examples_36_1.png>] <examples_39_0.png, id=280, 933.4875pt x 517.935pt>
+File: examples_39_0.png Graphic file (type png)
 
-<use examples_34_0.png> [26 <./examples_34_0.png>]
-<examples_38_0.png, id=267, 933.4875pt x 517.935pt>
-File: examples_38_0.png Graphic file (type png)
- <use examples_38_0.png>
-[27 <./examples_38_0.png>] [28
+<use examples_39_0.png> [28 <./examples_39_0.png>]
+<examples_43_0.png, id=287, 933.4875pt x 517.935pt>
+File: examples_43_0.png Graphic file (type png)
+ <use examples_43_0.png>
+[29 <./examples_43_0.png>] [30
 
 ]
 Chapter 4.
-(./FAIR.ind) [29] (./FAIR.aux) ) 
+(./FAIR.ind) [31] (./FAIR.aux) ) 
 Here is how much of TeX's memory you used:
- 7702 strings out of 256214
- 101434 string characters out of 1916999
- 242831 words of memory out of 1500000
- 10677 multiletter control sequences out of 10000+200000
+ 7721 strings out of 256214
+ 101798 string characters out of 1916999
+ 242985 words of memory out of 1500000
+ 10689 multiletter control sequences out of 10000+200000
  52421 words of font info for 74 fonts, out of 1200000 for 2000
  646 hyphenation exceptions out of 8191
  32i,12n,45p,836b,496s stack positions out of 5000i,500n,6000p,200000b,15000s
@@ -1007,9 +1015,9 @@ urw/courier/ucrro8a.pfb></usr/share/texmf/fonts/type1/urw/helvetic/uhvb8a.pfb><
 /usr/share/texmf/fonts/type1/urw/helvetic/uhvbo8a.pfb></usr/share/texmf/fonts/t
 ype1/urw/helvetic/uhvr8a.pfb></usr/share/texmf/fonts/type1/urw/times/utmb8a.pfb
 ></usr/share/texmf/fonts/type1/urw/times/utmr8a.pfb>
-Output written on FAIR.pdf (33 pages, 2364780 bytes).
+Output written on FAIR.pdf (35 pages, 2436824 bytes).
 PDF statistics:
- 336 PDF objects out of 1000 (max. 8388607)
- 62 named destinations out of 1000 (max. 131072)
- 203 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 356 PDF objects out of 1000 (max. 8388607)
+ 67 named destinations out of 1000 (max. 131072)
+ 221 words of extra memory for PDF output out of 10000 (max. 10000000)
 
