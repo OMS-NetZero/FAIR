@@ -452,3 +452,11 @@ def test_multigas_concentration_driven():
     datadir = os.path.join(os.path.dirname(__file__), 'rcp45/')
     T_expected = np.load(datadir + 'T_concdriven_multi.npy')
     assert np.allclose(T, T_expected)
+
+
+def test_co2only_scale_error():
+    """Test to fix #42"""
+    C, F, T = fair.forward.fair_scm(
+        emissions = rcp85.Emissions.co2,
+        useMultigas=False,
+        scale=1.0)
