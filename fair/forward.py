@@ -243,8 +243,11 @@ def fair_scm(
             C = C.reshape((nt, 1))
 
         # check scale factor is correct shape - either scalar or 1D
+        # needs try/except really
         if scale is None:
             scale = np.ones(nt)
+        elif np.isscalar(scale):
+            scale = np.ones(nt) * scale
         elif scale.ndim==1 and scale.shape[0]==nt:
             pass
         else:
