@@ -315,7 +315,7 @@ def fair_scm(
                 C[0,1:] = C_0[1:]
 
     if useMultigas:
-        # CO2, CH4 and methane are co-dependent
+        # CO2, CH4 and N2O are co-dependent
         if emissions_driven:
             F[0,0:3] = ghg(C[0,0:3]+np.array([C_pi[0],0,0]), C_pi[0:3], F2x=F2x)
         else:
