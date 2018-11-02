@@ -1,8 +1,5 @@
 from __future__ import division
 
-import pickle
-import os
-import sys
 import numpy as np
 from ..constants import molwt
 from ..RCPs.rcp45 import Emissions as r45e
