@@ -27,8 +27,12 @@ setup(name='fair',
       package_data={'': ['*.csv']},
       include_package_data=True,
       install_requires=[
+          'matplotlib',
           'numpy>=1.11.3',
           'scipy>=0.19.0',
       ],
       zip_safe=False,
+      extras_require={'docs': ['sphinx>=1.4', 'nbsphinx'],
+                      'dev' : ['notebook', 'wheel', 'twine'],
+                      'test': ['pytest', 'nbval', 'pytest-cov', 'codecov']}
 )
