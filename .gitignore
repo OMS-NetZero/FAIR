@@ -25,6 +25,9 @@ docs/_build/
 # autosaved python version of index.ipynb
 index.py
 
+# virtualenvironment
+venv
+
 # vim and gedit autosave files
 *.swp
 *~
