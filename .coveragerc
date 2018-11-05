@@ -1,2 +1,7 @@
 [run]
 omit = fair/_version.py
+source = fair
+
+[report]
+omit=
+    tests/*
