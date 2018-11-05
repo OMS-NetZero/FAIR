@@ -17,7 +17,10 @@
 .pytest_cache/*
 
 # Ipython checkpoints
-*.ipynb_checkpoints*
+.ipynb_checkpoints
+
+# Sphinx documentation
+docs/_build/
 
 # autosaved python version of index.ipynb
 index.py
