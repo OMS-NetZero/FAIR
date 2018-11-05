@@ -94,8 +94,6 @@ def test_rcp85():
     F_expected = np.load(datadir + 'F.npy')
     T_expected = np.load(datadir + 'T.npy')
 
-    print(np.sum(F, axis=1))
-
     assert np.allclose(C, C_expected)
     assert np.allclose(F, F_expected)
     assert np.allclose(T, T_expected)
