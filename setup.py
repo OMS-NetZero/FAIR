@@ -33,5 +33,6 @@ setup(name='fair',
       ],
       zip_safe=False,
       extras_require={'docs': ['sphinx>=1.4', 'nbsphinx'],
-                      'dev' : ['notebook']}
+                      'dev' : ['notebook'],
+                      'test': ['pytest']}
 )
