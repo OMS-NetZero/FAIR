@@ -2,6 +2,7 @@
 | |Binder|
 | |Docs Status|
 | |Zenodo|
+| |Codecov|
 
 FAIR
 ====
@@ -97,3 +98,5 @@ https://doi.org/10.5194/acp-17-7213-2017, 2017.
    :alt: Documentation Status
 .. |Zenodo| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1247898.svg
    :target: https://doi.org/10.5281/zenodo.1247898
+.. |Codecov| image:: https://codecov.io/gh/OMS-NetZero/FAIR/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/OMS-NetZero/FAIR
