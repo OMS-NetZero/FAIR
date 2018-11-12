@@ -92,7 +92,7 @@ https://doi.org/10.5194/acp-17-7213-2017, 2017.
 .. |Build Status| image:: https://travis-ci.org/OMS-NetZero/FAIR.svg?branch=master
    :target: https://travis-ci.org/OMS-NetZero/FAIR
 .. |Binder| image:: https://mybinder.org/badge.svg
-   :target: https://mybinder.org/v2/gh/OMS-NetZero/FAIR/master?filepath=Example-Usage.ipynb
+   :target: https://mybinder.org/v2/gh/OMS-NetZero/FAIR/master?filepath=notebooks/Example-Usage.ipynb
 .. |Docs Status| image:: https://readthedocs.org/projects/fair/badge/?version=latest
    :target: http://fair.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
