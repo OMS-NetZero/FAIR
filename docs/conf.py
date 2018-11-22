@@ -45,9 +45,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'FAIR'
-copyright = u'2018, FAIR development team'
-author = u'FAIR development team'
+project = u'FaIR'
+copyright = u'2018, FaIR development team'
+author = u'FaIR development team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -135,8 +135,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'FAIR.tex', u'FAIR Documentation',
-     u'FAIR development team', 'manual'),
+    (master_doc, 'FaIR.tex', u'FaIR Documentation',
+     u'FaIR development team', 'manual'),
 ]
 
 
@@ -145,7 +145,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'fair', u'FAIR Documentation',
+    (master_doc, 'fair', u'FaIR Documentation',
      [author], 1)
 ]
 
@@ -156,8 +156,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'FAIR', u'FAIR Documentation',
-     author, 'FAIR', 'One line description of project.',
+    (master_doc, 'FaIR', u'FaIR Documentation',
+     author, 'FaIR', 'One line description of project.',
      'Miscellaneous'),
 ]
 

@@ -4,7 +4,7 @@
 | |Zenodo|
 | |Codecov|
 
-FAIR
+FaIR
 ====
 
 Finite Amplitude Impulse-Response simple climate-carbon-cycle model
@@ -18,11 +18,11 @@ Installation
 Usage
 -----
 
-FAIR takes emissions of greenhouse gases, aerosol and ozone precursors,
+FaIR takes emissions of greenhouse gases, aerosol and ozone precursors,
 and converts these into greenhouse gas concentrations, radiative forcing
 and temperature change.
 
-There are two ways to run FAIR:
+There are two ways to run FaIR:
 
 #. Carbon dioxide emissions only with all other radiative forcings
    specified externally (specify ``useMultigas=False`` in the call to
