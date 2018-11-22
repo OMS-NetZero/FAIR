@@ -16,7 +16,7 @@ def readme():
 setup(name='fair',
       version=versioneer.get_version(),
       cmdclass=versioneer.get_cmdclass(),
-      description='Python package to perform calculations with the FAIR simple climate model',
+      description='Python package to perform calculations with the FaIR simple climate model',
       long_description=readme(),
       keywords='simple climate model temperature response carbon cycle emissions forcing',
       url='https://github.com/OMS-NetZero/FAIR',
