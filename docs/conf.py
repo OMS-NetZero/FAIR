@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# FAIR documentation build configuration file, created by
+# FaIR documentation build configuration file, created by
 # sphinx-quickstart on Mon Mar 12 17:36:07 2018.
 #
 # This file is execfile()d with the current directory set to its
@@ -99,7 +99,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'FAIRdoc'
+htmlhelp_basename = 'FaIRdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
