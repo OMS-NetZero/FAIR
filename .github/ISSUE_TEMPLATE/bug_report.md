@@ -24,7 +24,7 @@ If applicable, add screenshots to help explain your problem.
 **System (please complete the following information):**
 
  - OS: [e.g. Windows, Linux, macOS]
- - Python and FAIR version [e.g. Python 3.5]
+ - Python and FaIR version [e.g. Python 3.5]
 
 **Additional context**
 

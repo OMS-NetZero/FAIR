@@ -3,7 +3,7 @@ Examples
 ========
 
 Here are some simple examples of how to run and use the Finite Amplitude
-Impulse Response (FAIR) model run in the jupyter notebook.
+Impulse Response (FaIR) model run in the jupyter notebook.
 
 .. code:: ipython2
 
@@ -20,7 +20,7 @@ Impulse Response (FAIR) model run in the jupyter notebook.
     plt.style.use('seaborn-darkgrid')
     plt.rcParams['figure.figsize'] = (16, 9)
 
-The "engine" of FAIR is the ``fair_scm`` function in the ``forward``
+The "engine" of FaIR is the ``fair_scm`` function in the ``forward``
 module.
 
 .. code:: ipython2
@@ -33,16 +33,16 @@ CO2 driven run
 Basic example
 ~~~~~~~~~~~~~
 
-Here we show how FAIR can be run with step change CO2 emissions and
-sinusoidal non-CO2 forcing timeseries. This is a FAIR v1.0-style setup
+Here we show how FaIR can be run with step change CO2 emissions and
+sinusoidal non-CO2 forcing timeseries. This is a FaIR v1.0-style setup
 in which CO2 is the only emitted species.
 
-In almost every application of FAIR you will probably want to vary the
+In almost every application of FaIR you will probably want to vary the
 ``emissions`` time series going in to ``fair_scm``. In CO2-only mode
 this is a 1D array of CO2 emissions. Setting ``useMultigas=False`` turns
 off the emissions from non-CO2 species.
 
-The output from FAIR is a 3-tuple of ``(C,F,T)`` arrays. In CO2 mode,
+The output from FaIR is a 3-tuple of ``(C,F,T)`` arrays. In CO2 mode,
 both ``C`` (representing CO2 concentrations in ppm) and ``F`` (total
 radiative forcing in W m-2) are 1D arrays. ``T`` (temperature change
 since the pre-industrial) is always output as a 1D array.
@@ -121,7 +121,7 @@ the CO2 concentrations are not updated from their pre-industrial value.
 Varying the carbon cycle parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-FAIR is set up to simulate the responses to more complex earth system
+FaIR is set up to simulate the responses to more complex earth system
 models. This is achieved by a scaling of a four-box decay model for
 atmospheric carbon dioxide emissions based on the airborne fraction of
 carbon dioxide. This in turn depends on the efficiency of carbon sinks,
@@ -223,7 +223,7 @@ ordered from slowest carbon pool to fastest, and ``a`` is the fraction
 of new CO2 emissions going in to each pool. The first element of ``tau``
 is usually very large and represents the fraction of CO2 emissions that
 remain in the atmosphere "quasi-permanently", i.e. removed only on
-geological time scales, far past the range of times in which FAIR is
+geological time scales, far past the range of times in which FaIR is
 expected to give useful results (although nobody will stop you using a
 smaller value as we demonstrate). An error should be thrown if the sum
 of ``a`` is not one.
@@ -315,11 +315,11 @@ for an abrupt doubling of CO2 concentrations) and transient climate
 response (defined as the temperature change after a CO2 doubling to a 1%
 per year compound increase in CO2 concentrations - approximately 70
 years) are both key uncertainties in climate science. The temperature
-response in FAIR depends on both. The ``tcrecs`` parameter, a 2-element
+response in FaIR depends on both. The ``tcrecs`` parameter, a 2-element
 array, controls this.
 
 This next example shows the effect of varying the ECS and TCR. (Note
-that by definition the case ECS=1.0, TCR=1.75 is not possible, but FAIR
+that by definition the case ECS=1.0, TCR=1.75 is not possible, but FaIR
 can handle such cases anyway).
 
 The biggest effect is on the temperature response, but as the
@@ -377,7 +377,7 @@ Some recent studies (`Armour
 Andrews
 2016 <http://onlinelibrary.wiley.com/doi/10.1002/2016GL068406/abstract>`__)
 suggest that ECS and TCR may not be constant. Fortunately we can
-investigate this in FAIR by specifying ``tcrecs`` as a two dimensional
+investigate this in FaIR by specifying ``tcrecs`` as a two dimensional
 ``(nt, 2)`` array. Notice the effect that a varying ECS/TCR has on the
 temperature.
 
@@ -636,7 +636,7 @@ http://www.pik-potsdam.de/~mmalte/rcps/.
 GHG Concentrations
 ~~~~~~~~~~~~~~~~~~
 
-Multi-species FAIR tracks the atmospheric concentrations of 31 GHG
+Multi-species FaIR tracks the atmospheric concentrations of 31 GHG
 species; ``C`` is returned as a ``(nt, 31)`` array. The colums are
 indexed as follows:
 
@@ -839,27 +839,26 @@ for illustration). Note this is a completely hypothetical scenario!
 RCP scenarios
 -------------
 
-Creating a 40-column emissions input table may seem a lot of work. FAIR
+Creating a 40-column emissions input table may seem a lot of work. FaIR
 comes with tools to make your life easier!
 
-We can run FAIR with the CO2 emissions and non-CO2 forcing from the four
+We can run FaIR with the CO2 emissions and non-CO2 forcing from the four
 representative concentration pathway scenarios. These can be imported
 from the ``RCPs`` module and have inbuilt ``Forcing`` and ``Emissions``
 classes. There is also a tool for converting MAGICC6 \*.SCEN files into
-FAIR input (in ``fair/tools/magicc``).
+FaIR input (in ``fair/tools/magicc``).
 
-Here we show the FAIR implementation of the RCP scenarios. Following
-Meinshausen's convention RCP3PD is an alias for RCP2.6.
+Here we show the FaIR implementation of the RCP scenarios.
 
 .. code:: ipython2
 
     # Get RCP modules
-    from fair.RCPs import rcp3pd, rcp45, rcp6, rcp85
+    from fair.RCPs import rcp26, rcp45, rcp60, rcp85
     
     # Basic RCP runs
-    C26, F26, T26 = fair.forward.fair_scm(emissions=rcp3pd.Emissions.emissions)
+    C26, F26, T26 = fair.forward.fair_scm(emissions=rcp26.Emissions.emissions)
     C45, F45, T45 = fair.forward.fair_scm(emissions=rcp45.Emissions.emissions)
-    C60, F60, T60 = fair.forward.fair_scm(emissions=rcp6.Emissions.emissions)
+    C60, F60, T60 = fair.forward.fair_scm(emissions=rcp60.Emissions.emissions)
     C85, F85, T85 = fair.forward.fair_scm(emissions=rcp85.Emissions.emissions)
     
     fig = plt.figure()
@@ -868,22 +867,22 @@ Meinshausen's convention RCP3PD is an alias for RCP2.6.
     ax3 = fig.add_subplot(223)
     ax4 = fig.add_subplot(224)
     
-    ax1.plot(rcp3pd.Emissions.year, rcp3pd.Emissions.co2_fossil, color='green', label='RCP2.6')
+    ax1.plot(rcp26.Emissions.year, rcp26.Emissions.co2_fossil, color='green', label='RCP2.6')
     # just show CO2 conc.
-    ax2.plot(rcp3pd.Emissions.year, C26[:, 0], color='green')
+    ax2.plot(rcp26.Emissions.year, C26[:, 0], color='green')
     # sum over axis 1 to get total ERF
-    ax3.plot(rcp3pd.Emissions.year, np.sum(F26, axis=1), color='green')
-    ax4.plot(rcp3pd.Emissions.year, T26, color='green')
+    ax3.plot(rcp26.Emissions.year, np.sum(F26, axis=1), color='green')
+    ax4.plot(rcp26.Emissions.year, T26, color='green')
     
     ax1.plot(rcp45.Emissions.year, rcp45.Emissions.co2_fossil, color='blue', label='RCP4.5')
     ax2.plot(rcp45.Emissions.year, C45[:, 0], color='blue')
     ax3.plot(rcp45.Emissions.year, np.sum(F45, axis=1), color='blue')
     ax4.plot(rcp45.Emissions.year, T45, color='blue')
     
-    ax1.plot(rcp6.Emissions.year, rcp6.Emissions.co2_fossil, color='red', label='RCP6')
-    ax2.plot(rcp6.Emissions.year, C60[:, 0], color='red')
-    ax3.plot(rcp6.Emissions.year, np.sum(F60, axis=1), color='red')
-    ax4.plot(rcp6.Emissions.year, T60, color='red')
+    ax1.plot(rcp60.Emissions.year, rcp60.Emissions.co2_fossil, color='red', label='RCP6')
+    ax2.plot(rcp60.Emissions.year, C60[:, 0], color='red')
+    ax3.plot(rcp60.Emissions.year, np.sum(F60, axis=1), color='red')
+    ax4.plot(rcp60.Emissions.year, T60, color='red')
     
     ax1.plot(rcp85.Emissions.year, rcp85.Emissions.co2_fossil, color='black', label='RCP8.5')
     ax2.plot(rcp85.Emissions.year, C85[:, 0], color='black')
@@ -915,15 +914,15 @@ HFC134a equivalent concentrations. Refer to table above for gas indices.
     ax3 = fig.add_subplot(223)
     ax4 = fig.add_subplot(224)
     
-    ax1.plot(rcp3pd.Emissions.year, C26[:,1], color='green', label='RCP3PD')
+    ax1.plot(rcp26.Emissions.year, C26[:,1], color='green', label='RCP3PD')
     ax1.plot(rcp45.Emissions.year, C45[:,1], color='blue', label='RCP4.5')
-    ax1.plot(rcp6.Emissions.year, C60[:,1], color='red', label='RCP6')
+    ax1.plot(rcp60.Emissions.year, C60[:,1], color='red', label='RCP6')
     ax1.plot(rcp85.Emissions.year, C85[:,1], color='black', label='RCP8.5')
     ax1.set_title("Methane concentrations, ppb")
     
-    ax2.plot(rcp3pd.Emissions.year, C26[:,2], color='green', label='RCP3PD')
+    ax2.plot(rcp26.Emissions.year, C26[:,2], color='green', label='RCP3PD')
     ax2.plot(rcp45.Emissions.year, C45[:,2], color='blue', label='RCP4.5')
-    ax2.plot(rcp6.Emissions.year, C60[:,2], color='red', label='RCP6')
+    ax2.plot(rcp60.Emissions.year, C60[:,2], color='red', label='RCP6')
     ax2.plot(rcp85.Emissions.year, C85[:,2], color='black', label='RCP8.5')
     ax2.set_title("Nitrous oxide concentrations, ppb")
     
@@ -942,15 +941,15 @@ HFC134a equivalent concentrations. Refer to table above for gas indices.
     C60_cfc12_eq = np.sum(C60[:,15:31]*radeff.aslist[15:31],axis=1)/radeff.CFC12
     C85_cfc12_eq = np.sum(C85[:,15:31]*radeff.aslist[15:31],axis=1)/radeff.CFC12
     
-    ax3.plot(rcp3pd.Emissions.year, C26_hfc134a_eq, color='green', label='RCP2.6')
+    ax3.plot(rcp26.Emissions.year, C26_hfc134a_eq, color='green', label='RCP2.6')
     ax3.plot(rcp45.Emissions.year, C45_hfc134a_eq, color='blue', label='RCP4.5')
-    ax3.plot(rcp6.Emissions.year, C60_hfc134a_eq, color='red', label='RCP6')
+    ax3.plot(rcp60.Emissions.year, C60_hfc134a_eq, color='red', label='RCP6')
     ax3.plot(rcp85.Emissions.year, C85_hfc134a_eq, color='black', label='RCP8.5')
     ax3.set_title("HFC134a equivalent concentrations, ppt")
     
-    ax4.plot(rcp3pd.Emissions.year, C26_cfc12_eq, color='green', label='RCP2.6')
+    ax4.plot(rcp26.Emissions.year, C26_cfc12_eq, color='green', label='RCP2.6')
     ax4.plot(rcp45.Emissions.year, C45_cfc12_eq, color='blue', label='RCP4.5')
-    ax4.plot(rcp6.Emissions.year, C60_cfc12_eq, color='red', label='RCP6')
+    ax4.plot(rcp60.Emissions.year, C60_cfc12_eq, color='red', label='RCP6')
     ax4.plot(rcp85.Emissions.year, C85_cfc12_eq, color='black', label='RCP8.5')
     ax4.set_title("CFC12 equivalent concentrations, ppt")
     ax1.legend();
@@ -964,7 +963,7 @@ Radiative forcing
 -----------------
 
 Here we show some of the more interesting examples for the effective
-radiative forcing time series coming out of FAIR.
+radiative forcing time series coming out of FaIR.
 
 .. code:: ipython2
 
@@ -974,27 +973,27 @@ radiative forcing time series coming out of FAIR.
     ax3 = fig.add_subplot(223)
     ax4 = fig.add_subplot(224)
     
-    ax1.plot(rcp3pd.Emissions.year, F26[:,4], color='green', label='RCP2.6')
+    ax1.plot(rcp26.Emissions.year, F26[:,4], color='green', label='RCP2.6')
     ax1.plot(rcp45.Emissions.year, F45[:,4], color='blue', label='RCP4.5')
-    ax1.plot(rcp6.Emissions.year, F60[:,4], color='red', label='RCP6')
+    ax1.plot(rcp60.Emissions.year, F60[:,4], color='red', label='RCP6')
     ax1.plot(rcp85.Emissions.year, F85[:,4], color='black', label='RCP8.5')
     ax1.set_title("Tropospheric ozone forcing, W m$^{-2}$")
     
-    ax2.plot(rcp3pd.Emissions.year, F26[:,5], color='green', label='RCP2.6')
+    ax2.plot(rcp26.Emissions.year, F26[:,5], color='green', label='RCP2.6')
     ax2.plot(rcp45.Emissions.year, F45[:,5], color='blue', label='RCP4.5')
-    ax2.plot(rcp6.Emissions.year, F60[:,5], color='red', label='RCP6')
+    ax2.plot(rcp60.Emissions.year, F60[:,5], color='red', label='RCP6')
     ax2.plot(rcp85.Emissions.year, F85[:,5], color='black', label='RCP8.5')
     ax2.set_title("Stratospheric ozone forcing, W m$^{-2}$")
     
-    ax3.plot(rcp3pd.Emissions.year, F26[:,8], color='green', label='RCP2.6')
+    ax3.plot(rcp26.Emissions.year, F26[:,8], color='green', label='RCP2.6')
     ax3.plot(rcp45.Emissions.year, F45[:,8], color='blue', label='RCP4.5')
-    ax3.plot(rcp6.Emissions.year, F60[:,8], color='red', label='RCP6')
+    ax3.plot(rcp60.Emissions.year, F60[:,8], color='red', label='RCP6')
     ax3.plot(rcp85.Emissions.year, F85[:,8], color='black', label='RCP8.5')
     ax3.set_title("Aerosol forcing, W m$^{-2}$")
     
-    ax4.plot(rcp3pd.Emissions.year, F26[:,10], color='green', label='RCP2.6')
+    ax4.plot(rcp26.Emissions.year, F26[:,10], color='green', label='RCP2.6')
     ax4.plot(rcp45.Emissions.year, F45[:,10], color='blue', label='RCP4.5')
-    ax4.plot(rcp6.Emissions.year, F60[:,10], color='red', label='RCP6')
+    ax4.plot(rcp60.Emissions.year, F60[:,10], color='red', label='RCP6')
     ax4.plot(rcp85.Emissions.year, F85[:,10], color='black', label='RCP8.5')
     ax4.set_title("Land use forcing, W m$^{-2}$")
     ax1.legend();
@@ -1007,7 +1006,7 @@ radiative forcing time series coming out of FAIR.
 Running in concentration-driven mode
 ------------------------------------
 
-It is possible to drive FAIR with concentrations rather than emissions.
+It is possible to drive FaIR with concentrations rather than emissions.
 Set the ``emissions_driven`` keyword to ``False`` and specify the
 concentrations with ``C``. The function still returns the ``C, F, T``
 tuple; comparison of the input concentrations with the output
@@ -1122,12 +1121,12 @@ maintaining historical concentrations.
     # How long are the RCPs?
     nt = len(rcp45.Emissions.year)
     
-    # Run FAIR under RCP4.5 with no natural emissions
+    # Run FaIR under RCP4.5 with no natural emissions
     C1,F1,T1 = fair_scm(emissions=rcp45.Emissions.emissions,
                         natural=np.zeros((nt,2))
                         )
     
-    # Run FAIR under RCP4.5 with modified lifetimes
+    # Run FaIR under RCP4.5 with modified lifetimes
     C2,F2,T2 = fair_scm(emissions=rcp45.Emissions.emissions,
                         lifetimes=lt
                         )
@@ -1159,7 +1158,7 @@ maintaining historical concentrations.
 Ensemble generation
 -------------------
 
-An advantage of FAIR is that it is very quick to run (much less than a
+An advantage of FaIR is that it is very quick to run (much less than a
 second on an average machine). Therefore it can be used to generate
 probabilistic future ensembles. We'll show a 100-member ensemble.
 

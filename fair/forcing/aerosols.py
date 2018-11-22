@@ -48,7 +48,7 @@ def aerocom_direct(emissions,
 
     If inputs from an RCPs SCEN file are used, the units will be correct.
 
-    Inputs: 
+    Inputs:
         emissions: (nt x 40) emissions array
     Keywords:
         beta: 7-element array of forcing efficiencies in W m-2 (Mt yr-1)-1 for
@@ -80,7 +80,7 @@ def ghan_indirect(emissions, fix_pre1850_RCP=True, scale_AR5=False,
 
     This function is just an emulator - a full implementation in Python of the
     Ghan routine (originally coded in Fortran) exists, but will require
-    optimisation before it can be used in FAIR. I hope to make the full version
+    optimisation before it can be used in FaIR. I hope to make the full version
     available in a future version.
 
     A 500-member Latin Hypercube sample of emissions of SOx, NMVOC, BC and OC
@@ -120,7 +120,7 @@ def ghan_indirect(emissions, fix_pre1850_RCP=True, scale_AR5=False,
         return scale*np.log(1+b_SOx*em[0]+b_POM*em[1])
 
     # PI forcing was not zero as there were some emissions. Use estimates
-    # from Skeie et al, 2011 for 1750 forcing. 
+    # from Skeie et al, 2011 for 1750 forcing.
     E_1765 = np.array([1.0, 11.2])
     nt = len(year)
     F_pd = np.zeros(nt)
@@ -131,7 +131,7 @@ def ghan_indirect(emissions, fix_pre1850_RCP=True, scale_AR5=False,
         else:
             # linearly interpolate between 1765 and 1850
             E_1850 = np.array([r45e.sox[85], r45e.bc[85]+r45e.oc[85]])
-            F_pd[i] = _ERFaci((year[i]-1765)/85.*E_1850 + 
+            F_pd[i] = _ERFaci((year[i]-1765)/85.*E_1850 +
                               (1850-year[i])/85.*E_1765,
                               ghan_params=ghan_params)
 

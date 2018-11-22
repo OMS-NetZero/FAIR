@@ -32,8 +32,8 @@ def scen_open(filename,
     Keywords:
         include_cfcs: string, False, or nt x 16 numpy array
             MAGICC files do not come loaded with CFCs (indices 24-39).
-            They are given in the harmonised files at 
-            http://www.pik-potsdam.de/~mmalte/rcps/. 
+            They are given in the harmonised files at
+            http://www.pik-potsdam.de/~mmalte/rcps/.
             - Specify 'rcp3pd', 'rcp45', 'rcp6' or 'rcp85' to use these RCPs.
             - Use False to ignore and create a 24-species emission file.
             - Provide an array to tack your own chlorinated gases onto the SCEN
@@ -43,14 +43,14 @@ def scen_open(filename,
             Linearly interpolate between 2000 in the RCP file and the specified
             year. If None, do not harmonise
 
-    Returns: 
+    Returns:
         nt x 40 numpy emissions array
 
-    nt is defined as <last year of SCEN file> - 
+    nt is defined as <last year of SCEN file> -
         <earlier of startyear and first year of SCEN file> + 1
 
     It is assumed that the .SCEN files follow the formatting convention on
-    the MAGICC wiki at 
+    the MAGICC wiki at
     http://wiki.magicc.org/index.php?title=Creating_MAGICC_Scenario_Files.
     """
 
@@ -59,7 +59,7 @@ def scen_open(filename,
         str_nt = f.readline().strip()
         nt = int(str_nt)
 
-        # Next 6 lines are unused by FAIR.
+        # Next 6 lines are unused by FaIR.
         for i in range(6):
             f.readline()
 
@@ -67,7 +67,7 @@ def scen_open(filename,
         # implemented this will be important.
         headers = f.readline().split()
 
-        # Ninth line is the units. Again this will be important in OO-FAIR
+        # Ninth line is the units. Again this will be important in OO-FaIR
         units = f.readline().split()
 
     # Now the data!
