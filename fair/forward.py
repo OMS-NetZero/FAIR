@@ -302,6 +302,7 @@ def fair_scm(
         R_i[0]=restart_in[0]
         T_j[0]=restart_in[1]
         C_acc[0] = restart_in[2]
+        C[0,0] = np.sum(R_i[0,:],axis=-1) # refactor target
     else:
         # Initialise the carbon pools to be correct for first timestep in
         # numerical method
