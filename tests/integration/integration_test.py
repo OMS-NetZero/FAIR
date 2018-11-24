@@ -215,3 +215,20 @@ def test_co2only_scale_error():
         scale=1.0)
 
 
+def test_restart():
+    # intended behaviour: the last year of run 1 = the first year of run 2
+    C1, F1, T1, restart = fair.forward.fair_scm(
+        emissions   = rcp45.Emissions.co2,
+        useMultigas = False,
+        restart_out = True
+    )
+
+    C2, F2, T2 = fair.forward.fair_scm(
+        emissions   = np.zeros(10),
+        useMultigas = False,
+        restart_in  = restart
+    )
+
+    assert C1[-1] == C2[0]
+    assert F1[-1] == F2[0]
+    assert T1[-1] == T2[0]
