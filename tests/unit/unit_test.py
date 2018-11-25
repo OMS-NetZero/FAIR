@@ -86,7 +86,7 @@ def test_steady():
         steady.emissions()
 
 
-def test_restart_continuous():
+def test_restart_co2_continuous():
     # Tests to check that a CO2-only run with a restart produces the same
     # results as a CO2-only run without a restart.
     
@@ -107,5 +107,6 @@ def test_restart_continuous():
         restart_in  = restart
         )
         
-    print C.shape, C1.shape, C2.shape
     assert np.all(C == np.concatenate((C1, C2)))
+    assert np.all(F == np.concatenate((F1, F2)))
+    assert np.all(T == np.concatenate((T1, T2)))

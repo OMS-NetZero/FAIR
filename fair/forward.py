@@ -299,9 +299,41 @@ def fair_scm(
         R_i = np.zeros(carbon_boxes_shape)
 
     if restart_in:
-        R_i[0]=restart_in[0]
-        T_j[0]=restart_in[1]
-        C_acc[0] = restart_in[2]
+        R_minus1 = restart_in[0]
+        T_j_minus1 = restart_in[1]
+        C_acc_minus1 = restart_in[2]
+        E_minus1 = restart_in[3]
+        C_minus1 = np.sum(R_minus1,axis=-1) + C_0[0]
+        # Calculate the parametrised iIRF and check if it is over the
+        # maximum allowed value
+        iirf[0] = rc * C_acc_minus1 + rt*np.sum(T_j_minus1) + r0
+        if iirf[0] >= iirf_max:
+            iirf[0] = iirf_max
+            
+        # Linearly interpolate a solution for alpha
+        time_scale_sf = (
+          root(iirf_interp_funct,0.16,args=(a,tau,iirf[0])))['x']
+
+        # Multiply default timescales by scale factor
+        tau_new = tau * time_scale_sf
+    
+        R_i[0,:] = R_minus1*np.exp(-1.0/tau_new) + a*emissions[0] / ppm_gtc
+        # Sum the boxes to get the total concentration anomaly
+        C[0,0] = np.sum(R_i[0,:],axis=-1) + C_0[0]
+        # Calculate the additional carbon uptake
+        C_acc[0] =  C_acc_minus1 + 0.5*(emissions[0] + E_minus1) - (
+          C[0,0] - C_minus1)*ppm_gtc
+          
+        if np.isscalar(other_rf):
+            F[0,0] = co2_log(C[0,0], C_pi[0], F2x) + other_rf
+        else:
+            F[0,0] = co2_log(C[0,0], C_pi[0], F2x) + other_rf[0]
+
+        F[0,0] = F[0,0] * scale[0]
+
+        T_j[0,:] = forc_to_temp(T_j_minus1, q[0,:], d, F[0,:])
+        T[0]=np.sum(T_j[0,:],axis=-1)
+
     else:
         # Initialise the carbon pools to be correct for first timestep in
         # numerical method
@@ -559,16 +591,14 @@ def fair_scm(
                 T_j[t,:] = forc_to_temp(T_j[t-1,:], q[t,:], d, F[t,:])
                 T[t]=np.sum(T_j[t,:],axis=-1)
 
-#    if emissions_driven:
-#        # add delta CO2 concentrations to initial value
-#        C[:,0] = C[:,0] + C_0[0]
-
     if not useMultigas:
         C = np.squeeze(C)
         F = np.squeeze(F)
-        
+        E_minus1 = emissions[-1]
+    else:
+        E_minus1 = np.sum(emissions[-1,1:3])
     if restart_out:
-        restart_out_val=(R_i[-1],T_j[-1],C_acc[-1])
+        restart_out_val=(R_i[-1],T_j[-1],C_acc[-1],E_minus1)
         return C, F, T, restart_out_val
     else:
         return C, F, T
