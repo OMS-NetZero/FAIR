@@ -302,7 +302,7 @@ def fair_scm(
         R_i[0]=restart_in[0]
         T_j[0]=restart_in[1]
         C_acc[0] = restart_in[2]
-        C[0,0] = np.sum(R_i[0,:],axis=-1) # refactor target
+#        C[0,0] = np.sum(R_i[0,:],axis=-1) # refactor target
     else:
         # Initialise the carbon pools to be correct for first timestep in
         # numerical method
@@ -577,12 +577,12 @@ def fair_scm(
         # add delta CO2 concentrations to initial value
         C[:,0] = C[:,0] + C_0[0]
 
-
+    if not useMultigas:
+        C = np.squeeze(C)
+        F = np.squeeze(F)
+        
     if restart_out:
         restart_out_val=(R_i[-1],T_j[-1],C_acc[-1])
         return C, F, T, restart_out_val
     else:
-        if not useMultigas:
-            C = np.squeeze(C)
-            F = np.squeeze(F)
         return C, F, T
