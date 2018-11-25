@@ -5,11 +5,11 @@ Examples
 Here are some simple examples of how to run and use the Finite Amplitude
 Impulse Response (FaIR) model run in the jupyter notebook.
 
-.. code:: ipython2
+.. code:: python
 
     %matplotlib inline
 
-.. code:: ipython2
+.. code:: python
 
     import fair
     fair.__version__
@@ -23,7 +23,7 @@ Impulse Response (FaIR) model run in the jupyter notebook.
 The "engine" of FaIR is the ``fair_scm`` function in the ``forward``
 module.
 
-.. code:: ipython2
+.. code:: python
 
     from fair.forward import fair_scm
 
@@ -47,7 +47,7 @@ both ``C`` (representing CO2 concentrations in ppm) and ``F`` (total
 radiative forcing in W m-2) are 1D arrays. ``T`` (temperature change
 since the pre-industrial) is always output as a 1D array.
 
-.. code:: ipython2
+.. code:: python
 
     # set up emissions and forcing arrays
     emissions = np.zeros(250)   # Unit: GtC
@@ -91,7 +91,7 @@ routine this is also possible by setting ``emissions=False``. This time,
 we will add a linear forcing to the sinusodal forcing above. Note that
 the CO2 concentrations are not updated from their pre-industrial value.
 
-.. code:: ipython2
+.. code:: python
 
     # Define a forcing time series
     for x in range(0, emissions.size):
@@ -137,7 +137,7 @@ to temperature change.
 This time we will demonstrate with a 10 Gt constant pulse and use a
 10-member ensemble.
 
-.. code:: ipython2
+.. code:: python
 
     # set up emissions and forcing arrays
     emissions = np.ones(250) * 10.0   # Unit: GtC
@@ -231,7 +231,7 @@ of ``a`` is not one.
 In the second figure it can be seen that these parameter settings are
 important for the rate of decay of atmospheric CO2 in particular.
 
-.. code:: ipython2
+.. code:: python
 
     # set up emissions and forcing arrays
     emissions = np.ones(250) * 10.0   # Unit: GtC
@@ -326,7 +326,7 @@ The biggest effect is on the temperature response, but as the
 temperature feeds back into the carbon cycle, this also affects the CO2
 concentrations and the radiative forcing.
 
-.. code:: ipython2
+.. code:: python
 
     # set up emissions and forcing arrays
     emissions = np.zeros(250)
@@ -381,7 +381,7 @@ investigate this in FaIR by specifying ``tcrecs`` as a two dimensional
 ``(nt, 2)`` array. Notice the effect that a varying ECS/TCR has on the
 temperature.
 
-.. code:: ipython2
+.. code:: python
 
     from scipy.stats import lognorm, truncnorm
     
@@ -429,7 +429,7 @@ completely (setting ``tcrecs=None``). It is not known under what
 circumstances the user may want to do this, but be assured it's
 possible!
 
-.. code:: ipython2
+.. code:: python
 
     # set up emissions and forcing arrays
     emissions = np.ones(250) * 10.0
@@ -449,7 +449,7 @@ possible!
 
 .. parsed-literal::
 
-    (500.5524349046043, 3.1476987553820677, 2.279051054881353)
+    (500.5524349046066, 3.147698755382092, 2.2790510548813714)
 
 
 Temperature time constants
@@ -460,7 +460,7 @@ governed by the two-element array ``d``: this parameter determines the
 rate at which radiative forcing is "realised" as a change in surface
 temperature.
 
-.. code:: ipython2
+.. code:: python
 
     # set up emissions and forcing arrays
     emissions = np.ones(250) * 10.0   # Unit: GtC
@@ -753,7 +753,7 @@ of the options that can be specified in ``fair_scm`` for multi-gas runs
 (most are changed from the default and some are non-sensical but shown
 for illustration). Note this is a completely hypothetical scenario!
 
-.. code:: ipython2
+.. code:: python
 
     from scipy.stats import gamma
     emissions = np.zeros((250,40))
@@ -828,7 +828,7 @@ for illustration). Note this is a completely hypothetical scenario!
 
 .. parsed-literal::
 
-    Text(0.95,0,u'Temperature change')
+    <matplotlib.text.Text at 0x7f5e41a4bfd0>
 
 
 
@@ -850,7 +850,7 @@ FaIR input (in ``fair/tools/magicc``).
 
 Here we show the FaIR implementation of the RCP scenarios.
 
-.. code:: ipython2
+.. code:: python
 
     # Get RCP modules
     from fair.RCPs import rcp26, rcp45, rcp60, rcp85
@@ -906,7 +906,7 @@ Concentrations of well-mixed greenhouse gases
 In this example we also show how to group minor gases into CFC12 and
 HFC134a equivalent concentrations. Refer to table above for gas indices.
 
-.. code:: ipython2
+.. code:: python
 
     fig = plt.figure()
     ax1 = fig.add_subplot(221)
@@ -965,7 +965,7 @@ Radiative forcing
 Here we show some of the more interesting examples for the effective
 radiative forcing time series coming out of FaIR.
 
-.. code:: ipython2
+.. code:: python
 
     fig = plt.figure()
     ax1 = fig.add_subplot(221)
@@ -1016,7 +1016,7 @@ not changing anything.
 CO2 only
 ~~~~~~~~
 
-.. code:: ipython2
+.. code:: python
 
     # Produce a base emissions-driven RCP4.5 run
     C1,F1,T1 = fair.forward.fair_scm(
@@ -1058,7 +1058,7 @@ externally. The default values for each are zero. WMGHG forcing that is
 calculated from concentrations or forcing (stratospheric ozone and
 stratospheric water vapour from methane) is not affected.
 
-.. code:: ipython2
+.. code:: python
 
     # Produce a base emissions-driven RCP4.5 run
     C1,F1,T1 = fair.forward.fair_scm(
@@ -1107,7 +1107,7 @@ decay constants can be modified with the ``lifetimes`` keyword (shape
 It can clearly be seen that natural emissions are important in
 maintaining historical concentrations.
 
-.. code:: ipython2
+.. code:: python
 
     # Change default lifetimes of CH4 and N2O
     from fair.constants import lifetime
@@ -1167,7 +1167,7 @@ This example also introduces the ``scale`` and ``F2x`` keywords.
 each of the 13 categories of forcing, whereas ``F2x`` determines the ERF
 from a doubling of CO2.
 
-.. code:: ipython2
+.. code:: python
 
     from scipy import stats
     
@@ -1197,7 +1197,7 @@ from a doubling of CO2.
                                 F2x = F2x[i]
                                )
 
-.. code:: ipython2
+.. code:: python
 
     fig = plt.figure()
     ax1 = fig.add_subplot(111)
@@ -1217,7 +1217,7 @@ change in the present day, whereas we know in reality it is more like
 0.95 (plus or minus 0.2). Therefore we can constrain this ensemble to
 observations.
 
-.. code:: ipython2
+.. code:: python
 
     from fair.tools.constrain import hist_temp
     
@@ -1229,7 +1229,7 @@ observations.
         constrained[i],_,_,_,_ = hist_temp(
             CW[30:,1], T[1880-1765:2017-1765,i], CW[30:,0])
 
-.. code:: ipython2
+.. code:: python
 
     # How many ensemble members passed the constraint?
     print np.sum(constrained)
@@ -1240,7 +1240,7 @@ observations.
     28
 
 
-.. code:: ipython2
+.. code:: python
 
     # What does this do to the ensemble?
     fig = plt.figure()
@@ -1258,4 +1258,85 @@ projected for 2500 even under this constraint.
 
 From these constraints it is possible to obtain posterior distributions
 on effective radiative forcing, ECS, TCR, TCRE and other metrics.
+
+Restart runs
+------------
+
+Sometimes you may want to spin up FaIR in emissions-driven mode, and
+then impose a constant forcing or other scenario from a certain point in
+the future. The configuration of FaIR can be saved and re-used. This can
+be useful for investigating things like the climate change commitment
+from past emissions, because the carbon cycle and ocean thermal response
+will not be in their pre-industrial state.
+
+Note the extra tuple element (``restart``) in the call to ``fair_scm``.
+To activate, set the ``restart_out = True`` keyword in the first run,
+and ``restart_in`` keyword in the second run.
+
+Currently, this is only possible when going from a CO2-only run to a
+CO2-only run, or a multi-forcing run to a CO2-only run. In this example
+we will run from 1765 to 2020 with all forcing agents, and then
+investigate the totally hypothetical scenario of a zeroing of CO2
+emissions from 2020, with a constant non-CO2 radiative forcing.
+
+.. code:: python
+
+    # Going from all-forcing to CO2 only. Note natural forcing turned off.
+    C1, F1, T1, restart = fair_scm(
+        emissions   = rcp45.Emissions.emissions[:255,:],
+        natural     = fair.ancil.natural.Emissions.emissions[:255,:],
+        restart_out = True,
+        F_solar     = 0.,
+        F_volcanic  = 0.
+    )
+    
+    # constant non-CO2 forcing from 2019 to 2500
+    nonco2_rf = np.sum(F1[-1,1:]) * np.ones(481)
+    
+    # run forward to 2100 with zero CO2 emissions and constant non-CO2 forcing
+    C2, F2, T2 = fair_scm(
+        emissions   = 0.,
+        other_rf    = nonco2_rf,
+        useMultigas = False,
+        restart_in  = restart
+    )
+    
+    # do a normal RCP4.5 run for comparison
+    C45, F45, T45 = fair_scm(
+        emissions  = rcp45.Emissions.emissions,
+        F_solar    = 0.,
+        F_volcanic = 0.
+    )
+
+.. code:: python
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(131)
+    ax2 = fig.add_subplot(132)
+    ax3 = fig.add_subplot(133)
+    
+    ax1.plot(rcp45.Emissions.year, np.concatenate((C1[:,0], C2)), color='blue',
+             label='zero CO2 emissions, constant non-CO2 forcing')
+    ax2.plot(rcp45.Emissions.year, np.concatenate((np.sum(F1,axis=1), F2)), color='blue', 
+             label='Emissions driven')
+    ax3.plot(rcp45.Emissions.year, np.concatenate((T1, T2)), color='blue', 
+             label='Emissions driven')
+    
+    ax1.plot(rcp45.Emissions.year, C45[:,0], color='red', label='RCP4.5')
+    ax2.plot(rcp45.Emissions.year, np.sum(F45,axis=1), color='red', label='RCP4.5')
+    ax3.plot(rcp45.Emissions.year, T45, color='red', label='RCP4.5')
+    
+    ax1.set_ylabel('CO2 concentrations, ppm')
+    ax2.set_ylabel('Radiative forcing, W/m2')
+    ax3.set_ylabel('Temperature anomaly, K')
+    
+    ax1.set_xlabel('year')
+    ax2.set_xlabel('year')
+    ax3.set_xlabel('year')
+    ax1.legend();
+
+
+
+.. image:: examples_files/examples_47_0.png
+
 

@@ -594,10 +594,12 @@ def fair_scm(
     if not useMultigas:
         C = np.squeeze(C)
         F = np.squeeze(F)
-        E_minus1 = emissions[-1]
-    else:
-        E_minus1 = np.sum(emissions[-1,1:3])
+
     if restart_out:
+        if useMultigas:
+            E_minus1 = np.sum(emissions[-1,1:3])
+        else:
+            E_minus1 = emissions[-1]
         restart_out_val=(R_i[-1],T_j[-1],C_acc[-1],E_minus1)
         return C, F, T, restart_out_val
     else:
