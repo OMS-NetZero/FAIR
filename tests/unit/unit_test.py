@@ -91,7 +91,7 @@ def test_restart_continuous():
     # results as a CO2-only run without a restart.
     
     C, F, T = fair.forward.fair_scm(
-        emissions   = rcp45.Emissions.co2,
+        emissions   = rcp45.Emissions.co2[:20],
         useMultigas = False
         )
         
