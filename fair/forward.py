@@ -318,7 +318,7 @@ def fair_scm(
         tau_new = tau * time_scale_sf
     
         R_i[0,:] = R_minus1*np.exp(-1.0/tau_new) + a*emissions[0] / ppm_gtc
-        # Sum the boxes to get the total concentration anomaly
+        # Sum the boxes to get the total concentration
         C[0,0] = np.sum(R_i[0,:],axis=-1) + C_0[0]
         # Calculate the additional carbon uptake
         C_acc[0] =  C_acc_minus1 + 0.5*(emissions[0] + E_minus1) - (
@@ -481,7 +481,7 @@ def fair_scm(
                 # decay of the previous year and the additional emissions
                 R_i[t,:] = R_i[t-1,:]*np.exp(-1.0/tau_new) + a*(np.sum(
                   emissions[t,1:3]) + oxidised_CH4) / ppm_gtc
-                # Sum the boxes to get the total concentration anomaly
+                # Sum the boxes to get the total concentration
                 C[t,0] = np.sum(R_i[...,t,:],axis=-1) + C_0[0]
                 # Calculate the additional carbon uptake
                 C_acc[t] =  C_acc[t-1] + 0.5*(np.sum(
@@ -545,7 +545,7 @@ def fair_scm(
             else:
                 R_i[t,:] = R_i[t-1,:]*np.exp(-1.0/tau_new) + a*(np.sum(
                   emissions[t])) / ppm_gtc
-                # Sum the boxes to get the total concentration anomaly
+                # Sum the boxes to get the total concentration
                 C[t,0] = np.sum(R_i[...,t,:],axis=-1) + C_0[0]
                 # Calculate the additional carbon uptake
                 C_acc[t] =  C_acc[t-1] + 0.5*(np.sum(emissions[t-1:t+1])) - (
