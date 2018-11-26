@@ -299,30 +299,56 @@ def fair_scm(
         R_i = np.zeros(carbon_boxes_shape)
 
     if restart_in:
-        R_i[0]=restart_in[0]
-        T_j[0]=restart_in[1]
-        C_acc[0] = restart_in[2]
+        R_minus1 = restart_in[0]
+        T_j_minus1 = restart_in[1]
+        C_acc_minus1 = restart_in[2]
+        E_minus1 = restart_in[3]
+        C_minus1 = np.sum(R_minus1,axis=-1) + C_0[0]
+        # Calculate the parametrised iIRF and check if it is over the
+        # maximum allowed value
+        iirf[0] = rc * C_acc_minus1 + rt*np.sum(T_j_minus1) + r0
+        if iirf[0] >= iirf_max:
+            iirf[0] = iirf_max
+            
+        # Linearly interpolate a solution for alpha
+        time_scale_sf = (
+          root(iirf_interp_funct,0.16,args=(a,tau,iirf[0])))['x']
+
+        # Multiply default timescales by scale factor
+        tau_new = tau * time_scale_sf
+    
+        R_i[0,:] = R_minus1*np.exp(-1.0/tau_new) + a*emissions[0] / ppm_gtc
+        # Sum the boxes to get the total concentration
+        C[0,0] = np.sum(R_i[0,:],axis=-1) + C_0[0]
+        # Calculate the additional carbon uptake
+        C_acc[0] =  C_acc_minus1 + 0.5*(emissions[0] + E_minus1) - (
+          C[0,0] - C_minus1)*ppm_gtc
+          
+        if np.isscalar(other_rf):
+            F[0,0] = co2_log(C[0,0], C_pi[0], F2x) + other_rf
+        else:
+            F[0,0] = co2_log(C[0,0], C_pi[0], F2x) + other_rf[0]
+
+        F[0,0] = F[0,0] * scale[0]
+
+        T_j[0,:] = forc_to_temp(T_j_minus1, q[0,:], d, F[0,:])
+        T[0]=np.sum(T_j[0,:],axis=-1)
+
     else:
         # Initialise the carbon pools to be correct for first timestep in
         # numerical method
         if emissions_driven:
             if useMultigas:
                 R_i[0,:] = a * (np.sum(emissions[0,1:3])) / ppm_gtc
+                C[0,1:] = C_0[1:]
             else:
                 R_i[0,:] = a * emissions[0,np.newaxis] / ppm_gtc
 
-            # CO2 is a delta from pre-industrial. Other gases are absolute MMR
-            C[0,0] = np.sum(R_i[0,:],axis=-1)
-
-            if useMultigas:
-                C[0,1:] = C_0[1:]
+            C[0,0] = np.sum(R_i[0,:],axis=-1) + C_0[0]
 
     if useMultigas:
         # CO2, CH4 and N2O are co-dependent
-        if emissions_driven:
-            F[0,0:3] = ghg(C[0,0:3]+np.array([C_pi[0],0,0]), C_pi[0:3], F2x=F2x)
-        else:
-            F[0,0:3] = ghg(C[0,0:3], C_pi[0:3], F2x=F2x)
+        F[0,0:3] = ghg(C[0,0:3], C_pi[0:3], F2x=F2x)
         # Minor (F- and H-gases) are linear in concentration
         # the factor of 0.001 here is because radiative efficiencies are given
         # in W/m2/ppb and concentrations of minor gases are in ppt.
@@ -408,16 +434,10 @@ def fair_scm(
         F[0,:] = F[0,:] * scale[0,:]
 
     else:
-        if emissions_driven:
-            if np.isscalar(other_rf):
-                F[0,0] = co2_log(C[0,0]+C_pi[0], C_pi[0], F2x) + other_rf
-            else:
-                F[0,0] = co2_log(C[0,0]+C_pi[0], C_pi[0], F2x) + other_rf[0]
+        if np.isscalar(other_rf):
+            F[0,0] = co2_log(C[0,0], C_pi[0], F2x) + other_rf
         else:
-            if np.isscalar(other_rf):
-                F[0,0] = co2_log(C[0,0], C_pi[0], F2x) + other_rf
-            else:
-                F[0,0] = co2_log(C[0,0], C_pi[0], F2x) + other_rf[0]
+            F[0,0] = co2_log(C[0,0], C_pi[0], F2x) + other_rf[0]
         F[0,0] = F[0,0] * scale[0]
 
     if restart_in == False:
@@ -461,8 +481,8 @@ def fair_scm(
                 # decay of the previous year and the additional emissions
                 R_i[t,:] = R_i[t-1,:]*np.exp(-1.0/tau_new) + a*(np.sum(
                   emissions[t,1:3]) + oxidised_CH4) / ppm_gtc
-                # Sum the boxes to get the total concentration anomaly
-                C[t,0] = np.sum(R_i[...,t,:],axis=-1)
+                # Sum the boxes to get the total concentration
+                C[t,0] = np.sum(R_i[...,t,:],axis=-1) + C_0[0]
                 # Calculate the additional carbon uptake
                 C_acc[t] =  C_acc[t-1] + 0.5*(np.sum(
                   emissions[t-1:t+1,1:3])) - (C[t,0] - C[t-1,0])*ppm_gtc
@@ -498,8 +518,7 @@ def fair_scm(
                     )
 
                 # 2. Radiative forcing
-                F[t,0:3] = ghg(C[t,0:3]+np.array([C_pi[0],0,0]), C_pi[0:3],
-                  F2x=F2x)
+                F[t,0:3] = ghg(C[t,0:3], C_pi[0:3], F2x=F2x)
                 F[t,3] = np.sum((C[t,3:] - C_pi[3:]) * radeff.aslist[3:]
                   * 0.001)
                 if useStevenson:
@@ -526,16 +545,16 @@ def fair_scm(
             else:
                 R_i[t,:] = R_i[t-1,:]*np.exp(-1.0/tau_new) + a*(np.sum(
                   emissions[t])) / ppm_gtc
-                # Sum the boxes to get the total concentration anomaly
-                C[t,0] = np.sum(R_i[...,t,:],axis=-1)
+                # Sum the boxes to get the total concentration
+                C[t,0] = np.sum(R_i[...,t,:],axis=-1) + C_0[0]
                 # Calculate the additional carbon uptake
                 C_acc[t] =  C_acc[t-1] + 0.5*(np.sum(emissions[t-1:t+1])) - (
                   C[t,0] - C[t-1,0])*ppm_gtc
 
                 if np.isscalar(other_rf):
-                    F[t,0] = co2_log(C[t,0]+C_pi[0], C_pi[0], F2x) + other_rf
+                    F[t,0] = co2_log(C[t,0], C_pi[0], F2x) + other_rf
                 else:
-                    F[t,0] = co2_log(C[t,0]+C_pi[0], C_pi[0], F2x) + other_rf[t]
+                    F[t,0] = co2_log(C[t,0], C_pi[0], F2x) + other_rf[t]
 
                 F[t,0] = F[t,0] * scale[t]
 
@@ -572,16 +591,16 @@ def fair_scm(
                 T_j[t,:] = forc_to_temp(T_j[t-1,:], q[t,:], d, F[t,:])
                 T[t]=np.sum(T_j[t,:],axis=-1)
 
-    if emissions_driven:
-        # add delta CO2 concentrations to initial value
-        C[:,0] = C[:,0] + C_0[0]
-
+    if not useMultigas:
+        C = np.squeeze(C)
+        F = np.squeeze(F)
 
     if restart_out:
-        restart_out_val=(R_i[-1],T_j[-1],C_acc[-1])
+        if useMultigas:
+            E_minus1 = np.sum(emissions[-1,1:3])
+        else:
+            E_minus1 = emissions[-1]
+        restart_out_val=(R_i[-1],T_j[-1],C_acc[-1],E_minus1)
         return C, F, T, restart_out_val
     else:
-        if not useMultigas:
-            C = np.squeeze(C)
-            F = np.squeeze(F)
         return C, F, T

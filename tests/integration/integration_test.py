@@ -213,5 +213,3 @@ def test_co2only_scale_error():
         emissions = rcp85.Emissions.co2,
         useMultigas=False,
         scale=1.0)
-
-
