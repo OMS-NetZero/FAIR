@@ -34,5 +34,5 @@ setup(name='fair',
       zip_safe=False,
       extras_require={'docs': ['sphinx>=1.4', 'nbsphinx'],
                       'dev' : ['notebook', 'wheel', 'twine'],
-                      'test': ['pytest', 'nbval', 'pytest-cov', 'codecov']}
+                      'test': ['pytest>=4.0', 'nbval', 'pytest-cov', 'codecov']}
 )
