@@ -31,14 +31,14 @@ def mvlognorm(data, n=1000, seed=None, correlated=True):
     
     p = data.shape[1]
     mu = np.mean(data, axis=0)
-    sigma = np.std(data, axis=0)
+    Sigma = np.var(data, axis=0)
     if correlated:
         corr = np.corrcoef(np.log(data), rowvar=False)
     else:
         corr = np.eye((p))
     
-    alpha = np.log(mu) - 0.5*np.log(1.0 + sigma/mu**2)
-    beta = np.diag(np.log(1.0 + sigma/(mu**2)))
+    alpha = np.log(mu) - 0.5*np.log(1.0 + Sigma/mu**2)
+    beta = np.diag(np.log(1.0 + Sigma/(mu**2)))
     
     delta = reduce(np.matmul, [np.sqrt(beta), corr, np.sqrt(beta)])
     delta_eigenvalues, delta_eigenvectors = np.linalg.eig(delta)
@@ -94,7 +94,6 @@ def tcrecs_generate(tcrecs_in='cmip5', dist='lognorm', n=1000, correlated=True,
             out = mvlognorm(tcrecs, n=n, seed=seed, correlated=correlated)
         elif dist=='norm':
             mu = np.mean(tcrecs, axis=0)
-            sigma = np.std(tcrecs, axis=0)
             if correlated:
                 cov = np.cov(tcrecs, rowvar=False)
             else:

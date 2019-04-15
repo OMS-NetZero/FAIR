@@ -110,3 +110,74 @@ def test_restart_co2_continuous():
     assert np.all(C == np.concatenate((C1, C2)))
     assert np.all(F == np.concatenate((F1, F2)))
     assert np.all(T == np.concatenate((T1, T2)))
+
+
+def test_ensemble_generator():
+    """This test determines whether the ensemble generator is behaving as
+    expected."""
+
+    # load up the CMIP5 TCR and ECS values
+    infile = os.path.join(os.path.dirname(__file__),
+      '../../fair/tools/tcrecs/cmip5tcrecs.csv')
+    cmip5_tcrecs = np.loadtxt(infile, skiprows=3, delimiter=',')
+    cmip5_tcr_mean = np.mean(cmip5_tcrecs[:,0])
+    cmip5_ecs_mean = np.mean(cmip5_tcrecs[:,1])
+    cmip5_tcr_std  = np.std(cmip5_tcrecs[:,0])
+    cmip5_ecs_std  = np.std(cmip5_tcrecs[:,1])
+    cmip5_corrcoef = np.corrcoef(cmip5_tcrecs[:,0], cmip5_tcrecs[:,1])[1,0]
+
+    # generate 1000 random values with these inputs. Set strip to False
+    # so that overall statistics are not affected and more comparable with
+    # input data
+    ensgen_tcrecs = ensemble.tcrecs_generate(seed=0, strip_ecs_lt_tcr=False)
+    ensgen_tcr_mean = np.mean(ensgen_tcrecs[:,0])
+    ensgen_ecs_mean = np.mean(ensgen_tcrecs[:,1])
+    ensgen_tcr_std  = np.std(ensgen_tcrecs[:,0])
+    ensgen_ecs_std  = np.std(ensgen_tcrecs[:,1])
+    ensgen_corrcoef = np.corrcoef(ensgen_tcrecs[:,0], ensgen_tcrecs[:,1])[1,0]
+
+    # check generated values match cmip5 stats to within 5%
+    # possibly too generous but should catch variance v stdev errors
+    assert 0.95 < ensgen_tcr_mean/cmip5_tcr_mean < 1.05
+    assert 0.95 < ensgen_tcr_std/cmip5_tcr_std < 1.05
+    assert 0.95 < ensgen_ecs_mean/cmip5_ecs_mean < 1.05
+    assert 0.95 < ensgen_ecs_std/cmip5_ecs_std < 1.05
+    assert 0.95 < ensgen_corrcoef/cmip5_corrcoef < 1.05
+
+    # check changing seed changes distribution
+    ensgen_tcrecs1 = ensemble.tcrecs_generate(seed=1, strip_ecs_lt_tcr=False)
+    assert np.any(ensgen_tcrecs1 != ensgen_tcrecs)
+
+    # check uncorrelated distribution
+    ensgen_tcrecs = ensemble.tcrecs_generate(seed=0, correlated=False)
+    assert 0.95 < ensgen_tcr_mean/cmip5_tcr_mean < 1.05
+    assert 0.95 < ensgen_tcr_std/cmip5_tcr_std < 1.05
+    assert 0.95 < ensgen_ecs_mean/cmip5_ecs_mean < 1.05
+    assert 0.95 < ensgen_ecs_std/cmip5_ecs_std < 1.05
+    assert (-0.10 < 
+      np.corrcoef(ensgen_tcrecs[:,0], ensgen_tcrecs[:,1])[1,0] 
+      < 0.10)
+
+    # check normal distribution assumption
+    ensgen_tcrecs = ensemble.tcrecs_generate(seed=0,
+      strip_ecs_lt_tcr=False, dist='norm')
+    ensgen_tcr_mean = np.mean(ensgen_tcrecs[:,0])
+    ensgen_ecs_mean = np.mean(ensgen_tcrecs[:,1])
+    ensgen_tcr_std  = np.std(ensgen_tcrecs[:,0])
+    ensgen_ecs_std  = np.std(ensgen_tcrecs[:,1])
+    assert 0.95 < ensgen_tcr_mean/cmip5_tcr_mean < 1.05
+    assert 0.95 < ensgen_tcr_std/cmip5_tcr_std < 1.05
+    assert 0.95 < ensgen_ecs_mean/cmip5_ecs_mean < 1.05
+    assert 0.95 < ensgen_ecs_std/cmip5_ecs_std < 1.05
+    assert 0.95 < ensgen_corrcoef/cmip5_corrcoef < 1.05
+
+    # check normal, correlated
+    ensgen_tcrecs = ensemble.tcrecs_generate(seed=0, correlated=False,
+      dist='norm')
+    assert 0.95 < ensgen_tcr_mean/cmip5_tcr_mean < 1.05
+    assert 0.95 < ensgen_tcr_std/cmip5_tcr_std < 1.05
+    assert 0.95 < ensgen_ecs_mean/cmip5_ecs_mean < 1.05
+    assert 0.95 < ensgen_ecs_std/cmip5_ecs_std < 1.05
+    assert (-0.10 <
+      np.corrcoef(ensgen_tcrecs[:,0], ensgen_tcrecs[:,1])[1,0]
+      < 0.10)

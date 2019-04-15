@@ -4,7 +4,6 @@ import fair
 from fair.RCPs import rcp3pd, rcp45, rcp6, rcp85, rcp26, rcp60
 import numpy as np
 import os
-from fair.tools import ensemble
 from fair.constants import molwt
 
 def test_ten_GtC_pulse():
@@ -133,16 +132,6 @@ def test_rcp_aliases():
     assert np.allclose(C, C_expected)
     assert np.allclose(F, F_expected)
     assert np.allclose(T, T_expected)
-
-
-def test_ensemble():
-    tcrecs = ensemble.tcrecs_generate('cmip5', dist='lognorm', n=100,
-      seed=40000)
-    # check first 100 lines
-    filepath = os.path.join(os.path.dirname(__file__), 
-      'tcrecs/tcrecs_output.txt')
-    tcrecs_compare = np.loadtxt(filepath)
-    assert np.allclose(tcrecs,tcrecs_compare)
 
 
 def test_co2_concentration_driven():
