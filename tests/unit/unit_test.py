@@ -181,3 +181,49 @@ def test_ensemble_generator():
     assert (-0.10 <
       np.corrcoef(ensgen_tcrecs[:,0], ensgen_tcrecs[:,1])[1,0]
       < 0.10)
+
+
+def test_iirf():
+    """Test that changing the time horizon of time-integrated airborne
+    fraction makes a material difference to the carbon cycle."""
+
+    # default case
+    C1,F1,T1 = fair.forward.fair_scm(
+      emissions=rcp85.Emissions.co2,
+      useMultigas=False,
+    )
+
+    # set iirf_h = 100: should be same as default case
+    C2,F2,T2 = fair.forward.fair_scm(
+      emissions=rcp85.Emissions.co2,
+      useMultigas=False,
+      iirf_h = 100
+    )
+
+    # vary iirf_h and expect differences to the 100-year case.
+    # Want a warning to flag that iirf_max > iirf_h
+    with pytest.warns(RuntimeWarning):
+        C3,F3,T3 = fair.forward.fair_scm(
+          emissions=rcp85.Emissions.co2,
+          useMultigas=False,
+          iirf_h = 60
+        )
+
+    # Run again limiting iirf_max. Check output differs to the case above.
+    # For RCP8.5 this should happen much beyond present-day concentrations.
+    C4,F4,T4 = fair.forward.fair_scm(
+      emissions=rcp85.Emissions.co2,
+      useMultigas=False,
+      iirf_h = 60,
+      iirf_max = 58
+    )
+
+    assert np.all(C1==C2)
+    assert np.all(F1==F2)
+    assert np.all(T1==T2)
+    assert np.any(C2!=C4)
+    assert np.any(F2!=F4)
+    assert np.any(T2!=T4)
+    assert np.any(C3!=C4)
+    assert np.any(F3!=F4)
+    assert np.any(T3!=T4)

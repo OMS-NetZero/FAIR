@@ -2,6 +2,7 @@ from __future__ import division
 
 import inspect
 import numpy as np
+import warnings
 from scipy.optimize import root
 from .ancil import natural, cmip6_volcanic, cmip6_solar, historical_scaling
 from .constants import molwt, lifetime, radeff
@@ -11,10 +12,21 @@ from .forcing import ozone_tr, ozone_st, h2o_st, contrails, aerosols, bc_snow,\
 from .forcing.ghg import co2_log
 
 
-def iirf_interp_funct(alp_b,a,tau,targ_iirf):
-    # ref eq. (7) of Millar et al ACP (2017)
-    iirf_arr = alp_b*(np.sum(a*tau*(1.0 - np.exp(-100.0/(tau*alp_b)))))
-    return iirf_arr     -  targ_iirf
+def iirf_interp_funct(alp_b,a,tau,iirf_h,targ_iirf):
+    """Interpolation function for finding alpha, the CO2 decay time constant
+    scaling factor, in iirf_h equation. See Eq. (7) of Millar et al ACP (2017).
+
+    Inputs:
+        alp_b    : Guess for alpha, the scale factor, for tau 
+        a        : partition fractions for CO2 boxes
+        tau      : time constants for CO2 boxes
+        iirf_h   : time horizon for time-integrated airborne fraction
+        targ_iirf: iirf_h calculated using simple parameterisation (Eq. (8),
+                   Millar et al (2017)).
+    """
+
+    iirf_arr = alp_b*(np.sum(a*tau*(1.0 - np.exp(-iirf_h/(tau*alp_b)))))
+    return iirf_arr - targ_iirf
 
 
 def emis_to_conc(c0, e0, e1, ts, lt, vm):
@@ -75,6 +87,7 @@ def fair_scm(
     rt=4.165,
     F2x=3.71,
     iirf_max=97.0,
+    iirf_h=100.0,
     tcr_dbl=69.661,
     C_pi=np.array([278., 722., 273., 34.497] + [0.]*25 + [13.0975, 547.996]),
     restart_in=False,
@@ -111,6 +124,11 @@ def fair_scm(
     kerosene_supply=0.,
     landuse_forcing='co2',
     ):
+
+    # is iirf_h < iirf_max? Don't stop the code, but warn user
+    if iirf_h < iirf_max:
+        warnings.warn('iirf_h=%f, which is less than iirf_max (%f)'
+          % (iirf_h, iirf_max), RuntimeWarning)
 
     # Conversion between ppm CO2 and GtC emissions
     ppm_gtc     = M_ATMOS/1e18*molwt.C/molwt.AIR
@@ -312,7 +330,7 @@ def fair_scm(
             
         # Linearly interpolate a solution for alpha
         time_scale_sf = (
-          root(iirf_interp_funct,0.16,args=(a,tau,iirf[0])))['x']
+          root(iirf_interp_funct,0.16,args=(a,tau,iirf_h,iirf[0])))['x']
 
         # Multiply default timescales by scale factor
         tau_new = tau * time_scale_sf
@@ -458,11 +476,11 @@ def fair_scm(
             
             # Linearly interpolate a solution for alpha
             if t == 1:
-                time_scale_sf = (
-                  root(iirf_interp_funct,0.16,args=(a,tau,iirf[t])))['x']
+                time_scale_sf = (root(iirf_interp_funct,0.16,
+                  args=(a,tau,iirf_h,iirf[t])))['x']
             else:
-                time_scale_sf = (root(iirf_interp_funct,time_scale_sf,args=(
-                  a,tau,iirf[t])))['x']
+                time_scale_sf = (root(iirf_interp_funct,time_scale_sf,
+                  args=(a,tau,iirf_h,iirf[t])))['x']
 
             # Multiply default timescales by scale factor
             tau_new = tau * time_scale_sf
