@@ -123,10 +123,11 @@ Varying the carbon cycle parameters
 
 FaIR is set up to simulate the responses to more complex earth system
 models. This is achieved by a scaling of a four-box decay model for
-atmospheric carbon dioxide emissions based on the airborne fraction of
-carbon dioxide. This in turn depends on the efficiency of carbon sinks,
-which is a function of temperature change and total accumulated carbon
-uptake. Much of the technical detail is described in `Millar et al.,
+atmospheric carbon dioxide emissions based on the time-integrated
+airborne fraction of carbon dioxide. This in turn depends on the
+efficiency of carbon sinks, which is a function of temperature change
+and total accumulated carbon uptake. Much of the technical detail is
+described in `Millar et al.,
 (2017) <https://www.atmos-chem-phys.net/17/7213/2017/acp-17-7213-2017.html>`__.
 
 In the carbon cycle, the important variables are ``r0``, ``rc`` and
@@ -307,6 +308,82 @@ important for the rate of decay of atmospheric CO2 in particular.
 .. image:: examples_files/examples_12_0.png
 
 
+Time-integrated airborne fraction
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The CO2 time constants, ``tau``, are scaled by the 100-year
+time-integrated airborne fraction for a pulse of CO2. This 100-year time
+horizon can be changed with the keyword ``iirf_h``. The actual
+time-integrated airborne fraction is a function of ``r0``, ``rt`` and
+``rc``. In high-emissions scenarios this can get quite high, and if it
+exceeds ``iirf_h`` (100 years in the default case) we enter a regime in
+which there is no solution for the scaling factor. Therefore, a maximum
+IIRF can be set (``iirf_max``, default value 97 years) which places an
+upper limit on the time-integrated airborne fraction.
+
+.. code:: ipython2
+
+    # set up emissions and forcing arrays
+    emissions = np.ones(500) * 10.0   # Unit: GtC
+    other_rf = 0
+    
+    # create output arrays 
+    nrun=3
+    C = np.empty((emissions.size, nrun))
+    F = np.empty((emissions.size, nrun))
+    T = np.empty((emissions.size, nrun))
+    
+    # run the model for default values
+    C[:,0],F[:,0],T[:,0] = fair.forward.fair_scm(
+        emissions=emissions,
+        useMultigas=False)
+
+.. code:: ipython2
+
+    # set iirf time horizon to 60 years. Should get a warning, but it will still let us proceed
+    C[:,1],F[:,1],T[:,1] = fair.forward.fair_scm(
+        emissions=emissions,
+        useMultigas=False,
+        iirf_h=60)
+
+
+.. parsed-literal::
+
+    /nfs/see-fs-02_users/mencsm/FAIR/fair/forward.py:131: RuntimeWarning: iirf_h=60.000000, which is less than iirf_max (97.000000)
+      % (iirf_h, iirf_max), RuntimeWarning)
+
+
+.. code:: ipython2
+
+    # set maximum iirf
+    C[:,2],F[:,2],T[:,2] = fair.forward.fair_scm(
+        emissions=emissions,
+        useMultigas=False,
+        iirf_h=60,
+        iirf_max=58)
+    
+    # plot results
+    fig = plt.figure()
+    ax1 = fig.add_subplot(221)
+    ax1.plot(range(0, emissions.size), emissions, color='black')
+    ax1.set_ylabel('Emissions (GtC)')
+    ax2 = fig.add_subplot(222)
+    handles = ax2.plot(range(0, emissions.size), C)
+    labels = ['iirf_h=100, iirf_max=97','iirf_h=60, iirf_max=97','iirf_h=60, iirf_max=58']
+    ax2.legend(handles, labels)
+    ax2.set_ylabel('CO$_2$ concentrations (ppm)')
+    ax3 = fig.add_subplot(223)
+    ax3.plot(range(0, emissions.size), F)
+    ax3.set_ylabel('Radiative forcing (W m$^{-2}$)')
+    ax4 = fig.add_subplot(224)
+    ax4.plot(range(0, emissions.size), T)
+    ax4.set_ylabel('Temperature anomaly (K)');
+
+
+
+.. image:: examples_files/examples_16_0.png
+
+
 ECS and TCR
 ~~~~~~~~~~~
 
@@ -369,7 +446,7 @@ concentrations and the radiative forcing.
 
 
 
-.. image:: examples_files/examples_14_0.png
+.. image:: examples_files/examples_18_0.png
 
 
 Some recent studies (`Armour
@@ -420,7 +497,7 @@ temperature.
 
 
 
-.. image:: examples_files/examples_16_0.png
+.. image:: examples_files/examples_20_0.png
 
 
 The alternative is to specify the values of ``q`` directly (a 2D array)
@@ -517,7 +594,7 @@ temperature.
 
 
 
-.. image:: examples_files/examples_20_0.png
+.. image:: examples_files/examples_24_0.png
 
 
 Multi-species mode
@@ -828,12 +905,12 @@ for illustration). Note this is a completely hypothetical scenario!
 
 .. parsed-literal::
 
-    <matplotlib.text.Text at 0x7fb63395ef90>
+    <matplotlib.text.Text at 0x7f8d5b6f5f90>
 
 
 
 
-.. image:: examples_files/examples_23_1.png
+.. image:: examples_files/examples_27_1.png
 
 
 RCP scenarios
@@ -897,7 +974,7 @@ Here we show the FaIR implementation of the RCP scenarios.
 
 
 
-.. image:: examples_files/examples_25_0.png
+.. image:: examples_files/examples_29_0.png
 
 
 Concentrations of well-mixed greenhouse gases
@@ -956,7 +1033,7 @@ HFC134a equivalent concentrations. Refer to table above for gas indices.
 
 
 
-.. image:: examples_files/examples_27_0.png
+.. image:: examples_files/examples_31_0.png
 
 
 Radiative forcing
@@ -1000,7 +1077,7 @@ radiative forcing time series coming out of FaIR.
 
 
 
-.. image:: examples_files/examples_29_0.png
+.. image:: examples_files/examples_33_0.png
 
 
 Running in concentration-driven mode
@@ -1045,7 +1122,7 @@ CO2 only
 
 
 
-.. image:: examples_files/examples_32_0.png
+.. image:: examples_files/examples_36_0.png
 
 
 Multi-gas
@@ -1091,7 +1168,7 @@ stratospheric water vapour from methane) is not affected.
 
 
 
-.. image:: examples_files/examples_34_0.png
+.. image:: examples_files/examples_38_0.png
 
 
 Natural emissions and GHG lifetimes
@@ -1152,7 +1229,7 @@ maintaining historical concentrations.
 
 
 
-.. image:: examples_files/examples_36_1.png
+.. image:: examples_files/examples_40_1.png
 
 
 Ensemble generation
@@ -1213,7 +1290,7 @@ from a doubling of CO2.
 
 
 
-.. image:: examples_files/examples_39_0.png
+.. image:: examples_files/examples_43_0.png
 
 
 Adding a temperature constraint
@@ -1257,7 +1334,7 @@ observations.
 
 
 
-.. image:: examples_files/examples_43_0.png
+.. image:: examples_files/examples_47_0.png
 
 
 Some, but not all, of the higher end scenarios have been constrained
@@ -1345,6 +1422,6 @@ emissions from 2020, with a constant non-CO2 radiative forcing.
 
 
 
-.. image:: examples_files/examples_47_0.png
+.. image:: examples_files/examples_51_0.png
 
 
