@@ -28,7 +28,77 @@ def iirf_interp_funct(alp_b,a,tau,iirf_h,targ_iirf):
     iirf_arr = alp_b*(np.sum(a*tau*(1.0 - np.exp(-iirf_h/(tau*alp_b)))))
     return iirf_arr - targ_iirf
 
+    
+def iirf_simple(c_acc, temp, r0, rc, rt, iirf_max):
+    """Simple linear iIRF relationship. Eq. (8) of Millar et al ACP (2017).
+    
+    Inputs:
+        c_acc    : cumulative airborne carbon anomaly (GtC) since
+                   pre-industrial
+        temp     : temperature anomaly since pre-industrial
+        r0       : pre-industrial time-integrated airborne fraction (yr)
+        rc       : sensitivity of time-integrated airborne fraction to airborne
+                   carbon (yr/GtC)
+        rt       : sensitivity of time-integrated airborne fraction to
+                   temperature (yr/K)
+    
+    Outputs:
+        iirf     : time-integrated airborne fraction of carbon (yr)
+    """
+    
+    return np.min([r0 + rc * c_acc + rt * temp, iirf_max])
+    
+    
+def calculate_q(tcrecs, d, f2x, tcr_dbl, nt):
+    """If TCR and ECS are supplied, calculate the q model coefficients.
+    See Eqs. (4) and (5) of Millar et al ACP (2017).
+    
+    Inputs:
+        tcrecs  : 2-element array of transient climate response (TCR) and
+                  equilibrium climate sensitivity (ECS).
+        d       : The slow and fast thermal response time constants
+        f2x     : Effective radiative forcing from a doubling of CO2
+        tcr_dbl : time to a doubling of CO2 under 1% per year CO2 increase, yr
+        nt      : number of timesteps
+        
+    Outputs:
+        q       : coefficients of slow and fast temperature change in each
+                  timestep ((nt, 2) array).
+    """
+    
+    # TODO:
+    # error checking before call
+    # benchmark one call per timestep and if not slower do not convert to 2D
+    #  - will make code cleaner
+    
+    k = 1.0 - (d/tcr_dbl)*(1.0 - np.exp(-tcr_dbl/d))
+    # if ECS and TCR are not time-varying, expand them to 2D array anyway
+    if tcrecs.ndim==1:
+        if len(tcrecs)!=2:
+            raise ValueError(
+              "Constant TCR and ECS should be a 2-element array")
+        tcrecs = np.ones((nt, 2)) * tcrecs
+    elif tcrecs.ndim==2:
+        if tcrecs.shape!=(nt, 2):
+            raise ValueError(
+              "Transient TCR and ECS should be a nt x 2 array")
+    q  = (1.0 / f2x) * (1.0/(k[0]-k[1])) * np.array([
+        tcrecs[:,0]-tcrecs[:,1]*k[1],tcrecs[:,1]*k[0]-tcrecs[:,0]]).T
+    return q
+    
 
+def carbon_cycle(e):
+    """Calculates CO2 concentrations from emissions.
+    
+    Inputs:
+        e       : emissions of CO2, GtC per timestep
+
+    Outputs:
+        c       : concentrations of CO2, ppmv
+    """
+    return c
+    
+    
 def emis_to_conc(c0, e0, e1, ts, lt, vm):
     """Calculate concentrations of well mixed GHGs from emissions for simple
     one-box model.
@@ -277,23 +347,9 @@ def fair_scm(
         if scaleHistoricalAR5:
             scale=scale*historical_scaling.co2[:nt]
 
-    # If TCR and ECS are supplied, calculate the q1 and q2 model coefficients 
-    # (overwriting any other q array that might have been supplied)
-    # ref eq. (4) and (5) of Millar et al ACP (2017)
-    k = 1.0 - (d/tcr_dbl)*(1.0 - np.exp(-tcr_dbl/d))    # Allow TCR to vary
+    # If TCR and ECS are supplied, calculate q coefficients
     if type(tcrecs) is np.ndarray:
-        # if ECS and TCR are not time-varying, expand them to 2D array anyway
-        if tcrecs.ndim==1:
-            if len(tcrecs)!=2:
-                raise ValueError(
-                  "Constant TCR and ECS should be a 2-element array")
-            tcrecs = np.ones((nt, 2)) * tcrecs
-        elif tcrecs.ndim==2:
-            if tcrecs.shape!=(nt, 2):
-                raise ValueError(
-                  "Transient TCR and ECS should be a nt x 2 array")
-        q  = (1.0 / F2x) * (1.0/(k[0]-k[1])) * np.array([
-            tcrecs[:,0]-tcrecs[:,1]*k[1],tcrecs[:,1]*k[0]-tcrecs[:,0]]).T
+        q = calculate_q(tcrecs, d, F2x, tcr_dbl, nt)
 
     # Check a and tau are same size
     if a.ndim != 1:
@@ -324,9 +380,8 @@ def fair_scm(
         C_minus1 = np.sum(R_minus1,axis=-1) + C_0[0]
         # Calculate the parametrised iIRF and check if it is over the
         # maximum allowed value
-        iirf[0] = rc * C_acc_minus1 + rt*np.sum(T_j_minus1) + r0
-        if iirf[0] >= iirf_max:
-            iirf[0] = iirf_max
+        iirf[0] = iirf_simple(C_acc_minus1, np.sum(T_j_minus1), r0, rc, rt,
+          iirf_max)
             
         # Linearly interpolate a solution for alpha
         time_scale_sf = (
@@ -470,9 +525,7 @@ def fair_scm(
         if emissions_driven:
             # Calculate the parametrised iIRF and check if it is over the
             # maximum allowed value
-            iirf[t] = rc * C_acc[t-1]  + rt*T[t-1]  + r0
-            if iirf[t] >= iirf_max:
-                iirf[t] = iirf_max
+            iirf[t] = iirf_simple(C_acc[t-1], T[t-1], r0, rc, rt, iirf_max)
             
             # Linearly interpolate a solution for alpha
             if t == 1:

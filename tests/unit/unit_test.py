@@ -100,7 +100,7 @@ def test_restart_co2_continuous():
         useMultigas = False,
         restart_out = True
         )
-        
+
     C2, F2, T2 = fair.forward.fair_scm(
         emissions   = rcp45.Emissions.co2[10:20],
         useMultigas = False,
@@ -227,3 +227,68 @@ def test_iirf():
     assert np.any(C3!=C4)
     assert np.any(F3!=F4)
     assert np.any(T3!=T4)
+
+
+def test_q():
+    """Test that separating out the q-calculation function does not affect
+    results, and that both constant and time-varying values work.
+
+    If no other tests break, then this is integrated correctly."""
+
+    # constant ecs and tcr
+    nt      = 10
+    tcrecs  = np.array([1.75, 3.0])
+    d       = np.array([4.1, 239.0])
+    f2x     = 3.71
+    tcr_dbl = np.log(2.)/np.log(1.01)
+    q       = fair.forward.calculate_q(tcrecs, d, f2x, tcr_dbl, nt)
+    assert q.shape==(nt, 2)
+    assert np.all(q[:,0]==np.mean(q[:,0])) # check tcr and ecs constant
+    assert np.all(q[:,1]==np.mean(q[:,1]))
+
+    # time-varying ecs and tcr
+    tcrecs  = np.empty((nt, 2))
+    tcrecs[:,0] = np.linspace(1.65, 1.85, nt)
+    tcrecs[:,1] = np.linspace(2.8, 4.0, nt)
+    q       = fair.forward.calculate_q(tcrecs, d, f2x, 70., nt)
+    assert q.shape==(nt, 2)
+    assert np.any(q[:,0]!=np.mean(q[:,0]))
+    assert np.any(q[:,1]!=np.mean(q[:,1]))
+
+    # are errors handled? 
+    tcrecs  = np.array([1.75, 3.0, np.pi])
+    with pytest.raises(ValueError):
+        q = fair.forward.calculate_q(tcrecs, d, f2x, tcr_dbl, nt)
+    tcrecs  = np.empty((nt, 2))
+    tcrecs[:,0] = np.linspace(1.65, 1.85, nt)
+    tcrecs[:,1] = np.linspace(2.8, 4.0, nt)
+    with pytest.raises(ValueError):
+        q = fair.forward.calculate_q(tcrecs, d, f2x, tcr_dbl, nt+1)
+
+
+def test_iirf_simple():
+    r0 = 35
+    rc = 0.019
+    rt = 4.165
+    iirf_max = 97
+    c_acc = 1000.
+    temp = 1.5
+
+    iirf = fair.forward.iirf_simple(c_acc, temp, r0, rc, rt, iirf_max)
+    assert iirf == r0 + rc*c_acc + rt*temp
+
+
+def test_iirf_simple_max():
+    r0 = 35
+    rc = 0.019
+    rt = 4.165
+    c_acc = 1000.
+    temp = 1.5
+    iirf = fair.forward.iirf_simple(c_acc, temp, r0, rc, rt, 32)
+    assert iirf == 32
+
+
+def test_carbon_cycle():
+    """Test the stand-alone carbon cycle component of FaIR"""
+
+    c = fair.forward.carbon_cycle(e)
