@@ -92,10 +92,32 @@ def carbon_cycle(e0, c_acc0, temp, r0, rc, rt, iirf_max, iirf_guess, a, tau,
     """Calculates CO2 concentrations from emissions.
     
     Inputs:
-        e       : emissions of CO2, GtC per timestep
+        e0           : emissions of CO2 (GtC) in timestep t-1
+        c_acc0       : cumulative airborne carbon anomaly (GtC) since
+                       pre-industrial, timestep t-1
+        temp         : temperature anomaly above pre-industrial (K)
+        r0           : pre-industrial time-integrated airborne fraction (yr)
+        rc           : sensitivity of time-integrated airborne fraction to 
+                       airborne carbon (yr/GtC)
+        rt           : sensitivity of time-integrated airborne fraction to
+                       temperature (yr/K)
+        iirf_max     : maximum value of time-integrated airborne fraction (yr)
+        iirf_guess   : initial guess of alpha scaling factor
+        a            : partition coefficient of carbon boxes
+        tau          : present-day decay time constants of CO2 (yr)
+        iirf_h       : time horizon for time-integrated airborne fraction (yr)
+        carbon_boxes0: carbon stored in each atmospheric reservoir at timestep
+                       t-1 (GtC)
+        ppm_gtc      : conversion fraction from ppmv to GtC
+        c0           : concentration of CO2 in timestep t-1, ppmv
+        e1           : emissions of CO2 in timestep t, GtC
 
     Outputs:
-        c       : concentrations of CO2, ppmv
+        c1           : concentrations of CO2 in timestep t, ppmv
+        c_acc1       : cumulative airborne carbon anomaly (GtC) since
+                       pre-industrial, timestep t
+        carbon_boxes1: carbon stored in each atmospheric reservoir at timestep
+                       t (GtC)
     """
     iirf = iirf_simple(c_acc0, temp, r0, rc, rt, iirf_max)
     time_scale_sf = root(iirf_interp, iirf_guess,
@@ -104,7 +126,7 @@ def carbon_cycle(e0, c_acc0, temp, r0, rc, rt, iirf_max, iirf_guess, a, tau,
     carbon_boxes1 = carbon_boxes0*np.exp(-1.0/tau_new) + a*e0 / ppm_gtc
     c1 = np.sum(carbon_boxes1) + c0
     c_acc1 = c_acc0 + 0.5*(e1 + e0) - (c1 - c0)*ppm_gtc
-    return c1, c_acc1
+    return c1, c_acc1, carbon_boxes1
     
     
 def emis_to_conc(c0, e0, e1, ts, lt, vm):
