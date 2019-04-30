@@ -12,7 +12,7 @@ from .forcing import ozone_tr, ozone_st, h2o_st, contrails, aerosols, bc_snow,\
 from .forcing.ghg import co2_log
 
 
-def iirf_interp_funct(alp_b,a,tau,iirf_h,targ_iirf):
+def iirf_interp(alp_b,a,tau,iirf_h,targ_iirf):
     """Interpolation function for finding alpha, the CO2 decay time constant
     scaling factor, in iirf_h equation. See Eq. (7) of Millar et al ACP (2017).
 
@@ -87,7 +87,8 @@ def calculate_q(tcrecs, d, f2x, tcr_dbl, nt):
     return q
     
 
-def carbon_cycle(e):
+def carbon_cycle(e0, c_acc0, temp, r0, rc, rt, iirf_max, iirf_guess, a, tau,
+    iirf_h, carbon_boxes0, ppm_gtc, c0, e1):
     """Calculates CO2 concentrations from emissions.
     
     Inputs:
@@ -96,7 +97,14 @@ def carbon_cycle(e):
     Outputs:
         c       : concentrations of CO2, ppmv
     """
-    return c
+    iirf = iirf_simple(c_acc0, temp, r0, rc, rt, iirf_max)
+    time_scale_sf = root(iirf_interp, iirf_guess,
+      args=(a, tau, iirf_h, iirf))['x']
+    tau_new = tau * time_scale_sf
+    carbon_boxes1 = carbon_boxes0*np.exp(-1.0/tau_new) + a*e0 / ppm_gtc
+    c1 = np.sum(carbon_boxes1) + c0
+    c_acc1 = c_acc0 + 0.5*(e1 + e0) - (c1 - c0)*ppm_gtc
+    return c1, c_acc1
     
     
 def emis_to_conc(c0, e0, e1, ts, lt, vm):
@@ -385,7 +393,7 @@ def fair_scm(
             
         # Linearly interpolate a solution for alpha
         time_scale_sf = (
-          root(iirf_interp_funct,0.16,args=(a,tau,iirf_h,iirf[0])))['x']
+          root(iirf_interp,0.16,args=(a,tau,iirf_h,iirf[0])))['x']
 
         # Multiply default timescales by scale factor
         tau_new = tau * time_scale_sf
@@ -529,10 +537,10 @@ def fair_scm(
             
             # Linearly interpolate a solution for alpha
             if t == 1:
-                time_scale_sf = (root(iirf_interp_funct,0.16,
+                time_scale_sf = (root(iirf_interp,0.16,
                   args=(a,tau,iirf_h,iirf[t])))['x']
             else:
-                time_scale_sf = (root(iirf_interp_funct,time_scale_sf,
+                time_scale_sf = (root(iirf_interp,time_scale_sf,
                   args=(a,tau,iirf_h,iirf[t])))['x']
 
             # Multiply default timescales by scale factor

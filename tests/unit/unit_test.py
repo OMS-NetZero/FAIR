@@ -3,6 +3,8 @@ import pytest
 import fair
 from fair.RCPs import rcp3pd, rcp45, rcp6, rcp85
 from fair.tools import magicc, steady, ensemble
+from fair.constants import molwt, lifetime, radeff
+from fair.constants.general import M_ATMOS
 import numpy as np
 import os
 
@@ -288,7 +290,39 @@ def test_iirf_simple_max():
     assert iirf == 32
 
 
+def test_emis_to_conc():
+    c0 = 1000.
+    e0 = 300.
+    e1 = 310.
+    ts = 1.
+    lt = 9.3
+    vm = 2.123
+    c1 = fair.forward.emis_to_conc(c0, e0, e1, ts, lt, vm)
+    assert c1 == c0 - c0 * (1.0 - np.exp(-ts/lt)) + 0.5 * ts * (e1 + e0) * vm
+    
+    
 def test_carbon_cycle():
     """Test the stand-alone carbon cycle component of FaIR"""
-
-    c = fair.forward.carbon_cycle(e)
+    # TODO: put defaults into a module
+    e0 = 10.
+    c_acc0 = 0.
+    temp = 0.
+    r0 = 35.
+    rc = 0.019
+    rt = 4.165
+    iirf_max = 97.
+    iirf_guess = 0.16
+    a = np.array([0.2173,0.2240,0.2824,0.2763])
+    tau = np.array([1000000,394.4,36.54,4.304])
+    iirf_h = 100
+    carbon_boxes0 = np.zeros(4)
+    ppm_gtc = M_ATMOS/1e18*molwt.C/molwt.AIR
+    c0 = 0.
+    e1 = 10.
+    c1, c_acc1 = fair.forward.carbon_cycle(
+      e0, c_acc0, temp, r0, rc, rt, iirf_max, iirf_guess, a, tau, iirf_h,
+      carbon_boxes0, ppm_gtc, c0, e1)
+    c_full, f_full, t_full = fair.forward.fair_scm(
+      emissions=np.ones(1)*10, useMultigas=False)
+    c_pi = 278.
+    assert c_full==c1+c_pi
