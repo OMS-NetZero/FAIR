@@ -87,7 +87,7 @@ def calculate_q(tcrecs, d, f2x, tcr_dbl, nt):
     return q
     
 
-def carbon_cycle(e0, c_acc0, temp, r0, rc, rt, iirf_max, iirf_guess, a, tau,
+def carbon_cycle(e0, c_acc0, temp, r0, rc, rt, iirf_max, alpha_guess, a, tau,
     iirf_h, carbon_boxes0, ppm_gtc, c0, e1):
     """Calculates CO2 concentrations from emissions.
     
@@ -102,7 +102,7 @@ def carbon_cycle(e0, c_acc0, temp, r0, rc, rt, iirf_max, iirf_guess, a, tau,
         rt           : sensitivity of time-integrated airborne fraction to
                        temperature (yr/K)
         iirf_max     : maximum value of time-integrated airborne fraction (yr)
-        iirf_guess   : initial guess of alpha scaling factor
+        alpha_guess  : initial guess of alpha scaling factor
         a            : partition coefficient of carbon boxes
         tau          : present-day decay time constants of CO2 (yr)
         iirf_h       : time horizon for time-integrated airborne fraction (yr)
@@ -120,7 +120,7 @@ def carbon_cycle(e0, c_acc0, temp, r0, rc, rt, iirf_max, iirf_guess, a, tau,
                        t (GtC)
     """
     iirf = iirf_simple(c_acc0, temp, r0, rc, rt, iirf_max)
-    time_scale_sf = root(iirf_interp, iirf_guess,
+    time_scale_sf = root(iirf_interp, alpha_guess,
       args=(a, tau, iirf_h, iirf))['x']
     tau_new = tau * time_scale_sf
     carbon_boxes1 = carbon_boxes0*np.exp(-1.0/tau_new) + a*e0 / ppm_gtc
