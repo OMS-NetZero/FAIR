@@ -3,7 +3,7 @@ Changelog
 
 master
 ------
-(##) Separated out carbon cycle from non-CO2 forcing
+(`#60 <https://github.com/OMS-NetZero/FAIR/pull/60>`_) Refactoring: take carbon cycle out
 
 (`#4 <https://github.com/OMS-NetZero/FAIR/issues/4>`_) Make ``iirf_h`` a keyword parameter
 
