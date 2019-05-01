@@ -88,7 +88,7 @@ def calculate_q(tcrecs, d, f2x, tcr_dbl, nt):
     
 
 def carbon_cycle(e0, c_acc0, temp, r0, rc, rt, iirf_max, alpha_guess, a, tau,
-    iirf_h, carbon_boxes0, ppm_gtc, c0, e1):
+    iirf_h, carbon_boxes0, ppm_gtc, c_pi, c0, e1):
     """Calculates CO2 concentrations from emissions.
     
     Inputs:
@@ -109,6 +109,7 @@ def carbon_cycle(e0, c_acc0, temp, r0, rc, rt, iirf_max, alpha_guess, a, tau,
         carbon_boxes0: carbon stored in each atmospheric reservoir at timestep
                        t-1 (GtC)
         ppm_gtc      : conversion fraction from ppmv to GtC
+        c_pi         : pre-industrial concentration of CO2, ppmv
         c0           : concentration of CO2 in timestep t-1, ppmv
         e1           : emissions of CO2 in timestep t, GtC
 
@@ -124,7 +125,7 @@ def carbon_cycle(e0, c_acc0, temp, r0, rc, rt, iirf_max, alpha_guess, a, tau,
       args=(a, tau, iirf_h, iirf))['x']
     tau_new = tau * time_scale_sf
     carbon_boxes1 = carbon_boxes0*np.exp(-1.0/tau_new) + a*e0 / ppm_gtc
-    c1 = np.sum(carbon_boxes1) + c0
+    c1 = np.sum(carbon_boxes1) + c_pi
     c_acc1 = c_acc0 + 0.5*(e1 + e0) - (c1 - c0)*ppm_gtc
     return c1, c_acc1, carbon_boxes1
     

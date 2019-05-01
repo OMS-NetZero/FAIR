@@ -317,12 +317,13 @@ def test_carbon_cycle():
     iirf_h = 100
     carbon_boxes0 = np.zeros(4)
     ppm_gtc = M_ATMOS/1e18*molwt.C/molwt.AIR
+    c_pi = 278.
     c0 = 0.
     e1 = 10.
     c1, c_acc1, carbon_boxes1 = fair.forward.carbon_cycle(
       e0, c_acc0, temp, r0, rc, rt, iirf_max, iirf_guess, a, tau, iirf_h,
-      carbon_boxes0, ppm_gtc, c0, e1)
+      carbon_boxes0, ppm_gtc, c_pi, c0, e1)
     c_full, f_full, t_full = fair.forward.fair_scm(
       emissions=np.ones(1)*10, useMultigas=False)
     c_pi = 278.
-    assert c_full==c1+c_pi
+    assert c_full==c1
