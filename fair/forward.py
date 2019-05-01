@@ -125,7 +125,7 @@ def carbon_cycle(e0, c_acc0, temp, r0, rc, rt, iirf_max, time_scale_sf0, a, tau,
     time_scale_sf = root(iirf_interp, time_scale_sf0,
       args=(a, tau, iirf_h, iirf))['x']
     tau_new = tau * time_scale_sf
-    carbon_boxes1 = carbon_boxes0*np.exp(-1.0/tau_new) + a*e0 / ppm_gtc
+    carbon_boxes1 = carbon_boxes0*np.exp(-1.0/tau_new) + a*e1 / ppm_gtc
     c1 = np.sum(carbon_boxes1) + c_pi
     c_acc1 = c_acc0 + 0.5*(e1 + e0) - (c1 - c0)*ppm_gtc
     return c1, c_acc1, carbon_boxes1, time_scale_sf
@@ -645,29 +645,8 @@ def fair_scm(
                 T[t]=np.sum(T_j[t,:],axis=-1)
 
             else:
-#                # Calculate the parametrised iIRF and check if it is over the
-#                # maximum allowed value
-#                iirf[t] = iirf_simple(C_acc[t-1], T[t-1], r0, rc, rt, iirf_max)
-#                
-#                # Linearly interpolate a solution for alpha
                 if t == 1:
                     time_scale_sf = 0.16
-#                    time_scale_sf = (root(iirf_interp,0.16,
-#                      args=(a,tau,iirf_h,iirf[t])))['x']
-#                else:
-#                    time_scale_sf = (root(iirf_interp,time_scale_sf,
-#                      args=(a,tau,iirf_h,iirf[t])))['x']
-#    
-#                # Multiply default timescales by scale factor
-#                tau_new = tau * time_scale_sf
-#
-#                R_i[t,:] = R_i[t-1,:]*np.exp(-1.0/tau_new) + a*(np.sum(
-#                  emissions[t])) / ppm_gtc
-#                # Sum the boxes to get the total concentration
-#                C[t,0] = np.sum(R_i[...,t,:],axis=-1) + C_0[0]
-#                # Calculate the additional carbon uptake
-#                C_acc[t] =  C_acc[t-1] + 0.5*(np.sum(emissions[t-1:t+1])) - (
-#                  C[t,0] - C[t-1,0])*ppm_gtc
                 C[t,0], C_acc[t], R_i[t,:], time_scale_sf = carbon_cycle(
                   emissions[t-1],
                   C_acc[t-1],
