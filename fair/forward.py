@@ -396,7 +396,6 @@ def fair_scm(
     # Allocate intermediate and output arrays
     F = np.zeros((nt, nF))
     C_acc = np.zeros(nt)
-    iirf = np.zeros(nt)
     T_j = np.zeros(thermal_boxes_shape)
     T = np.zeros(nt)
     C_0 = np.copy(C_pi)
@@ -410,25 +409,26 @@ def fair_scm(
         C_acc_minus1 = restart_in[2]
         E_minus1 = restart_in[3]
         C_minus1 = np.sum(R_minus1,axis=-1) + C_0[0]
-        # Calculate the parametrised iIRF and check if it is over the
-        # maximum allowed value
-        iirf[0] = iirf_simple(C_acc_minus1, np.sum(T_j_minus1), r0, rc, rt,
-          iirf_max)
-            
-        # Linearly interpolate a solution for alpha
-        time_scale_sf = (
-          root(iirf_interp,0.16,args=(a,tau,iirf_h,iirf[0])))['x']
 
-        # Multiply default timescales by scale factor
-        tau_new = tau * time_scale_sf
-    
-        R_i[0,:] = R_minus1*np.exp(-1.0/tau_new) + a*emissions[0] / ppm_gtc
-        # Sum the boxes to get the total concentration
-        C[0,0] = np.sum(R_i[0,:],axis=-1) + C_0[0]
-        # Calculate the additional carbon uptake
-        C_acc[0] =  C_acc_minus1 + 0.5*(emissions[0] + E_minus1) - (
-          C[0,0] - C_minus1)*ppm_gtc
-          
+        C[0,0], C_acc[0], R_i[0,:], time_scale_sf = carbon_cycle(
+          E_minus1,
+          C_acc_minus1,
+          np.sum(T_j_minus1),
+          r0,
+          rc,
+          rt,
+          iirf_max,
+          0.16,
+          a,
+          tau,
+          iirf_h,
+          R_minus1,
+          ppm_gtc,
+          C_pi[0],
+          C_minus1,
+          emissions[0]
+        )
+
         if np.isscalar(other_rf):
             F[0,0] = co2_log(C[0,0], C_pi[0], F2x) + other_rf
         else:
@@ -555,21 +555,8 @@ def fair_scm(
 
         if emissions_driven:
             if useMultigas:
-                # Calculate the parametrised iIRF and check if it is over the
-                # maximum allowed value
-                iirf[t] = iirf_simple(C_acc[t-1], T[t-1], r0, rc, rt, iirf_max)
-                
-                # Linearly interpolate a solution for alpha
                 if t == 1:
-                    time_scale_sf = (root(iirf_interp,0.16,
-                      args=(a,tau,iirf_h,iirf[t])))['x']
-                else:
-                    time_scale_sf = (root(iirf_interp,time_scale_sf,
-                      args=(a,tau,iirf_h,iirf[t])))['x']
-    
-                # Multiply default timescales by scale factor
-                tau_new = tau * time_scale_sf
-
+                    time_scale_sf = 0.16
                 # Calculate concentrations
                 # a. CARBON DIOXIDE
                 # Firstly add any oxidised methane from last year to the CO2
@@ -579,15 +566,24 @@ def fair_scm(
                   (molwt.C/molwt.CH4 * 0.001 * oxCH4_frac * fossilCH4_frac[t]))
                 oxidised_CH4 = np.max((oxidised_CH4, 0))
 
-                # Compute the updated concentrations box anomalies from the
-                # decay of the previous year and the additional emissions
-                R_i[t,:] = R_i[t-1,:]*np.exp(-1.0/tau_new) + a*(np.sum(
-                  emissions[t,1:3]) + oxidised_CH4) / ppm_gtc
-                # Sum the boxes to get the total concentration
-                C[t,0] = np.sum(R_i[t,:],axis=-1) + C_0[0]
-                # Calculate the additional carbon uptake
-                C_acc[t] =  C_acc[t-1] + 0.5*(np.sum(
-                  emissions[t-1:t+1,1:3])) - (C[t,0] - C[t-1,0])*ppm_gtc
+                C[t,0], C_acc[t], R_i[t,:], time_scale_sf = carbon_cycle(
+                  np.sum(emissions[t-1,1:3]),
+                  C_acc[t-1],
+                  T[t-1],
+                  r0,
+                  rc,
+                  rt,
+                  iirf_max,
+                  time_scale_sf,
+                  a,
+                  tau,
+                  iirf_h,
+                  R_i[t-1,:] + oxidised_CH4,
+                  ppm_gtc,
+                  C_pi[0],
+                  C[t-1,0],
+                  np.sum(emissions[t,1:3])
+                )
 
                 # b. METHANE
                 C[t,1] = emis_to_conc(
