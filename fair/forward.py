@@ -448,7 +448,6 @@ def fair_scm(
                 C[0,1:] = C_0[1:]
             else:
                 R_i[0,:] = a * emissions[0,np.newaxis] / ppm_gtc
-
             C[0,0] = np.sum(R_i[0,:],axis=-1) + C_0[0]
 
     if useMultigas:
@@ -585,7 +584,7 @@ def fair_scm(
                 R_i[t,:] = R_i[t-1,:]*np.exp(-1.0/tau_new) + a*(np.sum(
                   emissions[t,1:3]) + oxidised_CH4) / ppm_gtc
                 # Sum the boxes to get the total concentration
-                C[t,0] = np.sum(R_i[...,t,:],axis=-1) + C_0[0]
+                C[t,0] = np.sum(R_i[t,:],axis=-1) + C_0[0]
                 # Calculate the additional carbon uptake
                 C_acc[t] =  C_acc[t-1] + 0.5*(np.sum(
                   emissions[t-1:t+1,1:3])) - (C[t,0] - C[t-1,0])*ppm_gtc
@@ -646,29 +645,47 @@ def fair_scm(
                 T[t]=np.sum(T_j[t,:],axis=-1)
 
             else:
-                # Calculate the parametrised iIRF and check if it is over the
-                # maximum allowed value
-                iirf[t] = iirf_simple(C_acc[t-1], T[t-1], r0, rc, rt, iirf_max)
-                
-                # Linearly interpolate a solution for alpha
+#                # Calculate the parametrised iIRF and check if it is over the
+#                # maximum allowed value
+#                iirf[t] = iirf_simple(C_acc[t-1], T[t-1], r0, rc, rt, iirf_max)
+#                
+#                # Linearly interpolate a solution for alpha
                 if t == 1:
-                    time_scale_sf = (root(iirf_interp,0.16,
-                      args=(a,tau,iirf_h,iirf[t])))['x']
-                else:
-                    time_scale_sf = (root(iirf_interp,time_scale_sf,
-                      args=(a,tau,iirf_h,iirf[t])))['x']
-    
-                # Multiply default timescales by scale factor
-                tau_new = tau * time_scale_sf
-
-                R_i[t,:] = R_i[t-1,:]*np.exp(-1.0/tau_new) + a*(np.sum(
-                  emissions[t])) / ppm_gtc
-                # Sum the boxes to get the total concentration
-                C[t,0] = np.sum(R_i[...,t,:],axis=-1) + C_0[0]
-                # Calculate the additional carbon uptake
-                C_acc[t] =  C_acc[t-1] + 0.5*(np.sum(emissions[t-1:t+1])) - (
-                  C[t,0] - C[t-1,0])*ppm_gtc
-
+                    time_scale_sf = 0.16
+#                    time_scale_sf = (root(iirf_interp,0.16,
+#                      args=(a,tau,iirf_h,iirf[t])))['x']
+#                else:
+#                    time_scale_sf = (root(iirf_interp,time_scale_sf,
+#                      args=(a,tau,iirf_h,iirf[t])))['x']
+#    
+#                # Multiply default timescales by scale factor
+#                tau_new = tau * time_scale_sf
+#
+#                R_i[t,:] = R_i[t-1,:]*np.exp(-1.0/tau_new) + a*(np.sum(
+#                  emissions[t])) / ppm_gtc
+#                # Sum the boxes to get the total concentration
+#                C[t,0] = np.sum(R_i[...,t,:],axis=-1) + C_0[0]
+#                # Calculate the additional carbon uptake
+#                C_acc[t] =  C_acc[t-1] + 0.5*(np.sum(emissions[t-1:t+1])) - (
+#                  C[t,0] - C[t-1,0])*ppm_gtc
+                C[t,0], C_acc[t], R_i[t,:], time_scale_sf = carbon_cycle(
+                  emissions[t-1],
+                  C_acc[t-1],
+                  T[t-1],
+                  r0,
+                  rc,
+                  rt,
+                  iirf_max,
+                  time_scale_sf,
+                  a,
+                  tau,
+                  iirf_h,
+                  R_i[t-1,:],
+                  ppm_gtc,
+                  C_pi[0],
+                  C[t-1,0],
+                  emissions[t]
+                )
                 if np.isscalar(other_rf):
                     F[t,0] = co2_log(C[t,0], C_pi[0], F2x) + other_rf
                 else:
