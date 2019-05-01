@@ -555,22 +555,22 @@ def fair_scm(
     for t in range(1,nt):
 
         if emissions_driven:
-            # Calculate the parametrised iIRF and check if it is over the
-            # maximum allowed value
-            iirf[t] = iirf_simple(C_acc[t-1], T[t-1], r0, rc, rt, iirf_max)
-            
-            # Linearly interpolate a solution for alpha
-            if t == 1:
-                time_scale_sf = (root(iirf_interp,0.16,
-                  args=(a,tau,iirf_h,iirf[t])))['x']
-            else:
-                time_scale_sf = (root(iirf_interp,time_scale_sf,
-                  args=(a,tau,iirf_h,iirf[t])))['x']
-
-            # Multiply default timescales by scale factor
-            tau_new = tau * time_scale_sf
-
             if useMultigas:
+                # Calculate the parametrised iIRF and check if it is over the
+                # maximum allowed value
+                iirf[t] = iirf_simple(C_acc[t-1], T[t-1], r0, rc, rt, iirf_max)
+                
+                # Linearly interpolate a solution for alpha
+                if t == 1:
+                    time_scale_sf = (root(iirf_interp,0.16,
+                      args=(a,tau,iirf_h,iirf[t])))['x']
+                else:
+                    time_scale_sf = (root(iirf_interp,time_scale_sf,
+                      args=(a,tau,iirf_h,iirf[t])))['x']
+    
+                # Multiply default timescales by scale factor
+                tau_new = tau * time_scale_sf
+
                 # Calculate concentrations
                 # a. CARBON DIOXIDE
                 # Firstly add any oxidised methane from last year to the CO2
@@ -646,6 +646,21 @@ def fair_scm(
                 T[t]=np.sum(T_j[t,:],axis=-1)
 
             else:
+                # Calculate the parametrised iIRF and check if it is over the
+                # maximum allowed value
+                iirf[t] = iirf_simple(C_acc[t-1], T[t-1], r0, rc, rt, iirf_max)
+                
+                # Linearly interpolate a solution for alpha
+                if t == 1:
+                    time_scale_sf = (root(iirf_interp,0.16,
+                      args=(a,tau,iirf_h,iirf[t])))['x']
+                else:
+                    time_scale_sf = (root(iirf_interp,time_scale_sf,
+                      args=(a,tau,iirf_h,iirf[t])))['x']
+    
+                # Multiply default timescales by scale factor
+                tau_new = tau * time_scale_sf
+
                 R_i[t,:] = R_i[t-1,:]*np.exp(-1.0/tau_new) + a*(np.sum(
                   emissions[t])) / ppm_gtc
                 # Sum the boxes to get the total concentration
