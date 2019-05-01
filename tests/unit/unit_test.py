@@ -304,26 +304,37 @@ def test_emis_to_conc():
 def test_carbon_cycle():
     """Test the stand-alone carbon cycle component of FaIR"""
     # TODO: put defaults into a module
-    e0 = 10.
-    c_acc0 = 0.
-    temp = 0.
-    r0 = 35.
-    rc = 0.019
-    rt = 4.165
-    iirf_max = 97.
-    iirf_guess = 0.16
-    a = np.array([0.2173,0.2240,0.2824,0.2763])
-    tau = np.array([1000000,394.4,36.54,4.304])
-    iirf_h = 100
-    carbon_boxes0 = np.zeros(4)
-    ppm_gtc = M_ATMOS/1e18*molwt.C/molwt.AIR
-    c_pi = 278.
-    c0 = 0.
-    e1 = 10.
-    c1, c_acc1, carbon_boxes1 = fair.forward.carbon_cycle(
-      e0, c_acc0, temp, r0, rc, rt, iirf_max, iirf_guess, a, tau, iirf_h,
-      carbon_boxes0, ppm_gtc, c_pi, c0, e1)
+    nt             = 10
+    c_pi           = 278.
+    emissions      = np.ones(nt)*10.
+    concentrations = np.ones(nt)*c_pi
+    c_acc          = np.zeros(nt)*10.
+    r0             = 35.
+    rc             = 0.019
+    rt             = 4.165
+    iirf_max       = 97.
+    time_scale_sf  = 0.16
+    a              = np.array([0.2173,0.2240,0.2824,0.2763])
+    tau            = np.array([1000000,394.4,36.54,4.304])
+    iirf_h         = 100
+    carbon_boxes   = np.zeros((nt,4))
+    ppm_gtc        = M_ATMOS/1e18*molwt.C/molwt.AIR
+    
+    # First run FaIR in CO2 only mode to get temperature change and CO2
     c_full, f_full, t_full = fair.forward.fair_scm(
-      emissions=np.ones(1)*10, useMultigas=False)
-    c_pi = 278.
-    assert c_full==c1
+      emissions=np.ones(nt)*10, useMultigas=False)
+
+    # Then prescribe temperature in the carbon cycle
+    carbon_boxes[0,:] = a * emissions[0,np.newaxis] / ppm_gtc
+    concentrations[0] = np.sum(carbon_boxes[0,:],axis=-1) + c_pi
+
+    for t in range(1,nt):
+        concentrations[t], c_acc[t], carbon_boxes[t,:], time_scale_sf = (
+          fair.forward.carbon_cycle(
+            emissions[t-1], c_acc[t-1], t_full[t-1], r0, rc, rt, iirf_max,
+            time_scale_sf, a, tau, iirf_h, carbon_boxes[t-1,:], ppm_gtc, c_pi,
+            concentrations[t-1], emissions[t])
+        )
+
+    # check result
+    assert np.all(c_full==concentrations)
