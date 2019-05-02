@@ -338,3 +338,7 @@ def test_carbon_cycle():
 
     # check result
     assert np.all(c_full==concentrations)
+
+
+def test_inverse_carbon_cycle():
+    e1 = fair.inverse.carbon_cycle(c0, c1)

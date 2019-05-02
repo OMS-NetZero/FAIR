@@ -7,6 +7,7 @@ from scipy.optimize import root
 from .ancil import natural, cmip6_volcanic, cmip6_solar, historical_scaling
 from .constants import molwt, lifetime, radeff
 from .constants.general import M_ATMOS
+from .defaults import carbon, thermal
 from .forcing import ozone_tr, ozone_st, h2o_st, contrails, aerosols, bc_snow,\
                                          landuse
 from .forcing.ghg import co2_log
@@ -180,18 +181,18 @@ def fair_scm(
     emissions_driven=True,
     C=None,
     other_rf=0.0,
-    q=np.array([0.33,0.41]),
-    tcrecs=np.array([1.6,2.75]),
-    d=np.array([239.0,4.1]),
-    a=np.array([0.2173,0.2240,0.2824,0.2763]),
-    tau=np.array([1000000,394.4,36.54,4.304]),
-    r0=35.0,
-    rc=0.019,
-    rt=4.165,
-    F2x=3.71,
-    iirf_max=97.0,
-    iirf_h=100.0,
-    tcr_dbl=69.661,
+    q        = thermal.q,
+    tcrecs   = thermal.tcrecs,
+    d        = thermal.d,
+    F2x      = thermal.f2x,
+    tcr_dbl  = thermal.tcr_dbl,
+    a        = carbon.a,
+    tau      = carbon.tau,
+    r0       = carbon.r0,
+    rc       = carbon.rc,
+    rt       = carbon.rt,
+    iirf_max = carbon.iirf_max,
+    iirf_h   = carbon.iirf_h,
     C_pi=np.array([278., 722., 273., 34.497] + [0.]*25 + [13.0975, 547.996]),
     restart_in=False,
     restart_out=False,
