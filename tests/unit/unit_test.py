@@ -332,7 +332,7 @@ def test_carbon_cycle():
         concentrations[t], c_acc[t], carbon_boxes[t,:], time_scale_sf = (
           fair.forward.carbon_cycle(
             emissions[t-1], c_acc[t-1], t_full[t-1], r0, rc, rt, iirf_max,
-            time_scale_sf, a, tau, iirf_h, carbon_boxes[t-1,:], ppm_gtc, c_pi,
+            time_scale_sf, a, tau, iirf_h, carbon_boxes[t-1,:], c_pi,
             concentrations[t-1], emissions[t])
         )
 
@@ -341,4 +341,4 @@ def test_carbon_cycle():
 
 
 def test_inverse_carbon_cycle():
-    e1 = fair.inverse.carbon_cycle(c0, c1)
+    e1 = fair.inverse.inverse_carbon_cycle(c0, c1)
