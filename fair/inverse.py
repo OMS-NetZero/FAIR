@@ -87,7 +87,7 @@ def inverse_fair_scm(
     rt            = carbon.rt,
     iirf_max      = carbon.iirf_max,
     iirf_h        = carbon.iirf_h,
-    C_pi          = 278.
+    C_pi          = 278.,
     time_scale_sf = 0.16
     ):
     
