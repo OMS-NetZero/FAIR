@@ -1,4 +1,4 @@
-import molwt
+from . import molwt
 
 M_ATMOS   = 5.1352e18 # mass of atmosphere, kg
 
