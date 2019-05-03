@@ -3,7 +3,7 @@ Changelog
 
 master
 ------
-(`#60 <https://github.com/OMS-NetZero/FAIR/pull/60>`_) Refactoring: take carbon cycle out
+(`#60 <https://github.com/OMS-NetZero/FAIR/pull/60>`_) Refactor carbon cycle into separate function
 
 (`#4 <https://github.com/OMS-NetZero/FAIR/issues/4>`_) Make ``iirf_h`` a keyword parameter
 
