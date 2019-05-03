@@ -41,6 +41,7 @@ def iirf_simple(c_acc, temp, r0, rc, rt, iirf_max):
                    carbon (yr/GtC)
         rt       : sensitivity of time-integrated airborne fraction to
                    temperature (yr/K)
+        iirf_max : maximum value of time-integrated airborne fraction (yr)
     
     Outputs:
         iirf     : time-integrated airborne fraction of carbon (yr)
