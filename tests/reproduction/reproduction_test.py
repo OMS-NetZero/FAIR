@@ -158,3 +158,38 @@ def test_multigas_concentration_driven():
     datadir = os.path.join(os.path.dirname(__file__), 'rcp45/')
     T_expected = np.load(datadir + 'T_concdriven_multi.npy')
     assert np.allclose(T, T_expected)
+
+
+def test_inverse_fair():
+    """Tests reproducibility of concentrations-to-emissions FaIR."""
+
+    # initialise a 1% run
+    nt = 140
+    C = 1.01**np.arange(nt)*278.
+
+    E,F,T = fair.inverse.inverse_fair_scm(C=C, tcrecs=np.array([1.7, 3.0]))
+
+    datadir = os.path.join(os.path.dirname(__file__), '1pctCO2/')
+    E_expected = np.load(datadir + 'E.npy')
+    F_expected = np.load(datadir + 'F.npy')
+    T_expected = np.load(datadir + 'T.npy')
+
+    assert np.all(E==E_expected)
+    assert np.all(F==F_expected)
+    assert np.all(T==T_expected)
+
+
+def test_forward_versus_reverse():
+    """Does inverse FaIR recover the same emissions as forward FaIR?
+
+    Both methods require numerical root finding methods so exact correspondence
+    is quite unlikely, so accept a small tolerance"""
+
+    E_forward = rcp85.Emissions.co2
+    other_rf = np.sin(np.arange(736)) * 0.2
+    C_forward, F_forward, T_forward = fair.forward.fair_scm(emissions=E_forward, other_rf=other_rf, useMultigas=False)
+    E_inverse, F_inverse, T_inverse = fair.inverse.inverse_fair_scm(C=C_forward, other_rf=other_rf)
+
+    assert np.allclose(E_forward, E_inverse, atol=0.01, rtol=0.01)
+    assert np.allclose(F_forward, F_inverse, atol=0.01, rtol=0.01)
+    assert np.allclose(T_forward, T_inverse, atol=0.01, rtol=0.01)

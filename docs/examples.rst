@@ -349,7 +349,7 @@ upper limit on the time-integrated airborne fraction.
 
 .. parsed-literal::
 
-    /nfs/see-fs-02_users/mencsm/FAIR/fair/forward.py:131: RuntimeWarning: iirf_h=60.000000, which is less than iirf_max (97.000000)
+    /nfs/see-fs-02_users/mencsm/FAIR/fair/forward.py:233: RuntimeWarning: iirf_h=60.000000, which is less than iirf_max (97.000000)
       % (iirf_h, iirf_max), RuntimeWarning)
 
 
@@ -526,7 +526,7 @@ possible!
 
 .. parsed-literal::
 
-    (500.55243490460663, 3.1476987553820921, 2.2790510548813714)
+    (500.55243490460532, 3.1476987553820783, 2.2790510548813629)
 
 
 Temperature time constants
@@ -905,7 +905,7 @@ for illustration). Note this is a completely hypothetical scenario!
 
 .. parsed-literal::
 
-    <matplotlib.text.Text at 0x7f8d5b6f5f90>
+    <matplotlib.text.Text at 0x7f8551658890>
 
 
 
@@ -1125,6 +1125,55 @@ CO2 only
 .. image:: examples_files/examples_36_0.png
 
 
+Diagnosing CO2 emissions
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+For carbon budget calculations it is often useful to calculate
+(cumulative) CO2 emissions for a given concentration of CO2. The
+``fair.inverse`` module provides the opportunity to do this. Currently
+``fair.inverse`` only runs in CO2 mode.
+
+.. code:: ipython2
+
+    from fair.inverse import inverse_fair_scm
+
+Many of the options are the same as for the ``forward`` model, and
+provide reasonable sensible defaults if not specified. The classic
+example of a 1% per year CO2 increase will be demonstrated.
+
+.. code:: ipython2
+
+    nt = 140 # years
+    C  = 278. * 1.01**np.arange(nt) # compound 1% increase in CO2 concentrations
+
+.. code:: ipython2
+
+    # run with default carbon cycle parameters
+    E1, F1, T1 = inverse_fair_scm(C=C)
+    
+    # show the effect of turning off the temperature feedback
+    E2, F2, T2 = inverse_fair_scm(C=C, rt=0)
+    
+    fig = plt.figure()
+    ax1 = fig.add_subplot(221)
+    ax2 = fig.add_subplot(222)
+    ax1.plot(range(nt), E1, color='blue', label='Temperature feedback')
+    ax1.plot(range(nt), E2, color='red', label='No temperature feedback')
+    ax1.set_title("Diagnosed emissions from 1% CO2 run")
+    ax1.set_xlabel('year')
+    ax1.set_ylabel('GtC/yr')
+    ax2.plot(np.cumsum(E1), T1, color='blue')
+    ax2.plot(np.cumsum(E2), T1, color='red')
+    ax2.set_title("Transient climate response to cumulative CO2 emissions (TCRE)")
+    ax2.set_xlabel("Cumulative emissions, GtC")
+    ax2.set_ylabel("Temperature anomaly, K")
+    ax1.legend();
+
+
+
+.. image:: examples_files/examples_41_0.png
+
+
 Multi-gas
 ~~~~~~~~~
 
@@ -1168,7 +1217,7 @@ stratospheric water vapour from methane) is not affected.
 
 
 
-.. image:: examples_files/examples_38_0.png
+.. image:: examples_files/examples_43_0.png
 
 
 Natural emissions and GHG lifetimes
@@ -1229,7 +1278,7 @@ maintaining historical concentrations.
 
 
 
-.. image:: examples_files/examples_40_1.png
+.. image:: examples_files/examples_45_1.png
 
 
 Ensemble generation
@@ -1290,7 +1339,7 @@ from a doubling of CO2.
 
 
 
-.. image:: examples_files/examples_43_0.png
+.. image:: examples_files/examples_48_0.png
 
 
 Adding a temperature constraint
@@ -1334,7 +1383,7 @@ observations.
 
 
 
-.. image:: examples_files/examples_47_0.png
+.. image:: examples_files/examples_52_0.png
 
 
 Some, but not all, of the higher end scenarios have been constrained
@@ -1422,6 +1471,6 @@ emissions from 2020, with a constant non-CO2 radiative forcing.
 
 
 
-.. image:: examples_files/examples_51_0.png
+.. image:: examples_files/examples_56_0.png
 
 

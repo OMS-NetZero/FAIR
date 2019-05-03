@@ -108,25 +108,26 @@ def inverse_fair_scm(
     T_j       = np.zeros(thermal_boxes_shape)
     F         = np.zeros(nt)
     
-    if np.is_scalar(other_rf):
+    if np.isscalar(other_rf):
         other_rf = other_rf * np.ones(nt)
     
     # First timestep
-    emissions[0] = root(infer_emissions, 0., args=(c[0], carbon_boxes[0],
-        tau, a, ppm_gtc, c_pi))['x']
-    F[0]         = co2_log(c[0], c_pi, F2x=F2x) + other_rf[0]
+    emissions[0] = root(infer_emissions, 0., args=(C[0], R_i[0],
+        tau, a, C_pi))['x']
+    F[0]         = co2_log(C[0], C_pi, F2x=F2x)# + other_rf[0]
     T_j[0,:]     = forc_to_temp(T_j[0,:], q[0,:], d, F[0])
 
     # Second timestep onwards
     for t in range(1,nt):
-        emissions[t], c_acc[t], carbon_boxes[t,:], time_scale_sf = (
+        emissions[t], C_acc[t], R_i[t,:], time_scale_sf = (
             inverse_carbon_cycle(
-                c[t], c_acc[t-1], np.sum(T_j[t-1,:]), r0, rc, rt, iirf_max, 
-                time_scale_sf, a, tau, iirf_h, carbon_boxes[t-1,:], ppm_gtc, 
-                c_pi, c[t-1], emissions[t-1])
+                C[t], C_acc[t-1], np.sum(T_j[t-1,:]), r0, rc, rt, iirf_max, 
+                time_scale_sf, a, tau, iirf_h, R_i[t-1,:],
+                C_pi, C[t-1], emissions[t-1]
             )
-    F[t]     = co2_log(c[t], c_pi, F2x=F2x) + other_rf[t]
-    T_j[t,:] = forc_to_temp(T_j[t-1,:], q[t,:], d, F[t])
+        )
+        F[t]     = co2_log(C[t], C_pi, F2x=F2x) + other_rf[t]
+        T_j[t,:] = forc_to_temp(T_j[t-1,:], q[t,:], d, F[t])
 
     # Output temperatures
     T = np.sum(T_j, axis=-1)

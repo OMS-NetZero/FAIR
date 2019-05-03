@@ -5,6 +5,7 @@ from fair.RCPs import rcp3pd, rcp45, rcp6, rcp85
 from fair.tools import magicc, steady, ensemble
 from fair.constants import molwt, lifetime, radeff
 from fair.constants.general import M_ATMOS
+from fair.defaults import carbon
 import numpy as np
 import os
 
@@ -303,20 +304,12 @@ def test_emis_to_conc():
     
 def test_carbon_cycle():
     """Test the stand-alone carbon cycle component of FaIR"""
-    # TODO: put defaults into a module
     nt             = 10
     c_pi           = 278.
     emissions      = np.ones(nt)*10.
     concentrations = np.ones(nt)*c_pi
-    c_acc          = np.zeros(nt)*10.
-    r0             = 35.
-    rc             = 0.019
-    rt             = 4.165
-    iirf_max       = 97.
+    c_acc          = np.zeros(nt)
     time_scale_sf  = 0.16
-    a              = np.array([0.2173,0.2240,0.2824,0.2763])
-    tau            = np.array([1000000,394.4,36.54,4.304])
-    iirf_h         = 100
     carbon_boxes   = np.zeros((nt,4))
     ppm_gtc        = M_ATMOS/1e18*molwt.C/molwt.AIR
     
@@ -325,15 +318,28 @@ def test_carbon_cycle():
       emissions=np.ones(nt)*10, useMultigas=False)
 
     # Then prescribe temperature in the carbon cycle
-    carbon_boxes[0,:] = a * emissions[0,np.newaxis] / ppm_gtc
+    carbon_boxes[0,:] = carbon.a * emissions[0,np.newaxis] / ppm_gtc
     concentrations[0] = np.sum(carbon_boxes[0,:],axis=-1) + c_pi
 
     for t in range(1,nt):
         concentrations[t], c_acc[t], carbon_boxes[t,:], time_scale_sf = (
-          fair.forward.carbon_cycle(
-            emissions[t-1], c_acc[t-1], t_full[t-1], r0, rc, rt, iirf_max,
-            time_scale_sf, a, tau, iirf_h, carbon_boxes[t-1,:], c_pi,
-            concentrations[t-1], emissions[t])
+            fair.forward.carbon_cycle(
+                emissions[t-1],
+                c_acc[t-1],
+                t_full[t-1],
+                carbon.r0,
+                carbon.rc,
+                carbon.rt,
+                carbon.iirf_max,
+                time_scale_sf,
+                carbon.a,
+                carbon.tau,
+                carbon.iirf_h,
+                carbon_boxes[t-1,:],
+                c_pi,
+                concentrations[t-1],
+                emissions[t]
+            )
         )
 
     # check result
@@ -341,4 +347,20 @@ def test_carbon_cycle():
 
 
 def test_inverse_carbon_cycle():
-    e1 = fair.inverse.inverse_carbon_cycle(c0, c1)
+    """Test the inverse stand-alone carbon cycle."""
+
+    c1             = 278 * 1.01
+    c_acc0         = 0
+    e0             = 0
+    temp           = 0
+    time_scale_sf  = 0.16
+    c_pi           = 278
+    c0             = 278
+    carbon_boxes0  = np.zeros(4)
+    
+    e1, c_acc1, carbon_boxes1, time_scale_sf = (
+        fair.inverse.inverse_carbon_cycle(
+            c1, c_acc0, temp, carbon.r0, carbon.rc, carbon.rt,
+            carbon.iirf_max, time_scale_sf, carbon.a, carbon.tau, carbon.iirf_h,
+            carbon_boxes0, c_pi, c0, e0)
+        )
