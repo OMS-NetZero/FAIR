@@ -12,7 +12,7 @@ from .forcing import ozone_tr, ozone_st, h2o_st, contrails, aerosols, bc_snow,\
 from .forcing.ghg import co2_log
 
 
-def iirf_interp_funct(alp_b,a,tau,iirf_h,targ_iirf):
+def iirf_interp(alp_b,a,tau,iirf_h,targ_iirf):
     """Interpolation function for finding alpha, the CO2 decay time constant
     scaling factor, in iirf_h equation. See Eq. (7) of Millar et al ACP (2017).
 
@@ -28,7 +28,110 @@ def iirf_interp_funct(alp_b,a,tau,iirf_h,targ_iirf):
     iirf_arr = alp_b*(np.sum(a*tau*(1.0 - np.exp(-iirf_h/(tau*alp_b)))))
     return iirf_arr - targ_iirf
 
+    
+def iirf_simple(c_acc, temp, r0, rc, rt, iirf_max):
+    """Simple linear iIRF relationship. Eq. (8) of Millar et al ACP (2017).
+    
+    Inputs:
+        c_acc    : cumulative airborne carbon anomaly (GtC) since
+                   pre-industrial
+        temp     : temperature anomaly since pre-industrial
+        r0       : pre-industrial time-integrated airborne fraction (yr)
+        rc       : sensitivity of time-integrated airborne fraction to airborne
+                   carbon (yr/GtC)
+        rt       : sensitivity of time-integrated airborne fraction to
+                   temperature (yr/K)
+        iirf_max : maximum value of time-integrated airborne fraction (yr)
+    
+    Outputs:
+        iirf     : time-integrated airborne fraction of carbon (yr)
+    """
+    
+    return np.min([r0 + rc * c_acc + rt * temp, iirf_max])
+    
+    
+def calculate_q(tcrecs, d, f2x, tcr_dbl, nt):
+    """If TCR and ECS are supplied, calculate the q model coefficients.
+    See Eqs. (4) and (5) of Millar et al ACP (2017).
+    
+    Inputs:
+        tcrecs  : 2-element array of transient climate response (TCR) and
+                  equilibrium climate sensitivity (ECS).
+        d       : The slow and fast thermal response time constants
+        f2x     : Effective radiative forcing from a doubling of CO2
+        tcr_dbl : time to a doubling of CO2 under 1% per year CO2 increase, yr
+        nt      : number of timesteps
+        
+    Outputs:
+        q       : coefficients of slow and fast temperature change in each
+                  timestep ((nt, 2) array).
+    """
+    
+    # TODO:
+    # error checking before call
+    # benchmark one call per timestep and if not slower do not convert to 2D
+    #  - will make code cleaner
+    
+    k = 1.0 - (d/tcr_dbl)*(1.0 - np.exp(-tcr_dbl/d))
+    # if ECS and TCR are not time-varying, expand them to 2D array anyway
+    if tcrecs.ndim==1:
+        if len(tcrecs)!=2:
+            raise ValueError(
+              "Constant TCR and ECS should be a 2-element array")
+        tcrecs = np.ones((nt, 2)) * tcrecs
+    elif tcrecs.ndim==2:
+        if tcrecs.shape!=(nt, 2):
+            raise ValueError(
+              "Transient TCR and ECS should be a nt x 2 array")
+    q  = (1.0 / f2x) * (1.0/(k[0]-k[1])) * np.array([
+        tcrecs[:,0]-tcrecs[:,1]*k[1],tcrecs[:,1]*k[0]-tcrecs[:,0]]).T
+    return q
+    
 
+def carbon_cycle(e0, c_acc0, temp, r0, rc, rt, iirf_max, time_scale_sf0, a, tau,
+    iirf_h, carbon_boxes0, ppm_gtc, c_pi, c0, e1):
+    """Calculates CO2 concentrations from emissions.
+    
+    Inputs:
+        e0            : emissions of CO2 (GtC) in timestep t-1
+        c_acc0        : cumulative airborne carbon anomaly (GtC) since
+                        pre-industrial, timestep t-1
+        temp          : temperature anomaly above pre-industrial (K)
+        r0            : pre-industrial time-integrated airborne fraction (yr)
+        rc            : sensitivity of time-integrated airborne fraction to 
+                        airborne carbon (yr/GtC)
+        rt            : sensitivity of time-integrated airborne fraction to
+                        temperature (yr/K)
+        iirf_max      : maximum value of time-integrated airborne fraction (yr)
+        time_scale_sf0: initial guess of alpha scaling factor
+        a             : partition coefficient of carbon boxes
+        tau           : present-day decay time constants of CO2 (yr)
+        iirf_h        : time horizon for time-integrated airborne fraction (yr)
+        carbon_boxes0 : carbon stored in each atmospheric reservoir at timestep
+                        t-1 (GtC)
+        ppm_gtc       : conversion fraction from ppmv to GtC
+        c_pi          : pre-industrial concentration of CO2, ppmv
+        c0            : concentration of CO2 in timestep t-1, ppmv
+        e1            : emissions of CO2 in timestep t, GtC
+
+    Outputs:
+        c1            : concentrations of CO2 in timestep t, ppmv
+        c_acc1        : cumulative airborne carbon anomaly (GtC) since
+                        pre-industrial, timestep t
+        carbon_boxes1 : carbon stored in each atmospheric reservoir at timestep
+                        t (GtC)
+        time_scale_sf : scale factor for CO2 decay constants
+    """
+    iirf = iirf_simple(c_acc0, temp, r0, rc, rt, iirf_max)
+    time_scale_sf = root(iirf_interp, time_scale_sf0,
+      args=(a, tau, iirf_h, iirf))['x']
+    tau_new = tau * time_scale_sf
+    carbon_boxes1 = carbon_boxes0*np.exp(-1.0/tau_new) + a*e1 / ppm_gtc
+    c1 = np.sum(carbon_boxes1) + c_pi
+    c_acc1 = c_acc0 + 0.5*(e1 + e0) - (c1 - c0)*ppm_gtc
+    return c1, c_acc1, carbon_boxes1, time_scale_sf
+    
+    
 def emis_to_conc(c0, e0, e1, ts, lt, vm):
     """Calculate concentrations of well mixed GHGs from emissions for simple
     one-box model.
@@ -277,23 +380,9 @@ def fair_scm(
         if scaleHistoricalAR5:
             scale=scale*historical_scaling.co2[:nt]
 
-    # If TCR and ECS are supplied, calculate the q1 and q2 model coefficients 
-    # (overwriting any other q array that might have been supplied)
-    # ref eq. (4) and (5) of Millar et al ACP (2017)
-    k = 1.0 - (d/tcr_dbl)*(1.0 - np.exp(-tcr_dbl/d))    # Allow TCR to vary
+    # If TCR and ECS are supplied, calculate q coefficients
     if type(tcrecs) is np.ndarray:
-        # if ECS and TCR are not time-varying, expand them to 2D array anyway
-        if tcrecs.ndim==1:
-            if len(tcrecs)!=2:
-                raise ValueError(
-                  "Constant TCR and ECS should be a 2-element array")
-            tcrecs = np.ones((nt, 2)) * tcrecs
-        elif tcrecs.ndim==2:
-            if tcrecs.shape!=(nt, 2):
-                raise ValueError(
-                  "Transient TCR and ECS should be a nt x 2 array")
-        q  = (1.0 / F2x) * (1.0/(k[0]-k[1])) * np.array([
-            tcrecs[:,0]-tcrecs[:,1]*k[1],tcrecs[:,1]*k[0]-tcrecs[:,0]]).T
+        q = calculate_q(tcrecs, d, F2x, tcr_dbl, nt)
 
     # Check a and tau are same size
     if a.ndim != 1:
@@ -308,7 +397,6 @@ def fair_scm(
     # Allocate intermediate and output arrays
     F = np.zeros((nt, nF))
     C_acc = np.zeros(nt)
-    iirf = np.zeros(nt)
     T_j = np.zeros(thermal_boxes_shape)
     T = np.zeros(nt)
     C_0 = np.copy(C_pi)
@@ -322,26 +410,26 @@ def fair_scm(
         C_acc_minus1 = restart_in[2]
         E_minus1 = restart_in[3]
         C_minus1 = np.sum(R_minus1,axis=-1) + C_0[0]
-        # Calculate the parametrised iIRF and check if it is over the
-        # maximum allowed value
-        iirf[0] = rc * C_acc_minus1 + rt*np.sum(T_j_minus1) + r0
-        if iirf[0] >= iirf_max:
-            iirf[0] = iirf_max
-            
-        # Linearly interpolate a solution for alpha
-        time_scale_sf = (
-          root(iirf_interp_funct,0.16,args=(a,tau,iirf_h,iirf[0])))['x']
 
-        # Multiply default timescales by scale factor
-        tau_new = tau * time_scale_sf
-    
-        R_i[0,:] = R_minus1*np.exp(-1.0/tau_new) + a*emissions[0] / ppm_gtc
-        # Sum the boxes to get the total concentration
-        C[0,0] = np.sum(R_i[0,:],axis=-1) + C_0[0]
-        # Calculate the additional carbon uptake
-        C_acc[0] =  C_acc_minus1 + 0.5*(emissions[0] + E_minus1) - (
-          C[0,0] - C_minus1)*ppm_gtc
-          
+        C[0,0], C_acc[0], R_i[0,:], time_scale_sf = carbon_cycle(
+          E_minus1,
+          C_acc_minus1,
+          np.sum(T_j_minus1),
+          r0,
+          rc,
+          rt,
+          iirf_max,
+          0.16,
+          a,
+          tau,
+          iirf_h,
+          R_minus1,
+          ppm_gtc,
+          C_pi[0],
+          C_minus1,
+          emissions[0]
+        )
+
         if np.isscalar(other_rf):
             F[0,0] = co2_log(C[0,0], C_pi[0], F2x) + other_rf
         else:
@@ -361,7 +449,6 @@ def fair_scm(
                 C[0,1:] = C_0[1:]
             else:
                 R_i[0,:] = a * emissions[0,np.newaxis] / ppm_gtc
-
             C[0,0] = np.sum(R_i[0,:],axis=-1) + C_0[0]
 
     if useMultigas:
@@ -468,24 +555,9 @@ def fair_scm(
     for t in range(1,nt):
 
         if emissions_driven:
-            # Calculate the parametrised iIRF and check if it is over the
-            # maximum allowed value
-            iirf[t] = rc * C_acc[t-1]  + rt*T[t-1]  + r0
-            if iirf[t] >= iirf_max:
-                iirf[t] = iirf_max
-            
-            # Linearly interpolate a solution for alpha
-            if t == 1:
-                time_scale_sf = (root(iirf_interp_funct,0.16,
-                  args=(a,tau,iirf_h,iirf[t])))['x']
-            else:
-                time_scale_sf = (root(iirf_interp_funct,time_scale_sf,
-                  args=(a,tau,iirf_h,iirf[t])))['x']
-
-            # Multiply default timescales by scale factor
-            tau_new = tau * time_scale_sf
-
             if useMultigas:
+                if t == 1:
+                    time_scale_sf = 0.16
                 # Calculate concentrations
                 # a. CARBON DIOXIDE
                 # Firstly add any oxidised methane from last year to the CO2
@@ -495,15 +567,24 @@ def fair_scm(
                   (molwt.C/molwt.CH4 * 0.001 * oxCH4_frac * fossilCH4_frac[t]))
                 oxidised_CH4 = np.max((oxidised_CH4, 0))
 
-                # Compute the updated concentrations box anomalies from the
-                # decay of the previous year and the additional emissions
-                R_i[t,:] = R_i[t-1,:]*np.exp(-1.0/tau_new) + a*(np.sum(
-                  emissions[t,1:3]) + oxidised_CH4) / ppm_gtc
-                # Sum the boxes to get the total concentration
-                C[t,0] = np.sum(R_i[...,t,:],axis=-1) + C_0[0]
-                # Calculate the additional carbon uptake
-                C_acc[t] =  C_acc[t-1] + 0.5*(np.sum(
-                  emissions[t-1:t+1,1:3])) - (C[t,0] - C[t-1,0])*ppm_gtc
+                C[t,0], C_acc[t], R_i[t,:], time_scale_sf = carbon_cycle(
+                  np.sum(emissions[t-1,1:3]),
+                  C_acc[t-1],
+                  T[t-1],
+                  r0,
+                  rc,
+                  rt,
+                  iirf_max,
+                  time_scale_sf,
+                  a,
+                  tau,
+                  iirf_h,
+                  R_i[t-1,:] + oxidised_CH4,
+                  ppm_gtc,
+                  C_pi[0],
+                  C[t-1,0],
+                  np.sum(emissions[t,1:3])
+                )
 
                 # b. METHANE
                 C[t,1] = emis_to_conc(
@@ -561,14 +642,26 @@ def fair_scm(
                 T[t]=np.sum(T_j[t,:],axis=-1)
 
             else:
-                R_i[t,:] = R_i[t-1,:]*np.exp(-1.0/tau_new) + a*(np.sum(
-                  emissions[t])) / ppm_gtc
-                # Sum the boxes to get the total concentration
-                C[t,0] = np.sum(R_i[...,t,:],axis=-1) + C_0[0]
-                # Calculate the additional carbon uptake
-                C_acc[t] =  C_acc[t-1] + 0.5*(np.sum(emissions[t-1:t+1])) - (
-                  C[t,0] - C[t-1,0])*ppm_gtc
-
+                if t == 1:
+                    time_scale_sf = 0.16
+                C[t,0], C_acc[t], R_i[t,:], time_scale_sf = carbon_cycle(
+                  emissions[t-1],
+                  C_acc[t-1],
+                  T[t-1],
+                  r0,
+                  rc,
+                  rt,
+                  iirf_max,
+                  time_scale_sf,
+                  a,
+                  tau,
+                  iirf_h,
+                  R_i[t-1,:],
+                  ppm_gtc,
+                  C_pi[0],
+                  C[t-1,0],
+                  emissions[t]
+                )
                 if np.isscalar(other_rf):
                     F[t,0] = co2_log(C[t,0], C_pi[0], F2x) + other_rf
                 else:

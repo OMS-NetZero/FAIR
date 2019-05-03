@@ -3,6 +3,8 @@ import pytest
 import fair
 from fair.RCPs import rcp3pd, rcp45, rcp6, rcp85
 from fair.tools import magicc, steady, ensemble
+from fair.constants import molwt, lifetime, radeff
+from fair.constants.general import M_ATMOS
 import numpy as np
 import os
 
@@ -100,7 +102,7 @@ def test_restart_co2_continuous():
         useMultigas = False,
         restart_out = True
         )
-        
+
     C2, F2, T2 = fair.forward.fair_scm(
         emissions   = rcp45.Emissions.co2[10:20],
         useMultigas = False,
@@ -227,3 +229,112 @@ def test_iirf():
     assert np.any(C3!=C4)
     assert np.any(F3!=F4)
     assert np.any(T3!=T4)
+
+
+def test_q():
+    """Test that separating out the q-calculation function does not affect
+    results, and that both constant and time-varying values work.
+
+    If no other tests break, then this is integrated correctly."""
+
+    # constant ecs and tcr
+    nt      = 10
+    tcrecs  = np.array([1.75, 3.0])
+    d       = np.array([4.1, 239.0])
+    f2x     = 3.71
+    tcr_dbl = np.log(2.)/np.log(1.01)
+    q       = fair.forward.calculate_q(tcrecs, d, f2x, tcr_dbl, nt)
+    assert q.shape==(nt, 2)
+    assert np.all(q[:,0]==np.mean(q[:,0])) # check tcr and ecs constant
+    assert np.all(q[:,1]==np.mean(q[:,1]))
+
+    # time-varying ecs and tcr
+    tcrecs  = np.empty((nt, 2))
+    tcrecs[:,0] = np.linspace(1.65, 1.85, nt)
+    tcrecs[:,1] = np.linspace(2.8, 4.0, nt)
+    q       = fair.forward.calculate_q(tcrecs, d, f2x, 70., nt)
+    assert q.shape==(nt, 2)
+    assert np.any(q[:,0]!=np.mean(q[:,0]))
+    assert np.any(q[:,1]!=np.mean(q[:,1]))
+
+    # are errors handled? 
+    tcrecs  = np.array([1.75, 3.0, np.pi])
+    with pytest.raises(ValueError):
+        q = fair.forward.calculate_q(tcrecs, d, f2x, tcr_dbl, nt)
+    tcrecs  = np.empty((nt, 2))
+    tcrecs[:,0] = np.linspace(1.65, 1.85, nt)
+    tcrecs[:,1] = np.linspace(2.8, 4.0, nt)
+    with pytest.raises(ValueError):
+        q = fair.forward.calculate_q(tcrecs, d, f2x, tcr_dbl, nt+1)
+
+
+def test_iirf_simple():
+    r0 = 35
+    rc = 0.019
+    rt = 4.165
+    iirf_max = 97
+    c_acc = 1000.
+    temp = 1.5
+
+    iirf = fair.forward.iirf_simple(c_acc, temp, r0, rc, rt, iirf_max)
+    assert iirf == r0 + rc*c_acc + rt*temp
+
+
+def test_iirf_simple_max():
+    r0 = 35
+    rc = 0.019
+    rt = 4.165
+    c_acc = 1000.
+    temp = 1.5
+    iirf = fair.forward.iirf_simple(c_acc, temp, r0, rc, rt, 32)
+    assert iirf == 32
+
+
+def test_emis_to_conc():
+    c0 = 1000.
+    e0 = 300.
+    e1 = 310.
+    ts = 1.
+    lt = 9.3
+    vm = 2.123
+    c1 = fair.forward.emis_to_conc(c0, e0, e1, ts, lt, vm)
+    assert c1 == c0 - c0 * (1.0 - np.exp(-ts/lt)) + 0.5 * ts * (e1 + e0) * vm
+    
+    
+def test_carbon_cycle():
+    """Test the stand-alone carbon cycle component of FaIR"""
+    # TODO: put defaults into a module
+    nt             = 10
+    c_pi           = 278.
+    emissions      = np.ones(nt)*10.
+    concentrations = np.ones(nt)*c_pi
+    c_acc          = np.zeros(nt)*10.
+    r0             = 35.
+    rc             = 0.019
+    rt             = 4.165
+    iirf_max       = 97.
+    time_scale_sf  = 0.16
+    a              = np.array([0.2173,0.2240,0.2824,0.2763])
+    tau            = np.array([1000000,394.4,36.54,4.304])
+    iirf_h         = 100
+    carbon_boxes   = np.zeros((nt,4))
+    ppm_gtc        = M_ATMOS/1e18*molwt.C/molwt.AIR
+    
+    # First run FaIR in CO2 only mode to get temperature change and CO2
+    c_full, f_full, t_full = fair.forward.fair_scm(
+      emissions=np.ones(nt)*10, useMultigas=False)
+
+    # Then prescribe temperature in the carbon cycle
+    carbon_boxes[0,:] = a * emissions[0,np.newaxis] / ppm_gtc
+    concentrations[0] = np.sum(carbon_boxes[0,:],axis=-1) + c_pi
+
+    for t in range(1,nt):
+        concentrations[t], c_acc[t], carbon_boxes[t,:], time_scale_sf = (
+          fair.forward.carbon_cycle(
+            emissions[t-1], c_acc[t-1], t_full[t-1], r0, rc, rt, iirf_max,
+            time_scale_sf, a, tau, iirf_h, carbon_boxes[t-1,:], ppm_gtc, c_pi,
+            concentrations[t-1], emissions[t])
+        )
+
+    # check result
+    assert np.all(c_full==concentrations)
