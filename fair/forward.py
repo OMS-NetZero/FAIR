@@ -6,7 +6,8 @@ import warnings
 from scipy.optimize import root
 from .ancil import natural, cmip6_volcanic, cmip6_solar, historical_scaling
 from .constants import molwt, lifetime, radeff
-from .constants.general import M_ATMOS
+from .constants.general import M_ATMOS, ppm_gtc
+from .defaults import carbon, thermal
 from .forcing import ozone_tr, ozone_st, h2o_st, contrails, aerosols, bc_snow,\
                                          landuse
 from .forcing.ghg import co2_log
@@ -89,7 +90,7 @@ def calculate_q(tcrecs, d, f2x, tcr_dbl, nt):
     
 
 def carbon_cycle(e0, c_acc0, temp, r0, rc, rt, iirf_max, time_scale_sf0, a, tau,
-    iirf_h, carbon_boxes0, ppm_gtc, c_pi, c0, e1):
+    iirf_h, carbon_boxes0, c_pi, c0, e1):
     """Calculates CO2 concentrations from emissions.
     
     Inputs:
@@ -109,7 +110,6 @@ def carbon_cycle(e0, c_acc0, temp, r0, rc, rt, iirf_max, time_scale_sf0, a, tau,
         iirf_h        : time horizon for time-integrated airborne fraction (yr)
         carbon_boxes0 : carbon stored in each atmospheric reservoir at timestep
                         t-1 (GtC)
-        ppm_gtc       : conversion fraction from ppmv to GtC
         c_pi          : pre-industrial concentration of CO2, ppmv
         c0            : concentration of CO2 in timestep t-1, ppmv
         e1            : emissions of CO2 in timestep t, GtC
@@ -180,18 +180,18 @@ def fair_scm(
     emissions_driven=True,
     C=None,
     other_rf=0.0,
-    q=np.array([0.33,0.41]),
-    tcrecs=np.array([1.6,2.75]),
-    d=np.array([239.0,4.1]),
-    a=np.array([0.2173,0.2240,0.2824,0.2763]),
-    tau=np.array([1000000,394.4,36.54,4.304]),
-    r0=35.0,
-    rc=0.019,
-    rt=4.165,
-    F2x=3.71,
-    iirf_max=97.0,
-    iirf_h=100.0,
-    tcr_dbl=69.661,
+    q        = thermal.q,
+    tcrecs   = thermal.tcrecs,
+    d        = thermal.d,
+    F2x      = thermal.f2x,
+    tcr_dbl  = thermal.tcr_dbl,
+    a        = carbon.a,
+    tau      = carbon.tau,
+    r0       = carbon.r0,
+    rc       = carbon.rc,
+    rt       = carbon.rt,
+    iirf_max = carbon.iirf_max,
+    iirf_h   = carbon.iirf_h,
     C_pi=np.array([278., 722., 273., 34.497] + [0.]*25 + [13.0975, 547.996]),
     restart_in=False,
     restart_out=False,
@@ -232,9 +232,6 @@ def fair_scm(
     if iirf_h < iirf_max:
         warnings.warn('iirf_h=%f, which is less than iirf_max (%f)'
           % (iirf_h, iirf_max), RuntimeWarning)
-
-    # Conversion between ppm CO2 and GtC emissions
-    ppm_gtc     = M_ATMOS/1e18*molwt.C/molwt.AIR
 
     # Conversion between ppb/ppt concentrations and Mt/kt emissions
     # in the RCP databases ppb = Mt and ppt = kt so factor always 1e18
@@ -424,7 +421,6 @@ def fair_scm(
           tau,
           iirf_h,
           R_minus1,
-          ppm_gtc,
           C_pi[0],
           C_minus1,
           emissions[0]
@@ -580,7 +576,6 @@ def fair_scm(
                   tau,
                   iirf_h,
                   R_i[t-1,:] + oxidised_CH4,
-                  ppm_gtc,
                   C_pi[0],
                   C[t-1,0],
                   np.sum(emissions[t,1:3])
@@ -657,7 +652,6 @@ def fair_scm(
                   tau,
                   iirf_h,
                   R_i[t-1,:],
-                  ppm_gtc,
                   C_pi[0],
                   C[t-1,0],
                   emissions[t]
