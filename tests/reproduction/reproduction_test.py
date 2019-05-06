@@ -174,9 +174,9 @@ def test_inverse_fair():
     F_expected = np.load(datadir + 'F.npy')
     T_expected = np.load(datadir + 'T.npy')
 
-    assert np.all(E==E_expected)
-    assert np.all(F==F_expected)
-    assert np.all(T==T_expected)
+    assert np.allclose(E, E_expected)
+    assert np.allclose(F, F_expected)
+    assert np.allclose(T, T_expected)
 
 
 def test_forward_versus_reverse():
