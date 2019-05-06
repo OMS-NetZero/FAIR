@@ -5,11 +5,11 @@ Examples
 Here are some simple examples of how to run and use the Finite Amplitude
 Impulse Response (FaIR) model run in the jupyter notebook.
 
-.. code:: python
+.. code:: ipython2
 
     %matplotlib inline
 
-.. code:: python
+.. code:: ipython2
 
     import fair
     fair.__version__
@@ -23,7 +23,7 @@ Impulse Response (FaIR) model run in the jupyter notebook.
 The "engine" of FaIR is the ``fair_scm`` function in the ``forward``
 module.
 
-.. code:: python
+.. code:: ipython2
 
     from fair.forward import fair_scm
 
@@ -47,7 +47,7 @@ both ``C`` (representing CO2 concentrations in ppm) and ``F`` (total
 radiative forcing in W m-2) are 1D arrays. ``T`` (temperature change
 since the pre-industrial) is always output as a 1D array.
 
-.. code:: python
+.. code:: ipython2
 
     # set up emissions and forcing arrays
     emissions = np.zeros(250)   # Unit: GtC
@@ -91,7 +91,7 @@ routine this is also possible by setting ``emissions=False``. This time,
 we will add a linear forcing to the sinusodal forcing above. Note that
 the CO2 concentrations are not updated from their pre-industrial value.
 
-.. code:: python
+.. code:: ipython2
 
     # Define a forcing time series
     for x in range(0, emissions.size):
@@ -123,10 +123,11 @@ Varying the carbon cycle parameters
 
 FaIR is set up to simulate the responses to more complex earth system
 models. This is achieved by a scaling of a four-box decay model for
-atmospheric carbon dioxide emissions based on the airborne fraction of
-carbon dioxide. This in turn depends on the efficiency of carbon sinks,
-which is a function of temperature change and total accumulated carbon
-uptake. Much of the technical detail is described in `Millar et al.,
+atmospheric carbon dioxide emissions based on the time-integrated
+airborne fraction of carbon dioxide. This in turn depends on the
+efficiency of carbon sinks, which is a function of temperature change
+and total accumulated carbon uptake. Much of the technical detail is
+described in `Millar et al.,
 (2017) <https://www.atmos-chem-phys.net/17/7213/2017/acp-17-7213-2017.html>`__.
 
 In the carbon cycle, the important variables are ``r0``, ``rc`` and
@@ -137,7 +138,7 @@ to temperature change.
 This time we will demonstrate with a 10 Gt constant pulse and use a
 10-member ensemble.
 
-.. code:: python
+.. code:: ipython2
 
     # set up emissions and forcing arrays
     emissions = np.ones(250) * 10.0   # Unit: GtC
@@ -231,7 +232,7 @@ of ``a`` is not one.
 In the second figure it can be seen that these parameter settings are
 important for the rate of decay of atmospheric CO2 in particular.
 
-.. code:: python
+.. code:: ipython2
 
     # set up emissions and forcing arrays
     emissions = np.ones(250) * 10.0   # Unit: GtC
@@ -307,6 +308,82 @@ important for the rate of decay of atmospheric CO2 in particular.
 .. image:: examples_files/examples_12_0.png
 
 
+Time-integrated airborne fraction
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The CO2 time constants, ``tau``, are scaled by the 100-year
+time-integrated airborne fraction for a pulse of CO2. This 100-year time
+horizon can be changed with the keyword ``iirf_h``. The actual
+time-integrated airborne fraction is a function of ``r0``, ``rt`` and
+``rc``. In high-emissions scenarios this can get quite high, and if it
+exceeds ``iirf_h`` (100 years in the default case) we enter a regime in
+which there is no solution for the scaling factor. Therefore, a maximum
+IIRF can be set (``iirf_max``, default value 97 years) which places an
+upper limit on the time-integrated airborne fraction.
+
+.. code:: ipython2
+
+    # set up emissions and forcing arrays
+    emissions = np.ones(500) * 10.0   # Unit: GtC
+    other_rf = 0
+    
+    # create output arrays 
+    nrun=3
+    C = np.empty((emissions.size, nrun))
+    F = np.empty((emissions.size, nrun))
+    T = np.empty((emissions.size, nrun))
+    
+    # run the model for default values
+    C[:,0],F[:,0],T[:,0] = fair.forward.fair_scm(
+        emissions=emissions,
+        useMultigas=False)
+
+.. code:: ipython2
+
+    # set iirf time horizon to 60 years. Should get a warning, but it will still let us proceed
+    C[:,1],F[:,1],T[:,1] = fair.forward.fair_scm(
+        emissions=emissions,
+        useMultigas=False,
+        iirf_h=60)
+
+
+.. parsed-literal::
+
+    /nfs/see-fs-02_users/mencsm/FAIR/fair/forward.py:233: RuntimeWarning: iirf_h=60.000000, which is less than iirf_max (97.000000)
+      % (iirf_h, iirf_max), RuntimeWarning)
+
+
+.. code:: ipython2
+
+    # set maximum iirf
+    C[:,2],F[:,2],T[:,2] = fair.forward.fair_scm(
+        emissions=emissions,
+        useMultigas=False,
+        iirf_h=60,
+        iirf_max=58)
+    
+    # plot results
+    fig = plt.figure()
+    ax1 = fig.add_subplot(221)
+    ax1.plot(range(0, emissions.size), emissions, color='black')
+    ax1.set_ylabel('Emissions (GtC)')
+    ax2 = fig.add_subplot(222)
+    handles = ax2.plot(range(0, emissions.size), C)
+    labels = ['iirf_h=100, iirf_max=97','iirf_h=60, iirf_max=97','iirf_h=60, iirf_max=58']
+    ax2.legend(handles, labels)
+    ax2.set_ylabel('CO$_2$ concentrations (ppm)')
+    ax3 = fig.add_subplot(223)
+    ax3.plot(range(0, emissions.size), F)
+    ax3.set_ylabel('Radiative forcing (W m$^{-2}$)')
+    ax4 = fig.add_subplot(224)
+    ax4.plot(range(0, emissions.size), T)
+    ax4.set_ylabel('Temperature anomaly (K)');
+
+
+
+.. image:: examples_files/examples_16_0.png
+
+
 ECS and TCR
 ~~~~~~~~~~~
 
@@ -326,7 +403,7 @@ The biggest effect is on the temperature response, but as the
 temperature feeds back into the carbon cycle, this also affects the CO2
 concentrations and the radiative forcing.
 
-.. code:: python
+.. code:: ipython2
 
     # set up emissions and forcing arrays
     emissions = np.zeros(250)
@@ -369,7 +446,7 @@ concentrations and the radiative forcing.
 
 
 
-.. image:: examples_files/examples_14_0.png
+.. image:: examples_files/examples_18_0.png
 
 
 Some recent studies (`Armour
@@ -381,7 +458,7 @@ investigate this in FaIR by specifying ``tcrecs`` as a two dimensional
 ``(nt, 2)`` array. Notice the effect that a varying ECS/TCR has on the
 temperature.
 
-.. code:: python
+.. code:: ipython2
 
     from scipy.stats import lognorm, truncnorm
     
@@ -420,7 +497,7 @@ temperature.
 
 
 
-.. image:: examples_files/examples_16_0.png
+.. image:: examples_files/examples_20_0.png
 
 
 The alternative is to specify the values of ``q`` directly (a 2D array)
@@ -429,7 +506,7 @@ completely (setting ``tcrecs=None``). It is not known under what
 circumstances the user may want to do this, but be assured it's
 possible!
 
-.. code:: python
+.. code:: ipython2
 
     # set up emissions and forcing arrays
     emissions = np.ones(250) * 10.0
@@ -449,7 +526,7 @@ possible!
 
 .. parsed-literal::
 
-    (500.5524349046066, 3.147698755382092, 2.2790510548813714)
+    (500.55243490460532, 3.1476987553820783, 2.2790510548813629)
 
 
 Temperature time constants
@@ -460,7 +537,7 @@ governed by the two-element array ``d``: this parameter determines the
 rate at which radiative forcing is "realised" as a change in surface
 temperature.
 
-.. code:: python
+.. code:: ipython2
 
     # set up emissions and forcing arrays
     emissions = np.ones(250) * 10.0   # Unit: GtC
@@ -517,7 +594,7 @@ temperature.
 
 
 
-.. image:: examples_files/examples_20_0.png
+.. image:: examples_files/examples_24_0.png
 
 
 Multi-species mode
@@ -753,7 +830,7 @@ of the options that can be specified in ``fair_scm`` for multi-gas runs
 (most are changed from the default and some are non-sensical but shown
 for illustration). Note this is a completely hypothetical scenario!
 
-.. code:: python
+.. code:: ipython2
 
     from scipy.stats import gamma
     emissions = np.zeros((250,40))
@@ -828,12 +905,12 @@ for illustration). Note this is a completely hypothetical scenario!
 
 .. parsed-literal::
 
-    <matplotlib.text.Text at 0x7f5e41a4bfd0>
+    <matplotlib.text.Text at 0x7f8551658890>
 
 
 
 
-.. image:: examples_files/examples_23_1.png
+.. image:: examples_files/examples_27_1.png
 
 
 RCP scenarios
@@ -850,7 +927,7 @@ FaIR input (in ``fair/tools/magicc``).
 
 Here we show the FaIR implementation of the RCP scenarios.
 
-.. code:: python
+.. code:: ipython2
 
     # Get RCP modules
     from fair.RCPs import rcp26, rcp45, rcp60, rcp85
@@ -897,7 +974,7 @@ Here we show the FaIR implementation of the RCP scenarios.
 
 
 
-.. image:: examples_files/examples_25_0.png
+.. image:: examples_files/examples_29_0.png
 
 
 Concentrations of well-mixed greenhouse gases
@@ -906,7 +983,7 @@ Concentrations of well-mixed greenhouse gases
 In this example we also show how to group minor gases into CFC12 and
 HFC134a equivalent concentrations. Refer to table above for gas indices.
 
-.. code:: python
+.. code:: ipython2
 
     fig = plt.figure()
     ax1 = fig.add_subplot(221)
@@ -956,7 +1033,7 @@ HFC134a equivalent concentrations. Refer to table above for gas indices.
 
 
 
-.. image:: examples_files/examples_27_0.png
+.. image:: examples_files/examples_31_0.png
 
 
 Radiative forcing
@@ -965,7 +1042,7 @@ Radiative forcing
 Here we show some of the more interesting examples for the effective
 radiative forcing time series coming out of FaIR.
 
-.. code:: python
+.. code:: ipython2
 
     fig = plt.figure()
     ax1 = fig.add_subplot(221)
@@ -1000,7 +1077,7 @@ radiative forcing time series coming out of FaIR.
 
 
 
-.. image:: examples_files/examples_29_0.png
+.. image:: examples_files/examples_33_0.png
 
 
 Running in concentration-driven mode
@@ -1016,7 +1093,7 @@ not changing anything.
 CO2 only
 ~~~~~~~~
 
-.. code:: python
+.. code:: ipython2
 
     # Produce a base emissions-driven RCP4.5 run
     C1,F1,T1 = fair.forward.fair_scm(
@@ -1045,7 +1122,56 @@ CO2 only
 
 
 
-.. image:: examples_files/examples_32_0.png
+.. image:: examples_files/examples_36_0.png
+
+
+Diagnosing CO2 emissions
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+For carbon budget calculations it is often useful to calculate
+(cumulative) CO2 emissions for a given concentration of CO2. The
+``fair.inverse`` module provides the opportunity to do this. Currently
+``fair.inverse`` only runs in CO2 mode.
+
+.. code:: ipython2
+
+    from fair.inverse import inverse_fair_scm
+
+Many of the options are the same as for the ``forward`` model, and
+provide reasonable sensible defaults if not specified. The classic
+example of a 1% per year CO2 increase will be demonstrated.
+
+.. code:: ipython2
+
+    nt = 140 # years
+    C  = 278. * 1.01**np.arange(nt) # compound 1% increase in CO2 concentrations
+
+.. code:: ipython2
+
+    # run with default carbon cycle parameters
+    E1, F1, T1 = inverse_fair_scm(C=C)
+    
+    # show the effect of turning off the temperature feedback
+    E2, F2, T2 = inverse_fair_scm(C=C, rt=0)
+    
+    fig = plt.figure()
+    ax1 = fig.add_subplot(221)
+    ax2 = fig.add_subplot(222)
+    ax1.plot(range(nt), E1, color='blue', label='Temperature feedback')
+    ax1.plot(range(nt), E2, color='red', label='No temperature feedback')
+    ax1.set_title("Diagnosed emissions from 1% CO2 run")
+    ax1.set_xlabel('year')
+    ax1.set_ylabel('GtC/yr')
+    ax2.plot(np.cumsum(E1), T1, color='blue')
+    ax2.plot(np.cumsum(E2), T1, color='red')
+    ax2.set_title("Transient climate response to cumulative CO2 emissions (TCRE)")
+    ax2.set_xlabel("Cumulative emissions, GtC")
+    ax2.set_ylabel("Temperature anomaly, K")
+    ax1.legend();
+
+
+
+.. image:: examples_files/examples_41_0.png
 
 
 Multi-gas
@@ -1058,7 +1184,7 @@ externally. The default values for each are zero. WMGHG forcing that is
 calculated from concentrations or forcing (stratospheric ozone and
 stratospheric water vapour from methane) is not affected.
 
-.. code:: python
+.. code:: ipython2
 
     # Produce a base emissions-driven RCP4.5 run
     C1,F1,T1 = fair.forward.fair_scm(
@@ -1091,7 +1217,7 @@ stratospheric water vapour from methane) is not affected.
 
 
 
-.. image:: examples_files/examples_34_0.png
+.. image:: examples_files/examples_43_0.png
 
 
 Natural emissions and GHG lifetimes
@@ -1107,7 +1233,7 @@ decay constants can be modified with the ``lifetimes`` keyword (shape
 It can clearly be seen that natural emissions are important in
 maintaining historical concentrations.
 
-.. code:: python
+.. code:: ipython2
 
     # Change default lifetimes of CH4 and N2O
     from fair.constants import lifetime
@@ -1152,7 +1278,7 @@ maintaining historical concentrations.
 
 
 
-.. image:: examples_files/examples_36_1.png
+.. image:: examples_files/examples_45_1.png
 
 
 Ensemble generation
@@ -1162,17 +1288,25 @@ An advantage of FaIR is that it is very quick to run (much less than a
 second on an average machine). Therefore it can be used to generate
 probabilistic future ensembles. We'll show a 100-member ensemble.
 
+FaIR comes with a built-in ensemble generator that takes into account
+the fact that ECS and TCR are highly correlated (at least in CMIP5
+models). A joint-lognormal or joint-normal distribution of ECS and TCR
+can be generated, and optionally the correlation can be switched off.
+See the documentation for ``fair.tools.ensemble.ecstcr_generate`` for
+details.
+
 This example also introduces the ``scale`` and ``F2x`` keywords.
 ``scale`` (a 13 element array) governs the forcing scaling factor of
 each of the 13 categories of forcing, whereas ``F2x`` determines the ERF
 from a doubling of CO2.
 
-.. code:: python
+.. code:: ipython2
 
     from scipy import stats
+    from fair.tools.ensemble import tcrecs_generate
     
-    # generate some (bad) TCR and ECS pairs
-    tcrecs = stats.norm.rvs(size=(100,2), loc=[1.75,3], scale=[0.4,0.8], random_state=38571)
+    # generate 100 TCR and ECS pairs, using a lognormal distribution informed by CMIP5 models
+    tcrecs = tcrecs_generate('cmip5', n=100, dist='lognorm', correlated=True, seed=38571)
     
     # generate some forcing scale factors with SD of 10% of the best estimate
     F_scale = stats.norm.rvs(size=(100,13), loc=1, scale=0.1, random_state=40000)
@@ -1197,7 +1331,7 @@ from a doubling of CO2.
                                 F2x = F2x[i]
                                )
 
-.. code:: python
+.. code:: ipython2
 
     fig = plt.figure()
     ax1 = fig.add_subplot(111)
@@ -1205,7 +1339,7 @@ from a doubling of CO2.
 
 
 
-.. image:: examples_files/examples_39_0.png
+.. image:: examples_files/examples_48_0.png
 
 
 Adding a temperature constraint
@@ -1217,7 +1351,7 @@ change in the present day, whereas we know in reality it is more like
 0.95 (plus or minus 0.2). Therefore we can constrain this ensemble to
 observations.
 
-.. code:: python
+.. code:: ipython2
 
     from fair.tools.constrain import hist_temp
     
@@ -1229,7 +1363,7 @@ observations.
         constrained[i],_,_,_,_ = hist_temp(
             CW[30:,1], T[1880-1765:2017-1765,i], CW[30:,0])
 
-.. code:: python
+.. code:: ipython2
 
     # How many ensemble members passed the constraint?
     print np.sum(constrained)
@@ -1237,10 +1371,10 @@ observations.
 
 .. parsed-literal::
 
-    28
+    31
 
 
-.. code:: python
+.. code:: ipython2
 
     # What does this do to the ensemble?
     fig = plt.figure()
@@ -1249,7 +1383,7 @@ observations.
 
 
 
-.. image:: examples_files/examples_43_0.png
+.. image:: examples_files/examples_52_0.png
 
 
 Some, but not all, of the higher end scenarios have been constrained
@@ -1279,7 +1413,7 @@ we will run from 1765 to 2020 with all forcing agents, and then
 investigate the totally hypothetical scenario of a zeroing of CO2
 emissions from 2020, with a constant non-CO2 radiative forcing.
 
-.. code:: python
+.. code:: ipython2
 
     # Going from all-forcing to CO2 only. Note natural forcing turned off.
     C1, F1, T1, restart = fair_scm(
@@ -1308,7 +1442,7 @@ emissions from 2020, with a constant non-CO2 radiative forcing.
         F_volcanic = 0.
     )
 
-.. code:: python
+.. code:: ipython2
 
     fig = plt.figure()
     ax1 = fig.add_subplot(131)
@@ -1337,6 +1471,6 @@ emissions from 2020, with a constant non-CO2 radiative forcing.
 
 
 
-.. image:: examples_files/examples_47_0.png
+.. image:: examples_files/examples_56_0.png
 
 

@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-# @Author: Zebedee Nicholls
-# @Date:   2017-04-10 13:42:11
-# @Last Modified by:   Chris Smith
-# @Last Modified time: 2018-01-11 19:17:00
-
 from setuptools import setup
 from setuptools import find_packages
 import versioneer
