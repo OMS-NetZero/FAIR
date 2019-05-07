@@ -193,3 +193,46 @@ def test_forward_versus_reverse():
     assert np.allclose(E_forward, E_inverse, atol=0.01, rtol=0.01)
     assert np.allclose(F_forward, F_inverse, atol=0.01, rtol=0.01)
     assert np.allclose(T_forward, T_inverse, atol=0.01, rtol=0.01)
+
+
+def test_restart_co2_continuous():
+    """Tests to check that a CO2-only run with a restart produces the same
+    results as a CO2-only run without a restart."""
+
+    C, F, T = fair.forward.fair_scm(
+        emissions   = rcp45.Emissions.co2[:20],
+        useMultigas = False
+        )
+
+    C1, F1, T1, restart = fair.forward.fair_scm(
+        emissions   = rcp45.Emissions.co2[:10],
+        useMultigas = False,
+        restart_out = True
+        )
+
+    C2, F2, T2 = fair.forward.fair_scm(
+        emissions   = rcp45.Emissions.co2[10:20],
+        useMultigas = False,
+        restart_in  = restart
+        )
+
+    assert np.all(C == np.concatenate((C1, C2)))
+    assert np.all(F == np.concatenate((F1, F2)))
+    assert np.all(T == np.concatenate((T1, T2)))
+
+
+def test_inverse_restart():
+    """Tests restarts for inverse FaIR."""
+
+    E, F, T, restart = fair.inverse.inverse_fair_scm(
+        C = rcp85.Concentrations.co2[:20])
+
+    E1, F1, T1, restart = fair.inverse.inverse_fair_scm(
+        C = rcp85.Concentrations.co2[:20], restart_out=True)
+
+    E2, F2, T2 = fair.inverse.inverse_fair_scm(
+        C = rcp85.Concentrations.co2[:20], restart_in=restart)
+
+    assert np.all(E == np.concatenate((E1, E2)))
+    assert np.all(F == np.concatenate((F1, F2)))
+    assert np.all(T == np.concatenate((T1, T2)))
