@@ -119,20 +119,23 @@ def inverse_fair_scm(
         iirf_max      : maximum value of time-integrated airborne fraction (yr)
         iirf_h        : time horizon for time-integrated airborne fraction
         C_pi          : pre-industrial concentration of CO2, ppmv
-        time_scale_sf : guess for scaling factor of CO2 time constants
+        time_scale_sf : initial guess for scaling factor of CO2 time constants.
+                        Overridden if using a restart.
         restart_in    : Allows a restart of the carbon cycle from a non-initial
-                        state. A 4-tuple of:
+                        state. A 6-tuple of:
                           array of accumulated carbon in each atmospheric box,
                           array of slow and fast temperature contributions,
                           total accumulated carbon,
                           emissions in the timestep before restart
+                          time constant scale factor
+                          CO2 concentrations in the timestep before restart
         restart_out   : if True, return the restart state as an extra output.
                         See restart_in.
     Outputs:
         E             : Timeseries of diagnosed CO2 emissions in GtC
         F             : Timeseries of total radiative forcing, W/m2
         T             : Timeseries of temperature anomaly since pre-industrial
-        restart       : if restart_out=True, 4-tuple of carbon cycle state
+        restart       : if restart_out=True, 6-tuple of carbon cycle state
                         parameters. See restart_in.
     """
     
@@ -158,10 +161,27 @@ def inverse_fair_scm(
         other_rf = other_rf * np.ones(nt)
     
     # First timestep
-    emissions[0] = root(infer_emissions, 0., args=(C[0], R_i[0],
-        tau, a, C_pi))['x']
-    F[0]         = co2_log(C[0], C_pi, F2x=F2x) + other_rf[0]
-    T_j[0,:]     = forc_to_temp(T_j[0,:], q[0,:], d, F[0])
+    if restart_in:
+        R_i_minus1    = restart_in[0]
+        T_j_minus1    = restart_in[1]
+        C_acc_minus1  = restart_in[2]
+        E_minus1      = restart_in[3]
+        time_scale_sf = restart_in[4]
+        C_minus1      = restart_in[5]
+        emissions[0], C_acc[0], R_i[0,:], time_scale_sf = (
+            inverse_carbon_cycle(
+                C[0], C_acc_minus1, np.sum(T_j_minus1), r0, rc, rt, iirf_max,
+                time_scale_sf, a, tau, iirf_h, R_i_minus1,
+                C_pi, C_minus1, E_minus1
+            )
+        )
+        F[0]          = co2_log(C[0], C_pi, F2x=F2x) + other_rf[0]
+        T_j[0,:]      = forc_to_temp(T_j_minus1, q[0,:], d, F[0])
+    else:
+        emissions[0]  = root(infer_emissions, 0., args=(C[0], R_i[0,:],
+            tau, a, C_pi))['x']
+        F[0]          = co2_log(C[0], C_pi, F2x=F2x) + other_rf[0]
+        T_j[0,:]      = forc_to_temp(T_j[0,:], q[0,:], d, F[0])
 
     # Second timestep onwards
     for t in range(1,nt):
@@ -177,5 +197,9 @@ def inverse_fair_scm(
 
     # Output temperatures
     T = np.sum(T_j, axis=-1)
-    
-    return emissions, F, T
+    if restart_out:
+        restart_out_val = (R_i[-1], T_j[-1], C_acc[-1], emissions[-1],
+            time_scale_sf, C[-1])
+        return emissions, F, T, restart_out_val
+    else:
+        return emissions, F, T

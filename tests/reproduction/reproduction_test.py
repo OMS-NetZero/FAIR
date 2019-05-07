@@ -224,14 +224,14 @@ def test_restart_co2_continuous():
 def test_inverse_restart():
     """Tests restarts for inverse FaIR."""
 
-    E, F, T, restart = fair.inverse.inverse_fair_scm(
+    E, F, T = fair.inverse.inverse_fair_scm(
         C = rcp85.Concentrations.co2[:20])
 
     E1, F1, T1, restart = fair.inverse.inverse_fair_scm(
-        C = rcp85.Concentrations.co2[:20], restart_out=True)
+        C = rcp85.Concentrations.co2[:10], restart_out=True)
 
     E2, F2, T2 = fair.inverse.inverse_fair_scm(
-        C = rcp85.Concentrations.co2[:20], restart_in=restart)
+        C = rcp85.Concentrations.co2[10:20], restart_in=restart)
 
     assert np.all(E == np.concatenate((E1, E2)))
     assert np.all(F == np.concatenate((F1, F2)))
