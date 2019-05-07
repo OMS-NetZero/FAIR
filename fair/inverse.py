@@ -114,7 +114,7 @@ def inverse_fair_scm(
     # First timestep
     emissions[0] = root(infer_emissions, 0., args=(C[0], R_i[0],
         tau, a, C_pi))['x']
-    F[0]         = co2_log(C[0], C_pi, F2x=F2x)# + other_rf[0]
+    F[0]         = co2_log(C[0], C_pi, F2x=F2x) + other_rf[0]
     T_j[0,:]     = forc_to_temp(T_j[0,:], q[0,:], d, F[0])
 
     # Second timestep onwards
