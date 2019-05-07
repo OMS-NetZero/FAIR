@@ -60,6 +60,7 @@ def inverse_carbon_cycle(c1, c_acc0, temp, r0, rc, rt, iirf_max, time_scale_sf,
         time_scale_sf : scale factor for CO2 decay constants
     """
      
+
     iirf = iirf_simple(c_acc0, temp, r0, rc, rt, iirf_max)
     time_scale_sf = root(iirf_interp, time_scale_sf,
       args=(a, tau, iirf_h, iirf))['x']
@@ -88,8 +89,52 @@ def inverse_fair_scm(
     iirf_max      = carbon.iirf_max,
     iirf_h        = carbon.iirf_h,
     C_pi          = 278.,
-    time_scale_sf = 0.16
+    time_scale_sf = 0.16,
+    restart_in    = False,
+    restart_out   = False,
     ):
+
+    """Diagnoses emissions from prescribed concentrations.
+
+    Inputs:
+        C             : concentrations of CO2, ppmv
+        other_rf      : non-CO2 radiative forcing (scalar or numpy array, W/m2)
+        q             : coefficients of slow and fast temperature change.
+                        Overridden if tcrecs is specified.
+        tcrecs        : transient climate response and equilibrium climate
+                        sensitivity array (2-element or (nt, 2))
+        d             : timescales of slow and fast contribution to temperature
+                        change
+        F2x           : radiative forcing from a doubling of CO2 concentrations
+                        (W/m2)
+        tcr_dbl       : timescale over which a 1% compound increase of CO2 acts
+                        (yr)
+        a             : partition fractions for CO2 boxes
+        tau           : time constants for CO2 boxes
+        r0            : pre-industrial time-integrated airborne fraction (yr)
+        rc            : sensitivity of time-integrated airborne fraction to
+                        airborne carbon (yr/GtC)
+        rt            : sensitivity of time-integrated airborne fraction to
+                        temperature (yr/K)
+        iirf_max      : maximum value of time-integrated airborne fraction (yr)
+        iirf_h        : time horizon for time-integrated airborne fraction
+        C_pi          : pre-industrial concentration of CO2, ppmv
+        time_scale_sf : guess for scaling factor of CO2 time constants
+        restart_in    : Allows a restart of the carbon cycle from a non-initial
+                        state. A 4-tuple of:
+                          array of accumulated carbon in each atmospheric box,
+                          array of slow and fast temperature contributions,
+                          total accumulated carbon,
+                          emissions in the timestep before restart
+        restart_out   : if True, return the restart state as an extra output.
+                        See restart_in.
+    Outputs:
+        E             : Timeseries of diagnosed CO2 emissions in GtC
+        F             : Timeseries of total radiative forcing, W/m2
+        T             : Timeseries of temperature anomaly since pre-industrial
+        restart       : if restart_out=True, 4-tuple of carbon cycle state
+                        parameters. See restart_in.
+    """
     
     # Error checking and validation goes here...
 
@@ -99,7 +144,8 @@ def inverse_fair_scm(
     thermal_boxes_shape = (nt, d.shape[0])
     
     # Thermal response
-    q         = calculate_q(tcrecs, d, F2x, tcr_dbl, nt)
+    if type(tcrecs) is np.ndarray:
+        q     = calculate_q(tcrecs, d, F2x, tcr_dbl, nt)
     
     # Allocate intermediate and output arrays
     C_acc     = np.zeros(nt)
