@@ -4,8 +4,9 @@ import fair
 from fair.RCPs import rcp3pd, rcp45, rcp6, rcp85, rcp26, rcp60
 import numpy as np
 import os
-from fair.constants import molwt
+from fair.constants import molwt, radeff, lifetime
 from fair.tools.constrain import hist_temp
+from fair.tools.gwp import gwp
 
 def test_ten_GtC_pulse():
     emissions = np.zeros(250)
@@ -254,3 +255,24 @@ def test_constrain():
 
     accept,_,_,_,_ = hist_temp(tempobs, np.zeros(167), years)
     assert accept==False
+
+
+def test_gwp():
+    """Checks that GWP calculator produces correct GWPs."""
+
+    # methane uses "perturbation lifetime" for GWP calculations and feedback
+    # factor
+    assert np.round(gwp(100, 12.4, radeff.CH4, molwt.CH4, f=0.65))==28
+
+    # for N2O, I think the IPCC AR5 value is out by one year. Most likely
+    # explanation is that they have rounded off the feedback somewhere.
+    # This is calculated as 1-(1-0.36*(1.65)*radeff.CH4/radeff.N2O). See
+    # eq. 8.SM.20 in the supplement to Chapter 8, AR5
+    assert np.round(
+        gwp(20, lifetime.N2O, radeff.N2O, molwt.N2O, f=-0.071874))==263
+    assert np.round(
+        gwp(100, lifetime.N2O, radeff.N2O, molwt.N2O, f=-0.071874))==264
+
+    # Now check a nice straightforward example
+    assert np.round(
+        gwp(100, lifetime.CFC11, radeff.CFC11, molwt.CFC11), decimals=-1)==4660
