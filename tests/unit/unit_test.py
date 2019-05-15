@@ -94,6 +94,8 @@ def test_ensemble_generator():
     """This test determines whether the ensemble generator is behaving as
     expected."""
 
+    # Probably want to break up into several smaller tests.
+
     # load up the CMIP5 TCR and ECS values
     infile = os.path.join(os.path.dirname(__file__),
       '../../fair/tools/tcrecs/cmip5tcrecs.csv')
@@ -160,6 +162,14 @@ def test_ensemble_generator():
       np.corrcoef(ensgen_tcrecs[:,0], ensgen_tcrecs[:,1])[1,0]
       < 0.10)
 
+    # check error raised if appropriate
+    # TODO: add more error checking/validation of inputs
+    with pytest.raises(ValueError):
+        ensemble.tcrecs_generate(tcrecs_in=np.zeros(10), dist='lognorm',
+            n=1000, correlated=True, strip_ecs_lt_tcr=True, seed=None)
+    with pytest.raises(ValueError):
+        ensemble.tcrecs_generate(tcrecs_in='cmip5', dist='gamma', n=1000,
+            correlated=True, strip_ecs_lt_tcr=True, seed=None)
 
 def test_iirf():
     """Test that changing the time horizon of time-integrated airborne
