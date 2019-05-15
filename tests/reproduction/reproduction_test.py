@@ -5,6 +5,7 @@ from fair.RCPs import rcp3pd, rcp45, rcp6, rcp85, rcp26, rcp60
 import numpy as np
 import os
 from fair.constants import molwt
+from fair.tools.constrain import hist_temp
 
 def test_ten_GtC_pulse():
     emissions = np.zeros(250)
@@ -236,3 +237,20 @@ def test_inverse_restart():
     assert np.all(E == np.concatenate((E1, E2)))
     assert np.all(F == np.concatenate((F1, F2)))
     assert np.all(T == np.concatenate((T1, T2)))
+
+
+def test_constrain():
+    """Checks that the historical temperature constraining function works"""
+
+    datadir = os.path.join(os.path.dirname(__file__),
+        '../../fair/tools/tempobs/')
+    tempobsdata = np.loadtxt(datadir+'had4_krig_annual_v2_0_0.csv')
+    years   = tempobsdata[:,0]
+    tempobs = tempobsdata[:,1]
+
+    C,F,T = fair.forward.fair_scm(emissions=rcp45.Emissions.emissions)
+    accept,_,_,_,_ = hist_temp(tempobs, T[85:252], years)
+    assert accept==True
+
+    accept,_,_,_,_ = hist_temp(tempobs, np.zeros(167), years)
+    assert accept==False
