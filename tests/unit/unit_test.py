@@ -7,6 +7,7 @@ from fair.constants import molwt, lifetime, radeff
 from fair.constants.general import M_ATMOS
 from fair.defaults import carbon
 from fair.ancil import cmip5_annex2_forcing
+from fair.forcing.ozone_tr import regress
 import numpy as np
 import os
 
@@ -371,3 +372,13 @@ def test_cmip5_annex2_forcing():
     assert np.all(f_ancil.solar==f_file[:,10])
     assert np.all(f_ancil.volcanic==f_file[:,11])
     assert np.all(f_ancil.total==np.sum(f_file[:,1:], axis=1))
+
+
+def test_ozone_regression_equivalence():
+    """Checks whether 1D and 2D emissions timeseries into the ozone forcing
+    routine give the same result."""
+
+    F1 = regress(fair.RCPs.rcp85.Emissions.emissions[100,:])
+    F2 = regress(fair.RCPs.rcp85.Emissions.emissions)
+    assert F1==F2[100]
+
