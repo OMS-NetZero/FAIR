@@ -250,11 +250,17 @@ def test_constrain():
     tempobs = tempobsdata[:,1]
 
     C,F,T = fair.forward.fair_scm(emissions=rcp45.Emissions.emissions)
-    accept,_,_,_,_ = hist_temp(tempobs, T[85:252], years)
-    assert accept==True
+    accept1,sm1,im1,so1,io1 = hist_temp(tempobs, T[85:252], years)
+    assert accept1==True
 
-    accept,_,_,_,_ = hist_temp(tempobs, np.zeros(167), years)
-    assert accept==False
+    accept2,sm2,im2,so2,io2 = hist_temp(tempobs, T[85:252], years,
+        inflate=False)
+    assert sm1==sm2
+    assert so1==so2
+    assert accept2==True
+
+    accept3,_,_,_,_ = hist_temp(tempobs, np.zeros(167), years)
+    assert accept3==False
 
 
 def test_gwp():
