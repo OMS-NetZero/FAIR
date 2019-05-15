@@ -6,6 +6,7 @@ from fair.tools import magicc, steady, ensemble
 from fair.constants import molwt, lifetime, radeff
 from fair.constants.general import M_ATMOS
 from fair.defaults import carbon
+from fair.ancil import cmip5_annex2_forcing
 import numpy as np
 import os
 
@@ -338,3 +339,25 @@ def test_inverse_carbon_cycle():
             carbon.iirf_max, time_scale_sf, carbon.a, carbon.tau, carbon.iirf_h,
             carbon_boxes0, c_pi, c0, e0)
         )
+
+
+def test_cmip5_annex2_forcing():
+    """Test Annex II forcing class is doing what is expected"""
+
+    f_ancil  = cmip5_annex2_forcing.Forcing
+    filename = os.path.join(os.path.dirname(__file__),
+        '../../fair/ancil/cmip5_annex2_forcing.csv')
+    f_file   = np.loadtxt(filename, skiprows=1, delimiter=',')
+    assert np.all(f_ancil.year==f_file[:,0])
+    assert np.all(f_ancil.co2==f_file[:,1])
+    assert np.all(f_ancil.ghg_other==f_file[:,2])
+    assert np.all(f_ancil.tropo3==f_file[:,3])
+    assert np.all(f_ancil.strato3==f_file[:,4])
+    assert np.all(f_ancil.aero==f_file[:,5])
+    assert np.all(f_ancil.landuse==f_file[:,6])
+    assert np.all(f_ancil.stwv==f_file[:,7])
+    assert np.all(f_ancil.bcsnow==f_file[:,8])
+    assert np.all(f_ancil.contrails==f_file[:,9])
+    assert np.all(f_ancil.solar==f_file[:,10])
+    assert np.all(f_ancil.volcanic==f_file[:,11])
+    assert np.all(f_ancil.total==np.sum(f_file[:,1:], axis=1))
