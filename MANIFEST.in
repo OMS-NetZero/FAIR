@@ -1,5 +1,6 @@
 include versioneer.py
 include fair/_version.py
 graft fair/RCPs/data
+graft fair/tools/tcrecs
 prune tests*
 prune docs*
