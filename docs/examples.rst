@@ -40,7 +40,9 @@ in which CO2 is the only emitted species.
 In almost every application of FaIR you will probably want to vary the
 ``emissions`` time series going in to ``fair_scm``. In CO2-only mode
 this is a 1D array of CO2 emissions. Setting ``useMultigas=False`` turns
-off the emissions from non-CO2 species.
+off the emissions from non-CO2 species. To include radiative forcing
+from non-CO2 forcers, you can specify a constant or a timeseries to the
+``other_rf`` keyword as in the below example.
 
 The output from FaIR is a 3-tuple of ``(C,F,T)`` arrays. In CO2 mode,
 both ``C`` (representing CO2 concentrations in ppm) and ``F`` (total
@@ -349,7 +351,7 @@ upper limit on the time-integrated airborne fraction.
 
 .. parsed-literal::
 
-    /nfs/see-fs-02_users/mencsm/FAIR/fair/forward.py:233: RuntimeWarning: iirf_h=60.000000, which is less than iirf_max (97.000000)
+    /nfs/see-fs-02_users/mencsm/FAIR/fair/forward.py:234: RuntimeWarning: iirf_h=60.000000, which is less than iirf_max (97.000000)
       % (iirf_h, iirf_max), RuntimeWarning)
 
 
@@ -905,7 +907,7 @@ for illustration). Note this is a completely hypothetical scenario!
 
 .. parsed-literal::
 
-    <matplotlib.text.Text at 0x7f8551658890>
+    <matplotlib.text.Text at 0x7fc03b049810>
 
 
 
