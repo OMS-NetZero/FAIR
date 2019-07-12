@@ -1,3 +1,5 @@
+from __future__ import division
+
 import numpy as np
 import scipy.stats as st
 import os
@@ -83,6 +85,7 @@ def tcrecs_generate(tcrecs_in='cmip5', dist='lognorm', n=1000, correlated=True,
         tcrecs_in = np.loadtxt(filepath, delimiter=',', skiprows=3)
     try:
         assert(type(tcrecs_in) is np.ndarray)
+        assert(tcrecs_in.ndim == 2)
         assert(tcrecs_in.shape[1] == 2)
     except AssertionError:
         raise ValueError('tcrecs_in should "cmip5" or an array of shape (n, 2)')

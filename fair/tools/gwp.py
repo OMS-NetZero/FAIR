@@ -1,3 +1,5 @@
+from __future__ import division
+
 import numpy as np
 from ..constants import molwt, radeff
 from ..constants.general import M_ATMOS

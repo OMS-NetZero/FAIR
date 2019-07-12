@@ -3,6 +3,7 @@ import pytest
 import fair
 from fair.RCPs import rcp26, rcp3pd, rcp45, rcp6, rcp60, rcp85
 import numpy as np
+import warnings
 from fair.forcing.ghg import myhre
 from fair.constants import molwt
 from copy import deepcopy
@@ -72,23 +73,55 @@ def test_contrails_invalid():
         fair.forward.fair_scm(emissions=rcp45.Emissions.emissions,
             contrail_forcing='other')
 
+
 def test_aerosol_regression_zeros_fix():
     _, F, _ = fair.forward.fair_scm(
         emissions=fair.RCPs.rcp85.Emissions.emissions,
-        b_aero = np.zeros(7)
+        b_aero = np.zeros(7),
+        aerosol_forcing='aerocom'
     )
-    # Index 7 is aerosol forcing
-    assert (F[:,7]==np.zeros(736)).all()
+    # Index 8 is aerosol forcing
+    assert (F[:,8]==np.zeros(736)).all()
 
 
 def test_aerosol_regression_zeros_nofix():
     _, F, _ = fair.forward.fair_scm(
         emissions=fair.RCPs.rcp85.Emissions.emissions,
         b_aero = np.zeros(7),
-        fixPre1850RCP=False
+        fixPre1850RCP=False,
+        aerosol_forcing='aerocom'
     )
     # Index 7 is aerosol forcing
-    assert (F[:,7]==np.zeros(736)).all()
+    assert (F[:,8]==np.zeros(736)).all()
+
+
+def test_aerosol_noscale():
+    _, F1, _ = fair.forward.fair_scm(
+        emissions=fair.RCPs.rcp85.Emissions.emissions,
+        scaleAerosolAR5=False
+    )
+    _, F2, _ = fair.forward.fair_scm(
+        emissions=fair.RCPs.rcp85.Emissions.emissions,
+        scaleAerosolAR5=True
+    )
+    assert (F1[:,8]!=F2[:,8]).any()
+
+
+def test_stevens():
+    # The Stevens aerosol causes an overflow in the root finder routine at
+    # present. This isn't a problem, but switching it off gives nice clean
+    # tests
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        _, F1, _ = fair.forward.fair_scm(
+            emissions=fair.RCPs.rcp85.Emissions.emissions,
+            aerosol_forcing='Stevens'
+        )
+    _, F2, _ = fair.forward.fair_scm(
+        emissions=fair.RCPs.rcp85.Emissions.emissions,
+        aerosol_forcing='aerocom+ghan'
+    )
+    assert (F1[:,8]!=F2[:,8]).any()
 
 
 def test_ozone_regression_zero():
