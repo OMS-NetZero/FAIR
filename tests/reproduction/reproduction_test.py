@@ -2,6 +2,7 @@ import pytest
 
 import fair
 from fair.RCPs import rcp3pd, rcp45, rcp6, rcp85, rcp26, rcp60
+from fair.SSPs import historical, ssp119, ssp126, ssp245, ssp370, ssp434, ssp460, ssp534over, ssp585
 import numpy as np
 import os
 from fair.constants import molwt, radeff, lifetime
@@ -282,3 +283,7 @@ def test_gwp():
     # Now check a nice straightforward example
     assert np.round(
         gwp(100, lifetime.CFC11, radeff.CFC11, molwt.CFC11), decimals=-1)==4660
+
+
+def test_ssp119():
+    C,F,T = fair.forward.fair_scm(emissions=ssp119.Emissions.emissions)
