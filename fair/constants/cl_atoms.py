@@ -1,22 +1,26 @@
 # number of chlorine atoms in each species
-cfc11     = 3
-cfc12     = 2
-cfc113    = 3
-cfc114    = 2
-cfc115    = 1
-carb_tet  = 4
-mcf       = 3
-hcfc22    = 1
-hcfc141b  = 2
-hcfc142b  = 1
-halon1211 = 1
-halon1202 = 0
-halon1301 = 0
-halon2402 = 0
-ch3br     = 0
-ch3cl     = 1
+CFC11     = 3
+CFC12     = 2
+CFC113    = 3
+CFC114    = 2
+CFC115    = 1
+CARB_TET  = 4
+CCL4      = CARB_TET
+MCF       = 3
+CH3CCL3   = MCF
+HCFC22    = 1
+HCFC141B  = 2
+HCFC142B  = 1
+HALON1211 = 1
+HALON1202 = 0
+HALON1301 = 0
+HALON2402 = 0
+CH3BR     = 0
+CH3CL     = 1
+CH2CL2    = 2
+CHCL3     = 3
 
-aslist    = [cfc11, cfc12, cfc113, cfc114, cfc115, carb_tet, mcf, hcfc22,
-             hcfc141b, hcfc142b, halon1211, halon1202, halon1301, halon2402,
-             ch3br, ch3cl]
+aslist    = [CFC11, CFC12, CFC113, CFC114, CFC115, CARB_TET, MCF, HCFC22,
+             HCFC141B, HCFC142B, HALON1211, HALON1202, HALON1301, HALON2402,
+             CH3BR, CH3CL]
 

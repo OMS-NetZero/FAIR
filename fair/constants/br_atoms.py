@@ -1,21 +1,25 @@
 # Number of bromine atoms in each species
-cfc11     = 0
-cfc12     = 0
-cfc113    = 0
-cfc114    = 0
-cfc115    = 0
-carb_tet  = 0
-mcf       = 0
-hcfc22    = 0
-hcfc141b  = 0
-hcfc142b  = 0
-halon1211 = 1
-halon1202 = 2
-halon1301 = 1
-halon2402 = 2
-ch3br     = 1
-ch3cl     = 0
+CFC11     = 0
+CFC12     = 0
+CFC113    = 0
+CFC114    = 0
+CFC115    = 0
+CARB_TET  = 0
+CCL4      = CARB_TET
+MCF       = 0
+CH3CCL3   = MCF
+HCFC22    = 0
+HCFC141B  = 0
+HCFC142B  = 0
+HALON1211 = 1
+HALON1202 = 2
+HALON1301 = 1
+HALON2402 = 2
+CH3BR     = 1
+CH3CL     = 0
+CH2CL2    = 0
+CHCL3     = 0
 
-aslist    = [cfc11, cfc12, cfc113, cfc114, cfc115, carb_tet, mcf, hcfc22,
-             hcfc141b, hcfc142b, halon1211, halon1202, halon1301, halon2402,
-             ch3br, ch3cl]
+aslist    = [CFC11, CFC12, CFC113, CFC114, CFC115, CARB_TET, MCF, HCFC22,
+             HCFC141B, HCFC142B, HALON1211, HALON1202, HALON1301, HALON2402,
+             CH3BR, CH3CL]
