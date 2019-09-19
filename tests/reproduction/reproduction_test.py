@@ -2,12 +2,13 @@ import pytest
 
 import fair
 from fair.RCPs import rcp3pd, rcp45, rcp6, rcp85, rcp26, rcp60
-from fair.SSPs import historical, ssp119, ssp126, ssp245, ssp370, ssp434, ssp460, ssp534over, ssp585
+#from fair.SSPs import historical, ssp119, ssp126, ssp245, ssp370, ssp434, ssp460, ssp534over, ssp585
 import numpy as np
 import os
 from fair.constants import molwt, radeff, lifetime
 from fair.tools.constrain import hist_temp
 from fair.tools.gwp import gwp
+
 
 def test_ten_GtC_pulse():
     emissions = np.zeros(250)
@@ -283,6 +284,25 @@ def test_gwp():
     # Now check a nice straightforward example
     assert np.round(
         gwp(100, lifetime.CFC11, radeff.CFC11, molwt.CFC11), decimals=-1)==4660
+
+
+def test_gwp_newghgs():
+    """Test CMIP6 GHGs recreate AR5 GWPs"""
+    assert np.round(gwp(100, 2600, 0.27730479, 188.0193), decimals=-1)==8900
+#    assert np.round(gwp(100., lifetime.C4F10, radeff.C4F10, molwt.C4F10), decimals=-1)==9200
+    assert np.round(gwp(100, lifetime.C5F12, radeff.C5F12, molwt.C5F12), decimals=-1)==8550
+    assert np.round(gwp(100, lifetime.C7F16, radeff.C7F16, molwt.C7F16), decimals=-1)==7820
+    assert np.round(gwp(100, lifetime.C8F18, radeff.C8F18, molwt.C8F18), decimals=-1)==7620
+    assert np.round(gwp(100, lifetime.C_C4F8, radeff.C_C4F8, molwt.C_C4F8), decimals=-1)==9540
+    assert np.round(gwp(100, lifetime.HFC43_10MEE, radeff.HFC43_10MEE, molwt.HFC43_10MEE), decimals=-1)==1650
+    assert np.round(gwp(100, lifetime.HFC152A, radeff.HFC152A, molwt.HFC152A))==138
+    assert np.round(gwp(100, lifetime.HFC236FA, radeff.HFC236FA, molwt.HFC236FA), decimals=-1)==8060
+    assert np.round(gwp(100, lifetime.HFC365MFC, radeff.HFC365MFC, molwt.HFC365MFC))==804
+    assert np.round(gwp(100, lifetime.NF3, radeff.NF3, molwt.NF3), decimals=-2)==16100
+    assert np.round(gwp(100, lifetime.SO2F2, radeff.SO2F2, molwt.SO2F2), decimals=-1)==4090
+    assert np.round(gwp(100, lifetime.CH3CCL3, radeff.CH3CCL3, molwt.CH3CCL3))==160
+    assert np.round(gwp(100, lifetime.CH2CL2, radeff.CH2CL2, molwt.CH2CL2))==9
+    assert np.round(gwp(100, lifetime.CHCL3, radeff.CHCL3, molwt.CHCL3))==16
 
 
 def test_ssp119():
