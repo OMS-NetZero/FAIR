@@ -287,22 +287,52 @@ def test_gwp():
 
 
 def test_gwp_newghgs():
-    """Test CMIP6 GHGs recreate AR5 GWPs"""
-    assert np.round(gwp(100, 2600, 0.27730479, 188.0193), decimals=-1)==8900
-#    assert np.round(gwp(100., lifetime.C4F10, radeff.C4F10, molwt.C4F10), decimals=-1)==9200
-    assert np.round(gwp(100, lifetime.C5F12, radeff.C5F12, molwt.C5F12), decimals=-1)==8550
-    assert np.round(gwp(100, lifetime.C7F16, radeff.C7F16, molwt.C7F16), decimals=-1)==7820
-    assert np.round(gwp(100, lifetime.C8F18, radeff.C8F18, molwt.C8F18), decimals=-1)==7620
-    assert np.round(gwp(100, lifetime.C_C4F8, radeff.C_C4F8, molwt.C_C4F8), decimals=-1)==9540
-    assert np.round(gwp(100, lifetime.HFC43_10MEE, radeff.HFC43_10MEE, molwt.HFC43_10MEE), decimals=-1)==1650
-    assert np.round(gwp(100, lifetime.HFC152A, radeff.HFC152A, molwt.HFC152A))==138
-    assert np.round(gwp(100, lifetime.HFC236FA, radeff.HFC236FA, molwt.HFC236FA), decimals=-1)==8060
-    assert np.round(gwp(100, lifetime.HFC365MFC, radeff.HFC365MFC, molwt.HFC365MFC))==804
-    assert np.round(gwp(100, lifetime.NF3, radeff.NF3, molwt.NF3), decimals=-2)==16100
-    assert np.round(gwp(100, lifetime.SO2F2, radeff.SO2F2, molwt.SO2F2), decimals=-1)==4090
-    assert np.round(gwp(100, lifetime.CH3CCL3, radeff.CH3CCL3, molwt.CH3CCL3))==160
-    assert np.round(gwp(100, lifetime.CH2CL2, radeff.CH2CL2, molwt.CH2CL2))==9
-    assert np.round(gwp(100, lifetime.CHCL3, radeff.CHCL3, molwt.CHCL3))==16
+    """Test CMIP6 GHGs recreate AR5 GWPs.
+
+    Possibly due to numerical precision, these do not agree with IPCC values 
+    to 3 significant figures in all cases. The original GWPs were calculated
+    by Hodnebrog et al., using an excel spreadsheet. In many cases the
+    radiative efficiency in Hodnebrog is given to a high precision whereas in
+    the IPCC report it is typically only 2 decimal places. For the new gases
+    we use the high-precision values from Hodnebrog (precise, but accurate?)
+    but even so, differences in numerics between numpy and Excel sometimes 
+    cause values to disagree in the third significant figure (also we don't
+    know the precise value of molecular weight Hodnebrog used).
+
+    So, if these calculated values agree to IPCC within 1%, they pass the test.
+    """
+    assert 0.99*8900 < gwp(
+        100, lifetime.C3F8, radeff.C3F8, molwt.C3F8) < 1.01*8900
+    assert 0.99*9200 < gwp(
+        100, lifetime.C4F10, radeff.C4F10, molwt.C4F10) < 1.01*9200
+    assert 0.99*8550 < gwp(
+        100, lifetime.C5F12, radeff.C5F12, molwt.C5F12) < 1.01*8550
+    assert 0.99*7820 < gwp(
+        100, lifetime.C7F16, radeff.C7F16, molwt.C7F16) < 1.01*7820
+    assert 0.99*7620 < gwp(
+        100, lifetime.C8F18, radeff.C8F18, molwt.C8F18) < 1.01*7620
+    assert 0.99*9540 < gwp(
+        100, lifetime.C_C4F8, radeff.C_C4F8, molwt.C_C4F8) < 1.01*9540
+    assert 0.99*1650 < gwp(
+        100, lifetime.HFC43_10MEE, radeff.HFC43_10MEE, molwt.HFC43_10MEE) < 1.01*1650
+    assert 0.99*138 < gwp(
+        100, lifetime.HFC152A, radeff.HFC152A, molwt.HFC152A) < 1.01*138
+    assert 0.99*8060 < gwp(
+        100, lifetime.HFC236FA, radeff.HFC236FA, molwt.HFC236FA) < 1.01*8060
+    assert 0.99*804 < gwp(
+        100, lifetime.HFC365MFC, radeff.HFC365MFC, molwt.HFC365MFC) < 1.01*804
+    assert 0.99*16100 < gwp(
+        100, lifetime.NF3, radeff.NF3, molwt.NF3) < 1.01*16100
+    assert 0.99*4090 < gwp(
+        100, lifetime.SO2F2, radeff.SO2F2, molwt.SO2F2) < 1.01*4090
+    assert 0.99*160 < gwp(
+        100, lifetime.CH3CCL3, radeff.CH3CCL3, molwt.CH3CCL3) < 1.01*160
+
+    # these are only given to low precision in AR5 so give more generous tolerance
+    assert 8.5 < gwp(
+        100, lifetime.CH2CL2, radeff.CH2CL2, molwt.CH2CL2) < 9.5
+    assert 15.5 < gwp(
+        100, lifetime.CHCL3, radeff.CHCL3, molwt.CHCL3) < 16.5
 
 
 def test_ssp119():

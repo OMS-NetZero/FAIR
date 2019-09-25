@@ -47,8 +47,8 @@ HALON1301   = 65.
 HALON2402   = 20.
 CH3BR       = 0.8
 CH3CL       = 1.
-CH2CL2      = 0.4
-CHCL3       = 0.4
+CH2CL2      = 0.3945  # from Hodnebrog et al., 2013
+CHCL3       = 0.4082  # from Hodnebrog et al., 2013
 
 # This is the list of gases included in the RCPs/AR5/CMIP5.
 aslist   = [CO2, CH4, N2O, CF4, C2F6, C6F14, HFC23, HFC32, HFC43_10, HFC125,

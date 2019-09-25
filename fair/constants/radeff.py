@@ -1,16 +1,17 @@
 # all efficiencies in W/m2/ppb from AR5 WG1 Ch8 SM
-CO2         = 1.3665E-5
+# except those marked * from Hodnebrog et al., 2013
+CO2         = 1.37E-5     # Hodnebrog paper: 1.3665E-5
 CH4         = 3.63E-4
 N2O         = 3.00E-3
 CF4         = 0.09
 C2F6        = 0.25
-C3F8        = 0.28
-C4F10       = 0.36
-C5F12       = 0.41
+C3F8        = 0.27730479  # *
+C4F10       = 0.36298028  # *
+C5F12       = 0.40512062  # *
 C6F14       = 0.44
-C7F16       = 0.50
-C8F18       = 0.55
-C_C4F8      = 0.32
+C7F16       = 0.50171525  # *
+C8F18       = 0.55174034  # *
+C_C4F8      = 0.31526465  # *
 HFC23       = 0.18
 HFC32       = 0.11
 HFC43_10    = 0.42
@@ -20,12 +21,12 @@ HFC134A     = 0.16
 HFC143A     = 0.16
 HFC152A     = 0.10
 HFC227EA    = 0.26
-HFC236FA    = 0.24
+HFC236FA    = 0.24309707   # *
 HFC245FA    = 0.24
-HFC365MFC   = 0.22
+HFC365MFC   = 0.22261699   # *
 SF6         = 0.57
-NF3         = 0.20
-SO2F2       = 0.20
+NF3         = 0.20467908   # *
+SO2F2       = 0.20119879   # *
 CFC11       = 0.26
 CFC12       = 0.32
 CFC113      = 0.30
@@ -44,8 +45,8 @@ HALON1301   = 0.30
 HALON2402   = 0.31
 CH3BR       = 0.004
 CH3CL       = 0.01
-CH2CL2      = 0.03
-CHCL3       = 0.08
+CH2CL2      = 0.0312       # *
+CHCL3       = 0.07796969   # *
 
 # This is the list of gases included in the RCPs/AR5/CMIP5.
 aslist   = [CO2, CH4, N2O, CF4, C2F6, C6F14, HFC23, HFC32, HFC43_10, HFC125,
