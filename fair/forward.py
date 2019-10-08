@@ -216,7 +216,8 @@ def fair_scm(
     ghan_params = np.array([-1.95011431, 0.01107147, 0.01387492]),
     stevens_params = np.array([0.001875, 0.634, 60.]),
     useMultigas=True,
-    useStevenson=True,
+    useStevenson=True,   # deprecate this switch in v1.6
+    tropO3_forcing='stevenson',
     lifetimes=False,
     aerosol_forcing="aerocom+ghan",
     scaleAerosolAR5=True,
@@ -227,6 +228,10 @@ def fair_scm(
     kerosene_supply=0.,
     landuse_forcing='co2',
     ):
+
+    if useStevenson is not None:
+        warnings.warn('"useStevenson" will be deprecated in v1.6; use '+
+          '"stevenson", "regression" or "external"', DeprecationWarning)
 
     # is iirf_h < iirf_max? Don't stop the code, but warn user
     if iirf_h < iirf_max:
@@ -457,13 +462,15 @@ def fair_scm(
 
         # Tropospheric ozone:
         if emissions_driven:
-            if useStevenson:
+            if useStevenson and tropO3_forcing[0].lower()=='s':
                 F[0,4] = ozone_tr.stevenson(emissions[0,:], C[0,1],
                   T=np.sum(T_j[0,:]), 
                   feedback=useTropO3TFeedback,
                   fix_pre1850_RCP=fixPre1850RCP)
-            else:
+            elif not useStevenson or tropO3_forcing[0].lower()=='r':
                 F[0,4] = ozone_tr.regress(emissions[0,:], beta=b_tro3)
+            else:
+                F[0,4] = F_tropO3[0]
         else:
             F[:,4] = F_tropO3
 
@@ -615,14 +622,16 @@ def fair_scm(
                 F[t,0:3] = ghg(C[t,0:3], C_pi[0:3], F2x=F2x)
                 F[t,3] = np.sum((C[t,3:] - C_pi[3:]) * radeff.aslist[3:]
                   * 0.001)
-                if useStevenson:
+                if useStevenson and tropO3_forcing[0].lower()=='s':
                     F[t,4] = ozone_tr.stevenson(emissions[t,:],
                       C[t,1],
                       T=T[t-1], 
                       feedback=useTropO3TFeedback,
                       fix_pre1850_RCP=fixPre1850RCP)
-                else:
+                elif not useStevenson or tropO3_forcing[0].lower()=='r':
                     F[t,4] = ozone_tr.regress(emissions[t,:], beta=b_tro3)
+                else:
+                    F[t,4] = F_tropO3[t]
                 F[t,5] = ozone_st.magicc(C[t,15:], C_pi[15:])
                 F[t,6] = h2o_st.linear(F[t,1], ratio=stwv_from_ch4)
 
