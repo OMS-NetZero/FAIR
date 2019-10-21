@@ -69,6 +69,14 @@ def test_scenfile():
     assert E5[0, 1] == rcp45.Emissions.co2_fossil[0]
 
 
+def test_pre1765_fail():
+    test_files = os.path.join(os.path.dirname(__file__), "scenfiles")
+    scenfile_1750 = os.path.join(test_files, "WORLD_ONLY_1750.SCEN")
+    # we want to fix this in CMIP6 version
+    with pytest.raises(ValueError):
+        magicc.scen_open(scenfile_1750, startyear=1750)
+
+
 def test_steady():
     assert np.isclose(steady.emissions(species='CH4'), 209.2492053169677)
     assert np.isclose(steady.emissions(species='N2O'), 11.155476818389447)
