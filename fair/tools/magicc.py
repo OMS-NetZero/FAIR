@@ -97,6 +97,9 @@ def scen_open(filename,
         # Need to ensure only years present in the SCEN file are taken
         # Cheers: https://stackoverflow.com/questions/3522946/
         # using-numpy-arrays-as-lookup-tables
+        if int(scen_years[0])<1765:
+            raise ValueError("CFCs can only be infilled from RCPs as far "+
+            "back as 1765 at present")
         rcp_years = np.arange(scen_years[0], scen_years[-1]+1)
         mapping = dict(zip(rcp_emis[:,0], range(rcp_emis.shape[0])))
         rcp_cfcs = np.array([rcp_emis[mapping[key],24:] for key in rcp_years])

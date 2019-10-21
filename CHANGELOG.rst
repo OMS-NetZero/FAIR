@@ -3,6 +3,8 @@ Changelog
 
 master
 ------
+(`#68 <https://github.com/OMS-NetZero/FAIR/pull/68>`_) Attempting to infill CFCs before 1765 raises ValueError
+
 (`#62 <https://github.com/OMS-NetZero/FAIR/pull/62>`_) Add inverse carbon cycle to diagnose emissions from concentrations
 
 (`#60 <https://github.com/OMS-NetZero/FAIR/pull/60>`_) Refactor carbon cycle into separate function
