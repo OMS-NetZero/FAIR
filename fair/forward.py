@@ -332,6 +332,18 @@ def fair_scm(
         if scaleHistoricalAR5:
             scale=scale*historical_scaling.all[:nt,:]
 
+        # if tropospheric ozone is directly specified and scalar, inflate to
+        # 1D array. Raise ValueError if wrong shape
+        if tropO3_forcing[0].lower()=='e':
+            if type(F_tropO3) is np.ndarray:
+                if F_tropO3.shape[0]!=nt or F_tropO3.ndim!=1:
+                    raise ValueError("F_tropO3 should be a scalar or (nt,) "+
+                    "array")
+            elif type(F_tropO3) in [float,int]:
+                F_tropO3 = F_tropO3 * np.ones(nt)
+            else:
+                raise ValueError("F_tropO3 should be a scalar or (nt,) array")
+
     else:
         ngas = 1
         nF   = 1

@@ -338,6 +338,14 @@ def test_gwp_newghgs():
 def test_direct_o3tr():
     C,F,T = fair.forward.fair_scm(
         emissions=rcp45.Emissions.emissions,
-        useStevenson=False,
         tropO3_forcing='external'
-    )   
+    )
+
+
+def test_direct_o3tr_valueerror():
+    with pytest.raises(ValueError):
+        C,F,T = fair.forward.fair_scm(
+            emissions=rcp45.Emissions.emissions,
+            tropO3_forcing='external',
+            F_tropO3 = np.zeros((4))
+        )
