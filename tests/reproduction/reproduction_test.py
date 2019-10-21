@@ -333,3 +333,11 @@ def test_gwp_newghgs():
         100, lifetime.CH2CL2, radeff.CH2CL2, molwt.CH2CL2) < 9.5
     assert 15.5 < gwp(
         100, lifetime.CHCL3, radeff.CHCL3, molwt.CHCL3) < 16.5
+
+
+def test_direct_o3tr():
+    C,F,T = fair.forward.fair_scm(
+        emissions=rcp45.Emissions.emissions,
+        useStevenson=False,
+        tropO3_forcing='external'
+    )   
