@@ -2,7 +2,7 @@ from __future__ import division
 
 import numpy as np
 
-def etminan(C, Cpi, F2x=3.71):
+def etminan(C, Cpi, F2x=3.71, scale_F2x=True):
     """Calculate the radiative forcing from CO2, CH4 and N2O.
 
     This function uses the updated formulas of Etminan et al. (2016),
@@ -27,9 +27,11 @@ def etminan(C, Cpi, F2x=3.71):
 
     # Tune the coefficient of CO2 forcing to acheive desired F2x, using 
     # pre-industrial CO2 and N2O. F2x_etminan ~= 3.801.
-    F2x_etminan = (
-      -2.4e-7*Cpi[0]**2 + 7.2e-4*Cpi[0] - 2.1e-4*Cpi[2] + 5.36) * np.log(2)
-    scaleCO2 = F2x/F2x_etminan
+    scaleCO2 = 1
+    if scale_F2x:
+        F2x_etminan = (
+          -2.4e-7*Cpi[0]**2 + 7.2e-4*Cpi[0] - 2.1e-4*Cpi[2] + 5.36) * np.log(2)
+        scaleCO2 = F2x/F2x_etminan
 
     F = np.zeros(3)
     F[0] = (-2.4e-7*(C[0] - Cpi[0])**2 + 7.2e-4*np.fabs(C[0]-Cpi[0]) - \

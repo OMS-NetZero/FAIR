@@ -4,7 +4,7 @@ import fair
 from fair.RCPs import rcp26, rcp3pd, rcp45, rcp6, rcp60, rcp85
 import numpy as np
 import warnings
-from fair.forcing.ghg import myhre
+from fair.forcing.ghg import myhre, etminan
 from fair.constants import molwt
 from copy import deepcopy
 
@@ -179,6 +179,14 @@ def test_co2_scale():
     assert (C2 == C1).all()
     assert (F2 == F1).all()
     assert (T2 == T1).all()
+
+
+def test_etminan_noscale():
+    C = [350, 1000, 500]
+    Cpi = np.array([278., 722., 273.])
+    F1 = etminan(C, Cpi, scale_F2x=False)
+    F2 = etminan(C, Cpi, scale_F2x=True)
+    assert (F1[0] != F2[0])
 
 
 def test_myhre():

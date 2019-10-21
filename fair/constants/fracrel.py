@@ -1,24 +1,32 @@
 # Fractional stratospheric release for ODSs.
-# Reference:
+# References:
 # Daniel, J. and Velders, G.: A focus on information and options for 
 #   policymakers, in: Scientific Assessment of Ozone Depletion, WMO, 2011
-cfc11     = 0.47
-cfc12     = 0.23
-cfc113    = 0.29
-cfc114    = 0.12
-cfc115    = 0.04
-carb_tet  = 0.56
-mcf       = 0.67
-hcfc22    = 0.13
-hcfc141b  = 0.34
-hcfc142b  = 0.17
-halon1211 = 0.62
-halon1202 = 0.62
-halon1301 = 0.28
-halon2402 = 0.65
-ch3br     = 0.60
-ch3cl     = 0.44
+# Newman et al., 2007: A new formulation of equivalent effective stratospheric
+#   chlorine (EESC)
 
-aslist    = [cfc11, cfc12, cfc113, cfc114, cfc115, carb_tet, mcf, hcfc22,
-             hcfc141b, hcfc142b, halon1211, halon1202, halon1301, halon2402,
-             ch3br, ch3cl]
+import numpy as np
+
+CFC11     = 0.47
+CFC12     = 0.23
+CFC113    = 0.29
+CFC114    = 0.12
+CFC115    = 0.04
+CARB_TET  = 0.56
+MCF       = 0.67
+HCFC22    = 0.13
+HCFC141B  = 0.34
+HCFC142B  = 0.17
+HALON1211 = 0.62
+HALON1202 = 0.62
+HALON1301 = 0.28
+HALON2402 = 0.65
+CH3BR     = 0.60
+CH3CL     = 0.44
+CH2CL2    = np.nan # no literature value available
+CHCL3     = np.nan # no literature value available
+
+# This is the list of gases included in the RCPs/AR5/CMIP5.
+aslist    = [CFC11, CFC12, CFC113, CFC114, CFC115, CARB_TET, MCF, HCFC22,
+             HCFC141B, HCFC142B, HALON1211, HALON1202, HALON1301, HALON2402,
+             CH3BR, CH3CL]
