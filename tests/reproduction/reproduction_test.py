@@ -333,7 +333,3 @@ def test_gwp_newghgs():
         100, lifetime.CH2CL2, radeff.CH2CL2, molwt.CH2CL2) < 9.5
     assert 15.5 < gwp(
         100, lifetime.CHCL3, radeff.CHCL3, molwt.CHCL3) < 16.5
-
-
-def test_ssp119():
-    C,F,T = fair.forward.fair_scm(emissions=ssp119.Emissions.emissions)
