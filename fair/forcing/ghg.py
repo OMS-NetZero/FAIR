@@ -52,7 +52,8 @@ def co2_log(C, Cpi, F2x=3.71):
     return F2x/np.log(2) * np.log(C/Cpi)
 
 
-def myhre(C, Cpi, F2x=3.71):
+def myhre(C, Cpi, F2x=3.71, scale_F2x=None):
+# TODO: remove scale_F2x in v1.6
     """Calculate the radiative forcing from CO2, CH4 and N2O.
 
     This uses the Myhre et al. (1998) relationships including the band
@@ -66,6 +67,8 @@ def myhre(C, Cpi, F2x=3.71):
 
     Keywords:
         F2x: radiative forcing from a doubling of CO2.
+        scale_F2x: redundant; included for compatibility on import
+            in fair_scm
 
     Returns:
         3-element array of radiative forcing: [F_CO2, F_CH4, F_N2O]

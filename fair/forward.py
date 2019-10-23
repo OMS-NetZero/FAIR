@@ -209,6 +209,7 @@ def fair_scm(
     scale=None,
     oxCH4_frac=0.61,
     ghg_forcing="Etminan",
+    scale_F2x=True,
     stwv_from_ch4=None,
     b_aero = np.array([-6.2227e-3, 0.0, -3.8392e-4, -1.16551e-3, 1.601537e-2,
       -1.45339e-3, -1.55605e-3]),
@@ -466,7 +467,7 @@ def fair_scm(
 
     if useMultigas:
         # CO2, CH4 and N2O are co-dependent
-        F[0,0:3] = ghg(C[0,0:3], C_pi[0:3], F2x=F2x)
+        F[0,0:3] = ghg(C[0,0:3], C_pi[0:3], F2x=F2x, scale_F2x=scale_F2x)
         # Minor (F- and H-gases) are linear in concentration
         # the factor of 0.001 here is because radiative efficiencies are given
         # in W/m2/ppb and concentrations of minor gases are in ppt.
@@ -631,7 +632,7 @@ def fair_scm(
                     )
 
                 # 2. Radiative forcing
-                F[t,0:3] = ghg(C[t,0:3], C_pi[0:3], F2x=F2x)
+                F[t,0:3] = ghg(C[t,0:3], C_pi[0:3], F2x=F2x, scale_F2x=scale_F2x)
                 F[t,3] = np.sum((C[t,3:] - C_pi[3:]) * radeff.aslist[3:]
                   * 0.001)
                 if useStevenson and tropO3_forcing[0].lower()=='s':
