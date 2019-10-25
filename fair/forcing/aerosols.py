@@ -14,15 +14,15 @@ def Stevens(emissions, stevens_params=np.array([0.001875, 0.634, 60.]),
         emissions:   anthropogenic emissions database
     Keywords:
         stevens_params: 3 element array
-            0. natural emissions of SOx in Mt/yr
-            1. scaling parameter for ERFari (alpha)
-            2. scaling parameter for ERFaci (beta)
+            0. scaling parameter for ERFari (alpha)
+            1. scaling parameter for ERFaci (beta)
+            2. natural emissions of SOx in Mt/yr
         ref_isSO2:   True if E_SOx_nat is in units of SO2 rather than S.
     Output:
         F:           aerosol effective radiative forcing
     """
 
-    E_SOx_nat, alpha, beta = stevens_params
+    alpha, beta, E_SOx_nat = stevens_params
 
     factor = 1
     if ref_isSO2:
