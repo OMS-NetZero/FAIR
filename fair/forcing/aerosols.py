@@ -31,8 +31,7 @@ def Stevens(emissions, stevens_params=np.array([0.001875, 0.634, 60.]),
 
     ERFari = -alpha * em_SOx
     ERFaci = -beta * np.log(em_SOx/E_SOx_nat + 1)
-    F = ERFari + ERFaci
-    return F
+    return ERFari, ERFaci
 
 
 def aerocom_direct(emissions,
@@ -68,9 +67,9 @@ def aerocom_direct(emissions,
     F_OC     = beta[5] * em_OC
     F_NH3    = beta[6] * em_NH3
 
-    F = F_SOx+F_CO+F_NMVOC+F_NOx+F_BC+F_OC+F_NH3
+    ERFari = F_SOx+F_CO+F_NMVOC+F_NOx+F_BC+F_OC+F_NH3
 
-    return F
+    return ERFari
 
 
 def ghan_indirect(emissions, fix_pre1850_RCP=True, scale_AR5=False,
@@ -145,4 +144,5 @@ def ghan_indirect(emissions, fix_pre1850_RCP=True, scale_AR5=False,
     else:
         scale=1.0
 
-    return (F_pd - F_1765) * scale
+    ERFaci = (F_pd - F_1765) * scale
+    return ERFaci

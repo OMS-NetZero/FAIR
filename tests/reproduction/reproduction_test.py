@@ -349,3 +349,31 @@ def test_direct_o3tr_valueerror():
             tropO3_forcing='external',
             F_tropO3 = np.zeros((4))
         )
+
+
+def test_ariaci_aerocom():
+    C,F,T,ariaci = fair.forward.fair_scm(
+        emissions=rcp45.Emissions.emissions,
+        ariaci_out=True,
+        aerosol_forcing='aerocom'
+    )
+    assert np.allclose(F[:,8], np.sum(ariaci,axis=1))
+
+
+def test_ariaci_aerocom_ghan():
+    C,F,T,ariaci = fair.forward.fair_scm(
+        emissions=rcp45.Emissions.emissions,
+        ariaci_out=True,
+        aerosol_forcing='aerocom+ghan'
+    )
+    assert np.allclose(F[:,8], np.sum(ariaci,axis=1))
+
+
+def test_ariaci_stevens():
+    C,F,T,ariaci = fair.forward.fair_scm(
+        emissions=rcp45.Emissions.emissions,
+        ariaci_out=True,
+        aerosol_forcing='stevens'
+    )
+    assert np.allclose(F[:,8], np.sum(ariaci,axis=1))
+

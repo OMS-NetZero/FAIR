@@ -228,6 +228,7 @@ def fair_scm(
     contrail_forcing='NOx',
     kerosene_supply=0.,
     landuse_forcing='co2',
+    ariaci_out=False
     ):
 
     if useStevenson is not None:
@@ -295,26 +296,29 @@ def fair_scm(
         else:
             raise ValueError(
               "ghg_forcing should be 'etminan' (default) or 'myhre'")
+        # aerosol breakdown
+        ariaci = np.zeros((nt,2))
             
         # Check natural emissions and convert to 2D array if necessary
-        if type(natural) in [float,int]:
-            natural = natural * np.ones((nt,2))
-        elif type(natural) is np.ndarray:
-            if natural.ndim==1:
-                if natural.shape[0]!=2:
-                    raise ValueError(
-                      "natural emissions should be a 2-element or nt x 2 " +
-                      "array")
-                natural = np.tile(natural, nt).reshape((nt,2))
-            elif natural.ndim==2:
-                if natural.shape[1]!=2 or natural.shape[0]!=nt:
-                    raise ValueError(
-                      "natural emissions should be a 2-element or nt x 2 " +
-                      "array")
-        else:
-            raise ValueError(
-              "natural emissions should be a scalar, 2-element, or nt x 2 " +
-              "array")
+        if emissions_driven: # don't check for conc runs
+            if type(natural) in [float,int]:
+                natural = natural * np.ones((nt,2))
+            elif type(natural) is np.ndarray:
+                if natural.ndim==1:
+                    if natural.shape[0]!=2:
+                        raise ValueError(
+                          "natural emissions should be a 2-element or nt x 2 " +
+                          "array")
+                    natural = np.tile(natural, nt).reshape((nt,2))
+                elif natural.ndim==2:
+                    if natural.shape[1]!=2 or natural.shape[0]!=nt:
+                        raise ValueError(
+                          "natural emissions should be a 2-element or nt x 2 " +
+                          "array")
+            else:
+                raise ValueError(
+                  "natural emissions should be a scalar, 2-element, or nt x 2 " +
+                  "array")
 
         # check scale factor is correct shape. If 1D inflate to 2D
         if scale is None:
@@ -512,16 +516,20 @@ def fair_scm(
         # Forcing from aerosols - again no feedback dependence
         if emissions_driven:
             if aerosol_forcing.lower()=='stevens':
-                F[:,8] = aerosols.Stevens(emissions, stevens_params=stevens_params)
+                ariaci[:,0], ariaci[:,1] = aerosols.Stevens(
+                  emissions, stevens_params=stevens_params)
+                F[:,8] = np.sum(ariaci, axis=1)
             elif 'aerocom' in aerosol_forcing.lower():
-                F[:,8] = aerosols.aerocom_direct(emissions, beta=b_aero)
+                ariaci[:,0] = aerosols.aerocom_direct(emissions, beta=b_aero)
                 if 'ghan' in aerosol_forcing.lower():
-                    F[:,8] = F[:,8] + aerosols.ghan_indirect(emissions,
+                    ariaci[:,1] = aerosols.ghan_indirect(emissions,
                       scale_AR5=scaleAerosolAR5,
                       fix_pre1850_RCP=fixPre1850RCP,
                       ghan_params=ghan_params)
+                F[:,8] = np.sum(ariaci, axis=1)
             elif aerosol_forcing.lower()[0] == 'e':
                 F[:,8] = F_aerosol
+                ariaci[:] = np.nan
             else:
                 raise ValueError("aerosol_forcing should be one of 'stevens', " +
                   "aerocom, aerocom+ghan or external")
@@ -729,5 +737,8 @@ def fair_scm(
             E_minus1 = emissions[-1]
         restart_out_val=(R_i[-1],T_j[-1],C_acc[-1],E_minus1)
         return C, F, T, restart_out_val
+
+    if ariaci_out:
+        return C, F, T, ariaci
     else:
         return C, F, T
