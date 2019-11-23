@@ -193,6 +193,7 @@ def fair_scm(
     iirf_max = carbon.iirf_max,
     iirf_h   = carbon.iirf_h,
     C_pi=np.array([278., 722., 273., 34.497] + [0.]*25 + [13.0975, 547.996]),
+    E_pi=np.zeros(40),
     restart_in=False,
     restart_out=False,
     F_tropO3 = 0.,
@@ -228,12 +229,18 @@ def fair_scm(
     contrail_forcing='NOx',
     kerosene_supply=0.,
     landuse_forcing='co2',
-    ariaci_out=False
+    ariaci_out=False,
+    bcsnow_forcing='emissions',
     ):
+
+    # Prevents later errors when SLCFs not specified
+    if type(emissions) is bool and not emissions_driven:
+        tropO3_forcing='external'
 
     if useStevenson is not None:
         warnings.warn('"useStevenson" will be deprecated in v1.6; use '+
-          '"stevenson", "regression" or "external"', DeprecationWarning)
+          'tropO3_forcing keyword with "stevenson", "regression" or "external"',
+          DeprecationWarning)
 
     # is iirf_h < iirf_max? Don't stop the code, but warn user
     if iirf_h < iirf_max:
@@ -478,18 +485,21 @@ def fair_scm(
         F[0,3] = np.sum((C[0,3:] - C_pi[3:]) * radeff.aslist[3:] * 0.001)
 
         # Tropospheric ozone:
-        if emissions_driven:
+        # v1.5 update: don't require emissions driven runs here for GHGs
+        # because SLCFs can still be given as emissions with GHGs as
+        # concentrations
+        if type(emissions) is not bool:
             if useStevenson and tropO3_forcing[0].lower()=='s':
-                F[0,4] = ozone_tr.stevenson(emissions[0,:], C[0,1],
+                F[0,4] = ozone_tr.stevenson(emissions[0,:]-E_pi[:], C[0,1],
                   T=np.sum(T_j[0,:]), 
                   feedback=useTropO3TFeedback,
                   fix_pre1850_RCP=fixPre1850RCP)
             elif not useStevenson or tropO3_forcing[0].lower()=='r':
-                F[0,4] = ozone_tr.regress(emissions[0,:], beta=b_tro3)
+                F[0,4] = ozone_tr.regress(emissions[0,:]-E_pi[:], beta=b_tro3)
             else:
                 F[0,4] = F_tropO3[0]
         else:
-            F[:,4] = F_tropO3
+            F[0,4] = F_tropO3[0]
 
         # Stratospheric ozone depends on concentrations of ODSs (index 15-30)
         F[0,5] = ozone_st.magicc(C[0,15:], C_pi[15:])
@@ -499,9 +509,12 @@ def fair_scm(
 
         # Forcing from contrails. No climate feedback so can live outside
         # of forward model in this version
-        if emissions_driven:
+        # v1.5 update: don't require emissions driven runs here for GHGs
+        # because SLCFs can still be given as emissions with GHGs as
+        # concentrations
+        if type(emissions) is not bool:
             if contrail_forcing.lower()[0]=='n':   # from NOx emissions
-                F[:,7] = contrails.from_aviNOx(emissions, aviNOx_frac)
+                F[:,7] = contrails.from_aviNOx(emissions-E_pi[0], aviNOx_frac)
             elif contrail_forcing.lower()[0]=='f': # from kerosene production
                 F[:,7] = contrails.from_fuel(kerosene_supply)
             elif contrail_forcing.lower()[0]=='e': # external forcing timeseries
@@ -514,15 +527,18 @@ def fair_scm(
             F[:,7] = F_contrails
 
         # Forcing from aerosols - again no feedback dependence
-        if emissions_driven:
+        # v1.5 update: don't require emissions driven runs here for GHGs
+        # because SLCFs can still be given as emissions with GHGs as
+        # concentrations
+        if type(emissions) is not bool:
             if aerosol_forcing.lower()=='stevens':
                 ariaci[:,0], ariaci[:,1] = aerosols.Stevens(
-                  emissions, stevens_params=stevens_params)
+                  emissions-E_pi, stevens_params=stevens_params)
                 F[:,8] = np.sum(ariaci, axis=1)
             elif 'aerocom' in aerosol_forcing.lower():
-                ariaci[:,0] = aerosols.aerocom_direct(emissions, beta=b_aero)
+                ariaci[:,0] = aerosols.aerocom_direct(emissions-E_pi, beta=b_aero)
                 if 'ghan' in aerosol_forcing.lower():
-                    ariaci[:,1] = aerosols.ghan_indirect(emissions,
+                    ariaci[:,1] = aerosols.ghan_indirect(emissions-E_pi,
                       scale_AR5=scaleAerosolAR5,
                       fix_pre1850_RCP=fixPre1850RCP,
                       ghan_params=ghan_params)
@@ -535,26 +551,36 @@ def fair_scm(
                   "aerocom, aerocom+ghan or external")
         else:
             F[:,8] = F_aerosol
+            ariaci[:] = np.nan
 
         # Black carbon on snow - no feedback dependence
-        if emissions_driven:
-            F[:,9] = bc_snow.linear(emissions)
+        # v1.5 update: don't require emissions driven runs here for GHGs
+        # because SLCFs can still be given as emissions with GHGs as
+        # concentrations
+        if type(emissions) is not bool:
+           if bcsnow_forcing.lower()[0]=='e':
+               F[:,9] = bc_snow.linear(emissions)
+           else:
+               F[:,9] = F_bcsnow
         else:
             F[:,9] = F_bcsnow
 
         # Land use change - either use a scaling with cumulative CO2 emissions
         # or an external time series
-        if emissions_driven:
+        # v1.5 update: don't require emissions driven runs here for GHGs
+        # because SLCFs can still be given as emissions with GHGs as
+        # concentrations
+        if type(emissions) is not bool:
             if landuse_forcing.lower()[0]=='c':
                 F[:,10] = landuse.cumulative(emissions)
             elif landuse_forcing.lower()[0]=='e':
                 F[:,10] = F_landuse
             else:
                 raise ValueError(
-                 "landuse_forcing should be one of 'co2' or 'external'")
+                "landuse_forcing should be one of 'co2' or 'external'")
         else:
             F[:,10] = F_landuse
-            
+
         # Volcanic and solar copied straight to the output arrays
         F[:,11] = F_volcanic
         F[:,12] = F_solar
@@ -644,13 +670,13 @@ def fair_scm(
                 F[t,3] = np.sum((C[t,3:] - C_pi[3:]) * radeff.aslist[3:]
                   * 0.001)
                 if useStevenson and tropO3_forcing[0].lower()=='s':
-                    F[t,4] = ozone_tr.stevenson(emissions[t,:],
+                    F[t,4] = ozone_tr.stevenson(emissions[t,:]-E_pi,
                       C[t,1],
                       T=T[t-1], 
                       feedback=useTropO3TFeedback,
                       fix_pre1850_RCP=fixPre1850RCP)
                 elif not useStevenson or tropO3_forcing[0].lower()=='r':
-                    F[t,4] = ozone_tr.regress(emissions[t,:], beta=b_tro3)
+                    F[t,4] = ozone_tr.regress(emissions[t,:]-E_pi, beta=b_tro3)
                 else:
                     F[t,4] = F_tropO3[t]
                 F[t,5] = ozone_st.magicc(C[t,15:], C_pi[15:])
@@ -702,6 +728,19 @@ def fair_scm(
                 F[t,0:3] = ghg(C[t,0:3], C_pi[0:3], F2x=F2x)
                 F[t,3] = np.sum((C[t,3:] - C_pi[3:]) * radeff.aslist[3:]
                   * 0.001)
+                if type(emissions) is not bool:
+                    if useStevenson and tropO3_forcing[0].lower()=='s':
+                        F[t,4] = ozone_tr.stevenson(emissions[t,:]-E_pi,
+                          C[t,1],
+                          T=T[t-1],
+                          feedback=useTropO3TFeedback,
+                          fix_pre1850_RCP=fixPre1850RCP)
+                    elif not useStevenson or tropO3_forcing[0].lower()=='r':
+                        F[t,4] = ozone_tr.regress(emissions[t,:]-E_pi, beta=b_tro3)
+                    else:
+                        F[t,4] = F_tropO3[t]
+                else:
+                    F[t,4] = F_tropO3[t]
                 F[t,5] = ozone_st.magicc(C[t,15:], C_pi[15:])
                 F[t,6] = h2o_st.linear(F[t,1], ratio=stwv_from_ch4)
 
