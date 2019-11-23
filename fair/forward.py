@@ -215,6 +215,7 @@ def fair_scm(
     b_aero = np.array([-6.2227e-3, 0.0, -3.8392e-4, -1.16551e-3, 1.601537e-2,
       -1.45339e-3, -1.55605e-3]),
     b_tro3 = np.array([2.8249e-4, 1.0695e-4, -9.3604e-4, 99.7831e-4]),
+    pi_tro3 =np.array([722, 170, 10, 4.29]),
     ghan_params = np.array([-1.95011431, 0.01107147, 0.01387492]),
     stevens_params = np.array([0.001875, 0.634, 60.]),
     useMultigas=True,
@@ -490,10 +491,17 @@ def fair_scm(
         # concentrations
         if type(emissions) is not bool:
             if useStevenson and tropO3_forcing[0].lower()=='s':
-                F[0,4] = ozone_tr.stevenson(emissions[0,:]-E_pi[:], C[0,1],
+                F[0,4] = ozone_tr.stevenson(emissions[0,:], C[0,1],
                   T=np.sum(T_j[0,:]), 
                   feedback=useTropO3TFeedback,
-                  fix_pre1850_RCP=fixPre1850RCP)
+                  fix_pre1850_RCP=fixPre1850RCP,
+                  PI=pi_tro3)
+            elif tropO3_forcing[0].lower()=='c':
+                F[0,4] = ozone_tr.cmip6_stevenson(emissions[0,:], C[0,1],
+                  T=np.sum(T_j[0,:]),
+                  feedback=useTropO3TFeedback,
+                  PI=np.array([C_pi[1],E_pi[6],E_pi[7],E_pi[8]]),
+                  beta=b_tro3)
             elif not useStevenson or tropO3_forcing[0].lower()=='r':
                 F[0,4] = ozone_tr.regress(emissions[0,:]-E_pi[:], beta=b_tro3)
             else:
@@ -533,12 +541,12 @@ def fair_scm(
         if type(emissions) is not bool:
             if aerosol_forcing.lower()=='stevens':
                 ariaci[:,0], ariaci[:,1] = aerosols.Stevens(
-                  emissions-E_pi, stevens_params=stevens_params)
+                  emissions, stevens_params=stevens_params)
                 F[:,8] = np.sum(ariaci, axis=1)
             elif 'aerocom' in aerosol_forcing.lower():
-                ariaci[:,0] = aerosols.aerocom_direct(emissions-E_pi, beta=b_aero)
+                ariaci[:,0] = aerosols.aerocom_direct(emissions, beta=b_aero)
                 if 'ghan' in aerosol_forcing.lower():
-                    ariaci[:,1] = aerosols.ghan_indirect(emissions-E_pi,
+                    ariaci[:,1] = aerosols.ghan_indirect(emissions,
                       scale_AR5=scaleAerosolAR5,
                       fix_pre1850_RCP=fixPre1850RCP,
                       ghan_params=ghan_params)
@@ -670,11 +678,18 @@ def fair_scm(
                 F[t,3] = np.sum((C[t,3:] - C_pi[3:]) * radeff.aslist[3:]
                   * 0.001)
                 if useStevenson and tropO3_forcing[0].lower()=='s':
-                    F[t,4] = ozone_tr.stevenson(emissions[t,:]-E_pi,
+                    F[t,4] = ozone_tr.stevenson(emissions[t,:],
                       C[t,1],
                       T=T[t-1], 
                       feedback=useTropO3TFeedback,
-                      fix_pre1850_RCP=fixPre1850RCP)
+                      fix_pre1850_RCP=fixPre1850RCP,
+                      PI=pi_tro3)
+                elif tropO3_forcing[0].lower()=='c':
+                    F[t,4] = ozone_tr.cmip6_stevenson(emissions[t,:], C[t,1],
+                      T=np.sum(T_j[t,:]),
+                      feedback=useTropO3TFeedback,
+                      PI=np.array([C_pi[1],E_pi[6],E_pi[7],E_pi[8]]),
+                      beta=b_tro3)
                 elif not useStevenson or tropO3_forcing[0].lower()=='r':
                     F[t,4] = ozone_tr.regress(emissions[t,:]-E_pi, beta=b_tro3)
                 else:
@@ -735,6 +750,12 @@ def fair_scm(
                           T=T[t-1],
                           feedback=useTropO3TFeedback,
                           fix_pre1850_RCP=fixPre1850RCP)
+                    elif tropO3_forcing[0].lower()=='c':
+                        F[t,4] = ozone_tr.cmip6_stevenson(emissions[t,:], C[t,1],
+                          T=np.sum(T_j[t,:]),
+                          feedback=useTropO3TFeedback,
+                          PI=np.array([C_pi[1],E_pi[6],E_pi[7],E_pi[8]]),
+                          beta=b_tro3)
                     elif not useStevenson or tropO3_forcing[0].lower()=='r':
                         F[t,4] = ozone_tr.regress(emissions[t,:]-E_pi, beta=b_tro3)
                     else:

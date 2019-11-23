@@ -33,7 +33,66 @@ def regress(emissions,
     return F
 
 
-def stevenson(emissions, C_CH4, T=0, feedback=False, fix_pre1850_RCP=False):
+def cmip6_stevenson(emissions, C_CH4, T=0, feedback=False,
+    PI=np.array([722, 170, 10, 4.29]), 
+    beta=np.array([1.77871043e-04, 5.80173377e-05, 2.09151270e-03,
+        1.94458719e-04])):
+    """Calculates tropospheric ozone forcing from precursor emissions based on
+    Stevenson et al, 2013 10.5194/acp-13-3063-2013
+
+    Inputs:
+        emissions: (nt x 40) numpy array     
+        C_CH4    : (nt) numpy array of methane concentrations, ppb
+
+    Keywords:
+        T              : change in surface temperature since pre-industrial
+        feedback       : True or False - include temperature feedback on ozone
+                         forcing?
+        PI:            : 4-element array of pre-industrial CH4 concentrations,
+                         CO emissions, NMVOC emissions and NOx emissions
+        beta:          : coefficients of how CH4 concentrations, CO emissions,
+                         NMVOC emissions and NOx emissions affect forcing
+
+    Outputs:
+        tropospheric ozone ERF time series.
+    """
+
+    # expand to 2D/1D if not already
+    if emissions.ndim == 1:
+        nspec = len(emissions)
+        emissions = emissions.reshape((1, nspec))
+    if np.isscalar(C_CH4):
+        C_CH4 = np.ones(1)*C_CH4
+
+    year, em_CO, em_NMVOC, em_NOx = emissions[:,[0, 6, 7, 8]].T
+    nt = len(year)
+    F_CH4, F_CO, F_NMVOC, F_NOx = np.zeros((4,nt))
+
+    for i in range(nt):
+        F_CH4[i]   = beta[0] * (C_CH4[i]-PI[0])
+        F_CO[i]    = beta[1] * (em_CO[i]-PI[1])
+        F_NMVOC[i] = beta[2] * (em_NMVOC[i]-PI[2])
+        F_NOx[i]   = beta[3] * (em_NOx[i]-PI[3])
+
+    # Include the effect of climate feedback? We fit a curve to the 2000, 2030
+    # and 2100 best estimates of feedback based on middle-of-the-road
+    # temperature projections.
+    def temperature_feedback(T, a=0.03189267, b=1.34966941, c=-0.03214807):
+        if T<=0:
+            return 0
+        else:
+            return a*np.exp(-b*T)+c
+
+    if feedback:
+        F = F_CH4 + F_CO + F_NMVOC + F_NOx + temperature_feedback(T)
+    else:
+        F = F_CH4 + F_CO + F_NMVOC + F_NOx
+
+    return F
+
+
+def stevenson(emissions, C_CH4, T=0, feedback=False, fix_pre1850_RCP=False,
+    PI=np.array([722, 170, 10, 4.29])):
     """Calculates tropospheric ozone forcing from precursor emissions based on
     Stevenson et al, 2013 10.5194/acp-13-3063-2013
 
@@ -48,6 +107,8 @@ def stevenson(emissions, C_CH4, T=0, feedback=False, fix_pre1850_RCP=False):
         fix_pre1850_RCP: Use different relationship for 1750/65 to 1850 based 
                          on anthropogenic emissions from Skeie et al (2011)
                          for 1750 (atmos-chem-phys.net/11/11827/2011)
+        PI:            : 4-element array of pre-industrial CH4 concentrations,
+                         CO emissions, NMVOC emissions and NOx emissions
 
     Outputs:
         tropospheric ozone ERF time series.
@@ -69,11 +130,11 @@ def stevenson(emissions, C_CH4, T=0, feedback=False, fix_pre1850_RCP=False):
 
     for i in range(nt):
         if year[i]>=1850 or fix_pre1850_RCP==False:
-            F_CH4[i]   = 0.166/960    * (C_CH4[i]-722)
-            F_CO[i]    = 0.058/681.8 * (em_CO[i]-170)
-            F_NMVOC[i] = 0.035/155.84 * (em_NMVOC[i]-10)
+            F_CH4[i]   = 0.166/960    * (C_CH4[i]-PI[0])
+            F_CO[i]    = 0.058/681.8 * (em_CO[i]-PI[1])
+            F_NMVOC[i] = 0.035/155.84 * (em_NMVOC[i]-PI[2])
             F_NOx[i]   = 0.119/61.16  * (em_NOx[i] * 
-                molwt.NO / molwt.N - 4.29)
+                molwt.NO / molwt.N - PI[3])
         # The RCP scenarios give a negative forcing prior to ~1780. This is 
         # because the anthropogenic emissions are given to be zero in RCPs but
         # not zero in the Skeie numbers which are used here. This can be fixed
