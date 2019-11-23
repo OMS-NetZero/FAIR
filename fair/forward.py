@@ -240,7 +240,7 @@ def fair_scm(
 
     if useStevenson is not None:
         warnings.warn('"useStevenson" will be deprecated in v1.6; use '+
-          'tropO3_forcing keyword with "stevenson", "regression" or "external"',
+          'tropO3_forcing keyword with "cmip6", "stevenson", "regression" or "external"',
           DeprecationWarning)
 
     # is iirf_h < iirf_max? Don't stop the code, but warn user
@@ -541,7 +541,7 @@ def fair_scm(
         if type(emissions) is not bool:
             if aerosol_forcing.lower()=='stevens':
                 ariaci[:,0], ariaci[:,1] = aerosols.Stevens(
-                  emissions, stevens_params=stevens_params)
+                  emissions, stevens_params=stevens_params, E_pi=E_pi[5])
                 F[:,8] = np.sum(ariaci, axis=1)
             elif 'aerocom' in aerosol_forcing.lower():
                 ariaci[:,0] = aerosols.aerocom_direct(emissions, beta=b_aero)
