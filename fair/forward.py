@@ -567,7 +567,7 @@ def fair_scm(
         # concentrations
         if type(emissions) is not bool:
            if bcsnow_forcing.lower()[0]=='e':
-               F[:,9] = bc_snow.linear(emissions)
+               F[:,9] = bc_snow.linear(emissions-E_pi)
            else:
                F[:,9] = F_bcsnow
         else:
@@ -580,7 +580,7 @@ def fair_scm(
         # concentrations
         if type(emissions) is not bool:
             if landuse_forcing.lower()[0]=='c':
-                F[:,10] = landuse.cumulative(emissions)
+                F[:,10] = landuse.cumulative(emissions-E_pi)
             elif landuse_forcing.lower()[0]=='e':
                 F[:,10] = F_landuse
             else:
