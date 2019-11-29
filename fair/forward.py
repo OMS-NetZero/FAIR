@@ -522,7 +522,7 @@ def fair_scm(
         # concentrations
         if type(emissions) is not bool:
             if contrail_forcing.lower()[0]=='n':   # from NOx emissions
-                F[:,7] = contrails.from_aviNOx(emissions-E_pi[0], aviNOx_frac)
+                F[:,7] = contrails.from_aviNOx(emissions, aviNOx_frac)
             elif contrail_forcing.lower()[0]=='f': # from kerosene production
                 F[:,7] = contrails.from_fuel(kerosene_supply)
             elif contrail_forcing.lower()[0]=='e': # external forcing timeseries
