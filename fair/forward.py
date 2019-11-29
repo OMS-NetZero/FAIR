@@ -204,6 +204,7 @@ def fair_scm(
     F_bcsnow=0.,
     F_landuse=0.,
     aviNOx_frac=0.,
+    F_ref_aviNOx=0.0448,
     fossilCH4_frac=0.,
     natural=natural.Emissions.emissions,
     efficacy=np.array([1.]*9 + [3.] + [1.]*3),
@@ -522,7 +523,8 @@ def fair_scm(
         # concentrations
         if type(emissions) is not bool:
             if contrail_forcing.lower()[0]=='n':   # from NOx emissions
-                F[:,7] = contrails.from_aviNOx(emissions, aviNOx_frac)
+                F[:,7] = contrails.from_aviNOx(emissions, aviNOx_frac,
+                  F_ref=F_ref_aviNOx)
             elif contrail_forcing.lower()[0]=='f': # from kerosene production
                 F[:,7] = contrails.from_fuel(kerosene_supply)
             elif contrail_forcing.lower()[0]=='e': # external forcing timeseries
