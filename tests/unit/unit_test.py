@@ -398,3 +398,20 @@ def test_deprecated_ozone_stevenson():
           useStevenson=True
         )
 
+def test_cmip6_stevenson():
+    C1,F1,T1 = fair.forward.fair_scm(
+      emissions=rcp85.Emissions.emissions,
+      tropO3_forcing='cmip6',
+      E_pi=rcp85.Emissions.emissions[0,:],
+      C_pi=rcp85.Concentrations.gases[0,:]
+    )
+
+    C2,F2,T2 = fair.forward.fair_scm(
+      emissions=rcp85.Emissions.emissions,
+      tropO3_forcing='stevenson',
+      E_pi=rcp85.Emissions.emissions[0,:],
+      C_pi=rcp85.Concentrations.gases[0,:]
+    )
+
+    # check differences
+    assert np.any(F2[:,4]!=F1[:,4])

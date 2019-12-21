@@ -6,7 +6,7 @@ from ..RCPs.rcp45 import Emissions as r45e
 
 
 def Stevens(emissions, stevens_params=np.array([0.001875, 0.634, 60.]),
-    ref_isSO2=True):
+    ref_isSO2=True, E_pi=0):
     """Calculates aerosol forcing based on Stevens (2015) that relates sulphate
     aerosol forcing to SOx emissions in a logarithmic fashion.
 
@@ -18,8 +18,10 @@ def Stevens(emissions, stevens_params=np.array([0.001875, 0.634, 60.]),
             1. scaling parameter for ERFaci (beta)
             2. natural emissions of SOx in Mt/yr
         ref_isSO2:   True if E_SOx_nat is in units of SO2 rather than S.
+        E_pi: pre-industrial/reference emissions of SO2 (or S).
     Output:
-        F:           aerosol effective radiative forcing
+        ERFari, ERFaci:  aerosol effective radiative forcing due to 
+            aerosol-radiation interactions and aerosol-cloud interactions.
     """
 
     alpha, beta, E_SOx_nat = stevens_params
@@ -28,11 +30,13 @@ def Stevens(emissions, stevens_params=np.array([0.001875, 0.634, 60.]),
     if ref_isSO2:
         factor = molwt.SO2/molwt.S
     em_SOx = emissions[:,5] * factor
+    em_pi  = E_pi * factor
 
-    ERFari = -alpha * em_SOx
-    ERFaci = -beta * np.log(em_SOx/E_SOx_nat + 1)
-    F = ERFari + ERFaci
-    return F
+    ERFari = -alpha * (em_SOx-em_pi)
+    ERFaci = (
+        (-beta * np.log(em_SOx/E_SOx_nat + 1)) - 
+        (-beta * np.log(em_pi/E_SOx_nat + 1)) )
+    return ERFari, ERFaci
 
 
 def aerocom_direct(emissions,
@@ -68,9 +72,9 @@ def aerocom_direct(emissions,
     F_OC     = beta[5] * em_OC
     F_NH3    = beta[6] * em_NH3
 
-    F = F_SOx+F_CO+F_NMVOC+F_NOx+F_BC+F_OC+F_NH3
+    ERFari = F_SOx+F_CO+F_NMVOC+F_NOx+F_BC+F_OC+F_NH3
 
-    return F
+    return ERFari
 
 
 def ghan_indirect(emissions, fix_pre1850_RCP=True, scale_AR5=False,
@@ -145,4 +149,5 @@ def ghan_indirect(emissions, fix_pre1850_RCP=True, scale_AR5=False,
     else:
         scale=1.0
 
-    return (F_pd - F_1765) * scale
+    ERFaci = (F_pd - F_1765) * scale
+    return ERFaci
