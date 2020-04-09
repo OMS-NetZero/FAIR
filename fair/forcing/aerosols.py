@@ -42,7 +42,7 @@ def Stevens(emissions, stevens_params=np.array([0.001875, 0.634, 60.]),
 def aerocom_direct(emissions,
         beta = np.array(
           [-6.2227e-3, 0.0, -3.8392e-4, -1.16551e-3, 1.601537e-2, -1.45339e-3,
-           -1.55605e-3])
+           -1.55605e-3]), E_pi=np.zeros(40)
     ):
 
     """Calculates direct aerosol forcing based on linear relationships between
@@ -57,6 +57,7 @@ def aerocom_direct(emissions,
     Keywords:
         beta: 7-element array of forcing efficiencies in W m-2 (Mt yr-1)-1 for
             SOx, CO, NMVOC, NOx, BC, OC, NH3 (in that order)
+        E_pi: pre-industrial emissions (40 element array)
     Outputs:
         Forcing time series
     """
@@ -64,13 +65,13 @@ def aerocom_direct(emissions,
     em_SOx, em_CO, em_NMVOC, em_NOx, em_BC, em_OC, em_NH3 = \
         emissions[:,[5, 6, 7, 8, 9, 10, 11]].T
 
-    F_SOx    = beta[0] * em_SOx
-    F_CO     = beta[1] * em_CO
-    F_NMVOC  = beta[2] * em_NMVOC
-    F_NOx    = beta[3] * em_NOx
-    F_BC     = beta[4] * em_BC
-    F_OC     = beta[5] * em_OC
-    F_NH3    = beta[6] * em_NH3
+    F_SOx    = beta[0] * (em_SOx   - E_pi[5])
+    F_CO     = beta[1] * (em_CO    - E_pi[6])
+    F_NMVOC  = beta[2] * (em_NMVOC - E_pi[7])
+    F_NOx    = beta[3] * (em_NOx   - E_pi[8])
+    F_BC     = beta[4] * (em_BC    - E_pi[9])
+    F_OC     = beta[5] * (em_OC    - E_pi[10])
+    F_NH3    = beta[6] * (em_NH3   - E_pi[11])
 
     ERFari = F_SOx+F_CO+F_NMVOC+F_NOx+F_BC+F_OC+F_NH3
 
@@ -78,7 +79,8 @@ def aerocom_direct(emissions,
 
 
 def ghan_indirect(emissions, fix_pre1850_RCP=True, scale_AR5=False,
-    ghan_params=np.array([-1.95011431, 0.01107147, 0.01387492])):
+    ghan_params=np.array([-1.95011431, 0.01107147, 0.01387492]),
+    E_pi=np.zeros(40)):
     """Estimates the aerosol indirect effect based on the simple model in
     Ghan et al., (2013), doi:10.1002/jgrd.50567.
 

@@ -546,19 +546,23 @@ def fair_scm(
                   emissions, stevens_params=stevens_params, E_pi=E_pi[5])
                 F[:,8] = np.sum(ariaci, axis=1)
             elif 'aerocom' in aerosol_forcing.lower():
-                ariaci[:,0] = aerosols.aerocom_direct(emissions, beta=b_aero)
+                ariaci[:,0] = aerosols.aerocom_direct(emissions, beta=b_aero,
+                  E_pi=E_pi)
                 if 'ghan' in aerosol_forcing.lower():
                     ariaci[:,1] = aerosols.ghan_indirect(emissions,
                       scale_AR5=scaleAerosolAR5,
                       fix_pre1850_RCP=fixPre1850RCP,
                       ghan_params=ghan_params)
+                elif 'stevens' in aerosol_forcing.lower():
+                    _, ariaci[:,1] = aerosols.Stevens(
+                      emissions, stevens_params=stevens_params, E_pi=E_pi[5])
                 F[:,8] = np.sum(ariaci, axis=1)
             elif aerosol_forcing.lower()[0] == 'e':
                 F[:,8] = F_aerosol
                 ariaci[:] = np.nan
             else:
                 raise ValueError("aerosol_forcing should be one of 'stevens', " +
-                  "aerocom, aerocom+ghan or external")
+                  "aerocom, aerocom+ghan, aerocom+stevens or external")
         else:
             F[:,8] = F_aerosol
             ariaci[:] = np.nan
