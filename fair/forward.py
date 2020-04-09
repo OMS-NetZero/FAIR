@@ -219,6 +219,7 @@ def fair_scm(
     pi_tro3 =np.array([722, 170, 10, 4.29]),
     ghan_params = np.array([-1.95011431, 0.01107147, 0.01387492]),
     stevens_params = np.array([0.001875, 0.634, 60.]),
+    ref_isSO2=True, # is Stevens SO2 emissions in units SO2 (T) or S (F)
     useMultigas=True,
     useStevenson=True,   # deprecate this switch in v1.6
     tropO3_forcing='stevenson',
@@ -543,7 +544,8 @@ def fair_scm(
         if type(emissions) is not bool:
             if aerosol_forcing.lower()=='stevens':
                 ariaci[:,0], ariaci[:,1] = aerosols.Stevens(
-                  emissions, stevens_params=stevens_params, E_pi=E_pi[5])
+                  emissions, stevens_params=stevens_params, E_pi=E_pi[5], 
+                  ref_isSO2=ref_isSO2)
                 F[:,8] = np.sum(ariaci, axis=1)
             elif 'aerocom' in aerosol_forcing.lower():
                 ariaci[:,0] = aerosols.aerocom_direct(emissions, beta=b_aero,
@@ -555,7 +557,8 @@ def fair_scm(
                       ghan_params=ghan_params)
                 elif 'stevens' in aerosol_forcing.lower():
                     _, ariaci[:,1] = aerosols.Stevens(
-                      emissions, stevens_params=stevens_params, E_pi=E_pi[5])
+                      emissions, stevens_params=stevens_params, E_pi=E_pi[5],
+                      ref_isSO2=ref_isSO2)
                 F[:,8] = np.sum(ariaci, axis=1)
             elif aerosol_forcing.lower()[0] == 'e':
                 F[:,8] = F_aerosol
