@@ -33,9 +33,10 @@ def Stevens(emissions, stevens_params=np.array([0.001875, 0.634, 60.]),
     em_pi  = E_pi * factor
 
     ERFari = -alpha * (em_SOx-em_pi)
-    ERFaci = (
-        (-beta * np.log(em_SOx/E_SOx_nat + 1)) - 
-        (-beta * np.log(em_pi/E_SOx_nat + 1)) )
+#    ERFaci = (
+#        (-beta * np.log(em_SOx/E_SOx_nat + 1)) - 
+#        (-beta * np.log(em_pi/E_SOx_nat + 1)) )
+    ERFaci = (-beta * np.log((em_SOx-em_pi)/E_SOx_nat + 1))
     return ERFari, ERFaci
 
 
