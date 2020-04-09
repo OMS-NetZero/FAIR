@@ -233,6 +233,7 @@ def fair_scm(
     contrail_forcing='NOx',
     kerosene_supply=0.,
     landuse_forcing='co2',
+    aCO2land=-0.00113789,
     ariaci_out=False,
     bcsnow_forcing='emissions',
     ):
@@ -590,7 +591,7 @@ def fair_scm(
         # concentrations
         if type(emissions) is not bool:
             if landuse_forcing.lower()[0]=='c':
-                F[:,10] = landuse.cumulative(emissions-E_pi)
+                F[:,10] = landuse.cumulative(emissions-E_pi, aCO2land=aCO2land)
             elif landuse_forcing.lower()[0]=='e':
                 F[:,10] = F_landuse
             else:
