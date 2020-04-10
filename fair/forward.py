@@ -206,6 +206,8 @@ def fair_scm(
     aviNOx_frac=0.,
     F_ref_aviNOx=0.0448,
     E_ref_aviNOx=2.946,
+    F_ref_BC=0.04,
+    E_ref_BC=8.09,
     fossilCH4_frac=0.,
     natural=natural.Emissions.emissions,
     efficacy=np.array([1.]*9 + [3.] + [1.]*3),
@@ -578,7 +580,8 @@ def fair_scm(
         # concentrations
         if type(emissions) is not bool:
            if bcsnow_forcing.lower()[0]=='e':
-               F[:,9] = bc_snow.linear(emissions-E_pi)
+               F[:,9] = bc_snow.linear(emissions-E_pi, F_ref=F_ref_BC,
+                   E_ref=E_ref_BC)
            else:
                F[:,9] = F_bcsnow
         else:
