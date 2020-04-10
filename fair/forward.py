@@ -205,6 +205,9 @@ def fair_scm(
     F_landuse=0.,
     aviNOx_frac=0.,
     F_ref_aviNOx=0.0448,
+    E_ref_aviNOx=2.946,
+    F_ref_BC=0.04,
+    E_ref_BC=8.09,
     fossilCH4_frac=0.,
     natural=natural.Emissions.emissions,
     efficacy=np.array([1.]*9 + [3.] + [1.]*3),
@@ -219,6 +222,7 @@ def fair_scm(
     pi_tro3 =np.array([722, 170, 10, 4.29]),
     ghan_params = np.array([-1.95011431, 0.01107147, 0.01387492]),
     stevens_params = np.array([0.001875, 0.634, 60.]),
+    ref_isSO2=True, # is Stevens SO2 emissions in units SO2 (T) or S (F)
     useMultigas=True,
     useStevenson=True,   # deprecate this switch in v1.6
     tropO3_forcing='stevenson',
@@ -231,6 +235,7 @@ def fair_scm(
     contrail_forcing='NOx',
     kerosene_supply=0.,
     landuse_forcing='co2',
+    aCO2land=-0.00113789,
     ariaci_out=False,
     bcsnow_forcing='emissions',
     ):
@@ -524,7 +529,7 @@ def fair_scm(
         if type(emissions) is not bool:
             if contrail_forcing.lower()[0]=='n':   # from NOx emissions
                 F[:,7] = contrails.from_aviNOx(emissions, aviNOx_frac,
-                  F_ref=F_ref_aviNOx)
+                  F_ref=F_ref_aviNOx, E_ref=E_ref_aviNOx)
             elif contrail_forcing.lower()[0]=='f': # from kerosene production
                 F[:,7] = contrails.from_fuel(kerosene_supply)
             elif contrail_forcing.lower()[0]=='e': # external forcing timeseries
@@ -543,22 +548,28 @@ def fair_scm(
         if type(emissions) is not bool:
             if aerosol_forcing.lower()=='stevens':
                 ariaci[:,0], ariaci[:,1] = aerosols.Stevens(
-                  emissions, stevens_params=stevens_params, E_pi=E_pi[5])
+                  emissions, stevens_params=stevens_params, E_pi=E_pi[5], 
+                  ref_isSO2=ref_isSO2)
                 F[:,8] = np.sum(ariaci, axis=1)
             elif 'aerocom' in aerosol_forcing.lower():
-                ariaci[:,0] = aerosols.aerocom_direct(emissions, beta=b_aero)
+                ariaci[:,0] = aerosols.aerocom_direct(emissions, beta=b_aero,
+                  E_pi=E_pi)
                 if 'ghan' in aerosol_forcing.lower():
                     ariaci[:,1] = aerosols.ghan_indirect(emissions,
                       scale_AR5=scaleAerosolAR5,
                       fix_pre1850_RCP=fixPre1850RCP,
                       ghan_params=ghan_params)
+                elif 'stevens' in aerosol_forcing.lower():
+                    _, ariaci[:,1] = aerosols.Stevens(
+                      emissions, stevens_params=stevens_params, E_pi=E_pi[5],
+                      ref_isSO2=ref_isSO2)
                 F[:,8] = np.sum(ariaci, axis=1)
             elif aerosol_forcing.lower()[0] == 'e':
                 F[:,8] = F_aerosol
                 ariaci[:] = np.nan
             else:
                 raise ValueError("aerosol_forcing should be one of 'stevens', " +
-                  "aerocom, aerocom+ghan or external")
+                  "aerocom, aerocom+ghan, aerocom+stevens or external")
         else:
             F[:,8] = F_aerosol
             ariaci[:] = np.nan
@@ -569,7 +580,8 @@ def fair_scm(
         # concentrations
         if type(emissions) is not bool:
            if bcsnow_forcing.lower()[0]=='e':
-               F[:,9] = bc_snow.linear(emissions-E_pi)
+               F[:,9] = bc_snow.linear(emissions-E_pi, F_ref=F_ref_BC,
+                   E_ref=E_ref_BC)
            else:
                F[:,9] = F_bcsnow
         else:
@@ -582,7 +594,7 @@ def fair_scm(
         # concentrations
         if type(emissions) is not bool:
             if landuse_forcing.lower()[0]=='c':
-                F[:,10] = landuse.cumulative(emissions-E_pi)
+                F[:,10] = landuse.cumulative(emissions-E_pi, aCO2land=aCO2land)
             elif landuse_forcing.lower()[0]=='e':
                 F[:,10] = F_landuse
             else:
