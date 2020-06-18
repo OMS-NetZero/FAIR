@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
 
+from ..constants import molwt
 
 def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
 
@@ -104,14 +105,22 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
         '|CH3Cl',
     ])
 
+    # Assume that units coming out of aneris don't change. One day I'll do unit parsing
+    unit_convert = np.ones(40)
+    unit_convert[1] = molwt.C/molwt.CO2/1000
+    unit_convert[2] = molwt.C/molwt.CO2/1000
+    unit_convert[4] = molwt.N2/molwt.N2O/1000
+    unit_convert[5] = molwt.S/molwt.SO2
+    unit_convert[8] = molwt.N/molwt.NO2
+
     years_future = [2015] + list(range(2020,2501,10))
     for i, specie in enumerate(emissions_file_species):
-        data_out[:first_row,i+1] = ssp_df.loc[(ssp_df['Scenario']=='ssp245')&(ssp_df['Variable'].str.endswith(specie)),str(startyear):'2014']
+        data_out[:first_row,i+1] = ssp_df.loc[(ssp_df['Scenario']=='ssp245')&(ssp_df['Variable'].str.endswith(specie)),str(startyear):'2014']*unit_convert[i+1]
         if i<23:
             f = interp1d(years, scmdf[scmdf.index.get_level_values('variable').str.endswith(species[i])])
-            data_out[first_row:(last_row+1), i+1] = f(np.arange(first_scenyear, last_scenyear+1))
+            data_out[first_row:(last_row+1), i+1] = f(np.arange(first_scenyear, last_scenyear+1))*unit_convert[i+1]
         else:
             f = interp1d(years_future, ssp_df.loc[(ssp_df['Scenario']=='ssp245')&(ssp_df['Variable'].str.endswith(specie)),'2015':'2500'].dropna(axis=1))
-            data_out[first_row:(last_row+1), i+1] = f(np.arange(first_scenyear, last_scenyear+1))
+            data_out[first_row:(last_row+1), i+1] = f(np.arange(first_scenyear, last_scenyear+1))*unit_convert[i+1]
 
     return data_out
