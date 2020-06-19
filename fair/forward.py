@@ -238,6 +238,9 @@ def fair_scm(
     aCO2land=-0.00113789,
     ariaci_out=False,
     bcsnow_forcing='emissions',
+    diagnostics=None,
+    gir_carbon_cycle=False,
+    temperature_function='Millar'
     ):
 
     # Prevents later errors when SLCFs not specified
