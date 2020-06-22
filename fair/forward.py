@@ -407,7 +407,7 @@ def fair_scm(
 
         if temperature_function=='Millar':
             T_j[0,:] = forcing_to_temperature(T_j_minus1, q[0,:], d, F[0,:])
-            T[0]=np.sum(T_j[0,:],axis=-1)
+            T[0]=np.sum(T_j[0,:])
         else:
             # leave unimplemented unless somebody invents a use case
             raise(NotImplementedError('Restarts not implemented with Geoffroy '+
@@ -585,22 +585,19 @@ def fair_scm(
             T_j[0,:] = (q[0,:]/d)*(np.sum(F[0,:]))
             T[0] = np.sum(T_j[0,:])
         else:
-            T_j[0,:,:], heatflux[t], del_ohc, lambda_eff[t] = forcing_to_temperature(
+            T_j[0,:,:], heatflux[0], del_ohc, lambda_eff[0] = forcing_to_temperature(
                 T_j[0,:,:],
-                np.sum(F[0,:], axis=1),
-                np.sum(F[0,:], axis=1),
+                np.sum(F[0,:]),
+                np.sum(F[0,:]),
                 lambda_global=lambda_global,
                 ocean_heat_capacity=ocean_heat_capacity,
                 ocean_heat_exchange=ocean_heat_exchange,
                 deep_ocean_efficacy=deep_ocean_efficacy,
                 dt=1
             )
-            T[0] = np.sum(T_j[0,:,:])
-            ohc[t] = ohc[0] + del_ohc
+            T[0] = np.sum(T_j[0,:,:], axis=1)[0]
+            ohc[0] = ohc[0] + del_ohc
 
-
-    # Sum the thermal response boxes to get the total temperature anomaly
-    T[0]=np.sum(T_j[0,:],axis=-1)
 
     for t in range(1,nt):
 
@@ -719,15 +716,15 @@ def fair_scm(
                 else:
                     T_j[t,:,:], heatflux[t], del_ohc, lambda_eff[t] = forcing_to_temperature(
                         T_j[t-1,:,:],
-                        np.sum(F[t-1,:], axis=1),
-                        np.sum(F[t,:], axis=1),
+                        np.sum(F[t-1,:]),
+                        np.sum(F[t,:]),
                         lambda_global=lambda_global,
                         ocean_heat_capacity=ocean_heat_capacity,
                         ocean_heat_exchange=ocean_heat_exchange,
                         deep_ocean_efficacy=deep_ocean_efficacy,
                         dt=1
                     )
-                    T[t] = np.sum(T_j[t,:,:],axis=(1,2))
+                    T[t] = np.sum(T_j[t,:,:], axis=1)[0]
                     ohc[t] = ohc[t-1] + del_ohc
 
             else:
@@ -816,15 +813,15 @@ def fair_scm(
                 else:
                     T_j[t,:,:], heatflux[t], del_ohc, lambda_eff[t] = forcing_to_temperature(
                         T_j[t-1,:,:],
-                        np.sum(F[t-1,:], axis=1),
-                        np.sum(F[t,:], axis=1),
+                        np.sum(F[t-1,:]),
+                        np.sum(F[t,:]),
                         lambda_global=lambda_global,
                         ocean_heat_capacity=ocean_heat_capacity,
                         ocean_heat_exchange=ocean_heat_exchange,
                         deep_ocean_efficacy=deep_ocean_efficacy,
                         dt=1
                     )
-                    T[t] = np.sum(T_j[t,:,:],axis=(1,2))
+                    T[t] = np.sum(T_j[t,:,:], axis=1)[0]
                     ohc[t] = ohc[t-1] + del_ohc
 
             else:
@@ -841,15 +838,15 @@ def fair_scm(
                 else:
                     T_j[t,:,:], heatflux[t], del_ohc, lambda_eff[t] = forcing_to_temperature(
                         T_j[t-1,:,:],
-                        np.sum(F[t-1,:], axis=1),
-                        np.sum(F[t,:], axis=1),
+                        np.sum(F[t-1], axis=1),
+                        np.sum(F[t], axis=1),
                         lambda_global=lambda_global,
                         ocean_heat_capacity=ocean_heat_capacity,
                         ocean_heat_exchange=ocean_heat_exchange,
                         deep_ocean_efficacy=deep_ocean_efficacy,
                         dt=1
                     )
-                    T[t] = np.sum(T_j[t,:,:],axis=(1,2))
+                    T[t] = np.sum(T_j[t,:,:], axis=1)[0]
                     ohc[t] = ohc[t-1] + del_ohc
 
     if not useMultigas:

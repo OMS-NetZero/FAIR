@@ -267,3 +267,8 @@ def test_41():
         efficacy = np.ones(13))
     assert np.allclose(F41.sum(axis=1), F13.sum(axis=1))
 
+
+def test_geoffroy():
+    C, F, T, lambda_eff, ohc, heatflux = fair.forward.fair_scm(
+        emissions = rcp85.Emissions.emissions,
+        temperature_function='Geoffroy')

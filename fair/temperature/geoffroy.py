@@ -7,8 +7,7 @@ from ..constants.general import EARTH_RADIUS, SECONDS_PER_YEAR
 # This is a stop-gap until I figure out how to couple the openscm-twolayermodel
 
 def forcing_to_temperature(
-    temp_mix0,
-    temp_deep0,
+    temp,
     f0,
     f1,
     lambda_global=1.18,
@@ -24,10 +23,8 @@ def forcing_to_temperature(
     Thanks to Glen Harris, UK Met Office, for doing the grunt work.
 
     Inputs:
-        temp_mix0: numpy array (fast, slow) components of mixed layer temperature
-            in timestep t-1
-        temp_deep0: nump array (fast, slow) components of deep ocean temperature
-            in timestep t-1
+        temp: (2,2) numpy array (layer, component) of ocean temperatures
+            in timestep t-1 (layer = mixed, deep); (component=fast; slow)
         f0: effective radiative forcing in timestep t-1
         f1: effective radiative forcing in timestep t
 
@@ -65,7 +62,8 @@ def forcing_to_temperature(
     adeep_f = -gamma_p/(ocean_heat_capacity[0]*cdeep_p*delsqrt)
     adeep_s = -adeep_f                                            
 
-
+    temp_mix0 = np.copy(temp[0,:])
+    temp_deep0 = np.copy(temp[1,:])
 
     adf = 1/(afast*dt)
     ads = 1/(aslow*dt)
@@ -74,14 +72,11 @@ def forcing_to_temperature(
     int_f = (f0*adf + f1*(1-adf) - exp_f*(f0*(1+adf)-f1*adf))/afast
     int_s = (f0*ads + f1*(1-ads) - exp_s*(f0*(1+ads)-f1*ads))/aslow
 
-    temp_mix0 = np.copy(temp[0,:])
-    temp_deep0 = np.copy(temp[1,:])
-
-    temp_mix1  = np.array([exp_f*temp_mix0[0] + amix_f[i]*int_f, 
-                           exp_s*temp_mix0[1] + amix_s[i]*int_s]) 
+    temp_mix1  = np.array([exp_f*temp_mix0[0] + amix_f*int_f, 
+                           exp_s*temp_mix0[1] + amix_s*int_s]) 
                                          
-    temp_deep1 = np.array([exp_f*temp_deep0[0] + adeep_f[i]*int_f, 
-                           exp_s*temp_deep0[1] + adeep_s[i]*int_s])
+    temp_deep1 = np.array([exp_f*temp_deep0[0] + adeep_f*int_f, 
+                           exp_s*temp_deep0[1] + adeep_s*int_s])
 
     c_dtemp = (
         ocean_heat_capacity[0]*(temp_mix1.sum()-temp_mix0.sum()) + 
@@ -92,11 +87,11 @@ def forcing_to_temperature(
     del_ohc  = ntoa_joule * c_dtemp
         
     factor_lambda_eff = (deep_ocean_efficacy-1.0)*ocean_heat_exchange
-    if abs(numpy.sum(temp_mix1)) > 1e-6:
+    if abs(np.sum(temp_mix1)) > 1e-6:
         ratio = (np.sum(temp_mix1) - np.sum(temp_deep1))/np.sum(temp_mix1)
         lambda_eff = lambda_global + factor_lambda_eff*ratio
     else:
         lambda_eff = lambda_global + factor_lambda_eff
         
-    return np.array([temp_mix1, temp_deep1]), heatflux, del_ohc, lambda_eff
+    return np.array([temp_mix1, temp_deep1]).T, heatflux, del_ohc, lambda_eff
 
