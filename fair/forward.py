@@ -10,51 +10,14 @@ from .constants.general import M_ATMOS, ppm_gtc
 from .defaults import carbon, thermal
 from .forcing import ozone_tr, ozone_st, h2o_st, contrails, aerosols, bc_snow,\
                                          landuse
-from .forcing.ghg import co2_log
 from .gas_cycle.gir import calculate_alpha, step_concentration
 from .gas_cycle.fair1 import carbon_cycle
+from .forcing.ghg import co2_log, minor_gases
+from .temperature.millar import forcing_to_temperature, calculate_q
 
 
 # TODO: unified interface to the different carbon cycles
 
-
-def calculate_q(tcrecs, d, f2x, tcr_dbl, nt):
-    """If TCR and ECS are supplied, calculate the q model coefficients.
-    See Eqs. (4) and (5) of Millar et al ACP (2017).
-    
-    Inputs:
-        tcrecs  : 2-element array of transient climate response (TCR) and
-                  equilibrium climate sensitivity (ECS).
-        d       : The slow and fast thermal response time constants
-        f2x     : Effective radiative forcing from a doubling of CO2
-        tcr_dbl : time to a doubling of CO2 under 1% per year CO2 increase, yr
-        nt      : number of timesteps
-        
-    Outputs:
-        q       : coefficients of slow and fast temperature change in each
-                  timestep ((nt, 2) array).
-    """
-    
-    # TODO:
-    # error checking before call
-    # benchmark one call per timestep and if not slower do not convert to 2D
-    #  - will make code cleaner
-    
-    k = 1.0 - (d/tcr_dbl)*(1.0 - np.exp(-tcr_dbl/d))
-    # if ECS and TCR are not time-varying, expand them to 2D array anyway
-    if tcrecs.ndim==1:
-        if len(tcrecs)!=2:
-            raise ValueError(
-              "Constant TCR and ECS should be a 2-element array")
-        tcrecs = np.ones((nt, 2)) * tcrecs
-    elif tcrecs.ndim==2:
-        if tcrecs.shape!=(nt, 2):
-            raise ValueError(
-              "Transient TCR and ECS should be a nt x 2 array")
-    q  = (1.0 / f2x) * (1.0/(k[0]-k[1])) * np.array([
-        tcrecs[:,0]-tcrecs[:,1]*k[1],tcrecs[:,1]*k[0]-tcrecs[:,0]]).T
-    return q
-    
 
 def emis_to_conc(c0, e0, e1, ts, lt, vm):
     """Calculate concentrations of well mixed GHGs from emissions for simple
@@ -74,29 +37,6 @@ def emis_to_conc(c0, e0, e1, ts, lt, vm):
     """
     c1 = c0 - c0 * (1.0 - np.exp(-ts/lt)) + 0.5 * ts * (e1 + e0) * vm
     return c1
-
-
-def forc_to_temp(t0, q, d, f, e=1.0):
-    """Calculate temperature from a given radiative forcing.
-
-    Inputs:
-        t0: Temperature in timestep t-1
-        q: The matrix contributions to slow and fast temperature change
-           calculated from ECS and TCR (2 element array)
-        d: The slow and fast thermal response time constants (2 element array)
-        f: radiative forcing (can be scalar or 1D array representing multiple
-           species)
-
-    Keywords:
-        e: efficacy factor (default 1); if f is an array, e should be an array
-           of the same length.
-
-    Outputs:
-        t1: slow and fast contributions to total temperature (2 element array)
-        in timestep t
-    """
-    t1 = t0*np.exp(-1.0/d) + q*(1.0-np.exp((-1.0)/d))*np.sum(f*e)
-    return t1
 
 
 def fair_scm(
@@ -211,7 +151,29 @@ def fair_scm(
     # basic sense checks
     if useMultigas:
         ngas = 31
-        nF   = 13
+        if diagnostics=='AR6':
+            iF_tro3 = 31
+            iF_sto3 = 32
+            iF_ch4h = 33
+            iF_cont = 34
+            iF_aerd = 35
+            iF_aeri = 36
+            iF_bcsn = 37
+            iF_luch = 38
+            iF_volc = 39
+            iF_solr = 40
+            nF = 41
+        else:
+            iF_tro3 = 4
+            iF_sto3 = 5
+            iF_ch4h = 6
+            iF_cont = 7
+            iF_aer  = 8
+            iF_bcsn = 9
+            iF_luch = 10
+            iF_volc = 11
+            iF_solr = 12
+            nF = 13
         if emissions_driven:
             if type(emissions) is not np.ndarray or emissions.shape[1] != 40:
                 raise ValueError(
@@ -281,7 +243,7 @@ def fair_scm(
                 scale = np.tile(scale, nt).reshape((nt,nF))
         else:
             raise ValueError("in multi-gas mode, scale should be None, or a "+
-              "(13,) or (nt, 13) array")
+              "(%d,) or (%d, 13) array" % (nF, nF))
 
         # if scaling the historical time series to match AR5, apply these
         # factors to whatever the user specifies
@@ -410,7 +372,10 @@ def fair_scm(
 
         F[0,0] = F[0,0] * scale[0]
 
-        T_j[0,:] = forc_to_temp(T_j_minus1, q[0,:], d, F[0,:])
+        if temperature_function=='Millar':
+            T_j[0,:] = forcing_to_temperature(T_j_minus1, q[0,:], d, F[0,:])
+        else:
+            pass # TODO
         T[0]=np.sum(T_j[0,:],axis=-1)
 
     else:
@@ -430,7 +395,10 @@ def fair_scm(
         # Minor (F- and H-gases) are linear in concentration
         # the factor of 0.001 here is because radiative efficiencies are given
         # in W/m2/ppb and concentrations of minor gases are in ppt.
-        F[0,3] = np.sum((C[0,3:] - C_pi[3:]) * radeff.aslist[3:] * 0.001)
+        if diagnostics=='AR6':
+            F[0,3:31] = minor_gases(C[0,3:], C_pi[3:])
+        else:
+            F[0,3] = np.sum(minor_gases(C[0,3:], C_pi[3:]))
 
         # Tropospheric ozone:
         # v1.5 update: don't require emissions driven runs here for GHGs
@@ -438,29 +406,29 @@ def fair_scm(
         # concentrations
         if type(emissions) is not bool:
             if useStevenson and tropO3_forcing[0].lower()=='s':
-                F[0,4] = ozone_tr.stevenson(emissions[0,:], C[0,1],
+                F[0,iF_tro3] = ozone_tr.stevenson(emissions[0,:], C[0,1],
                   T=np.sum(T_j[0,:]), 
                   feedback=useTropO3TFeedback,
                   fix_pre1850_RCP=fixPre1850RCP,
                   PI=pi_tro3)
             elif tropO3_forcing[0].lower()=='c':
-                F[0,4] = ozone_tr.cmip6_stevenson(emissions[0,:], C[0,1],
+                F[0,iF_tro3] = ozone_tr.cmip6_stevenson(emissions[0,:], C[0,1],
                   T=np.sum(T_j[0,:]),
                   feedback=useTropO3TFeedback,
                   PI=np.array([C_pi[1],E_pi[6],E_pi[7],E_pi[8]]),
                   beta=b_tro3)
             elif not useStevenson or tropO3_forcing[0].lower()=='r':
-                F[0,4] = ozone_tr.regress(emissions[0,:]-E_pi[:], beta=b_tro3)
+                F[0,iF_tro3] = ozone_tr.regress(emissions[0,:]-E_pi[:], beta=b_tro3)
             else:
-                F[0,4] = F_tropO3[0]
+                F[0,iF_tro3] = F_tropO3[0]
         else:
-            F[0,4] = F_tropO3[0]
+            F[0,iF_tro3] = F_tropO3[0]
 
         # Stratospheric ozone depends on concentrations of ODSs (index 15-30)
-        F[0,5] = ozone_st.magicc(C[0,15:], C_pi[15:])
+        F[0,iF_sto3] = ozone_st.magicc(C[0,15:], C_pi[15:])
 
         # Stratospheric water vapour is a function of the methane ERF
-        F[0,6] = h2o_st.linear(F[0,1], ratio=stwv_from_ch4)
+        F[0,iF_ch4h] = h2o_st.linear(F[0,1], ratio=stwv_from_ch4)
 
         # Forcing from contrails. No climate feedback so can live outside
         # of forward model in this version
@@ -469,29 +437,35 @@ def fair_scm(
         # concentrations
         if type(emissions) is not bool:
             if contrail_forcing.lower()[0]=='n':   # from NOx emissions
-                F[:,7] = contrails.from_aviNOx(emissions, aviNOx_frac,
+                F[:,iF_cont] = contrails.from_aviNOx(emissions, aviNOx_frac,
                   F_ref=F_ref_aviNOx, E_ref=E_ref_aviNOx)
             elif contrail_forcing.lower()[0]=='f': # from kerosene production
-                F[:,7] = contrails.from_fuel(kerosene_supply)
+                F[:,iF_cont] = contrails.from_fuel(kerosene_supply)
             elif contrail_forcing.lower()[0]=='e': # external forcing timeseries
-                F[:,7] = F_contrails
+                F[:,iF_cont] = F_contrails
             else:
                 raise ValueError("contrails must be one of 'NOx' (estimated "+
                  "from NOx emissions), 'fuel' (estimated from annual jet fuel "+
                  "supplied) or 'external' (an external forcing time series).")
         else:
-            F[:,7] = F_contrails
+            F[:,iF_cont] = F_contrails
 
         # Forcing from aerosols - again no feedback dependence
         # v1.5 update: don't require emissions driven runs here for GHGs
         # because SLCFs can still be given as emissions with GHGs as
         # concentrations
+
+        # TODO: this whole code block is a mess!
         if type(emissions) is not bool:
             if aerosol_forcing.lower()=='stevens':
                 ariaci[:,0], ariaci[:,1] = aerosols.Stevens(
                   emissions, stevens_params=stevens_params, E_pi=E_pi[5], 
                   ref_isSO2=ref_isSO2)
-                F[:,8] = np.sum(ariaci, axis=1)
+                if diagnostics=='AR6':
+                    F[:,iF_aerd] = ariaci[:,0]
+                    F[:,iF_aeri] = ariaci[:,1]
+                else:
+                    F[:,iF_aer] = np.sum(ariaci, axis=1)
             elif 'aerocom' in aerosol_forcing.lower():
                 ariaci[:,0] = aerosols.aerocom_direct(emissions, beta=b_aero,
                   E_pi=E_pi)
@@ -504,16 +478,28 @@ def fair_scm(
                     _, ariaci[:,1] = aerosols.Stevens(
                       emissions, stevens_params=stevens_params, E_pi=E_pi[5],
                       ref_isSO2=ref_isSO2)
-                F[:,8] = np.sum(ariaci, axis=1)
+                if diagnostics=='AR6':
+                    F[:,iF_aerd] = ariaci[:,0]
+                    F[:,iF_aeri] = ariaci[:,1]
+                else:
+                    F[:,iF_aer] = np.sum(ariaci, axis=1)
             elif aerosol_forcing.lower()[0] == 'e':
-                F[:,8] = F_aerosol
-                ariaci[:] = np.nan
+                if diagnostics!='AR6':
+                    F[:,iF_aer] = F_aerosol
+                    ariaci[:] = np.nan
+                else:
+                    raise ValueError('AR6 diagnostics not compatible with ' +
+                'externally forced aerosols')
             else:
                 raise ValueError("aerosol_forcing should be one of 'stevens', " +
                   "aerocom, aerocom+ghan, aerocom+stevens or external")
         else:
-            F[:,8] = F_aerosol
-            ariaci[:] = np.nan
+            if diagnostics!='AR6':
+                F[:,iF_aer] = F_aerosol
+                ariaci[:] = np.nan
+            else:
+                raise ValueError('AR6 diagnostics not compatible with ' +
+            'externally forced aerosols')
 
         # Black carbon on snow - no feedback dependence
         # v1.5 update: don't require emissions driven runs here for GHGs
@@ -521,12 +507,12 @@ def fair_scm(
         # concentrations
         if type(emissions) is not bool:
            if bcsnow_forcing.lower()[0]=='e':
-               F[:,9] = bc_snow.linear(emissions-E_pi, F_ref=F_ref_BC,
+               F[:,iF_bcsn] = bc_snow.linear(emissions-E_pi, F_ref=F_ref_BC,
                    E_ref=E_ref_BC)
            else:
-               F[:,9] = F_bcsnow
+               F[:,iF_bcsn] = F_bcsnow
         else:
-            F[:,9] = F_bcsnow
+            F[:,iF_bcsn] = F_bcsnow
 
         # Land use change - either use a scaling with cumulative CO2 emissions
         # or an external time series
@@ -535,18 +521,18 @@ def fair_scm(
         # concentrations
         if type(emissions) is not bool:
             if landuse_forcing.lower()[0]=='c':
-                F[:,10] = landuse.cumulative(emissions-E_pi, aCO2land=aCO2land)
+                F[:,iF_luch] = landuse.cumulative(emissions-E_pi, aCO2land=aCO2land)
             elif landuse_forcing.lower()[0]=='e':
-                F[:,10] = F_landuse
+                F[:,iF_luch] = F_landuse
             else:
                 raise ValueError(
                 "landuse_forcing should be one of 'co2' or 'external'")
         else:
-            F[:,10] = F_landuse
+            F[:,iF_luch] = F_landuse
 
         # Volcanic and solar copied straight to the output arrays
-        F[:,11] = F_volcanic
-        F[:,12] = F_solar
+        F[:,iF_volc] = F_volcanic
+        F[:,iF_solr] = F_solar
 
         # multiply by scale factors
         F[0,:] = F[0,:] * scale[0,:]
@@ -645,35 +631,41 @@ def fair_scm(
 
                 # 2. Radiative forcing
                 F[t,0:3] = ghg(C[t,0:3], C_pi[0:3], F2x=F2x, scale_F2x=scale_F2x)
-                F[t,3] = np.sum((C[t,3:] - C_pi[3:]) * radeff.aslist[3:]
-                  * 0.001)
+                if diagnostics=='AR6':
+                    F[t,3:31] = minor_gases(C[t,3:], C_pi[3:])
+                else:
+                    F[t,3] = np.sum(minor_gases(C[t,3:], C_pi[3:]))
+
                 if useStevenson and tropO3_forcing[0].lower()=='s':
-                    F[t,4] = ozone_tr.stevenson(emissions[t,:],
+                    F[t,iF_tro3] = ozone_tr.stevenson(emissions[t,:],
                       C[t,1],
                       T=T[t-1], 
                       feedback=useTropO3TFeedback,
                       fix_pre1850_RCP=fixPre1850RCP,
                       PI=pi_tro3)
                 elif tropO3_forcing[0].lower()=='c':
-                    F[t,4] = ozone_tr.cmip6_stevenson(emissions[t,:], C[t,1],
+                    F[t,iF_tro3] = ozone_tr.cmip6_stevenson(emissions[t,:], C[t,1],
                       T=np.sum(T_j[t,:]),
                       feedback=useTropO3TFeedback,
                       PI=np.array([C_pi[1],E_pi[6],E_pi[7],E_pi[8]]),
                       beta=b_tro3)
                 elif not useStevenson or tropO3_forcing[0].lower()=='r':
-                    F[t,4] = ozone_tr.regress(emissions[t,:]-E_pi, beta=b_tro3)
+                    F[t,iF_tro3] = ozone_tr.regress(emissions[t,:]-E_pi, beta=b_tro3)
                 else:
-                    F[t,4] = F_tropO3[t]
-                F[t,5] = ozone_st.magicc(C[t,15:], C_pi[15:])
-                F[t,6] = h2o_st.linear(F[t,1], ratio=stwv_from_ch4)
+                    F[t,iF_tro3] = F_tropO3[t]
+                F[t,iF_sto3] = ozone_st.magicc(C[t,15:], C_pi[15:])
+                F[t,iF_ch4h] = h2o_st.linear(F[t,1], ratio=stwv_from_ch4)
 
                 # multiply by scale factors
                 F[t,:] = F[t,:] * scale[t,:]
 
                 # 3. Temperature
                 # Update the thermal response boxes
-                T_j[t,:] = forc_to_temp(
-                  T_j[t-1,:], q[t,:], d, F[t,:], e=efficacy)
+                if temperature_function=='Millar':
+                    T_j[t,:] = forcing_to_temperature(
+                      T_j[t-1,:], q[t,:], d, F[t,:], e=efficacy)
+                else:
+                    pass # TODO
                 # Sum the thermal response boxes to get the total temperature
                 T[t]=np.sum(T_j[t,:],axis=-1)
 
@@ -720,7 +712,7 @@ def fair_scm(
 
                 F[t,0] = F[t,0] * scale[t]
 
-                T_j[t,:] = forc_to_temp(T_j[t-1,:], q[t,:], d, F[t,:])
+                T_j[t,:] = forcing_to_temperature(T_j[t-1,:], q[t,:], d, F[t,:])
                 T[t]=np.sum(T_j[t,:],axis=-1)
 
         else:
@@ -756,7 +748,7 @@ def fair_scm(
 
                 # 3. Temperature
                 # Update the thermal response boxes
-                T_j[t,:] = T_j[t,:] = forc_to_temp(
+                T_j[t,:] = T_j[t,:] = forcing_to_temperature(
                   T_j[t-1,:], q[t,:], d, F[t,:], e=efficacy)
                 # Sum the thermal response boxes to get the total temperature
                 T[t]=np.sum(T_j[t,:],axis=-1)
@@ -769,7 +761,7 @@ def fair_scm(
 
                 F[t,0] = F[t,0] * scale[t]
 
-                T_j[t,:] = forc_to_temp(T_j[t-1,:], q[t,:], d, F[t,:])
+                T_j[t,:] = forcing_to_temperature(T_j[t-1,:], q[t,:], d, F[t,:])
                 T[t]=np.sum(T_j[t,:],axis=-1)
 
     if not useMultigas:

@@ -8,6 +8,7 @@ from .forcing.ghg import co2_log
 from .defaults import carbon, thermal
 from .constants import molwt
 from .constants.general import ppm_gtc
+from .temperature.millar import forcing_to_temperature, calculate_q
 
 
 def infer_emissions(e1, c1_prescribed, carbon_boxes0, tau_new, a, c_pi):
@@ -177,12 +178,12 @@ def inverse_fair_scm(
             )
         )
         F[0]          = co2_log(C[0], C_pi, F2x=F2x) + other_rf[0]
-        T_j[0,:]      = forc_to_temp(T_j_minus1, q[0,:], d, F[0])
+        T_j[0,:]      = forcing_to_temperature(T_j_minus1, q[0,:], d, F[0])
     else:
         emissions[0]  = root(infer_emissions, 0., args=(C[0], R_i[0,:],
             tau, a, C_pi))['x']
         F[0]          = co2_log(C[0], C_pi, F2x=F2x) + other_rf[0]
-        T_j[0,:]      = forc_to_temp(T_j[0,:], q[0,:], d, F[0])
+        T_j[0,:]      = forcing_to_temperature(T_j[0,:], q[0,:], d, F[0])
 
     # Second timestep onwards
     for t in range(1,nt):
@@ -194,7 +195,7 @@ def inverse_fair_scm(
             )
         )
         F[t]     = co2_log(C[t], C_pi, F2x=F2x) + other_rf[t]
-        T_j[t,:] = forc_to_temp(T_j[t-1,:], q[t,:], d, F[t])
+        T_j[t,:] = forcing_to_temperature(T_j[t-1,:], q[t,:], d, F[t])
 
     # Output temperatures
     T = np.sum(T_j, axis=-1)

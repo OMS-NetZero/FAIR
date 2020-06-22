@@ -254,3 +254,16 @@ def test_co2only_scale_error():
         emissions = rcp85.Emissions.co2,
         useMultigas=False,
         scale=1.0)
+
+
+def test_41():
+    """Test 41-species forcing output"""
+    _, F41, _ = fair.forward.fair_scm(
+        emissions = rcp85.Emissions.emissions,
+        efficacy = np.ones(41),
+        diagnostics = 'AR6')
+    _, F13, _ = fair.forward.fair_scm(
+        emissions = rcp85.Emissions.emissions,
+        efficacy = np.ones(13))
+    assert np.allclose(F41.sum(axis=1), F13.sum(axis=1))
+
