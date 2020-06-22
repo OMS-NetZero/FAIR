@@ -11,6 +11,7 @@ from .defaults import carbon, thermal
 from .forcing import ozone_tr, ozone_st, h2o_st, contrails, aerosols, bc_snow,\
                                          landuse
 from .forcing.ghg import co2_log
+from .gas_cycle.gir import calculate_alpha, step_concentration
 
 
 def iirf_interp(alp_b,a,tau,iirf_h,targ_iirf):
@@ -272,6 +273,13 @@ def fair_scm(
     for arg_to_check in args:
         if type(values[arg_to_check]) is list:
             exec(arg_to_check + '= np.array(' + arg_to_check + ')')
+
+    # Initialise simplified carbon cycle parameters
+    if gir_carbon_cycle:
+        g1 = np.sum(a*tau * (1 - (1 + iirf_h/tau) * np.exp(-iirf_h/tau)))
+        g0 = 1/(np.sinh(np.sum(a*tau*(1 - np.exp(-iirf_h/tau)) , axis=-1)/g1))
+
+### START HERE
 
     # Set up the output timeseries variables depending on options and perform
     # basic sense checks
