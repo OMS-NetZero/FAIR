@@ -13,7 +13,8 @@ from .forcing import ozone_tr, ozone_st, h2o_st, contrails, aerosols, bc_snow,\
 from .gas_cycle.gir import calculate_alpha, step_concentration
 from .gas_cycle.fair1 import carbon_cycle
 from .forcing.ghg import co2_log, minor_gases
-from .temperature.millar import forcing_to_temperature, calculate_q
+from .temperature.millar import calculate_q
+
 
 
 # TODO: unified interface to the different carbon cycles
@@ -104,7 +105,11 @@ def fair_scm(
     bcsnow_forcing='emissions',
     diagnostics=None,
     gir_carbon_cycle=False,
-    temperature_function='Millar'
+    temperature_function='Millar',
+    lambda_global=1.18,  # this and the below only used in two-layer model
+    ocean_heat_capacity=np.array([8.2, 109.0]),
+    ocean_heat_exchange=0.67,
+    deep_ocean_efficacy=1.28,
     ):
 
     # Prevents later errors when SLCFs not specified
@@ -147,6 +152,14 @@ def fair_scm(
             cumulative_emissions = np.cumsum(emissions)
         airborne_emissions = np.zeros_like(cumulative_emissions)
 
+    # import correct conversion
+    if temperature_function=='Millar':
+        from .temperature.millar import forcing_to_temperature
+    elif temperature_function=='Geoffroy':
+        from .temperature.geoffroy import forcing_to_temperature
+    else:
+        raise ValueError('temperature_function must be "Millar" or "Geoffroy"')
+        
     # Set up the output timeseries variables depending on options and perform
     # basic sense checks
     if useMultigas:
@@ -179,13 +192,19 @@ def fair_scm(
                 raise ValueError(
                   "emissions timeseries should be a nt x 40 numpy array")
             carbon_boxes_shape = (emissions.shape[0], a.shape[0])
-            thermal_boxes_shape = (emissions.shape[0], d.shape[0])
+            if temperature_function=='Millar':
+                thermal_boxes_shape = (emissions.shape[0], d.shape[0])
+            else:
+                thermal_boxes_shape = (emissions.shape[0], d.shape[0], 2)
             nt = emissions.shape[0]
         else:
             if type(C) is not np.ndarray or C.shape[1] != ngas:
                 raise ValueError(
                   "C timeseries should be a nt x %d numpy array" % ngas)
-            thermal_boxes_shape = (C.shape[0], d.shape[0])
+            if temperature_function=='Millar':
+                thermal_boxes_shape = (C.shape[0], d.shape[0])
+            else:
+                thermal_boxes_shape = (C.shape[0], d.shape[0], 2)
             nt = C.shape[0]
         if np.isscalar(fossilCH4_frac):
             fossilCH4_frac = np.ones(nt) * fossilCH4_frac
@@ -273,14 +292,20 @@ def fair_scm(
                       "In CO2-only mode, emissions should be a 1D array")
                 nt = emissions.shape[0]
                 carbon_boxes_shape = (nt, a.shape[0])
-                thermal_boxes_shape = (nt, d.shape[0])
+                if temperature_function=='Millar':
+                    thermal_boxes_shape = (nt, d.shape[0])
+                else:
+                    thermal_boxes_shape = (nt, d.shape[0], 2)
             elif type(other_rf) is np.ndarray:
                 if other_rf.ndim != 1:
                     raise ValueError(
                       "In CO2-only mode, other_rf should be a 1D array")
                 nt = other_rf.shape[0]
                 carbon_boxes_shape = (nt, a.shape[0])
-                thermal_boxes_shape = (nt, d.shape[0])
+                if temperature_function=='Millar':
+                    thermal_boxes_shape = (nt, d.shape[0])
+                else:
+                    thermal_boxes_shape = (nt, d.shape[0], 2)
                 emissions = np.zeros(nt)
             else:
                 raise ValueError(
@@ -291,7 +316,10 @@ def fair_scm(
                 raise ValueError(
                   "In CO2-only mode, concentrations should be a 1D array")
             nt = C.shape[0]
-            thermal_boxes_shape = (nt, d.shape[0])
+            if temperature_function=='Millar':
+                thermal_boxes_shape = (nt, d.shape[0])
+            else:
+                thermal_boxes_shape = (nt, d.shape[0], 2)
             # expand C to 2D array for consistency with other calcs
             C = C.reshape((nt, 1))
 
@@ -313,7 +341,7 @@ def fair_scm(
             scale=scale*historical_scaling.co2[:nt]
 
     # If TCR and ECS are supplied, calculate q coefficients
-    if type(tcrecs) is np.ndarray:
+    if type(tcrecs) is np.ndarray and temperature_function=='Millar':
         q = calculate_q(tcrecs, d, F2x, tcr_dbl, nt)
 
     # Check a and tau are same size
@@ -335,6 +363,11 @@ def fair_scm(
     if emissions_driven:
         C = np.zeros((nt, ngas))
         R_i = np.zeros(carbon_boxes_shape)
+
+    if temperature_function!='Millar':
+        heatflux = np.zeros(nt)
+        ohc = np.zeros(nt)
+        lambda_eff = np.zeros(nt)
 
     if restart_in:
         R_minus1 = restart_in[0]
@@ -374,9 +407,11 @@ def fair_scm(
 
         if temperature_function=='Millar':
             T_j[0,:] = forcing_to_temperature(T_j_minus1, q[0,:], d, F[0,:])
+            T[0]=np.sum(T_j[0,:],axis=-1)
         else:
-            pass # TODO
-        T[0]=np.sum(T_j[0,:],axis=-1)
+            # leave unimplemented unless somebody invents a use case
+            raise(NotImplementedError('Restarts not implemented with Geoffroy '+
+                'temperature function'))
 
     else:
         # Initialise the carbon pools to be correct for first timestep in
@@ -546,7 +581,23 @@ def fair_scm(
 
     if restart_in == False:
         # Update the thermal response boxes
-        T_j[0,:] = (q[0,:]/d)*(np.sum(F[0,:]))
+        if temperature_function=='Millar':
+            T_j[0,:] = (q[0,:]/d)*(np.sum(F[0,:]))
+            T[0] = np.sum(T_j[0,:])
+        else:
+            T_j[0,:,:], heatflux[t], del_ohc, lambda_eff[t] = forcing_to_temperature(
+                T_j[0,:,:],
+                np.sum(F[0,:], axis=1),
+                np.sum(F[0,:], axis=1),
+                lambda_global=lambda_global,
+                ocean_heat_capacity=ocean_heat_capacity,
+                ocean_heat_exchange=ocean_heat_exchange,
+                deep_ocean_efficacy=deep_ocean_efficacy,
+                dt=1
+            )
+            T[0] = np.sum(T_j[0,:,:])
+            ohc[t] = ohc[0] + del_ohc
+
 
     # Sum the thermal response boxes to get the total temperature anomaly
     T[0]=np.sum(T_j[0,:],axis=-1)
@@ -664,10 +715,20 @@ def fair_scm(
                 if temperature_function=='Millar':
                     T_j[t,:] = forcing_to_temperature(
                       T_j[t-1,:], q[t,:], d, F[t,:], e=efficacy)
+                    T[t] = np.sum(T_j[t,:])
                 else:
-                    pass # TODO
-                # Sum the thermal response boxes to get the total temperature
-                T[t]=np.sum(T_j[t,:],axis=-1)
+                    T_j[t,:,:], heatflux[t], del_ohc, lambda_eff[t] = forcing_to_temperature(
+                        T_j[t-1,:,:],
+                        np.sum(F[t-1,:], axis=1),
+                        np.sum(F[t,:], axis=1),
+                        lambda_global=lambda_global,
+                        ocean_heat_capacity=ocean_heat_capacity,
+                        ocean_heat_exchange=ocean_heat_exchange,
+                        deep_ocean_efficacy=deep_ocean_efficacy,
+                        dt=1
+                    )
+                    T[t] = np.sum(T_j[t,:,:],axis=(1,2))
+                    ohc[t] = ohc[t-1] + del_ohc
 
             else:
                 if t == 1:
@@ -713,7 +774,7 @@ def fair_scm(
                 F[t,0] = F[t,0] * scale[t]
 
                 T_j[t,:] = forcing_to_temperature(T_j[t-1,:], q[t,:], d, F[t,:])
-                T[t]=np.sum(T_j[t,:],axis=-1)
+                T[t]=np.sum(T_j[t,:])
 
         else:
 
@@ -748,10 +809,23 @@ def fair_scm(
 
                 # 3. Temperature
                 # Update the thermal response boxes
-                T_j[t,:] = T_j[t,:] = forcing_to_temperature(
-                  T_j[t-1,:], q[t,:], d, F[t,:], e=efficacy)
-                # Sum the thermal response boxes to get the total temperature
-                T[t]=np.sum(T_j[t,:],axis=-1)
+                if temperature_function=='Millar':
+                    T_j[t,:] = forcing_to_temperature(
+                      T_j[t-1,:], q[t,:], d, F[t,:], e=efficacy)
+                    T[t] = np.sum(T_j[t,:])
+                else:
+                    T_j[t,:,:], heatflux[t], del_ohc, lambda_eff[t] = forcing_to_temperature(
+                        T_j[t-1,:,:],
+                        np.sum(F[t-1,:], axis=1),
+                        np.sum(F[t,:], axis=1),
+                        lambda_global=lambda_global,
+                        ocean_heat_capacity=ocean_heat_capacity,
+                        ocean_heat_exchange=ocean_heat_exchange,
+                        deep_ocean_efficacy=deep_ocean_efficacy,
+                        dt=1
+                    )
+                    T[t] = np.sum(T_j[t,:,:],axis=(1,2))
+                    ohc[t] = ohc[t-1] + del_ohc
 
             else:
                 if np.isscalar(other_rf):
@@ -761,8 +835,22 @@ def fair_scm(
 
                 F[t,0] = F[t,0] * scale[t]
 
-                T_j[t,:] = forcing_to_temperature(T_j[t-1,:], q[t,:], d, F[t,:])
-                T[t]=np.sum(T_j[t,:],axis=-1)
+                if temperature_function=='Millar':
+                    T_j[t,:] = forcing_to_temperature(T_j[t-1,:], q[t,:], d, F[t,:])
+                    T[t] = np.sum(T_j[t,:])
+                else:
+                    T_j[t,:,:], heatflux[t], del_ohc, lambda_eff[t] = forcing_to_temperature(
+                        T_j[t-1,:,:],
+                        np.sum(F[t-1,:], axis=1),
+                        np.sum(F[t,:], axis=1),
+                        lambda_global=lambda_global,
+                        ocean_heat_capacity=ocean_heat_capacity,
+                        ocean_heat_exchange=ocean_heat_exchange,
+                        deep_ocean_efficacy=deep_ocean_efficacy,
+                        dt=1
+                    )
+                    T[t] = np.sum(T_j[t,:,:],axis=(1,2))
+                    ohc[t] = ohc[t-1] + del_ohc
 
     if not useMultigas:
         C = np.squeeze(C)
@@ -777,6 +865,13 @@ def fair_scm(
         return C, F, T, restart_out_val
 
     if ariaci_out:
-        return C, F, T, ariaci
+        if temperature_function=='Geoffroy':
+            return C, F, T, ariaci, lambda_eff, ohc, heatflux
+        else:
+            return C, F, T, ariaci
     else:
-        return C, F, T
+        if temperature_function=='Geoffroy':
+            return C, F, T, lambda_eff, ohc, heatflux
+        else:
+            return C, F, T
+
