@@ -202,7 +202,7 @@ def fair_scm(
         g1 = np.sum(a*tau * (1 - (1 + iirf_h/tau) * np.exp(-iirf_h/tau)))
         g0 = 1/(np.sinh(np.sum(a*tau*(1 - np.exp(-iirf_h/tau)) , axis=-1)/g1))
         if useMultigas:
-            cumulative_emissions = np.cumsum(emissions[:,1:3], axis=1)
+            cumulative_emissions = np.cumsum(emissions[:,1:3].sum(axis=1))
         else:
             cumulative_emissions = np.cumsum(emissions)
         airborne_emissions = np.zeros_like(cumulative_emissions)
@@ -582,13 +582,13 @@ def fair_scm(
 
                 if gir_carbon_cycle:
                     time_scale_sf = calculate_alpha(
-                        cumulative_emissions[0],
-                        airborne_emissions[0],
+                        cumulative_emissions[t-1],
+                        airborne_emissions[t-1],
                         T[t-1],
-                        r0, rC, rT, g0, g1)
+                        r0, rc, rt, g0, g1)
                     C[t,0], R_i[t,:], airborne_emissions[t] = step_concentration(
                         R_i[t-1,:] + oxidised_CH4,
-                        emissions[t-1],
+                        np.sum(emissions[t-1,1:3]),
                         time_scale_sf,
                         a,
                         tau,
@@ -682,10 +682,10 @@ def fair_scm(
                     time_scale_sf = 0.16
                 if gir_carbon_cycle:
                     time_scale_sf = calculate_alpha(
-                        cumulative_emissions[0],
-                        airborne_emissions[0],
+                        cumulative_emissions[t-1],
+                        airborne_emissions[t-1],
                         T[t-1],
-                        r0, rC, rT, g0, g1)
+                        r0, rc, rt, g0, g1)
                     C[t,0], R_i[t,:], airborne_emissions[t] = step_concentration(
                         R_i[t-1,:] + oxidised_CH4,
                         emissions[t-1],

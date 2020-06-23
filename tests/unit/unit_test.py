@@ -415,3 +415,9 @@ def test_cmip6_stevenson():
 
     # check differences
     assert np.any(F2[:,4]!=F1[:,4])
+
+def test_gir():
+    C,F,T = fair.forward.fair_scm(
+      emissions=rcp85.Emissions.emissions,
+      gir_carbon_cycle=True
+    )

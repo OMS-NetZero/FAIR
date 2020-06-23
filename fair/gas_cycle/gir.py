@@ -34,7 +34,6 @@ def calculate_alpha(cumulative_emissions,airborne_emissions,temperature,r0,rC,rT
         alpha: scaling factor.
     """
     iirf = r0 + rC * (cumulative_emissions-airborne_emissions) + rT * temperature
-    iirf = np.abs(iirf)  # CS: not sure I understand this - it should never be negative
     iirf = (iirf>iirf_max) * iirf_max + iirf * (iirf<iirf_max)
     alpha = g0 * np.sinh(iirf / g1)
     return alpha
