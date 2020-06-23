@@ -148,7 +148,7 @@ def fair_scm(
     stevens_params = np.array([0.001875, 0.634, 60.]),
     ref_isSO2=True, # is Stevens SO2 emissions in units SO2 (T) or S (F)
     useMultigas=True,
-    useStevenson=True,   # deprecate this switch in v1.6
+    useStevenson=True,   # deprecate this switch in v1.7
     tropO3_forcing='stevenson',
     lifetimes=False,
     aerosol_forcing="aerocom+ghan",
@@ -172,7 +172,7 @@ def fair_scm(
         tropO3_forcing='external'
 
     if useStevenson is not None:
-        warnings.warn('"useStevenson" will be deprecated in v1.6; use '+
+        warnings.warn('"useStevenson" will be deprecated in the future; use '+
           'tropO3_forcing keyword with "cmip6", "stevenson", "regression" or "external"',
           DeprecationWarning)
 
