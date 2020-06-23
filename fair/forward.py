@@ -11,7 +11,7 @@ from .defaults import carbon, thermal
 from .forcing import ozone_tr, ozone_st, h2o_st, contrails, aerosols, bc_snow,\
                                          landuse
 from .forcing.ghg import co2_log
-#from .gas_cycle.gir import calculate_alpha, step_concentration
+from .gas_cycle.gir import calculate_alpha, step_concentration
 from .gas_cycle.fair1 import carbon_cycle
 
 
@@ -201,10 +201,11 @@ def fair_scm(
     if gir_carbon_cycle:
         g1 = np.sum(a*tau * (1 - (1 + iirf_h/tau) * np.exp(-iirf_h/tau)))
         g0 = 1/(np.sinh(np.sum(a*tau*(1 - np.exp(-iirf_h/tau)) , axis=-1)/g1))
-# TODO
-#        from .gas_cycle.gir import calculate_alpha, step_concentration
-#    else:
-#        from .gas_cycle.fair1 import calculate_alpha, step_concentration
+        if useMultigas:
+            cumulative_emissions = np.cumsum(emissions[:,1:3], axis=1)
+        else:
+            cumulative_emissions = np.cumsum(emissions)
+        airborne_emissions = np.zeros_like(cumulative_emissions)
 
     # Set up the output timeseries variables depending on options and perform
     # basic sense checks
@@ -380,23 +381,27 @@ def fair_scm(
         E_minus1 = restart_in[3]
         C_minus1 = np.sum(R_minus1,axis=-1) + C_0[0]
 
-        C[0,0], C_acc[0], R_i[0,:], time_scale_sf = carbon_cycle(
-          E_minus1,
-          C_acc_minus1,
-          np.sum(T_j_minus1),
-          r0,
-          rc,
-          rt,
-          iirf_max,
-          0.16,
-          a,
-          tau,
-          iirf_h,
-          R_minus1,
-          C_pi[0],
-          C_minus1,
-          emissions[0]
-        )
+        if gir_carbon_cycle:
+            raise NotImplementedError('GIR carbon cycle not configured to ' +
+                'work with restarts')
+        else:
+            C[0,0], C_acc[0], R_i[0,:], time_scale_sf = carbon_cycle(
+              E_minus1,
+              C_acc_minus1,
+              np.sum(T_j_minus1),
+              r0,
+              rc,
+              rt,
+              iirf_max,
+              0.16,
+              a,
+              tau,
+              iirf_h,
+              R_minus1,
+              C_pi[0],
+              C_minus1,
+              emissions[0]
+            )
 
         if np.isscalar(other_rf):
             F[0,0] = co2_log(C[0,0], C_pi[0], F2x) + other_rf
@@ -575,23 +580,38 @@ def fair_scm(
                   (molwt.C/molwt.CH4 * 0.001 * oxCH4_frac * fossilCH4_frac[t]))
                 oxidised_CH4 = np.max((oxidised_CH4, 0))
 
-                C[t,0], C_acc[t], R_i[t,:], time_scale_sf = carbon_cycle(
-                  np.sum(emissions[t-1,1:3]),
-                  C_acc[t-1],
-                  T[t-1],
-                  r0,
-                  rc,
-                  rt,
-                  iirf_max,
-                  time_scale_sf,
-                  a,
-                  tau,
-                  iirf_h,
-                  R_i[t-1,:] + oxidised_CH4,
-                  C_pi[0],
-                  C[t-1,0],
-                  np.sum(emissions[t,1:3])
-                )
+                if gir_carbon_cycle:
+                    time_scale_sf = calculate_alpha(
+                        cumulative_emissions[0],
+                        airborne_emissions[0],
+                        T[t-1],
+                        r0, rC, rT, g0, g1)
+                    C[t,0], R_i[t,:], airborne_emissions[t] = step_concentration(
+                        R_i[t-1,:] + oxidised_CH4,
+                        emissions[t-1],
+                        time_scale_sf,
+                        a,
+                        tau,
+                        C_pi[0],
+                    )
+                else:
+                    C[t,0], C_acc[t], R_i[t,:], time_scale_sf = carbon_cycle(
+                      np.sum(emissions[t-1,1:3]),
+                      C_acc[t-1],
+                      T[t-1],
+                      r0,
+                      rc,
+                      rt,
+                      iirf_max,
+                      time_scale_sf,
+                      a,
+                      tau,
+                      iirf_h,
+                      R_i[t-1,:] + oxidised_CH4,
+                      C_pi[0],
+                      C[t-1,0],
+                      np.sum(emissions[t,1:3])
+                    )
 
                 # b. METHANE
                 C[t,1] = emis_to_conc(
@@ -660,23 +680,39 @@ def fair_scm(
             else:
                 if t == 1:
                     time_scale_sf = 0.16
-                C[t,0], C_acc[t], R_i[t,:], time_scale_sf = carbon_cycle(
-                  emissions[t-1],
-                  C_acc[t-1],
-                  T[t-1],
-                  r0,
-                  rc,
-                  rt,
-                  iirf_max,
-                  time_scale_sf,
-                  a,
-                  tau,
-                  iirf_h,
-                  R_i[t-1,:],
-                  C_pi[0],
-                  C[t-1,0],
-                  emissions[t]
-                )
+                if gir_carbon_cycle:
+                    time_scale_sf = calculate_alpha(
+                        cumulative_emissions[0],
+                        airborne_emissions[0],
+                        T[t-1],
+                        r0, rC, rT, g0, g1)
+                    C[t,0], R_i[t,:], airborne_emissions[t] = step_concentration(
+                        R_i[t-1,:] + oxidised_CH4,
+                        emissions[t-1],
+                        time_scale_sf,
+                        a,
+                        tau,
+                        C_pi[0],
+                    )
+                else:
+                    C[t,0], C_acc[t], R_i[t,:], time_scale_sf = carbon_cycle(
+                      emissions[t-1],
+                      C_acc[t-1],
+                      T[t-1],
+                      r0,
+                      rc,
+                      rt,
+                      iirf_max,
+                      time_scale_sf,
+                      a,
+                      tau,
+                      iirf_h,
+                      R_i[t-1,:],
+                      C_pi[0],
+                      C[t-1,0],
+                      emissions[t]
+                    )
+
                 if np.isscalar(other_rf):
                     F[t,0] = co2_log(C[t,0], C_pi[0], F2x) + other_rf
                 else:
