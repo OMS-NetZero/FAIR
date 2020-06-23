@@ -2,7 +2,8 @@ from __future__ import division
 
 import numpy as np
 from scipy.optimize import root
-from .forward import forc_to_temp, calculate_q, iirf_simple, iirf_interp
+from .forward import forc_to_temp, calculate_q
+from .gas_cycle.fair1 import _iirf_simple, _iirf_interp
 from .forcing.ghg import co2_log
 from .defaults import carbon, thermal
 from .constants import molwt
@@ -61,8 +62,8 @@ def inverse_carbon_cycle(c1, c_acc0, temp, r0, rc, rt, iirf_max, time_scale_sf,
     """
      
 
-    iirf = iirf_simple(c_acc0, temp, r0, rc, rt, iirf_max)
-    time_scale_sf = root(iirf_interp, time_scale_sf,
+    iirf = _iirf_simple(c_acc0, temp, r0, rc, rt, iirf_max)
+    time_scale_sf = root(_iirf_interp, time_scale_sf,
       args=(a, tau, iirf_h, iirf))['x']
     tau_new = tau * time_scale_sf
     e1 = root(infer_emissions, e0, args=(c1, carbon_boxes0, tau_new, a, c_pi))['x']
