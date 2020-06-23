@@ -2,7 +2,6 @@ from __future__ import division
 
 import numpy as np
 from scipy.optimize import root
-from .forward import forc_to_temp, calculate_q
 from .gas_cycle.fair1 import _iirf_simple, _iirf_interp
 from .forcing.ghg import co2_log
 from .defaults import carbon, thermal
