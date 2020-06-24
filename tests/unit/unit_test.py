@@ -271,7 +271,7 @@ def test_iirf_simple():
     c_acc = 1000.
     temp = 1.5
 
-    iirf = fair.forward.iirf_simple(c_acc, temp, r0, rc, rt, iirf_max)
+    iirf = fair.gas_cycle.fair1._iirf_simple(c_acc, temp, r0, rc, rt, iirf_max)
     assert iirf == r0 + rc*c_acc + rt*temp
 
 
@@ -281,7 +281,7 @@ def test_iirf_simple_max():
     rt = 4.165
     c_acc = 1000.
     temp = 1.5
-    iirf = fair.forward.iirf_simple(c_acc, temp, r0, rc, rt, 32)
+    iirf = fair.gas_cycle.fair1._iirf_simple(c_acc, temp, r0, rc, rt, 32)
     assert iirf == 32
 
 
@@ -317,7 +317,7 @@ def test_carbon_cycle():
 
     for t in range(1,nt):
         concentrations[t], c_acc[t], carbon_boxes[t,:], time_scale_sf = (
-            fair.forward.carbon_cycle(
+            fair.gas_cycle.fair1.carbon_cycle(
                 emissions[t-1],
                 c_acc[t-1],
                 t_full[t-1],
@@ -415,3 +415,9 @@ def test_cmip6_stevenson():
 
     # check differences
     assert np.any(F2[:,4]!=F1[:,4])
+
+def test_gir():
+    C,F,T = fair.forward.fair_scm(
+      emissions=rcp85.Emissions.emissions,
+      gir_carbon_cycle=True
+    )

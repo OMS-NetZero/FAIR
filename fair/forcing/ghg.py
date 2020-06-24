@@ -2,6 +2,8 @@ from __future__ import division
 
 import numpy as np
 
+from ..constants import radeff
+
 def etminan(C, Cpi, F2x=3.71, scale_F2x=True):
     """Calculate the radiative forcing from CO2, CH4 and N2O.
 
@@ -83,3 +85,18 @@ def myhre(C, Cpi, F2x=3.71, scale_F2x=None):
       MN(Cpi[1],C[2]) - MN(Cpi[1],Cpi[2])) 
 
     return F
+
+
+def minor_gases(C, Cpi):
+    """
+    Calculate radiative forcing from minor gas species.
+
+    Inputs:
+        C: concentration of minor GHGs (in order of MAGICC RCP concentration
+            spreadsheets)
+        Cpi: Pre-industrial concentrations of GHGs
+    Returns:
+        28 element array of minor GHG forcings
+    """
+
+    return (C - Cpi) * radeff.aslist[3:] * 0.001

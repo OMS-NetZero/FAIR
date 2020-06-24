@@ -2,11 +2,12 @@ from __future__ import division
 
 import numpy as np
 from scipy.optimize import root
-from .forward import forc_to_temp, calculate_q, iirf_simple, iirf_interp
+from .gas_cycle.fair1 import _iirf_simple, _iirf_interp
 from .forcing.ghg import co2_log
 from .defaults import carbon, thermal
 from .constants import molwt
 from .constants.general import ppm_gtc
+from .temperature.millar import forcing_to_temperature, calculate_q
 
 
 def infer_emissions(e1, c1_prescribed, carbon_boxes0, tau_new, a, c_pi):
@@ -61,8 +62,8 @@ def inverse_carbon_cycle(c1, c_acc0, temp, r0, rc, rt, iirf_max, time_scale_sf,
     """
      
 
-    iirf = iirf_simple(c_acc0, temp, r0, rc, rt, iirf_max)
-    time_scale_sf = root(iirf_interp, time_scale_sf,
+    iirf = _iirf_simple(c_acc0, temp, r0, rc, rt, iirf_max)
+    time_scale_sf = root(_iirf_interp, time_scale_sf,
       args=(a, tau, iirf_h, iirf))['x']
     tau_new = tau * time_scale_sf
     e1 = root(infer_emissions, e0, args=(c1, carbon_boxes0, tau_new, a, c_pi))['x']
@@ -176,12 +177,12 @@ def inverse_fair_scm(
             )
         )
         F[0]          = co2_log(C[0], C_pi, F2x=F2x) + other_rf[0]
-        T_j[0,:]      = forc_to_temp(T_j_minus1, q[0,:], d, F[0])
+        T_j[0,:]      = forcing_to_temperature(T_j_minus1, q[0,:], d, F[0])
     else:
         emissions[0]  = root(infer_emissions, 0., args=(C[0], R_i[0,:],
             tau, a, C_pi))['x']
         F[0]          = co2_log(C[0], C_pi, F2x=F2x) + other_rf[0]
-        T_j[0,:]      = forc_to_temp(T_j[0,:], q[0,:], d, F[0])
+        T_j[0,:]      = forcing_to_temperature(T_j[0,:], q[0,:], d, F[0])
 
     # Second timestep onwards
     for t in range(1,nt):
@@ -193,7 +194,7 @@ def inverse_fair_scm(
             )
         )
         F[t]     = co2_log(C[t], C_pi, F2x=F2x) + other_rf[t]
-        T_j[t,:] = forc_to_temp(T_j[t-1,:], q[t,:], d, F[t])
+        T_j[t,:] = forcing_to_temperature(T_j[t-1,:], q[t,:], d, F[t])
 
     # Output temperatures
     T = np.sum(T_j, axis=-1)

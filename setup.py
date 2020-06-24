@@ -24,6 +24,7 @@ setup(name='fair',
           'matplotlib',
           'numpy>=1.11.3',
           'scipy>=0.19.0',
+          'pandas'
       ],
       zip_safe=False,
       extras_require={'docs': ['sphinx>=1.4', 'nbsphinx'],

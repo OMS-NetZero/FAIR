@@ -3,6 +3,8 @@ Changelog
 
 master
 ------
+(`#76 <https://github.com/OMS-NetZero/FAIR/pull/76>`_) Added in the GIR carbon cycle as an option and ScmDataFrame reader, required for openscm-runner and iiasa-climate-assessment
+
 (`#69 <https://github.com/OMS-NetZero/FAIR/pull/69>`_) Added in switch to directly specify tropospheric ozone forcing time series and added in AR6 radiative efficiencies, lifetimes and molecular weights
 
 (`#68 <https://github.com/OMS-NetZero/FAIR/pull/68>`_) Attempting to infill CFCs before 1765 raises ValueError
