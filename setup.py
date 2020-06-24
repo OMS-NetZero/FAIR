@@ -22,7 +22,7 @@ setup(name='fair',
       include_package_data=True,
       install_requires=[
           'matplotlib',
-          'numpy>=1.11.3',
+          'numpy>=1.14.5',
           'scipy>=0.19.0',
           'pandas'
       ],
