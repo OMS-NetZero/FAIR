@@ -93,5 +93,5 @@ def forcing_to_temperature(
     else:
         lambda_eff = lambda_global + factor_lambda_eff
         
-    return np.array([temp_mix1, temp_deep1]).T, heatflux, del_ohc, lambda_eff
+    return np.array([temp_mix1, temp_deep1]), heatflux, del_ohc, lambda_eff
 

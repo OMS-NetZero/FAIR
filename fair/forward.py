@@ -770,8 +770,24 @@ def fair_scm(
 
                 F[t,0] = F[t,0] * scale[t]
 
-                T_j[t,:] = forcing_to_temperature(T_j[t-1,:], q[t,:], d, F[t,:])
-                T[t]=np.sum(T_j[t,:])
+                if temperature_function=='Millar':
+                    T_j[t,:] = forcing_to_temperature(
+                      T_j[t-1,:], q[t,:], d, F[t,:])
+                    T[t] = np.sum(T_j[t,:])
+                else:
+                    T_j[t,:,:], heatflux[t], del_ohc, lambda_eff[t] = forcing_to_temperature(
+                        T_j[t-1,:,:],
+                        np.sum(F[t-1,:]),
+                        np.sum(F[t,:]),
+                        lambda_global=lambda_global,
+                        ocean_heat_capacity=ocean_heat_capacity,
+                        ocean_heat_exchange=ocean_heat_exchange,
+                        deep_ocean_efficacy=deep_ocean_efficacy,
+                        dt=1
+                    )
+                    T[t] = np.sum(T_j[t,:,:], axis=1)[0]
+                    ohc[t] = ohc[t-1] + del_ohc
+
 
         else:
 

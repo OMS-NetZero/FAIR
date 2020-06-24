@@ -18,7 +18,7 @@ Impulse Response (FaIR) model run in the jupyter notebook.
 
 .. parsed-literal::
 
-    '1.5.1+8.g1e64862.dirty'
+    '1.5.1+15.g4289e4f.dirty'
 
 
 
@@ -361,7 +361,7 @@ upper limit on the time-integrated airborne fraction.
 
 .. parsed-literal::
 
-    /nfs/see-fs-02_users/mencsm/FAIR/fair/forward.py:182: RuntimeWarning: iirf_h=60.000000, which is less than iirf_max (97.000000)
+    /nfs/see-fs-02_users/mencsm/FAIR/fair/forward.py:127: RuntimeWarning: iirf_h=60.000000, which is less than iirf_max (97.000000)
       % (iirf_h, iirf_max), RuntimeWarning)
 
 
@@ -1526,5 +1526,89 @@ uncertain that this level of approximation is sufficient.
 
 
 .. image:: examples_files/examples_59_0.png
+
+
+Geoffroy temperature function
+-----------------------------
+
+We can use a different forcing to temperature coupling other than the
+one provided by default in FaIR. The two-layer model of Geoffroy et al.,
+(2013
+`a <https://journals.ametsoc.org/jcli/article/26/6/1841/33256/Transient-Climate-Response-in-a-Two-Layer-Energy>`__,
+`b <https://journals.ametsoc.org/jcli/article/26/6/1859/33259/Transient-Climate-Response-in-a-Two-Layer-Energy>`__)
+is mathematically equivalent but is specified in terms of ocean heat
+capacity, heat exchange and climate feedback, and allows for diagnosis
+of ocean heat uptake.
+
+The call to ``fair_scm`` takes different parameters. Set
+``temperature_function="Geoffroy"`` to use the two-layer model.
+``lambda_global`` sets the climate feedback parameter,
+``ocean_heat_capacity`` sets ocean heat capacity for the mixed and deep
+layers (2-element array), ``deep_ocean_efficacy`` is the efficacy factor
+and ``ocean_heat_exchange`` is the heat transfer coefficient between the
+two layers. It can be shown that the two specifications are
+mathematically equivalent - slight differences in the temperature
+response are probably due to timestepping and/or imprecision in the
+input parameters.
+
+Below, the model response is tuned based on the MIROC5 model (see the
+Geoffroy papers for parameters).
+
+Thanks to Zeb Nicholls and Glen Harris for implementations of the
+two-layer model, some of which was used here.
+
+.. code:: ipython3
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(221)
+    ax2 = fig.add_subplot(222)
+    ax3 = fig.add_subplot(223)
+    ax4 = fig.add_subplot(224)
+    
+    C, F, T_irm = fair.forward.fair_scm(
+        emissions = rcp45.Emissions.emissions,
+        tcrecs=np.array([1.803,2.816]),
+        F2x=4.45,
+        scale_F2x=False,
+        d=np.array([337.4, 3.53]),
+    )
+    
+    C, F, T_tlm, lambda_eff, ohc, heatflux = fair.forward.fair_scm(
+        emissions = rcp45.Emissions.emissions,
+        temperature_function='Geoffroy',
+        lambda_global=1.58,
+        ocean_heat_capacity=np.array([8.7,158]),
+        deep_ocean_efficacy=1.19,
+        ocean_heat_exchange=0.73,
+        F2x=4.45,
+        scale_F2x=False
+    )
+    
+    ax1.plot(rcp45.Emissions.year, T_tlm, label='Geoffroy definition');
+    ax1.plot(rcp45.Emissions.year, T_irm, label='Impulse response definition')
+    ax1.legend()
+    ax1.set_title('Global mean surface temperature')
+    ax1.set_ylabel('K')
+    ax2.plot(rcp45.Emissions.year, ohc)
+    ax2.set_title('Ocean heat uptake')
+    ax2.set_ylabel('J')
+    ax3.plot(rcp45.Emissions.year, heatflux)
+    ax3.set_title('TOA energy imbalance')
+    ax3.set_ylabel('W m$^{-2}$')
+    ax4.plot(rcp45.Emissions.year, lambda_eff)
+    ax4.set_title('Effective climate feedback')
+    ax4.set_ylabel('W m^${-2}$ K$^{-1}$')
+
+
+
+
+.. parsed-literal::
+
+    Text(0, 0.5, 'W m^${-2}$ K$^{-1}$')
+
+
+
+
+.. image:: examples_files/examples_61_1.png
 
 
