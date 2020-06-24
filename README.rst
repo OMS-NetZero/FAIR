@@ -12,7 +12,7 @@ Finite Amplitude Impulse-Response simple climate-carbon-cycle model
 Installation
 ------------
 
-#. Make sure you have Python 2 or 3 and pip installed
+#. Make sure you have Python 3.6+ and pip installed
 #. From terminal/command prompt ``pip install fair``
 
 Usage
