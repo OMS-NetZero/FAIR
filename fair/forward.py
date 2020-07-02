@@ -504,11 +504,14 @@ def fair_scm(
             elif 'aerocom' in aerosol_forcing.lower():
                 ariaci[:,0] = aerosols.aerocom_direct(emissions, beta=b_aero,
                   E_pi=E_pi)
-                if 'ghan' in aerosol_forcing.lower():
+                if 'ghan2' in aerosol_forcing.lower():
+                    ariaci[:,1] = aerosols.ghan2(emissions, E_pi, ghan_params)
+                elif 'ghan' in aerosol_forcing.lower():
                     ariaci[:,1] = aerosols.ghan_indirect(emissions,
                       scale_AR5=scaleAerosolAR5,
                       fix_pre1850_RCP=fixPre1850RCP,
-                      ghan_params=ghan_params)
+                      ghan_params=ghan_params,
+                      E_pi=E_pi)
                 elif 'stevens' in aerosol_forcing.lower():
                     _, ariaci[:,1] = aerosols.Stevens(
                       emissions, stevens_params=stevens_params, E_pi=E_pi[5],

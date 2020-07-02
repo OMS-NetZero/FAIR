@@ -154,3 +154,11 @@ def ghan_indirect(emissions, fix_pre1850_RCP=True, scale_AR5=False,
 
     ERFaci = (F_pd - F_1765) * scale
     return ERFaci
+
+
+def ghan2(emissions, E_pi, ghan_params):
+    """temphack for fair1.6"""
+    beta, n_so2, n_pom = ghan_params
+    pd_re = -beta * np.log(1 + emissions[:,5]/n_so2 + emissions[:,9:11].sum(axis=1)/n_pom)
+    pi_re = -beta * np.log(1 + E_pi[5]/n_so2 + E_pi[9:11].sum()/n_pom)
+    return pd_re - pi_re
