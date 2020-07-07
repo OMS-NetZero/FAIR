@@ -8,8 +8,8 @@ def readme():
         return f.read()
 
 AUTHORS = [
-    ("Chris Smith", "c.j.smith1@leeds.ac.uk")
-    ("Richard Millar", "richard.millar@ouce.ox.ac.uk")
+    ("Chris Smith", "c.j.smith1@leeds.ac.uk"),
+    ("Richard Millar", "richard.millar@ouce.ox.ac.uk"),
     ("Zeb Nicholls", "zebedee.nicholls@climate-energy-college.org"),
     ("Myles Allen", "myles.allen@ouce.ox.ac.uk"),
 ]
