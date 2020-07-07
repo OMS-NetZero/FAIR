@@ -7,6 +7,13 @@ def readme():
     with open('README.rst') as f:
         return f.read()
 
+AUTHORS = [
+    ("Chris Smith", "c.j.smith1@leeds.ac.uk")
+    ("Richard Millar", "richard.millar@ouce.ox.ac.uk")
+    ("Zeb Nicholls", "zebedee.nicholls@climate-energy-college.org"),
+    ("Myles Allen", "myles.allen@ouce.ox.ac.uk"),
+]
+
 setup(
     name='fair',
     version=versioneer.get_version(),
@@ -15,8 +22,8 @@ setup(
     long_description=readme(),
     keywords='simple climate model temperature response carbon cycle emissions forcing',
     url='https://github.com/OMS-NetZero/FAIR',
-    author='OMS-NetZero, Chris Smith, Richard Millar, Zebedee Nicholls, Myles Allen',
-    author_email='c.j.smith1@leeds.ac.uk',
+    author=", ".join([author[0] for author in AUTHORS]),
+    author_email=", ".join([author[1] for author in AUTHORS]),
     license='Apache 2.0',
     packages=find_packages(exclude=['tests*','docs*']),
     package_data={'': ['*.csv']},
