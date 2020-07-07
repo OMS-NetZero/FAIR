@@ -887,7 +887,10 @@ def fair_scm(
             return C, F, T, ariaci
     else:
         if temperature_function=='Geoffroy':
-            return C, F, T, lambda_eff, ohc, heatflux
+            if gir_carbon_cycle:
+                return C, F, T, lambda_eff, ohc, heatflux, airborne_emissions
+            else:
+                return C, F, T, lambda_eff, ohc, heatflux
         else:
             return C, F, T
 
