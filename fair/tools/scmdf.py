@@ -31,16 +31,16 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
             MAGICC files do not come loaded with CFCs (indices 24-39).
             - if True, use the values from RCMIP for SSPs (all scenarios are
                 the same).
-            - Use False to ignore and create a 24-iamc_species emission file.
+            - Use False to ignore and create a 23-species emission file.
         startyear: First year of output file.
         endyear: Last year of output file.
 
     Returns:
-        nt x 40 numpy emissions array
+        nt x 40 numpy emissions array (nt x 23 if ``include_cfcs`` is ``False``)
     """
 
     # We expect that aeneris and silicone are going to give us a nicely
-    # formatted ScmDataFrame with all 23 iamc_species present and correct at
+    # formatted ScmDataFrame with all 23 species present and correct at
     # timesteps 2015, 2020 and ten-yearly to 2100.
     # We also implicitly assume that data up until 2014 will follow SSP
     # historical.
@@ -142,7 +142,10 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
         if i < 23:
             f = interp1d(
                 years,
-                scmdf.filter(variable="*{}".format(iamc_species[i]), region="World").values.squeeze()
+                scmdf.filter(
+                    variable="*{}".format(iamc_species[i]),
+                    region="World"
+                ).values.squeeze()
             )
             data_out[first_scen_row:(last_scen_row+1), i+1] = f(
                 np.arange(first_scenyear, last_scenyear+1)
