@@ -15,9 +15,8 @@ except ImportError:
 
 
 def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
-
     """
-    Opens a ScmDataFrame and extracts the data. Interpolates linearly
+    Opens an ScmDataFrame and extracts the data. Interpolates linearly
     between non-consecutive years in the SCEN file. Fills in chlorinated gases
     from a specified SSP scenario.
 
