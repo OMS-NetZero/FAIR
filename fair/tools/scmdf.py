@@ -7,6 +7,13 @@ from scipy.interpolate import interp1d
 
 from ..constants import molwt
 
+try:
+    from scmdata import ScmDataFrame
+    has_scmdata = True
+except ImportError:
+    has_scmdata = False
+
+
 def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
 
     """
@@ -24,7 +31,7 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
             MAGICC files do not come loaded with CFCs (indices 24-39).
             - if True, use the values from RCMIP for SSPs (all scenarios are
                 the same).
-            - Use False to ignore and create a 24-species emission file.
+            - Use False to ignore and create a 24-iamc_species emission file.
         startyear: First year of output file.
         endyear: Last year of output file.
 
@@ -33,29 +40,40 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
     """
 
     # We expect that aeneris and silicone are going to give us a nicely
-    # formatted ScmDataFrame with all 23 species present and correct at
+    # formatted ScmDataFrame with all 23 iamc_species present and correct at
     # timesteps 2015, 2020 and ten-yearly to 2100.
     # We also implicitly assume that data up until 2014 will follow SSP
     # historical.
     # This adapter will not be tested on anything else!
 
-    n_timepoints = scmdf.shape[1]
     n_cols = 40
     nt = endyear - startyear + 1
 
     data_out = np.ones((nt, n_cols)) * np.nan
     data_out[:,0] = np.arange(startyear, endyear+1)
 
-    # fill in 1765 to 2014 from SSP emissions
-    ssp_df = pd.read_csv(os.path.join(os.path.dirname(__file__), '../SSPs/data/rcmip-emissions-annual-means-4-0-0-ssp-only.csv'))
+    if not has_scmdata:
+        raise ImportError("This is not going to work without having scmdata installed")
 
-    years = scmdf.columns
+    if not isinstance(scmdf, ScmDataFrame):
+        raise TypeError("scmdf must be an scmdata.ScmDataFrame instance")
+
+    if not include_cfcs:
+        raise NotImplementedError("include_cfcs equal to False")
+
+    if scmdf[["model", "scenario"]].drop_duplicates().shape[0] != 1:
+        raise AssertionError("Should only have one model-scenario pair")
+
+    # fill in 1765 to 2014 from SSP emissions
+    ssp_df = ScmDataFrame(os.path.join(os.path.dirname(__file__), '../SSPs/data/rcmip-emissions-annual-means-4-0-0-ssp-only.csv'))
+
+    years = scmdf["year"].values
     first_scenyear = years[0]
     last_scenyear = years[-1]
-    first_row = int(first_scenyear-startyear)
-    last_row = int(last_scenyear-startyear)
-    
-    species = [  # in fair 1.6, order is important
+    first_scen_row = int(first_scenyear-startyear)
+    last_scen_row = int(last_scenyear-startyear)
+
+    iamc_species = [  # in fair 1.6, order is important
         '|CO2|Energy and Industrial Processes',
         '|CO2|AFOLU',
         '|CH4',
@@ -81,7 +99,7 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
         '|SF6',
     ]
 
-    emissions_file_species = species.copy()
+    emissions_file_species = iamc_species.copy()
     emissions_file_species[0] = '|CO2|MAGICC Fossil and Industrial'
     emissions_file_species[1] = '|CO2|MAGICC AFOLU'
     emissions_file_species[16] = '|HFC4310mee'
@@ -113,14 +131,36 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
     unit_convert[5] = molwt.S/molwt.SO2
     unit_convert[8] = molwt.N/molwt.NO2
 
-    years_future = [2015] + list(range(2020,2501,10))
     for i, specie in enumerate(emissions_file_species):
-        data_out[:first_row,i+1] = ssp_df.loc[(ssp_df['Scenario']=='ssp245')&(ssp_df['Variable'].str.endswith(specie)),str(startyear):'2014']*unit_convert[i+1]
-        if i<23:
-            f = interp1d(years, scmdf[scmdf.index.get_level_values('variable').str.endswith(species[i])])
-            data_out[first_row:(last_row+1), i+1] = f(np.arange(first_scenyear, last_scenyear+1))*unit_convert[i+1]
+        data_out[:first_scen_row, i+1] = ssp_df.filter(
+            variable="*{}".format(specie),
+            region="World",
+            scenario="ssp245",
+            year=range(startyear, 2015)
+        ).values.squeeze() * unit_convert[i+1]
+
+        if i < 23:
+            f = interp1d(
+                years,
+                scmdf.filter(variable="*{}".format(iamc_species[i]), region="World").values.squeeze()
+            )
+            data_out[first_scen_row:(last_scen_row+1), i+1] = f(
+                np.arange(first_scenyear, last_scenyear+1)
+            ) * unit_convert[i+1]
+
         else:
-            f = interp1d(years_future, ssp_df.loc[(ssp_df['Scenario']=='ssp245')&(ssp_df['Variable'].str.endswith(specie)),'2015':'2500'].dropna(axis=1))
-            data_out[first_row:(last_row+1), i+1] = f(np.arange(first_scenyear, last_scenyear+1))*unit_convert[i+1]
+            filler_data = ssp_df.filter(
+                scenario="ssp245",
+                variable="*{}".format(specie),
+                year=range(2015, 2500 + 1),
+            )
+
+            f = interp1d(
+                filler_data["year"].values,
+                filler_data.values.squeeze()
+            )
+            data_out[first_scen_row:(last_scen_row+1), i+1] = f(
+                np.arange(first_scenyear, last_scenyear+1)
+            ) * unit_convert[i+1]
 
     return data_out
