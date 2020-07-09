@@ -19,7 +19,7 @@ EMISSIONS_SPECIES_UNITS_CONTEXT = (  # in fair 1.6, order is important
     ('|CO2|MAGICC Fossil and Industrial', 'GtC / yr', None),
     ('|CO2|MAGICC AFOLU', 'GtC / yr', None),
     ('|CH4', 'MtCH4 / yr', None),
-    ('|N2O', 'MtN2ON / yr', None),
+    ('|N2O', 'MtN / yr', None),
     ('|Sulfur', 'MtS / yr', None),
     ('|CO', 'MtCO / yr', None),
     ('|VOC', 'MtNMVOC / yr', None),

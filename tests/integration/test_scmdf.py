@@ -67,6 +67,9 @@ def test_scmdf_to_emissions_all_ssps(scen_model_scmdfs, startyear, endyear):
         for var, idx in (
             ("|CO2|MAGICC Fossil and Industrial", 1),
             ("|CO2|MAGICC AFOLU", 2),
+            ("|N2O", 4),
+            ("|Sulfur", 5),
+            ("|NOx", 8),
             ("|CH4", 3),
             ("|SF6", 23),
             ("|CH3Cl", 39),
