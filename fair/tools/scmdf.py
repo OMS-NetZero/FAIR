@@ -72,63 +72,56 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
     first_scen_row = int(first_scenyear-startyear)
     last_scen_row = int(last_scenyear-startyear)
 
-    emissions_species = [  # in fair 1.6, order is important
-        '|CO2|MAGICC Fossil and Industrial',
-        '|CO2|MAGICC AFOLU',
-        '|CH4',
-        '|N2O',
-        '|Sulfur',
-        '|CO',
-        '|VOC',
-        '|NOx',
-        '|BC',
-        '|OC',
-        '|NH3',
-        '|CF4',
-        '|C2F6',
-        '|C6F14',
-        '|HFC23',
-        '|HFC32',
-        '|HFC4310mee',
-        '|HFC125',
-        '|HFC134a',
-        '|HFC143a',
-        '|HFC227ea',
-        '|HFC245fa',
-        '|SF6',
-        '|CFC11',
-        '|CFC12',
-        '|CFC113',
-        '|CFC114',
-        '|CFC115',
-        '|CCl4',
-        '|CH3CCl3',
-        '|HCFC22',
-        '|HCFC141b',
-        '|HCFC142b',
-        '|Halon1211',
-        '|Halon1202',
-        '|Halon1301',
-        '|Halon2402',
-        '|CH3Br',
-        '|CH3Cl',
-    ]
+    emissions_species_units_context = (  # in fair 1.6, order is important
+        # @chrisroadmap can you check please
+        ('|CO2|MAGICC Fossil and Industrial', 'GtC / yr', None),
+        ('|CO2|MAGICC AFOLU', 'GtC / yr', None),
+        ('|CH4', 'MtCH4 / yr', None),
+        ('|N2O', 'MtN2ON / yr', None),
+        ('|Sulfur', 'MtS / yr', None),
+        ('|CO', 'MtCO / yr', None),
+        ('|VOC', 'MtNMVOC / yr', None),
+        ('|NOx', 'MtN / yr', "NOx_conversions"),
+        ('|BC', 'MtBC / yr', None),
+        ('|OC', 'MtOC / yr', None),
+        ('|NH3', 'MtN / yr', None),
+        ('|CF4', 'ktCF4 / yr', None),
+        ('|C2F6', 'ktC2F6 / yr', None),
+        ('|C6F14', 'ktC6F14 / yr', None),
+        ('|HFC23', 'ktHFC23 / yr', None),
+        ('|HFC32', 'ktHFC32 / yr', None),
+        ('|HFC4310mee', 'ktHFC4310mee / yr', None),
+        ('|HFC125', 'ktHFC125 / yr', None),
+        ('|HFC134a', 'ktHFC134a / yr', None),
+        ('|HFC143a', 'ktHFC143a / yr', None),
+        ('|HFC227ea', 'ktHFC227ea / yr', None),
+        ('|HFC245fa', 'ktHFC245fa / yr', None),
+        ('|SF6', 'ktSF6 / yr', None),
+        ('|CFC11', 'ktCFC11 / yr', None),
+        ('|CFC12', 'ktCFC12 / yr', None),
+        ('|CFC113', 'ktCFC113 / yr', None),
+        ('|CFC114', 'ktCFC114 / yr', None),
+        ('|CFC115', 'ktCFC115 / yr', None),
+        ('|CCl4', 'ktCCl4 / yr', None),
+        ('|CH3CCl3', 'ktCH3CCl3 / yr', None),
+        ('|HCFC22', 'ktHCFC22 / yr', None),
+        ('|HCFC141b', 'ktHCFC141b / yr', None),
+        ('|HCFC142b', 'ktHCFC142b / yr', None),
+        ('|Halon1211', 'ktHalon1211 / yr', None),
+        ('|Halon1202', 'ktHalon1202 / yr', None),
+        ('|Halon1301', 'ktHalon1301 / yr', None),
+        ('|Halon2402', 'ktHalon2402 / yr', None),
+        ('|CH3Br', 'ktCH3Br / yr', None),
+        ('|CH3Cl', 'ktCH3Cl / yr', None),
+    )
 
-    # Assume that units coming out of aneris don't change. One day I'll do unit parsing
-    unit_convert = np.ones(40)
-    unit_convert[1] = molwt.C/molwt.CO2/1000
-    unit_convert[2] = molwt.C/molwt.CO2/1000
-    unit_convert[4] = molwt.N2/molwt.N2O/1000
-    unit_convert[5] = molwt.S/molwt.SO2
-    unit_convert[8] = molwt.N/molwt.NO2
-
-    for i, specie in enumerate(emissions_species):
+    for i, (specie, unit, context) in enumerate(emissions_species_units_context):
         data_out[:first_scen_row, i+1] = ssp_df.filter(
             variable="*{}".format(specie),
             region="World",
             scenario="ssp245",
             year=range(startyear, 2015)
-        ).values.squeeze() * unit_convert[i+1]
+        ).convert_unit(unit, context=context).values.squeeze()
 
         if i < 23:
             if not any([specie in v for v in scmdf.get_unique_meta("variable")]):
@@ -139,11 +132,11 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
                 scmdf.filter(
                     variable="*{}".format(specie),
                     region="World"
-                ).values.squeeze()
+                ).convert_unit(unit, context=context).values.squeeze()
             )
             data_out[first_scen_row:(last_scen_row+1), i+1] = f(
                 np.arange(first_scenyear, last_scenyear+1)
-            ) * unit_convert[i+1]
+            )
 
         else:
             if not any([specie in v for v in ssp_df.get_unique_meta("variable")]):
@@ -157,10 +150,10 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
 
             f = interp1d(
                 filler_data["year"].values,
-                filler_data.values.squeeze()
+                filler_data.convert_unit(unit, context=context).values.squeeze()
             )
             data_out[first_scen_row:(last_scen_row+1), i+1] = f(
                 np.arange(first_scenyear, last_scenyear+1)
-            ) * unit_convert[i+1]
+            )
 
     return data_out
