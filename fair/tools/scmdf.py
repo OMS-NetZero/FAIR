@@ -1,5 +1,7 @@
 from __future__ import division
 
+import datetime as dt
+
 import os
 import numpy as np
 import pandas as pd
@@ -8,10 +10,18 @@ from scipy.interpolate import interp1d
 from ..constants import molwt
 
 try:
-    from scmdata import ScmDataFrame
+    from scmdata import ScmDataFrame, ScmRun
     has_scmdata = True
 except ImportError:
     has_scmdata = False
+
+
+# fill in 1765 to 2014 from SSP emissions
+# TODO: lazy load this and only load once
+SSP245_WORLD_EMMS = ScmRun(
+    os.path.join(os.path.dirname(__file__), '../SSPs/data/rcmip-emissions-annual-means-4-0-0-ssp-only.csv'),
+    lowercase_cols=True
+).filter(scenario="ssp245", region="World", variable="Emissions*")
 
 
 EMISSIONS_SPECIES_UNITS_CONTEXT = (  # in fair 1.6, order is important
@@ -107,8 +117,19 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
     if scmdf[["model", "scenario"]].drop_duplicates().shape[0] != 1:
         raise AssertionError("Should only have one model-scenario pair")
 
-    # fill in 1765 to 2014 from SSP emissions
-    ssp_df = ScmDataFrame(os.path.join(os.path.dirname(__file__), '../SSPs/data/rcmip-emissions-annual-means-4-0-0-ssp-only.csv'))
+    scen_start_year = 2015
+
+    scmdf = ScmRun(scmdf.timeseries()).interpolate(
+        [dt.datetime(y, 1, 1) for y in range(scen_start_year, endyear + 1)]
+    )
+
+    ssp_df_hist = SSP245_WORLD_EMMS.filter(
+        year=range(startyear, 2015)
+    )
+
+    ssp_df_future = SSP245_WORLD_EMMS.interpolate(
+        [dt.datetime(y, 1, 1) for y in range(scen_start_year, endyear + 1)]
+    )
 
     years = scmdf["year"].values
     first_scenyear = years[0]
@@ -117,44 +138,25 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
     last_scen_row = int(last_scenyear-startyear)
 
     for i, (specie, unit, context) in enumerate(EMISSIONS_SPECIES_UNITS_CONTEXT):
-        data_out[:first_scen_row, i+1] = ssp_df.filter(
+        data_out[:first_scen_row, i+1] = ssp_df_hist.filter(
             variable="*{}".format(specie),
-            region="World",
-            scenario="ssp245",
-            year=range(startyear, 2015)
         ).convert_unit(unit, context=context).values.squeeze()
 
         if i < 23:
             if not any([specie in v for v in scmdf.get_unique_meta("variable")]):
                 raise AssertionError("{} not available in scmdf".format(specie))
 
-            f = interp1d(
-                years,
-                scmdf.filter(
-                    variable="*{}".format(specie),
-                    region="World"
-                ).convert_unit(unit, context=context).values.squeeze()
-            )
-            data_out[first_scen_row:(last_scen_row+1), i+1] = f(
-                np.arange(first_scenyear, last_scenyear+1)
-            )
+            data_out[first_scen_row:(last_scen_row+1), i+1] = scmdf.filter(
+                variable="*{}".format(specie),
+                region="World"
+            ).convert_unit(unit, context=context).values.squeeze()
 
         else:
-            if not any([specie in v for v in ssp_df.get_unique_meta("variable")]):
-                raise AssertionError("{} not available in ssp_df".format(specie))
+            if not any([specie in v for v in SSP245_WORLD_EMMS.get_unique_meta("variable")]):
+                raise AssertionError("{} not available in SSP245_WORLD_EMMS".format(specie))
 
-            filler_data = ssp_df.filter(
-                scenario="ssp245",
+            data_out[first_scen_row:(last_scen_row+1), i+1] = ssp_df_future.filter(
                 variable="*{}".format(specie),
-                year=range(2015, 2500 + 1),
-            )
-
-            f = interp1d(
-                filler_data["year"].values,
-                filler_data.convert_unit(unit, context=context).values.squeeze()
-            )
-            data_out[first_scen_row:(last_scen_row+1), i+1] = f(
-                np.arange(first_scenyear, last_scenyear+1)
-            )
+            ).convert_unit(unit, context=context).values.squeeze()
 
     return data_out
