@@ -14,6 +14,50 @@ except ImportError:
     has_scmdata = False
 
 
+EMISSIONS_SPECIES_UNITS_CONTEXT = (  # in fair 1.6, order is important
+    # @chrisroadmap can you check please
+    ('|CO2|MAGICC Fossil and Industrial', 'GtC / yr', None),
+    ('|CO2|MAGICC AFOLU', 'GtC / yr', None),
+    ('|CH4', 'MtCH4 / yr', None),
+    ('|N2O', 'MtN2ON / yr', None),
+    ('|Sulfur', 'MtS / yr', None),
+    ('|CO', 'MtCO / yr', None),
+    ('|VOC', 'MtNMVOC / yr', None),
+    ('|NOx', 'MtN / yr', "NOx_conversions"),
+    ('|BC', 'MtBC / yr', None),
+    ('|OC', 'MtOC / yr', None),
+    ('|NH3', 'MtN / yr', None),
+    ('|CF4', 'ktCF4 / yr', None),
+    ('|C2F6', 'ktC2F6 / yr', None),
+    ('|C6F14', 'ktC6F14 / yr', None),
+    ('|HFC23', 'ktHFC23 / yr', None),
+    ('|HFC32', 'ktHFC32 / yr', None),
+    ('|HFC4310mee', 'ktHFC4310mee / yr', None),
+    ('|HFC125', 'ktHFC125 / yr', None),
+    ('|HFC134a', 'ktHFC134a / yr', None),
+    ('|HFC143a', 'ktHFC143a / yr', None),
+    ('|HFC227ea', 'ktHFC227ea / yr', None),
+    ('|HFC245fa', 'ktHFC245fa / yr', None),
+    ('|SF6', 'ktSF6 / yr', None),
+    ('|CFC11', 'ktCFC11 / yr', None),
+    ('|CFC12', 'ktCFC12 / yr', None),
+    ('|CFC113', 'ktCFC113 / yr', None),
+    ('|CFC114', 'ktCFC114 / yr', None),
+    ('|CFC115', 'ktCFC115 / yr', None),
+    ('|CCl4', 'ktCCl4 / yr', None),
+    ('|CH3CCl3', 'ktCH3CCl3 / yr', None),
+    ('|HCFC22', 'ktHCFC22 / yr', None),
+    ('|HCFC141b', 'ktHCFC141b / yr', None),
+    ('|HCFC142b', 'ktHCFC142b / yr', None),
+    ('|Halon1211', 'ktHalon1211 / yr', None),
+    ('|Halon1202', 'ktHalon1202 / yr', None),
+    ('|Halon1301', 'ktHalon1301 / yr', None),
+    ('|Halon2402', 'ktHalon2402 / yr', None),
+    ('|CH3Br', 'ktCH3Br / yr', None),
+    ('|CH3Cl', 'ktCH3Cl / yr', None),
+)
+
+
 def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
     """
     Opens an ScmDataFrame and extracts the data. Interpolates linearly
@@ -72,50 +116,7 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
     first_scen_row = int(first_scenyear-startyear)
     last_scen_row = int(last_scenyear-startyear)
 
-    emissions_species_units_context = (  # in fair 1.6, order is important
-        # @chrisroadmap can you check please
-        ('|CO2|MAGICC Fossil and Industrial', 'GtC / yr', None),
-        ('|CO2|MAGICC AFOLU', 'GtC / yr', None),
-        ('|CH4', 'MtCH4 / yr', None),
-        ('|N2O', 'MtN2ON / yr', None),
-        ('|Sulfur', 'MtS / yr', None),
-        ('|CO', 'MtCO / yr', None),
-        ('|VOC', 'MtNMVOC / yr', None),
-        ('|NOx', 'MtN / yr', "NOx_conversions"),
-        ('|BC', 'MtBC / yr', None),
-        ('|OC', 'MtOC / yr', None),
-        ('|NH3', 'MtN / yr', None),
-        ('|CF4', 'ktCF4 / yr', None),
-        ('|C2F6', 'ktC2F6 / yr', None),
-        ('|C6F14', 'ktC6F14 / yr', None),
-        ('|HFC23', 'ktHFC23 / yr', None),
-        ('|HFC32', 'ktHFC32 / yr', None),
-        ('|HFC4310mee', 'ktHFC4310mee / yr', None),
-        ('|HFC125', 'ktHFC125 / yr', None),
-        ('|HFC134a', 'ktHFC134a / yr', None),
-        ('|HFC143a', 'ktHFC143a / yr', None),
-        ('|HFC227ea', 'ktHFC227ea / yr', None),
-        ('|HFC245fa', 'ktHFC245fa / yr', None),
-        ('|SF6', 'ktSF6 / yr', None),
-        ('|CFC11', 'ktCFC11 / yr', None),
-        ('|CFC12', 'ktCFC12 / yr', None),
-        ('|CFC113', 'ktCFC113 / yr', None),
-        ('|CFC114', 'ktCFC114 / yr', None),
-        ('|CFC115', 'ktCFC115 / yr', None),
-        ('|CCl4', 'ktCCl4 / yr', None),
-        ('|CH3CCl3', 'ktCH3CCl3 / yr', None),
-        ('|HCFC22', 'ktHCFC22 / yr', None),
-        ('|HCFC141b', 'ktHCFC141b / yr', None),
-        ('|HCFC142b', 'ktHCFC142b / yr', None),
-        ('|Halon1211', 'ktHalon1211 / yr', None),
-        ('|Halon1202', 'ktHalon1202 / yr', None),
-        ('|Halon1301', 'ktHalon1301 / yr', None),
-        ('|Halon2402', 'ktHalon2402 / yr', None),
-        ('|CH3Br', 'ktCH3Br / yr', None),
-        ('|CH3Cl', 'ktCH3Cl / yr', None),
-    )
-
-    for i, (specie, unit, context) in enumerate(emissions_species_units_context):
+    for i, (specie, unit, context) in enumerate(EMISSIONS_SPECIES_UNITS_CONTEXT):
         data_out[:first_scen_row, i+1] = ssp_df.filter(
             variable="*{}".format(specie),
             region="World",

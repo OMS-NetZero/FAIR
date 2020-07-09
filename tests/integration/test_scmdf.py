@@ -4,14 +4,26 @@ import numpy.testing as npt
 import pytest
 from scmdata import ScmDataFrame
 
-from fair.tools.scmdf import scmdf_to_emissions
+from fair.tools.scmdf import scmdf_to_emissions, EMISSIONS_SPECIES_UNITS_CONTEXT
 
 
 SCENARIOS = ScmDataFrame(
     os.path.join(
         os.path.dirname(__file__), "rcmip_scen_ssp_world_emissions.csv"
     )
-).filter(scenario=["ssp119", "ssp585"])
+).filter(scenario=["ssp119", "ssp245", "ssp585"])
+
+SSP245_EMMS = ScmDataFrame(
+    os.path.join(
+        os.path.dirname(__file__),
+        "..",
+        "..",
+        "fair",
+        "SSPs",
+        "data",
+        "rcmip-emissions-annual-means-4-0-0-ssp-only.csv"
+    )
+).filter(scenario="ssp245")
 
 
 MODEL_SCEN_DFS = []
@@ -39,27 +51,43 @@ def test_scmdf_to_emissions_all_ssps(scen_model_scmdfs, startyear, endyear):
     npt.assert_allclose(res[:, 0], range(startyear, endyear + 1))
 
     for yr in [
-        scen_model_scmdf["year"].min(),
-        1850,
+        startyear,
         1900,
+        1950,
+        2014,
         2015,
         2020,
         2050,
         2100,
-        scen_model_scmdf["year"].max()
+        scen_model_scmdfs["year"].max()
     ]:
         yr = int(yr)
         row_year = yr - startyear
 
         for var, idx in (
-            ("|CO2|Energy and Industrial Processes", 1),
-            ("|CO2|AFOLU", 2),
+            ("|CO2|MAGICC Fossil and Industrial", 1),
+            ("|CO2|MAGICC AFOLU", 2),
             ("|CH4", 3),
-            ("|SF6", -1),
+            ("|SF6", 23),
+            ("|CH3Cl", 39),
         ):
-            raw_val = scen_model_scmdf.filter(
-                variable=var,
+            fair_unit, fair_context = [
+                (v[1], v[2])
+                for v in EMISSIONS_SPECIES_UNITS_CONTEXT
+                if v[0].endswith(var)
+            ][0]
+
+            if idx > 23 or yr < 2015:
+                # default filler
+                checker = SSP245_EMMS
+            else:
+                checker = scen_model_scmdfs
+
+            raw_val = checker.filter(
+                variable="*{}".format(var),
                 year=yr,
                 region="World",
-            ).values.squeeze()
+            ).convert_unit(fair_unit, context=fair_context).values.squeeze()
+
+            assert raw_val.shape != (0, 0)
             npt.assert_allclose(res[row_year, idx], raw_val)
