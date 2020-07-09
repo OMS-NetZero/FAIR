@@ -72,9 +72,9 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
     first_scen_row = int(first_scenyear-startyear)
     last_scen_row = int(last_scenyear-startyear)
 
-    iamc_species = [  # in fair 1.6, order is important
-        '|CO2|Energy and Industrial Processes',
-        '|CO2|AFOLU',
+    emissions_species = [  # in fair 1.6, order is important
+        '|CO2|MAGICC Fossil and Industrial',
+        '|CO2|MAGICC AFOLU',
         '|CH4',
         '|N2O',
         '|Sulfur',
@@ -89,21 +89,13 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
         '|C6F14',
         '|HFC23',
         '|HFC32',
-        '|HFC43-10',
+        '|HFC4310mee',
         '|HFC125',
         '|HFC134a',
         '|HFC143a',
         '|HFC227ea',
-        '|HFC245ca',
+        '|HFC245fa',
         '|SF6',
-    ]
-
-    emissions_file_species = iamc_species.copy()
-    emissions_file_species[0] = '|CO2|MAGICC Fossil and Industrial'
-    emissions_file_species[1] = '|CO2|MAGICC AFOLU'
-    emissions_file_species[16] = '|HFC4310mee'
-    emissions_file_species[21] = '|HFC245fa'
-    emissions_file_species.extend([
         '|CFC11',
         '|CFC12',
         '|CFC113',
@@ -120,7 +112,7 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
         '|Halon2402',
         '|CH3Br',
         '|CH3Cl',
-    ])
+    ]
 
     # Assume that units coming out of aneris don't change. One day I'll do unit parsing
     unit_convert = np.ones(40)
@@ -130,7 +122,7 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
     unit_convert[5] = molwt.S/molwt.SO2
     unit_convert[8] = molwt.N/molwt.NO2
 
-    for i, specie in enumerate(emissions_file_species):
+    for i, specie in enumerate(emissions_species):
         data_out[:first_scen_row, i+1] = ssp_df.filter(
             variable="*{}".format(specie),
             region="World",
@@ -139,10 +131,13 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
         ).values.squeeze() * unit_convert[i+1]
 
         if i < 23:
+            if not any([specie in v for v in scmdf.get_unique_meta("variable")]):
+                raise AssertionError("{} not available in scmdf".format(specie))
+
             f = interp1d(
                 years,
                 scmdf.filter(
-                    variable="*{}".format(iamc_species[i]),
+                    variable="*{}".format(specie),
                     region="World"
                 ).values.squeeze()
             )
@@ -151,6 +146,9 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
             ) * unit_convert[i+1]
 
         else:
+            if not any([specie in v for v in ssp_df.get_unique_meta("variable")]):
+                raise AssertionError("{} not available in ssp_df".format(specie))
+
             filler_data = ssp_df.filter(
                 scenario="ssp245",
                 variable="*{}".format(specie),
