@@ -16,56 +16,82 @@ except ImportError:
     has_scmdata = False
 
 
-# fill in 1765 to 2014 from SSP emissions
-# TODO: lazy load this and only load once
-SSP245_WORLD_EMMS = ScmRun(
+class SSP245WorldEmms:
+    def __init__(self):
+        self._loaded = False
+
+    @property
+    def values(self):
+        if not self._loaded:
+            self._values = ScmRun(
     os.path.join(os.path.dirname(__file__), '../SSPs/data/rcmip-emissions-annual-means-4-0-0-ssp-only.csv'),
     lowercase_cols=True
 ).filter(scenario="ssp245", region="World", variable="Emissions*")
 
+        return self._values
 
-EMISSIONS_SPECIES_UNITS_CONTEXT = (  # in fair 1.6, order is important
-    # @chrisroadmap can you check please
-    ('|CO2|MAGICC Fossil and Industrial', 'GtC / yr', None),
-    ('|CO2|MAGICC AFOLU', 'GtC / yr', None),
-    ('|CH4', 'MtCH4 / yr', None),
-    ('|N2O', 'MtN / yr', None),
-    ('|Sulfur', 'MtS / yr', None),
-    ('|CO', 'MtCO / yr', None),
-    ('|VOC', 'MtNMVOC / yr', None),
-    ('|NOx', 'MtN / yr', "NOx_conversions"),
-    ('|BC', 'MtBC / yr', None),
-    ('|OC', 'MtOC / yr', None),
-    ('|NH3', 'MtN / yr', None),
-    ('|CF4', 'ktCF4 / yr', None),
-    ('|C2F6', 'ktC2F6 / yr', None),
-    ('|C6F14', 'ktC6F14 / yr', None),
-    ('|HFC23', 'ktHFC23 / yr', None),
-    ('|HFC32', 'ktHFC32 / yr', None),
-    ('|HFC4310mee', 'ktHFC4310mee / yr', None),
-    ('|HFC125', 'ktHFC125 / yr', None),
-    ('|HFC134a', 'ktHFC134a / yr', None),
-    ('|HFC143a', 'ktHFC143a / yr', None),
-    ('|HFC227ea', 'ktHFC227ea / yr', None),
-    ('|HFC245fa', 'ktHFC245fa / yr', None),
-    ('|SF6', 'ktSF6 / yr', None),
-    ('|CFC11', 'ktCFC11 / yr', None),
-    ('|CFC12', 'ktCFC12 / yr', None),
-    ('|CFC113', 'ktCFC113 / yr', None),
-    ('|CFC114', 'ktCFC114 / yr', None),
-    ('|CFC115', 'ktCFC115 / yr', None),
-    ('|CCl4', 'ktCCl4 / yr', None),
-    ('|CH3CCl3', 'ktCH3CCl3 / yr', None),
-    ('|HCFC22', 'ktHCFC22 / yr', None),
-    ('|HCFC141b', 'ktHCFC141b / yr', None),
-    ('|HCFC142b', 'ktHCFC142b / yr', None),
-    ('|Halon1211', 'ktHalon1211 / yr', None),
-    ('|Halon1202', 'ktHalon1202 / yr', None),
-    ('|Halon1301', 'ktHalon1301 / yr', None),
-    ('|Halon2402', 'ktHalon2402 / yr', None),
-    ('|CH3Br', 'ktCH3Br / yr', None),
-    ('|CH3Cl', 'ktCH3Cl / yr', None),
+
+# TODO: lazy load this and only load once
+ssp245_world_emms_holder = SSP245WorldEmms()
+
+
+EMISSIONS_SPECIES_UNITS_CONTEXT = pd.DataFrame((  # in fair 1.6, order is important
+        ('|CO2|MAGICC Fossil and Industrial', 'GtC / yr', None),
+        ('|CO2|MAGICC AFOLU', 'GtC / yr', None),
+        ('|CH4', 'MtCH4 / yr', None),
+        ('|N2O', 'MtN / yr', None),
+        ('|Sulfur', 'MtS / yr', None),
+        ('|CO', 'MtCO / yr', None),
+        ('|VOC', 'MtNMVOC / yr', None),
+        ('|NOx', 'MtN / yr', "NOx_conversions"),
+        ('|BC', 'MtBC / yr', None),
+        ('|OC', 'MtOC / yr', None),
+        ('|NH3', 'MtN / yr', None),
+        ('|CF4', 'ktCF4 / yr', None),
+        ('|C2F6', 'ktC2F6 / yr', None),
+        ('|C6F14', 'ktC6F14 / yr', None),
+        ('|HFC23', 'ktHFC23 / yr', None),
+        ('|HFC32', 'ktHFC32 / yr', None),
+        ('|HFC4310mee', 'ktHFC4310mee / yr', None),
+        ('|HFC125', 'ktHFC125 / yr', None),
+        ('|HFC134a', 'ktHFC134a / yr', None),
+        ('|HFC143a', 'ktHFC143a / yr', None),
+        ('|HFC227ea', 'ktHFC227ea / yr', None),
+        ('|HFC245fa', 'ktHFC245fa / yr', None),
+        ('|SF6', 'ktSF6 / yr', None),
+        ('|CFC11', 'ktCFC11 / yr', None),
+        ('|CFC12', 'ktCFC12 / yr', None),
+        ('|CFC113', 'ktCFC113 / yr', None),
+        ('|CFC114', 'ktCFC114 / yr', None),
+        ('|CFC115', 'ktCFC115 / yr', None),
+        ('|CCl4', 'ktCCl4 / yr', None),
+        ('|CH3CCl3', 'ktCH3CCl3 / yr', None),
+        ('|HCFC22', 'ktHCFC22 / yr', None),
+        ('|HCFC141b', 'ktHCFC141b / yr', None),
+        ('|HCFC142b', 'ktHCFC142b / yr', None),
+        ('|Halon1211', 'ktHalon1211 / yr', None),
+        ('|Halon1202', 'ktHalon1202 / yr', None),
+        ('|Halon1301', 'ktHalon1301 / yr', None),
+        ('|Halon2402', 'ktHalon2402 / yr', None),
+        ('|CH3Br', 'ktCH3Br / yr', None),
+        ('|CH3Cl', 'ktCH3Cl / yr', None),
+    ),
+    columns=["species", "unit", "context"],
 )
+
+
+def _get_fair_col_unit_context(variable):
+    row = EMISSIONS_SPECIES_UNITS_CONTEXT["species"].apply(lambda x: variable.endswith(x))
+
+    unit = EMISSIONS_SPECIES_UNITS_CONTEXT[row]["unit"]
+
+    assert unit.shape[0] == 1, unit
+
+    fair_col = int(row[row].index.values) + 1  # first col is time
+    unit = unit.iloc[0]
+    context = EMISSIONS_SPECIES_UNITS_CONTEXT[row]["context"].iloc[0]
+
+    return fair_col, unit, context
 
 
 def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
@@ -123,40 +149,66 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
         [dt.datetime(y, 1, 1) for y in range(scen_start_year, endyear + 1)]
     )
 
-    ssp_df_hist = SSP245_WORLD_EMMS.filter(
+    ssp245_world_emms = ssp245_world_emms_holder.values
+
+    ssp_df_hist = ssp245_world_emms.filter(
         year=range(startyear, 2015)
     )
 
-    ssp_df_future = SSP245_WORLD_EMMS.interpolate(
+    ssp_df_future = ssp245_world_emms.interpolate(
         [dt.datetime(y, 1, 1) for y in range(scen_start_year, endyear + 1)]
     )
 
     years = scmdf["year"].values
     first_scenyear = years[0]
-    last_scenyear = years[-1]
     first_scen_row = int(first_scenyear-startyear)
-    last_scen_row = int(last_scenyear-startyear)
 
-    for i, (specie, unit, context) in enumerate(EMISSIONS_SPECIES_UNITS_CONTEXT):
-        data_out[:first_scen_row, i+1] = ssp_df_hist.filter(
-            variable="*{}".format(specie),
-        ).convert_unit(unit, context=context).values.squeeze()
+    for var_df in ssp_df_hist.groupby("variable"):
+        variable = var_df.get_unique_meta("variable", no_duplicates=True)
+        unit = var_df.get_unique_meta("unit", no_duplicates=True)
 
-        if i < 23:
-            if not any([specie in v for v in scmdf.get_unique_meta("variable")]):
-                raise AssertionError("{} not available in scmdf".format(specie))
+        try:
+            fair_col, fair_unit, context = _get_fair_col_unit_context(variable)
+        except AssertionError:
+            print("FaIR does not model {}".format(variable))
+            continue
 
-            data_out[first_scen_row:(last_scen_row+1), i+1] = scmdf.filter(
-                variable="*{}".format(specie),
-                region="World"
-            ).convert_unit(unit, context=context).values.squeeze()
-
+        if unit != fair_unit:
+            var_df_fair_unit = var_df.convert_unit(fair_unit, context=context)
         else:
-            if not any([specie in v for v in SSP245_WORLD_EMMS.get_unique_meta("variable")]):
-                raise AssertionError("{} not available in SSP245_WORLD_EMMS".format(specie))
+            var_df_fair_unit = var_df
 
-            data_out[first_scen_row:(last_scen_row+1), i+1] = ssp_df_future.filter(
-                variable="*{}".format(specie),
-            ).convert_unit(unit, context=context).values.squeeze()
+        data_out[:first_scen_row, fair_col] = var_df_fair_unit.values.squeeze()
+
+    for var_df in scmdf.groupby("variable"):
+        variable = var_df.get_unique_meta("variable", no_duplicates=True)
+        fair_col, fair_unit, context = _get_fair_col_unit_context(variable)
+
+        if unit != fair_unit:
+            var_df_fair_unit = var_df.convert_unit(fair_unit, context=context)
+        else:
+            var_df_fair_unit = var_df
+
+        data_out[first_scen_row : , fair_col] = var_df_fair_unit.values.squeeze()
+
+    for var_df in ssp_df_future.groupby("variable"):
+        variable = var_df.get_unique_meta("variable", no_duplicates=True)
+
+        try:
+            fair_col, fair_unit, context = _get_fair_col_unit_context(variable)
+        except AssertionError:
+            print("FaIR does not model {}".format(variable))
+            continue
+
+        if not np.isnan(data_out[first_scen_row : , fair_col]).all():
+            # already have data
+            continue
+
+        if unit != fair_unit:
+            var_df_fair_unit = var_df.convert_unit(fair_unit, context=context)
+        else:
+            var_df_fair_unit = var_df
+
+        data_out[first_scen_row : , fair_col] = var_df_fair_unit.values.squeeze()
 
     return data_out
