@@ -4,6 +4,8 @@ Changelog
 master
 ------
 
+(`#78 <https://github.com/OMS-NetZero/FAIR/pull/78>`_) Optimise ``fair.tools.scmdf.scmdf_to_emissions`` a bit
+
 (`#77 <https://github.com/OMS-NetZero/FAIR/pull/77>`_) Fixed ``fair.tools.scmdf.scmdf_to_emissions``
 
 (`#76 <https://github.com/OMS-NetZero/FAIR/pull/76>`_) Added in the GIR carbon cycle as an option and ScmDataFrame reader, required for openscm-runner and iiasa-climate-assessment
