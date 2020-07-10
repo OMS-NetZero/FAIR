@@ -19,16 +19,60 @@ except ImportError:
 class SSP245WorldEmms:
     def __init__(self):
         self._loaded = False
+        self._loaded_fair_history = False
 
     @property
     def values(self):
         if not self._loaded:
             self._values = ScmRun(
-    os.path.join(os.path.dirname(__file__), '../SSPs/data/rcmip-emissions-annual-means-4-0-0-ssp-only.csv'),
-    lowercase_cols=True
-).filter(scenario="ssp245", region="World", variable="Emissions*")
+                os.path.join(
+                    os.path.dirname(__file__),
+                    '../SSPs/data/rcmip-emissions-annual-means-4-0-0-ssp-only.csv'),
+                    lowercase_cols=True
+            ).filter(scenario="ssp245", region="World", variable="Emissions*")
+
+        self._loaded = True
 
         return self._values
+
+    @property
+    def values_fair_units(self):
+        if not self._loaded_fair_history:
+            ssp_df_hist = self.values
+            for variable in ssp_df_hist.get_unique_meta("variable"):
+                in_unit = ssp_df_hist.filter(variable=variable).get_unique_meta("unit", no_duplicates=True)
+
+                try:
+                    _, fair_unit, context = _get_fair_col_unit_context(variable)
+                except AssertionError:
+                    # FaIR does not model the variable
+                    assert variable in [
+                        'Emissions|F-Gases|HFC|HFC152a',
+                        'Emissions|F-Gases|HFC|HFC236fa',
+                        'Emissions|F-Gases|HFC|HFC365mfc',
+                        'Emissions|F-Gases|NF3',
+                        'Emissions|F-Gases|PFC|C3F8',
+                        'Emissions|F-Gases|PFC|C4F10',
+                        'Emissions|F-Gases|PFC|C5F12',
+                        'Emissions|F-Gases|PFC|C7F16',
+                        'Emissions|F-Gases|PFC|C8F18',
+                        'Emissions|F-Gases|PFC|cC4F8',
+                        'Emissions|F-Gases|SO2F2',
+                        'Emissions|Montreal Gases|CH2Cl2',
+                        'Emissions|Montreal Gases|CHCl3',
+                    ]
+
+                    continue
+
+                if in_unit != fair_unit:
+                    ssp_df_hist = ssp_df_hist.convert_unit(fair_unit, variable=variable, context=context)
+
+            self._values_fair_history = ssp_df_hist
+
+        self._loaded_fair_history = True
+
+        return self._values_fair_history
+
 
 
 # TODO: lazy load this and only load once
@@ -163,22 +207,27 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
     first_scenyear = years[0]
     first_scen_row = int(first_scenyear-startyear)
 
-    for var_df in ssp_df_hist.groupby("variable"):
-        variable = var_df.get_unique_meta("variable", no_duplicates=True)
-        in_unit = var_df.get_unique_meta("unit", no_duplicates=True)
 
-        try:
-            fair_col, fair_unit, context = _get_fair_col_unit_context(variable)
-        except AssertionError:
-            print("FaIR does not model {}".format(variable))
-            continue
+    # if correct units were guaranteed we could always do this which is quicker
+    hist_df = ssp245_world_emms_holder.values_fair_units.filter(
+        year=range(startyear, 2015)
+    ).timeseries()
 
-        if in_unit != fair_unit:
-            var_df_fair_unit = var_df.convert_unit(fair_unit, context=context)
-        else:
-            var_df_fair_unit = var_df
+    future_ssp245_df = ssp245_world_emms_holder.values_fair_units.filter(
+        year=range(2015, endyear + 1)
+    ).timeseries()
 
-        data_out[:first_scen_row, fair_col] = var_df_fair_unit.values.squeeze()
+    for species in EMISSIONS_SPECIES_UNITS_CONTEXT["species"]:
+        fair_col, _, _ = _get_fair_col_unit_context(species)
+
+        hist_df_row = hist_df.index.get_level_values("variable").str.endswith(species)
+
+        data_out[: first_scen_row, fair_col] = hist_df[hist_df_row].values.squeeze()
+
+        future_ssp245_df_row = future_ssp245_df.index.get_level_values("variable").str.endswith(species)
+
+        data_out[first_scen_row :, fair_col] = future_ssp245_df[future_ssp245_df_row].values.squeeze()
+
 
     for var_df in scmdf.groupby("variable"):
         variable = var_df.get_unique_meta("variable", no_duplicates=True)
@@ -190,27 +239,7 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
         else:
             var_df_fair_unit = var_df
 
-        data_out[first_scen_row : , fair_col] = var_df_fair_unit.values.squeeze()
+        data_out[first_scen_row :, fair_col] = var_df_fair_unit.values.squeeze()
 
-    for var_df in ssp_df_future.groupby("variable"):
-        variable = var_df.get_unique_meta("variable", no_duplicates=True)
-        in_unit = var_df.get_unique_meta("unit", no_duplicates=True)
-
-        try:
-            fair_col, fair_unit, context = _get_fair_col_unit_context(variable)
-        except AssertionError:
-            print("FaIR does not model {}".format(variable))
-            continue
-
-        if not np.isnan(data_out[first_scen_row : , fair_col]).all():
-            # already have data
-            continue
-
-        if in_unit != fair_unit:
-            var_df_fair_unit = var_df.convert_unit(fair_unit, context=context)
-        else:
-            var_df_fair_unit = var_df
-
-        data_out[first_scen_row : , fair_col] = var_df_fair_unit.values.squeeze()
 
     return data_out
