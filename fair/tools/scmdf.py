@@ -76,22 +76,22 @@ EMISSIONS_SPECIES_UNITS_CONTEXT = pd.DataFrame((  # in fair 1.6, order is import
         ('|CH3Br', 'ktCH3Br / yr', None),
         ('|CH3Cl', 'ktCH3Cl / yr', None),
     ),
-    columns=["species", "unit", "context"],
+    columns=["species", "in_unit", "context"],
 )
 
 
 def _get_fair_col_unit_context(variable):
     row = EMISSIONS_SPECIES_UNITS_CONTEXT["species"].apply(lambda x: variable.endswith(x))
 
-    unit = EMISSIONS_SPECIES_UNITS_CONTEXT[row]["unit"]
+    in_unit = EMISSIONS_SPECIES_UNITS_CONTEXT[row]["in_unit"]
 
-    assert unit.shape[0] == 1, unit
+    assert in_unit.shape[0] == 1, in_unit
 
     fair_col = int(row[row].index.values) + 1  # first col is time
-    unit = unit.iloc[0]
+    in_unit = in_unit.iloc[0]
     context = EMISSIONS_SPECIES_UNITS_CONTEXT[row]["context"].iloc[0]
 
-    return fair_col, unit, context
+    return fair_col, in_unit, context
 
 
 def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
@@ -165,7 +165,7 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
 
     for var_df in ssp_df_hist.groupby("variable"):
         variable = var_df.get_unique_meta("variable", no_duplicates=True)
-        unit = var_df.get_unique_meta("unit", no_duplicates=True)
+        in_unit = var_df.get_unique_meta("unit", no_duplicates=True)
 
         try:
             fair_col, fair_unit, context = _get_fair_col_unit_context(variable)
@@ -173,7 +173,7 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
             print("FaIR does not model {}".format(variable))
             continue
 
-        if unit != fair_unit:
+        if in_unit != fair_unit:
             var_df_fair_unit = var_df.convert_unit(fair_unit, context=context)
         else:
             var_df_fair_unit = var_df
@@ -182,9 +182,10 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
 
     for var_df in scmdf.groupby("variable"):
         variable = var_df.get_unique_meta("variable", no_duplicates=True)
+        in_unit = var_df.get_unique_meta("unit", no_duplicates=True)
         fair_col, fair_unit, context = _get_fair_col_unit_context(variable)
 
-        if unit != fair_unit:
+        if in_unit != fair_unit:
             var_df_fair_unit = var_df.convert_unit(fair_unit, context=context)
         else:
             var_df_fair_unit = var_df
@@ -193,6 +194,7 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
 
     for var_df in ssp_df_future.groupby("variable"):
         variable = var_df.get_unique_meta("variable", no_duplicates=True)
+        in_unit = var_df.get_unique_meta("unit", no_duplicates=True)
 
         try:
             fair_col, fair_unit, context = _get_fair_col_unit_context(variable)
@@ -204,7 +206,7 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
             # already have data
             continue
 
-        if unit != fair_unit:
+        if in_unit != fair_unit:
             var_df_fair_unit = var_df.convert_unit(fair_unit, context=context)
         else:
             var_df_fair_unit = var_df
