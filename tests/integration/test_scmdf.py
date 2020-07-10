@@ -1,5 +1,6 @@
 import os.path
 
+import numpy as np
 import numpy.testing as npt
 import pytest
 from scmdata import ScmDataFrame
@@ -49,6 +50,7 @@ def test_scmdf_to_emissions_all_ssps(scen_model_scmdfs, startyear, endyear):
     res = scmdf_to_emissions(
         scen_model_scmdfs, startyear=startyear, endyear=endyear
     )
+    assert not np.isnan(res).any()
 
     npt.assert_allclose(res[:, 0], range(startyear, endyear + 1))
 
@@ -91,4 +93,5 @@ def test_scmdf_to_emissions_all_ssps(scen_model_scmdfs, startyear, endyear):
             ).convert_unit(fair_unit, context=fair_context).values.squeeze()
 
             assert raw_val.shape != (0, 0)
+            assert not np.isnan(res[row_year, idx])
             npt.assert_allclose(res[row_year, idx], raw_val)

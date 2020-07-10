@@ -24,12 +24,16 @@ class SSP245WorldEmms:
     @property
     def values(self):
         if not self._loaded:
-            self._values = ScmRun(
-                os.path.join(
-                    os.path.dirname(__file__),
-                    '../SSPs/data/rcmip-emissions-annual-means-4-0-0-ssp-only.csv'),
-                    lowercase_cols=True
-            ).filter(scenario="ssp245", region="World", variable="Emissions*")
+            self._values = (
+                ScmRun(
+                    os.path.join(
+                        os.path.dirname(__file__),
+                        '../SSPs/data/rcmip-emissions-annual-means-4-0-0-ssp-only.csv'),
+                        lowercase_cols=True
+                )
+                .filter(scenario="ssp245", region="World", variable="Emissions*")
+            )
+            self._values = self._values.interpolate([dt.datetime(y, 1, 1) for y in self._values["year"]])
 
         self._loaded = True
 
@@ -193,22 +197,11 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
         [dt.datetime(y, 1, 1) for y in range(scen_start_year, endyear + 1)]
     )
 
-    ssp245_world_emms = ssp245_world_emms_holder.values
-
-    ssp_df_hist = ssp245_world_emms.filter(
-        year=range(startyear, 2015)
-    )
-
-    ssp_df_future = ssp245_world_emms.interpolate(
-        [dt.datetime(y, 1, 1) for y in range(scen_start_year, endyear + 1)]
-    )
-
     years = scmdf["year"].values
     first_scenyear = years[0]
     first_scen_row = int(first_scenyear-startyear)
 
-
-    # if correct units were guaranteed we could always do this which is quicker
+    # if correct units and interpolation were guaranteed we could do this for scenario too which is quicker
     hist_df = ssp245_world_emms_holder.values_fair_units.filter(
         year=range(startyear, 2015)
     ).timeseries()
