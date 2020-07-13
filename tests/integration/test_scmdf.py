@@ -1,17 +1,20 @@
 import os.path
 
+import numpy as np
 import numpy.testing as npt
 import pytest
 from scmdata import ScmDataFrame
 
-from fair.tools.scmdf import scmdf_to_emissions, EMISSIONS_SPECIES_UNITS_CONTEXT
+from fair.tools.scmdf import scmdf_to_emissions, _get_fair_col_unit_context
 
 
+scenarios_to_test = ["ssp119", "ssp245", "ssp585"]
+scenarios_to_test = ["ssp119"]
 SCENARIOS = ScmDataFrame(
     os.path.join(
         os.path.dirname(__file__), "rcmip_scen_ssp_world_emissions.csv"
     )
-).filter(scenario=["ssp119", "ssp245", "ssp585"])
+).filter(scenario=scenarios_to_test)
 
 SSP245_EMMS = ScmDataFrame(
     os.path.join(
@@ -39,14 +42,15 @@ def scen_model_scmdfs(request):
 
 @pytest.mark.parametrize("startyear,endyear", (
     (1765, 2100),
-    (1765, 2300),
-    (1850, 2300),
+    (1765, 2150),
+    (1850, 2150),
     (1850, 2100),
 ))
 def test_scmdf_to_emissions_all_ssps(scen_model_scmdfs, startyear, endyear):
     res = scmdf_to_emissions(
         scen_model_scmdfs, startyear=startyear, endyear=endyear
     )
+    assert not np.isnan(res).any()
 
     npt.assert_allclose(res[:, 0], range(startyear, endyear + 1))
 
@@ -74,11 +78,7 @@ def test_scmdf_to_emissions_all_ssps(scen_model_scmdfs, startyear, endyear):
             ("|SF6", 23),
             ("|CH3Cl", 39),
         ):
-            fair_unit, fair_context = [
-                (v[1], v[2])
-                for v in EMISSIONS_SPECIES_UNITS_CONTEXT
-                if v[0].endswith(var)
-            ][0]
+            _, fair_unit, fair_context = _get_fair_col_unit_context(var)
 
             if idx > 23 or yr < 2015:
                 # default filler
@@ -93,4 +93,5 @@ def test_scmdf_to_emissions_all_ssps(scen_model_scmdfs, startyear, endyear):
             ).convert_unit(fair_unit, context=fair_context).values.squeeze()
 
             assert raw_val.shape != (0, 0)
+            assert not np.isnan(res[row_year, idx])
             npt.assert_allclose(res[row_year, idx], raw_val)
