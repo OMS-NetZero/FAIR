@@ -23,6 +23,8 @@ def meinshausen(
     Keywords:
         Cpi: pre-industrial [CO2, CH4, N2O] concentrations. Should use defaults
         a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, d3: coefficients
+        F2x: radiative forcing from a doubling of CO2.
+        scale_F2x: boolean. Scale the calculated value to the specified F2x?
 
     Returns:
         3-element array of radiative forcing: [F_CO2, F_CH4, F_N2O]
@@ -45,7 +47,7 @@ def meinshausen(
     elif C[0] <= Cpi[0]:
         alphap = d1
     else:
-        alphap = d1 - b1**2-(4*a1)
+        alphap = d1 - b1**2/(4*a1)
     alphaN2O = c1*np.sqrt(C[2])
     F[0] = (alphap + alphaN2O) * np.log(C[0]/Cpi[0]) * scaleCO2
 
@@ -53,7 +55,7 @@ def meinshausen(
     F[1] = (a3*np.sqrt(C[1]) + b3*np.sqrt(C[2]) + d3) * (np.sqrt(C[1]) - np.sqrt(Cpi[1]))
 
     # N2O
-    F[2] = (a2*np.sqrt(C[0]) + b2*np.sqrt(C[2]) + c2*np.sqrt(C[1])) * (np.sqrt(C[2]) - np.sqrt(Cpi[2]))
+    F[2] = (a2*np.sqrt(C[0]) + b2*np.sqrt(C[2]) + c2*np.sqrt(C[1]) + d2) * (np.sqrt(C[2]) - np.sqrt(Cpi[2]))
 
     return F
 
@@ -72,6 +74,7 @@ def etminan(C, Cpi, F2x=3.71, scale_F2x=True):
 
     Keywords:
         F2x: radiative forcing from a doubling of CO2.
+        scale_F2x: boolean. Scale the calculated value to the specified F2x?
 
     Returns:
         3-element array of radiative forcing: [F_CO2, F_CH4, F_N2O]
