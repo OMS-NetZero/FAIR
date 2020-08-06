@@ -421,3 +421,14 @@ def test_gir():
       emissions=rcp85.Emissions.emissions,
       gir_carbon_cycle=True
     )
+
+def test_meinshausen():
+    C1,F1,T1 = fair.forward.fair_scm(
+      emissions=rcp85.Emissions.emissions,
+      ghg_forcing="Meinshausen"
+    )
+    C2,F2,T2 = fair.forward.fair_scm(
+      emissions=rcp85.Emissions.emissions,
+      ghg_forcing="Etminan"
+    )
+    assert np.any(F1!=F2)

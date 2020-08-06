@@ -225,9 +225,12 @@ def fair_scm(
         elif ghg_forcing.lower()=="myhre":
             from .forcing.ghg import myhre as ghg
             if stwv_from_ch4==None: stwv_from_ch4=0.15
+        elif ghg_forcing.lower()=="meinshausen":
+            from .forcing.ghg import meinshausen as ghg
+            if stwv_from_ch4==None: stwv_from_ch4=0.12
         else:
             raise ValueError(
-              "ghg_forcing should be 'etminan' (default) or 'myhre'")
+              "ghg_forcing should be 'etminan' (default), 'meinshausen' or 'myhre'")
         # aerosol breakdown
         ariaci = np.zeros((nt,2))
             
