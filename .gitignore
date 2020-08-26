@@ -31,3 +31,6 @@ venv
 # vim and gedit autosave files
 *.swp
 *~
+
+#OSX metadata files
+.DS_Store
