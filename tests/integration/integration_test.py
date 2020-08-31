@@ -256,16 +256,16 @@ def test_co2only_scale_error():
         scale=1.0)
 
 
-def test_41():
-    """Test 41-species forcing output"""
-    _, F41, _ = fair.forward.fair_scm(
+def test_45():
+    """Test 45-species forcing output"""
+    _, F45, _ = fair.forward.fair_scm(
         emissions = rcp85.Emissions.emissions,
-        efficacy = np.ones(41),
+        efficacy = np.ones(45),
         diagnostics = 'AR6')
     _, F13, _ = fair.forward.fair_scm(
         emissions = rcp85.Emissions.emissions,
         efficacy = np.ones(13))
-    assert np.allclose(F41.sum(axis=1), F13.sum(axis=1))
+    assert np.allclose(F45.sum(axis=1), F13.sum(axis=1))
 
 
 def test_geoffroy():

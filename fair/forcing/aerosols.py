@@ -43,7 +43,7 @@ def Stevens(emissions, stevens_params=np.array([0.001875, 0.634, 60.]),
 def aerocom_direct(emissions,
         beta = np.array(
           [-6.2227e-3, 0.0, -3.8392e-4, -1.16551e-3, 1.601537e-2, -1.45339e-3,
-           -1.55605e-3]), E_pi=np.zeros(40)
+           -1.55605e-3]), E_pi=np.zeros(40), diagnostics=None
     ):
 
     """Calculates direct aerosol forcing based on linear relationships between
@@ -59,6 +59,7 @@ def aerocom_direct(emissions,
         beta: 7-element array of forcing efficiencies in W m-2 (Mt yr-1)-1 for
             SOx, CO, NMVOC, NOx, BC, OC, NH3 (in that order)
         E_pi: pre-industrial emissions (40 element array)
+        diagnostics: if 'AR6', give split of direct aerosol effect by species
     Outputs:
         Forcing time series
     """
@@ -74,8 +75,11 @@ def aerocom_direct(emissions,
     F_OC     = beta[5] * (em_OC    - E_pi[10])
     F_NH3    = beta[6] * (em_NH3   - E_pi[11])
 
-    ERFari = F_SOx+F_CO+F_NMVOC+F_NOx+F_BC+F_OC+F_NH3
-
+    if diagnostics == 'AR6':
+        ERFari = np.column_stack([F_SOx, F_CO, F_NMVOC, F_NOx, F_BC, F_OC, F_NH3])
+    else:
+        ERFari = F_SOx+F_CO+F_NMVOC+F_NOx+F_BC+F_OC+F_NH3
+    print(ERFari.shape)
     return ERFari
 
 

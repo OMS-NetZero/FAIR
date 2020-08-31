@@ -169,13 +169,17 @@ def fair_scm(
             iF_sto3 = 32
             iF_ch4h = 33
             iF_cont = 34
-            iF_aerd = 35
-            iF_aeri = 36
-            iF_bcsn = 37
-            iF_luch = 38
-            iF_volc = 39
-            iF_solr = 40
-            nF = 41
+            iF_adso = 35
+            iF_advo = 36
+            iF_adni = 37
+            iF_adbc = 38
+            iF_adoc = 39
+            iF_aeri = 40
+            iF_bcsn = 41
+            iF_luch = 42
+            iF_volc = 43
+            iF_solr = 44
+            nF = 45
         else:
             iF_tro3 = 4
             iF_sto3 = 5
@@ -500,13 +504,22 @@ def fair_scm(
                   emissions, stevens_params=stevens_params, E_pi=E_pi[5], 
                   ref_isSO2=ref_isSO2)
                 if diagnostics=='AR6':
-                    F[:,iF_aerd] = ariaci[:,0]
+                    F[:,iF_adso] = ariaci[:,0]
                     F[:,iF_aeri] = ariaci[:,1]
                 else:
                     F[:,iF_aer] = np.sum(ariaci, axis=1)
             elif 'aerocom' in aerosol_forcing.lower():
-                ariaci[:,0] = aerosols.aerocom_direct(emissions, beta=b_aero,
-                  E_pi=E_pi)
+                aerosol_direct = aerosols.aerocom_direct(emissions, beta=b_aero,
+                  E_pi=E_pi, diagnostics=diagnostics)
+                if diagnostics=='AR6':
+                    F[:,iF_adso] = aerosol_direct[:,0]
+                    F[:,iF_advo] = aerosol_direct[:,1] + aerosol_direct[:,2]
+                    F[:,iF_adni] = aerosol_direct[:,3] + aerosol_direct[:,6]
+                    F[:,iF_adbc] = aerosol_direct[:,4]
+                    F[:,iF_adoc] = aerosol_direct[:,5]
+                    ariaci[:,0] = np.sum(aerosol_direct, axis=1)
+                else:
+                    ariaci[:,0] = aerosol_direct
                 if 'ghan2' in aerosol_forcing.lower():
                     ariaci[:,1] = aerosols.ghan2(emissions, E_pi, ghan_params)
                 elif 'ghan' in aerosol_forcing.lower():
@@ -520,7 +533,6 @@ def fair_scm(
                       emissions, stevens_params=stevens_params, E_pi=E_pi[5],
                       ref_isSO2=ref_isSO2)
                 if diagnostics=='AR6':
-                    F[:,iF_aerd] = ariaci[:,0]
                     F[:,iF_aeri] = ariaci[:,1]
                 else:
                     F[:,iF_aer] = np.sum(ariaci, axis=1)
