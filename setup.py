@@ -25,7 +25,7 @@ setup(
     author=", ".join([author[0] for author in AUTHORS]),
     author_email=", ".join([author[1] for author in AUTHORS]),
     license='Apache 2.0',
-    packages=find_packages(exclude=['tests*','docs*']),
+    packages=find_packages(exclude=['docs*']),
     package_data={'': ['*.csv']},
     python_requires='>=3.6, <4',
     include_package_data=True,
