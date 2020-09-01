@@ -79,7 +79,7 @@ def aerocom_direct(emissions,
         ERFari = np.column_stack([F_SOx, F_CO, F_NMVOC, F_NOx, F_BC, F_OC, F_NH3])
     else:
         ERFari = F_SOx+F_CO+F_NMVOC+F_NOx+F_BC+F_OC+F_NH3
-    print(ERFari.shape)
+    
     return ERFari
 
 
