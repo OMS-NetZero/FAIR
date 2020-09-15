@@ -10,7 +10,7 @@ from scipy.interpolate import interp1d
 from ..constants import molwt
 
 try:
-    from scmdata import ScmDataFrame, ScmRun
+    from scmdata import ScmRun
     has_scmdata = True
 except ImportError:
     has_scmdata = False
@@ -142,16 +142,16 @@ def _get_fair_col_unit_context(variable):
     return fair_col, in_unit, context
 
 
-def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
+def scmdf_to_emissions(scmrun, include_cfcs=True, startyear=1765, endyear=2100):
     """
-    Opens an ScmDataFrame and extracts the data. Interpolates linearly
+    Opens an ScmRun and extracts the data. Interpolates linearly
     between non-consecutive years in the SCEN file. Fills in chlorinated gases
     from a specified SSP scenario.
 
     Note this is a temporary fix for FaIR 1.6.
 
     Inputs:
-        scmdf: ScmDataFrame
+        scmrun: ScmRun
 
     Keywords:
         include_cfcs: bool
@@ -167,7 +167,7 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
     """
 
     # We expect that aeneris and silicone are going to give us a nicely
-    # formatted ScmDataFrame with all 23 species present and correct at
+    # formatted ScmRun with all 23 species present and correct at
     # timesteps 2015, 2020 and ten-yearly to 2100.
     # We also implicitly assume that data up until 2014 will follow SSP
     # historical.
@@ -182,22 +182,22 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
     if not has_scmdata:
         raise ImportError("This is not going to work without having scmdata installed")
 
-    if not isinstance(scmdf, ScmDataFrame):
-        raise TypeError("scmdf must be an scmdata.ScmDataFrame instance")
+    if not isinstance(scmrun, ScmRun):
+        raise TypeError("scmrun must be an scmdata.ScmRun instance")
 
     if not include_cfcs:
         raise NotImplementedError("include_cfcs equal to False")
 
-    if scmdf[["model", "scenario"]].drop_duplicates().shape[0] != 1:
+    if scmrun.meta[["model", "scenario"]].drop_duplicates().shape[0] != 1:
         raise AssertionError("Should only have one model-scenario pair")
 
     scen_start_year = 2015
 
-    scmdf = ScmRun(scmdf.timeseries()).interpolate(
+    scmrun = scmrun.interpolate(
         [dt.datetime(y, 1, 1) for y in range(scen_start_year, endyear + 1)]
     )
 
-    years = scmdf["year"].values
+    years = scmrun["year"].values
     first_scenyear = years[0]
     first_scen_row = int(first_scenyear-startyear)
 
@@ -222,7 +222,7 @@ def scmdf_to_emissions(scmdf, include_cfcs=True, startyear=1765, endyear=2100):
         data_out[first_scen_row :, fair_col] = future_ssp245_df[future_ssp245_df_row].values.squeeze()
 
 
-    for var_df in scmdf.groupby("variable"):
+    for var_df in scmrun.groupby("variable"):
         variable = var_df.get_unique_meta("variable", no_duplicates=True)
         in_unit = var_df.get_unique_meta("unit", no_duplicates=True)
         fair_col, fair_unit, context = _get_fair_col_unit_context(variable)
