@@ -39,7 +39,7 @@ setup(
     zip_safe=False,
     extras_require={
         'docs': ['sphinx>=1.4', 'nbsphinx'],
-        'dev' : ['notebook', 'scmdata<0.6', 'wheel', 'twine'],
+        'dev' : ['notebook', 'scmdata>=0.7.1', 'wheel', 'twine'],
         'test': ['pytest>=4.0', 'nbval', 'pytest-cov', 'codecov']
     }
 )

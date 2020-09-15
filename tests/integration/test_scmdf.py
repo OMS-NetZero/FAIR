@@ -3,20 +3,21 @@ import os.path
 import numpy as np
 import numpy.testing as npt
 import pytest
-from scmdata import ScmDataFrame
+from scmdata import ScmRun
 
 from fair.tools.scmdf import scmdf_to_emissions, _get_fair_col_unit_context
 
 
 scenarios_to_test = ["ssp119", "ssp245", "ssp585"]
 scenarios_to_test = ["ssp119"]
-SCENARIOS = ScmDataFrame(
+SCENARIOS = ScmRun(
     os.path.join(
         os.path.dirname(__file__), "rcmip_scen_ssp_world_emissions.csv"
-    )
+    ),
+    lowercase_cols=True
 ).filter(scenario=scenarios_to_test)
 
-SSP245_EMMS = ScmDataFrame(
+SSP245_EMMS = ScmRun(
     os.path.join(
         os.path.dirname(__file__),
         "..",
@@ -25,7 +26,8 @@ SSP245_EMMS = ScmDataFrame(
         "SSPs",
         "data",
         "rcmip-emissions-annual-means-4-0-0-ssp-only.csv"
-    )
+    ),
+    lowercase_cols=True
 ).filter(scenario="ssp245")
 
 

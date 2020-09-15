@@ -4,7 +4,9 @@ Changelog
 master
 ------
 
-(`#82 <https://github.com/OMS-NetZero/FAIR/pull/78>`_) Expand AR6 forcing diagnostics to get aerosol direct forcing by species
+(`#83 <https://github.com/OMS-NetZero/FAIR/pull/83>`_) Support scmdata >= 0.7.1
+
+(`#82 <https://github.com/OMS-NetZero/FAIR/pull/82>`_) Expand AR6 forcing diagnostics to get aerosol direct forcing by species
 
 (`#78 <https://github.com/OMS-NetZero/FAIR/pull/78>`_) Optimise ``fair.tools.scmdf.scmdf_to_emissions`` a bit
 
