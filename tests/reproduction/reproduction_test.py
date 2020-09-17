@@ -2,7 +2,6 @@ import pytest
 
 import fair
 from fair.RCPs import rcp3pd, rcp45, rcp6, rcp85, rcp26, rcp60
-#from fair.SSPs import historical, ssp119, ssp126, ssp245, ssp370, ssp434, ssp460, ssp534over, ssp585
 import numpy as np
 import os
 from fair.constants import molwt, radeff, lifetime
