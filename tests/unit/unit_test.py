@@ -391,13 +391,6 @@ def test_ozone_regression_equivalence():
     assert F1==F2[100]
 
 
-def test_deprecated_ozone_stevenson():
-    with pytest.warns(DeprecationWarning):
-        C,F,T = fair.forward.fair_scm(
-          emissions=rcp85.Emissions.emissions,
-          useStevenson=True
-        )
-
 def test_cmip6_stevenson():
     C1,F1,T1 = fair.forward.fair_scm(
       emissions=rcp85.Emissions.emissions,

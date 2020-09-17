@@ -127,7 +127,7 @@ def test_stevens():
 def test_ozone_regression_zero():
     _, F, _ = fair.forward.fair_scm(
         emissions=fair.RCPs.rcp85.Emissions.emissions,
-        useStevenson=False,
+        tropO3_forcing='regression',
         b_tro3 = np.zeros(4)
     )
     # Index 4 is ozone forcing
