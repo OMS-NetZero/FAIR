@@ -127,7 +127,7 @@ def test_stevens():
 def test_ozone_regression_zero():
     _, F, _ = fair.forward.fair_scm(
         emissions=fair.RCPs.rcp85.Emissions.emissions,
-        useStevenson=False,
+        tropO3_forcing='regression',
         b_tro3 = np.zeros(4)
     )
     # Index 4 is ozone forcing
@@ -265,6 +265,24 @@ def test_45():
     _, F13, _ = fair.forward.fair_scm(
         emissions = rcp85.Emissions.emissions,
         efficacy = np.ones(13))
+    assert np.allclose(F45.sum(axis=1), F13.sum(axis=1))
+
+
+def test_45_conc_driven():
+    """Test 45-species forcing output when driven with concentrations"""
+    _, F45, _ = fair.forward.fair_scm(
+        emissions = rcp85.Emissions.emissions,
+        emissions_driven=False,
+        C = rcp85.Concentrations.gases,
+        efficacy = np.ones(45),
+        diagnostics = 'AR6'
+    )
+    _, F13, _ = fair.forward.fair_scm(
+        emissions = rcp85.Emissions.emissions,
+        emissions_driven=False,
+        C = rcp85.Concentrations.gases,
+        efficacy = np.ones(13)
+    )
     assert np.allclose(F45.sum(axis=1), F13.sum(axis=1))
 
 

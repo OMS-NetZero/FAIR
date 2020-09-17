@@ -391,13 +391,6 @@ def test_ozone_regression_equivalence():
     assert F1==F2[100]
 
 
-def test_deprecated_ozone_stevenson():
-    with pytest.warns(DeprecationWarning):
-        C,F,T = fair.forward.fair_scm(
-          emissions=rcp85.Emissions.emissions,
-          useStevenson=True
-        )
-
 def test_cmip6_stevenson():
     C1,F1,T1 = fair.forward.fair_scm(
       emissions=rcp85.Emissions.emissions,
@@ -416,11 +409,13 @@ def test_cmip6_stevenson():
     # check differences
     assert np.any(F2[:,4]!=F1[:,4])
 
+
 def test_gir():
     C,F,T = fair.forward.fair_scm(
       emissions=rcp85.Emissions.emissions,
       gir_carbon_cycle=True
     )
+
 
 def test_meinshausen():
     C1,F1,T1 = fair.forward.fair_scm(
@@ -432,3 +427,63 @@ def test_meinshausen():
       ghg_forcing="Etminan"
     )
     assert np.any(F1!=F2)
+
+
+def test_ozone_treatments():
+    C1,F1,T1 = fair.forward.fair_scm(
+        emissions=rcp85.Emissions.emissions,
+        tropO3_forcing='stevenson'
+    )
+    C2,F2,T2 = fair.forward.fair_scm(
+        emissions=rcp85.Emissions.emissions,
+        tropO3_forcing='cmip6'
+    )
+    C3,F3,T3 = fair.forward.fair_scm(
+        emissions=rcp85.Emissions.emissions,
+        tropO3_forcing='regress'
+    )
+    C4,F4,T4 = fair.forward.fair_scm(
+        emissions=rcp85.Emissions.emissions,
+        tropO3_forcing='external',
+        F_tropO3 = 0
+    )
+    assert np.any(F1!=F2)
+    assert np.any(F1!=F3)
+    assert np.any(F1!=F4)
+    assert np.any(F2!=F3)
+    assert np.any(F2!=F4)
+    assert np.any(F3!=F4)
+
+
+def test_ozone_treatments_conc_driven():
+    C1,F1,T1 = fair.forward.fair_scm(
+        emissions=rcp85.Emissions.emissions,
+        emissions_driven=False,
+        C=rcp85.Concentrations.gases,
+        tropO3_forcing='stevenson'
+    )
+    C2,F2,T2 = fair.forward.fair_scm(
+        emissions=rcp85.Emissions.emissions,
+        emissions_driven=False,
+        C=rcp85.Concentrations.gases,
+        tropO3_forcing='cmip6'
+    )
+    C3,F3,T3 = fair.forward.fair_scm(
+        emissions=rcp85.Emissions.emissions,
+        emissions_driven=False,
+        C=rcp85.Concentrations.gases,
+        tropO3_forcing='regress'
+    )
+    C4,F4,T4 = fair.forward.fair_scm(
+        emissions=rcp85.Emissions.emissions,
+        emissions_driven=False,
+        C=rcp85.Concentrations.gases,
+        tropO3_forcing='external',
+        F_tropO3 = 0
+    )
+    assert np.any(F1!=F2)
+    assert np.any(F1!=F3)
+    assert np.any(F1!=F4)
+    assert np.any(F2!=F3)
+    assert np.any(F2!=F4)
+    assert np.any(F3!=F4)

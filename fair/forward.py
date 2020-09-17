@@ -89,7 +89,6 @@ def fair_scm(
     stevens_params = np.array([0.001875, 0.634, 60.]),
     ref_isSO2=True, # is Stevens SO2 emissions in units SO2 (T) or S (F)
     useMultigas=True,
-    useStevenson=True,   # deprecate this switch in v1.7
     tropO3_forcing='stevenson',
     lifetimes=False,
     aerosol_forcing="aerocom+ghan",
@@ -115,11 +114,6 @@ def fair_scm(
     # Prevents later errors when SLCFs not specified
     if type(emissions) is bool and not emissions_driven:
         tropO3_forcing='external'
-
-    if useStevenson is not None:
-        warnings.warn('"useStevenson" will be deprecated in the future; use '+
-          'tropO3_forcing keyword with "cmip6", "stevenson", "regression" or "external"',
-          DeprecationWarning)
 
     # is iirf_h < iirf_max? Don't stop the code, but warn user
     if iirf_h < iirf_max:
@@ -447,7 +441,7 @@ def fair_scm(
         # because SLCFs can still be given as emissions with GHGs as
         # concentrations
         if type(emissions) is not bool:
-            if useStevenson and tropO3_forcing[0].lower()=='s':
+            if tropO3_forcing[0].lower()=='s':
                 F[0,iF_tro3] = ozone_tr.stevenson(emissions[0,:], C[0,1],
                   T=np.sum(T_j[0,:]), 
                   feedback=useTropO3TFeedback,
@@ -459,7 +453,7 @@ def fair_scm(
                   feedback=useTropO3TFeedback,
                   PI=np.array([C_pi[1],E_pi[6],E_pi[7],E_pi[8]]),
                   beta=b_tro3)
-            elif not useStevenson or tropO3_forcing[0].lower()=='r':
+            elif tropO3_forcing[0].lower()=='r':
                 F[0,iF_tro3] = ozone_tr.regress(emissions[0,:]-E_pi[:], beta=b_tro3)
             else:
                 F[0,iF_tro3] = F_tropO3[0]
@@ -702,7 +696,7 @@ def fair_scm(
                 else:
                     F[t,3] = np.sum(minor_gases(C[t,3:], C_pi[3:]))
 
-                if useStevenson and tropO3_forcing[0].lower()=='s':
+                if tropO3_forcing[0].lower()=='s':
                     F[t,iF_tro3] = ozone_tr.stevenson(emissions[t,:],
                       C[t,1],
                       T=T[t-1], 
@@ -715,7 +709,7 @@ def fair_scm(
                       feedback=useTropO3TFeedback,
                       PI=np.array([C_pi[1],E_pi[6],E_pi[7],E_pi[8]]),
                       beta=b_tro3)
-                elif not useStevenson or tropO3_forcing[0].lower()=='r':
+                elif tropO3_forcing[0].lower()=='r':
                     F[t,iF_tro3] = ozone_tr.regress(emissions[t,:]-E_pi, beta=b_tro3)
                 else:
                     F[t,iF_tro3] = F_tropO3[t]
@@ -811,29 +805,31 @@ def fair_scm(
 
             if useMultigas:
                 F[t,0:3] = ghg(C[t,0:3], C_pi[0:3], F2x=F2x)
-                F[t,3] = np.sum((C[t,3:] - C_pi[3:]) * radeff.aslist[3:]
-                  * 0.001)
+                if diagnostics=='AR6':
+                    F[t,3:31] = minor_gases(C[t,3:], C_pi[3:])
+                else:
+                    F[t,3] = np.sum(minor_gases(C[t,3:], C_pi[3:]))
                 if type(emissions) is not bool:
-                    if useStevenson and tropO3_forcing[0].lower()=='s':
-                        F[t,4] = ozone_tr.stevenson(emissions[t,:]-E_pi,
+                    if tropO3_forcing[0].lower()=='s':
+                        F[t,iF_tro3] = ozone_tr.stevenson(emissions[t,:]-E_pi,
                           C[t,1],
                           T=T[t-1],
                           feedback=useTropO3TFeedback,
                           fix_pre1850_RCP=fixPre1850RCP)
                     elif tropO3_forcing[0].lower()=='c':
-                        F[t,4] = ozone_tr.cmip6_stevenson(emissions[t,:], C[t,1],
+                        F[t,iF_tro3] = ozone_tr.cmip6_stevenson(emissions[t,:], C[t,1],
                           T=np.sum(T_j[t,:]),
                           feedback=useTropO3TFeedback,
                           PI=np.array([C_pi[1],E_pi[6],E_pi[7],E_pi[8]]),
                           beta=b_tro3)
-                    elif not useStevenson or tropO3_forcing[0].lower()=='r':
-                        F[t,4] = ozone_tr.regress(emissions[t,:]-E_pi, beta=b_tro3)
+                    elif tropO3_forcing[0].lower()=='r':
+                        F[t,iF_tro3] = ozone_tr.regress(emissions[t,:]-E_pi, beta=b_tro3)
                     else:
-                        F[t,4] = F_tropO3[t]
+                        F[t,iF_tro3] = F_tropO3[t]
                 else:
-                    F[t,4] = F_tropO3[t]
-                F[t,5] = ozone_st.magicc(C[t,15:], C_pi[15:])
-                F[t,6] = h2o_st.linear(F[t,1], ratio=stwv_from_ch4)
+                    F[t,iF_tro3] = F_tropO3[t]
+                F[t,iF_sto3] = ozone_st.magicc(C[t,15:], C_pi[15:])
+                F[t,iF_ch4h] = h2o_st.linear(F[t,1], ratio=stwv_from_ch4)
 
                 # multiply by scale factors
                 F[t,:] = F[t,:] * scale[t,:]
