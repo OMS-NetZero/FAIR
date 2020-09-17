@@ -272,13 +272,15 @@ def test_45_conc_driven():
     """Test 45-species forcing output when driven with concentrations"""
     _, F45, _ = fair.forward.fair_scm(
         emissions = rcp85.Emissions.emissions,
-        C = rcp85.Concentrations.concentrations,
+        emissions_driven=False,
+        C = rcp85.Concentrations.gases,
         efficacy = np.ones(45),
         diagnostics = 'AR6'
     )
     _, F13, _ = fair.forward.fair_scm(
         emissions = rcp85.Emissions.emissions,
-        C = rcp85.Concentrations.concentrations,
+        emissions_driven=False,
+        C = rcp85.Concentrations.gases,
         efficacy = np.ones(13)
     )
     assert np.allclose(F45.sum(axis=1), F13.sum(axis=1))

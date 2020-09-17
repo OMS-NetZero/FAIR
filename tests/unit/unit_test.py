@@ -453,4 +453,3 @@ def test_ozone_treatments():
     assert np.any(F2!=F3)
     assert np.any(F2!=F4)
     assert np.any(F3!=F4)
-
