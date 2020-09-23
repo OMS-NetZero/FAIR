@@ -17,7 +17,7 @@ def calculate_g(a,tau):
 def step_concentration(emissions,a,dt,alpha,tau,R_old, G_A_old, PI_conc,emis2conc):
     decay_rate = ne.evaluate("1/(alpha*tau)")
     decay_factor = ne.evaluate("exp(-dt*decay_rate)")
-    R = ne.evaluate("E * a / decay_rate * ( 1. - decay_factor ) + R_old * decay_factor")
+    R = ne.evaluate("emissions * a / decay_rate * ( 1. - decay_factor ) + R_old * decay_factor")
     G_A = ne.evaluate("sum(R,axis=4")
     C = ne.evaluate("PI_conc + emis2conc * (G_A + G_A_old) / 2")
 
@@ -82,3 +82,13 @@ def convert_numpy_output_to_df(res_numpy):
     raise NotImplementedError
     res = pd.DataFrame()
     return res
+
+def unstep_concentration(a,dt,alpha,tau,R_old, G_A):
+    
+    raise NotImplementedError
+    decay_rate = ne.evaluate("1/(alpha*tau)")
+    decay_factor = ne.evaluate("exp(-dt*decay_rate)")
+    emissions = ne.evaluate("G_A - sum(R_old*decay_factor,axis=-1)/sum(a/decay_rate*(1. - decay_factor), axis =-1)")
+    R_new = ne.evaluate("emissions * a / decay_rate * ( 1. - decay_factor ) + R_old * decay_factor")
+
+    return emissions,R_new

@@ -142,3 +142,35 @@ def step_temperature_test():
     assert np.allclose(S_out, S_compare)
     assert np.allclose(T_out, T_compare)
 
+def unstep_concentration_test():
+    a1 = np.array([0.2173,1])
+    a2 = np.array([0.224,0])
+    a3 = np.array([0.2824,0])
+    a4 = np.array([0.2763,0])
+    tau1 = np.array([1000000,9.15])
+    tau2 = np.array([394.4,1])
+    tau3 = np.array([36.54,1])
+    tau4 = np.array([4.304,1])
+    a = np.array([a1, a2, a3, a4])
+    tau = np.array([tau1, tau2, tau3, tau4])
+    alpha = np.array([0.74788084, 2.31332918])
+    dt = 10
+    R_1 = np.array([63.10423371, 1091.54903])
+    R_2 = np.array([42.23272521, 0])
+    R_3 = np.array([14.23992555, 0])
+    R_4 = np.array([2.040457847, 0])   
+    R_old = np.array([R_1, R_2, R_3, R_4])
+    G_A = np.array([259.3, 3104])
+
+    emissions_out, R_out = unstep_concentration(a,dt,alpha,tau,R_old, G_A)
+
+    emissions_compare = np.array([19.15739779, 304.0803832])
+    R_compare = np.array([  [104.73213702, 3104.0],\
+                            [83.01823459, 0.],\
+                            [55.18263368, 0.],\
+                            [16.36699471, 0.]
+                         ]
+                         )
+
+    assert np.allclose(emissions_out, emissions_compare)
+    assert np.allclose(R_out, R_compare)
