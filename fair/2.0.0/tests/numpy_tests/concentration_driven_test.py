@@ -2,15 +2,15 @@ import pytest
 
 import numpy as np
 
-import emissions_driven
+import concentration_driven
 
 def test_single_species():
     #emissions are based on exemplar CO2 emissions
-    out_dict = emissions_driven._run_numpy( inp_ar = np.array([[ 3.00000000e+00,\
-                                                                    1.63829600e+01,\
-                                                                    6.36765930e+01,\
-                                                                    1.80148890e+02,\
-                                                                    2.43531850e+01]]),
+    out_dict = concentration_driven._run_numpy( inp_ar = np.array([[399.6173423,\
+                                                                    401.8213271,\
+                                                                    406.3410747,\
+                                                                    415.7639971,\
+                                                                    435.6164218]]),
                                             a1 = np.array([0.2173]),
                                             a2 = np.array([0.224]),
                                             a3 = np.array([0.2824]),
@@ -45,49 +45,49 @@ def test_single_species():
                                                                 8,\
                                                                 1])
                                           )
-    C_out = out_dict["C"]
+    emissions_out = out_dict["emissions"]
     T_out = out_dict["T"]
     RF_out = out_dict["RF"]
     alpha_out = out_dict["alpha"]
 
-    C_compare = np.array([[ 278.575556,\
-                            284.650637,\
-                            327.415460,\
-                            539.092185,\
-                            663.849687]]) 
-    T_compare = np.array([  -0.022563,\
-                            -0.048115,\
-                            0.031111,\
-                            0.534905,\
-                            1.357223])
+    emissions_compare = np.array([[ 319.828087,\
+                            46.772580,\
+                            23.792089,\
+                            18.293743,\
+                            18.238578]]) 
+    T_compare = np.array([  0.161252,\
+                            0.405198,\
+                            0.512490,\
+                            0.531526,\
+                            0.719456])
     #This should just be RF from the gas itself, not including external forcing
-    RF_compare = np.array([[0.011400,\
-                            0.130324,\
-                            0.902589,\
-                            3.672639,\
-                            4.844845]])
+    RF_compare = np.array([[2.005091,\
+                            2.035587,\
+                            2.097619,\
+                            2.224813,\
+                            2.483857]])
     alpha_compare = np.array([[ 0.125078,\
-                                0.123069,\
-                                0.121295,\
-                                0.109470,\
-                                0.056788]])
-    assert np.allclose(C_out, C_compare)
+                                0.156356,\
+                                0.178314,\
+                                0.184508,\
+                                0.179664]])
+    assert np.allclose(emissions_out, emissions_compare)
     assert np.allclose(T_out, T_compare)
     assert np.allclose(RF_out, RF_compare)
     assert np.allclose(alpha_out, alpha_compare)
 
 def test_dual_species():
     #emissions are based on exemplar CO2 & CH4 emissions
-    out_dict = emissions_driven._run_numpy( inp_ar = np.array([[ 3.00000000e+00,\
-                                                                    1.63829600e+01,\
-                                                                    6.36765930e+01,\
-                                                                    1.80148890e+02,\
-                                                                    2.43531850e+01],\
-                                                                [ 2.1486753e+02,\
-                                                                    4.4001902e+02,\
-                                                                    1.70017052e+03,\
-                                                                    3.50032202e+03,\
-                                                                    2.3547352e+02,\
+    out_dict = concentration_driven._run_numpy( inp_ar = np.array([[399.6173423,\
+                                                                    401.8213271,\
+                                                                    406.3410747,\
+                                                                    415.7639971,\
+                                                                    435.6164218],\
+                                                                [   733.822081,\
+                                                                    738.822081,\
+                                                                    750.822081,\
+                                                                    780.822081,\
+                                                                    850.822081,\
                                                                 ]]),\
                                             a1 = np.array([0.2173, 1]),\
                                             a2 = np.array([0.224, 0]),\
@@ -123,64 +123,64 @@ def test_dual_species():
                                                                 8,\
                                                                 1])
                                           )
-    C_out = out_dict["C"]
+    emissions_out = out_dict["emissions"]
     T_out = out_dict["T"]
     RF_out = out_dict["RF"]
     alpha_out = out_dict["alpha"]
     #Given in the same order as inputs (i.e. CO2, CH4)
-    C_compare = np.array([[ 278.575556,\
-                            284.652403,\
-                            327.534824,\
-                            543.411648,\
-                            672.682666],\
-                          [ 769.601493,\
-                            959.837150,\
-                            2306.701551,\
-                            3499.109708,\
-                            3499.109708]])
-    T_compare = np.array([  -0.020142,\
-                            -0.025803,\
-                            0.172729,\
-                            0.880953,\
-                            1.835630])
+    emissions_compare = np.array([[ 319.828087,\
+                            46.772580,\
+                            23.786699,\
+                            18.280039,\
+                            18.201683],\
+                          [ 7.506675,\
+                            14.802304,\
+                            34.585501,\
+                            25.434119,\
+                            25.054660]])
+    T_compare = np.array([  0.161252,\
+                            0.405665,\
+                            0.514882,\
+                            0.539532,\
+                            0.740753])
     #This should just be RF from the gasses themselves, not including external forcing
-    RF_compare = np.array([[0.011400,\
-                            0.130358,\
-                            0.904602,\
-                            3.717350,\
-                            4.919748],\
-                           [0.026254,\
-                            0.155020,\
-                            0.798028,\
-                            1.192708,\
-                            1.192708]])
+    RF_compare = np.array([[2.005091,\
+                            2.035587,\
+                            2.097619,\
+                            2.224813,\
+                            2.483857],\
+                           [0.000000,\
+                            0.003714,\
+                            0.012566,\
+                            0.034339,\
+                            0.083294]])
     alpha_compare = np.array([[ 0.125078,\
-                                0.123296,\
-                                0.123140,\
-                                0.119969,\
-                                0.065278],\
-                              [ 9.922729e-01,\
-                                8.111710e+01,\
-                                7.697883e+13,\
-                                2.245283e+106,\
-                                2.245283e+106]])
-    assert np.allclose(C_out, C_compare)
+                                0.156356,\
+                                0.178378,\
+                                0.184777,\
+                                0.180490],\
+                              [ 0.992273,\
+                                0.793780,\
+                                0.371651,\
+                                2.373146,\
+                                206.035092]])
+    assert np.allclose(emissions_out, emissions_compare)
     assert np.allclose(T_out, T_compare)
     assert np.allclose(RF_out, RF_compare)
     assert np.allclose(alpha_out, alpha_compare)
 
 def test_zero_emissions():
     
-    out_dict = emissions_driven._run_numpy( inp_ar = np.array([[ 0,\
-                                                                    0,\
-                                                                    0,\
-                                                                    0,\
-                                                                    0],\
-                                                                [ 0,\
-                                                                    0,\
-                                                                    0,\
-                                                                    0,\
-                                                                    0,\
+    out_dict = concentration_driven._run_numpy( inp_ar = np.array([[278,\
+                                                                    278,\
+                                                                    278,\
+                                                                    278,\
+                                                                    278],\
+                                                                [ 733.822081,\
+                                                                    733.822081,\
+                                                                    733.822081,\
+                                                                    733.822081,\
+                                                                    733.822081,\
                                                                 ]]),\
                                             a1 = np.array([0.2173, 1]),\
                                             a2 = np.array([0.224, 0]),\
@@ -216,21 +216,21 @@ def test_zero_emissions():
                                                                 8,\
                                                                 1])
                                           )
-    C_out = out_dict["C"]
+    emissions_out = out_dict["emissions"]
     T_out = out_dict["T"]
     RF_out = out_dict["RF"]
     alpha_out = out_dict["alpha"]
     #Given in the same order as inputs (i.e. CO2, CH4)
-    C_compare = np.array([[ 278.0,\
-                            278.0,\
-                            278.0,\
-                            278.0,\
-                            278.0],\
-                          [ 733.822081,\
-                            733.822081,\
-                            733.822081,\
-                            733.822081,\
-                            733.822081]])
+    emissions_compare = np.array([[ 0,\
+                                    0,\
+                                    0,\
+                                    0,\
+                                    0],\
+                          [ 0.000000e+00,\
+                            -1.800721e-13,\
+                            -3.560150e-14,\
+                            -3.560150e-14,\
+                            -3.560150e-14]])
     T_compare = np.array([  0.0,\
                             0.0,\
                             0.0,\
@@ -257,7 +257,7 @@ def test_zero_emissions():
                                 0.992273,\
                                 0.992273,\
                                 0.992273]])
-    assert np.allclose(C_out, C_compare)
+    assert np.allclose(emissions_out, emissions_compare)
     assert np.allclose(T_out, T_compare)
     assert np.allclose(RF_out, RF_compare)
     assert np.allclose(alpha_out, alpha_compare)
