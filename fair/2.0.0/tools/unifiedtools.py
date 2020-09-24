@@ -57,7 +57,6 @@ def convert_df_to_numpy(inp_df):
     """
 
     #sorts the df so ordering is 'correct' within levels/index
-    raise NotImplementedError
     #sort the df columns
     df = inp_df.reindex(sorted(inp_df.columns),axis = 1)
     #Sort the df index
@@ -67,20 +66,40 @@ def convert_df_to_numpy(inp_df):
     return res
 
 
-def convert_numpy_output_to_df(res_numpy):
+def convert_numpy_output_to_df(res_numpy, column_labels, column_name, index_labels, index_name):
     """
-    Convert the numpy output to a dataframe i.e. add metadata to the outputs
+    Convert the numpy output to a dataframe i.e. add metadata to the outputs. Note that this function assumes that the labels have been given in the correct order.
 
     Parameters
     ----------
 
+    res_numpy : :obj:`np.ndarray`
+        Input :obj:`np.ndarray` to be converted to :obj:`pd.DataFrame`. Array should be n1xn2, where n1 represents columns and n2 represents index. 
+        e.g. array([[1,2,3,4,5],[6,7,8,9,10]]) would represent 2 gasses with 5 timesteps
+    column_labels : :obj:`np.ndarray`
+        Input :obj:`np.ndarray` giving labels for the columns (e.g. typically gasses), running with the above example:
+        e.g. array(["CO2",["CH4]]) would label the gasses
+    column_name : string
+        Input string used to label the columns, in our example this might be "Gas"
+    index_labels : :obj:`np.ndarray`
+        Input :obj:`np.ndarray` giving labels for the index,
+        e.g. array([2020,2021,2022,2023,2024]) would label our example above from 2020 to 2024
+    index_name : : string
+        Input string used to label the index, in our example this might be "Year"
+    Returns
+    -------
+    :obj:'np.ndarray'
+        df converted to a numpy array with correct order for running. The numpy array is ordered as follows: [Column, Index]
+        The columns and indexes are returned in a sorted order
 
     """
     # here you add metadata so users know timesteps, units etc. that were used
     # in the run
-
-    raise NotImplementedError
-    res = pd.DataFrame()
+    res = pd.DataFrame(data = res_numpy.T)
+    res.columns = column_labels
+    res.columns.name = column_name
+    res.index = index_labels
+    res.index.name = index_name
     return res
 
 def unstep_concentration(a,dt,alpha,tau,R_old, G_A):

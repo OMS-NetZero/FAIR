@@ -21,7 +21,7 @@ def run(inp_df, cfg):
     """
     raise NotImplementedError
     np_input = unifiedtools.convert_df_to_numpy(inp_df)
-    res_numpy = _run_numpy( np_input,\
+    res_dict = _run_numpy(  np_input,\
                             a1 = cfg['a1'],\
                             a2 = cfg['a2'],\
                             a3 = cfg['a3'],\
@@ -43,8 +43,36 @@ def run(inp_df, cfg):
                             q = cfg['q'],\
                             ext_forcing = cfg['ext_forcing'],\
                             timestep = cfg['timestep'])
-    res = unifiedtools.convert_numpy_output_to_df(res_numpy)
-    return res
+    inp_df.columns.values.sort()
+    inp_df.index.values.sort()
+    emissions_array = res_dict["C"]
+    RF_array = res_dict["RF"]
+    T_array = res_dict["T"]
+    alpha_array = res_dict["alpha"]
+    emissions_df = unifiedtools.convert_numpy_output_to_df( emissions_array,\
+                                                            inp_df.columns.values,\
+                                                            inp_df.columns.name,\
+                                                            inp_df.index.values,\
+                                                            inp_df.index.name)
+    RF_array = np.append(RF_array, np.array([cfg['ext_forcing']]))
+    RF_array = np.append(RF_array, np.array([RF_array.sum(axis=0)]))
+    RF_df = unifiedtools.convert_numpy_output_to_df(RF_array,\
+                                                    np.append(inp_df.columns.values,np.array(['External Forcing', 'Total'])),\
+                                                    inp_df.columns.name,\
+                                                    inp_df.index.values,\
+                                                    inp_df.index.name)
+    T_df = unifiedtools.convert_numpy_output_to_df( np.array([T_array]),\
+                                                    np.array(['T']),\
+                                                    None,\
+                                                    inp_df.index.values,\
+                                                    inp_df.index.name)
+    alpha_df = unifiedtools.convert_numpy_output_to_df( alpha_array,\
+                                                        inp_df.columns.values,\
+                                                        inp_df.columns.name,\
+                                                        inp_df.index.values,\
+                                                        inp_df.index.name)
+    res_df_dict = {'emissions':emissions_df, 'C':inp_df, 'RF' : RF_df, 'T' : T_df, 'alpha':alpha_df}
+    return res_df_dict
 
 def _run_numpy( inp_ar,\
                 a1,\
@@ -100,8 +128,8 @@ def _run_numpy( inp_ar,\
     -------
     dict
         Dictionary containing the results of the run. 
-        Keys are 'C', 'RF', 'T', and 'alpha'
-        (Concentration, Radiative Forcing, Temperature and Alpha)
+        Keys are 'emissions', 'RF', 'T', and 'alpha'
+        (Emissions, Radiative Forcing, Temperature and Alpha)
         Values are in :obj:`np.ndarray` format, with the final index representing 'timestep'
     """
     n_species, n_timesteps = inp_ar.shape
