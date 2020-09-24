@@ -20,6 +20,102 @@ def run(inp_df, cfg):
         Results of the run
     """
     raise NotImplementedError
+    np_emissions = unifiedtools.convert_df_to_numpy(inp_df)
+    df_gas_params = cfg['gas_params']
+    df_thermal_params = cfg['thermal_params']
+    df_ext_forcing = cfg['ext_forcing']
+
+    #np_gas_params is in order [[parameter], [gas]], parameters in alphabetical order: a1, a2, a3, a4, aer_conc, emis2conc, f1, f2, f3, PI_conc, r0, rA, rC, rT, tau1, tau2, tau3, tau4
+    np_gas_params = unifiedtools.convert_df_to_numpy(df_gas_params)
+    np_a1 = np_gas_params[0,:]
+    np_a2 = np_gas_params[1,:]
+    np_a3 = np_gas_params[2,:]
+    np_a4 = np_gas_params[3,:]
+    np_aer_conc = np_gas_params[4,:]
+    np_emis2conc = np_gas_params[5,:]
+    np_f1 = np_gas_params[6,:]
+    np_f2 = np_gas_params[7,:]
+    np_f3 = np_gas_params[8,:]
+    np_PI_conc = np_gas_params[9,:]
+    np_r0 = np_gas_params[10,:]
+    np_rA = np_gas_params[11,:]
+    np_rC = np_gas_params[12,:]
+    np_rT = np_gas_params[13,:]
+    np_tau1 = np_gas_params[14,:]
+    np_tau2 = np_gas_params[15,:]
+    np_tau3 = np_gas_params[16,:]
+    np_tau4 = np_gas_params[17,:]
+    #np_thermal_params is in order [[parameter], [thermal box]] with parameters in alphabetical order: d, q
+    np_thermal_params = unifiedtools.convert_df_to_numpy(df_thermal_params)
+    np_d = np_thermal_params[0,:]
+    np_q = np_thermal_params[1,:]
+
+    np_ext_forcing = unifiedtools.convert_df_to_numpy(df_ext_forcing)
+
+    inp_df.columns.values.sort()
+    inp_df.index.values.sort()
+    df_gas_params.columns.values.sort()
+    df_gas_params.index.values.sort()
+    df_thermal_params.columns.values.sort()
+    df_thermal_params.index.values.sort()
+    time_index = inp_df.index
+
+    np_timestep = np.append(np.diff(time_index),np.diff(time_index)[-1])
+
+    res_dict = _run_numpy(  np_emissions,\
+                            a1 = np_a1,\
+                            a2 = np_a2,\
+                            a3 = np_a3,\
+                            a4 = np_a4,\
+                            tau1 = np_tau1,\
+                            tau2 = np_tau2,\
+                            tau3 = np_tau3,\
+                            tau4 = np_tau4,\
+                            r0 = np_r0,\
+                            rC = np_rC,\
+                            rT = np_rT,\
+                            rA = np_rA,\
+                            PI_conc = np_PI_conc,\
+                            emis2conc = np_emis2conc,\
+                            f1 = np_f1,\
+                            f2 = np_f2,\
+                            f3 = np_f3,\
+                            d = np_d,\
+                            q = np_q,\
+                            ext_forcing = np_ext_forcing,\
+                            timestep = np_timestep)
+    
+    emissions_array = res_dict["C"]
+    RF_array = res_dict["RF"]
+    T_array = res_dict["T"]
+    alpha_array = res_dict["alpha"]
+    emissions_df = unifiedtools.convert_numpy_output_to_df( emissions_array,\
+                                                            inp_df.columns.values,\
+                                                            inp_df.columns.name,\
+                                                            inp_df.index.values,\
+                                                            inp_df.index.name)
+    RF_array = np.append(RF_array, np.array([cfg['ext_forcing']]))
+    RF_array = np.append(RF_array, np.array([RF_array.sum(axis=0)]))
+    RF_df = unifiedtools.convert_numpy_output_to_df(RF_array,\
+                                                    np.append(inp_df.columns.values,np.array(['External Forcing', 'Total'])),\
+                                                    inp_df.columns.name,\
+                                                    inp_df.index.values,\
+                                                    inp_df.index.name)
+    T_df = unifiedtools.convert_numpy_output_to_df( np.array([T_array]),\
+                                                    np.array(['T']),\
+                                                    None,\
+                                                    inp_df.index.values,\
+                                                    inp_df.index.name)
+    alpha_df = unifiedtools.convert_numpy_output_to_df( alpha_array,\
+                                                        inp_df.columns.values,\
+                                                        inp_df.columns.name,\
+                                                        inp_df.index.values,\
+                                                        inp_df.index.name)
+    res_df_dict = {'emissions':emissions_df, 'C':inp_df, 'RF' : RF_df, 'T' : T_df, 'alpha':alpha_df, 'gas_params':df_gas_params, 'thermal_params':df_thermal_params}
+    return res_df_dict
+
+
+    raise NotImplementedError
     np_input = unifiedtools.convert_df_to_numpy(inp_df)
     res_dict = _run_numpy( np_input,\
                             a1 = cfg['a1'],\
