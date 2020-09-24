@@ -85,7 +85,6 @@ def convert_numpy_output_to_df(res_numpy):
 
 def unstep_concentration(a,dt,alpha,tau,R_old, G_A):
     
-    raise NotImplementedError
     decay_rate = ne.evaluate("1/(alpha*tau)")
     decay_factor = ne.evaluate("exp(-dt*decay_rate)")
     emissions = ne.evaluate("G_A - sum(R_old*decay_factor,axis=-1)/sum(a/decay_rate*(1. - decay_factor), axis =-1)")
