@@ -169,7 +169,7 @@ def test_dual_species():
     assert np.allclose(RF_out, RF_compare)
     assert np.allclose(alpha_out, alpha_compare)
 
-def test_zero_emissions():
+def test_constant_concentrations():
     
     out_dict = concentration_driven._run_numpy( inp_ar = np.array([[278,\
                                                                     278,\
