@@ -1,6 +1,6 @@
 import pytest
-
 import numpy as np
+import pandas as pd
 
 from tools import unifiedtools
 
@@ -162,7 +162,7 @@ def unstep_concentration_test():
     R_old = np.array([R_1, R_2, R_3, R_4])
     G_A = np.array([259.3, 3104])
 
-    emissions_out, R_out = unstep_concentration(a,dt,alpha,tau,R_old, G_A)
+    emissions_out, R_out = unifiedtools.unstep_concentration(a,dt,alpha,tau,R_old, G_A)
 
     emissions_compare = np.array([19.15739779, 304.0803832])
     R_compare = np.array([  [104.73213702, 3104.0],\
@@ -174,3 +174,24 @@ def unstep_concentration_test():
 
     assert np.allclose(emissions_out, emissions_compare)
     assert np.allclose(R_out, R_compare)
+
+def convert_df_to_numpy_test():
+    test_df = pd.DataFrame(data = {"a":[7,4,10,1],"c":[9,6,12,3],"b":[8,5,11,2]}, index = [3,2,4,1])
+    res_compare = np.array([[ 1,  4,  7, 10], [ 2,  5,  8, 11], [ 3,  6,  9, 12]])
+    res = unifiedtools.convert_df_to_numpy_test(test_df)
+    assert np.allclose(res_compare, res)
+
+def convert_numpy_output_to_df_test():
+    res = np.array([[1,2,3,4,5],[6,7,8,9,10],[11,12,13,14,15]])
+    column_labels = np.array(['a','b','c'])
+    column_name = 'Gas'
+    index_labels = np.array([2019,2020,2022,2023,2050])
+    index_name = 'Year'
+    df = unifiedtools.convert_numpy_output_to_df(res, column_labels, column_name, index_labels, index_name)
+    df_compare = pd.DataFrame(data = {"a":[1,2,3,4,5],"b":[6,7,8,9,10],"c":[11,12,13,14,15]}, index = [2019,2020,2022,2023,2050])
+    
+    assert df.equals(df_compare)
+    assert not np.sum(df.index.values != np.array([2019, 2020, 2022, 2023, 2050]))
+    assert df.index.name == 'Year'
+    assert not np.sum(df.columns.values != np.array(['a','b','c']))
+    assert df.columns.name == 'Gas'
