@@ -5,7 +5,7 @@ import numpy as np
 import concentration_driven
 
 def test_single_species():
-    #emissions are based on exemplar CO2 emissions
+    #emissions are based on example CO2 concentrations
     out_dict = concentration_driven._run_numpy( inp_ar = np.array([[399.6173423,\
                                                                     401.8213271,\
                                                                     406.3410747,\
