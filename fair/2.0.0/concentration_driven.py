@@ -104,7 +104,6 @@ def _run_numpy( inp_ar,\
         (Concentration, Radiative Forcing, Temperature and Alpha)
         Values are in :obj:`np.ndarray` format, with the final index representing 'timestep'
     """
-    raise NotImplementedError
     n_species, n_timesteps = inp_ar.shape
     #Emissions, Radiative Forcing and Alpha
     emissions, RF, alpha = np.zeros((3,n_species,n_timesteps))
