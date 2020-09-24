@@ -44,7 +44,6 @@ def run(inp_df, cfg):
                             ext_forcing = cfg['ext_forcing'],\
                             timestep = cfg['timestep'])
     res = unifiedtools.convert_numpy_output_to_df(res_numpy)
-    res = pd.DataFrame()
     return res
 
 def _run_numpy( inp_ar,\
