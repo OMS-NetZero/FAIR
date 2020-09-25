@@ -90,6 +90,7 @@ def inverse_fair_scm(
     iirf_max      = carbon.iirf_max,
     iirf_h        = carbon.iirf_h,
     C_pi          = 278.,
+    F_in          = None,
     time_scale_sf = 0.16,
     restart_in    = False,
     restart_out   = False,
@@ -132,6 +133,9 @@ def inverse_fair_scm(
                           CO2 concentrations in the timestep before restart
         restart_out   : if True, return the restart state as an extra output.
                         See restart_in.
+        F_in          : either None, in which case calculate forcing from
+                        simple Myhre logarithmic relationship, or numpy array
+                        of prescribed total forcing
     Outputs:
         E             : Timeseries of diagnosed CO2 emissions in GtC
         F             : Timeseries of total radiative forcing, W/m2
@@ -156,7 +160,17 @@ def inverse_fair_scm(
     R_i       = np.zeros(carbon_boxes_shape)
     emissions = np.zeros(nt)
     T_j       = np.zeros(thermal_boxes_shape)
-    F         = np.zeros(nt)
+    if F_in is None:
+        F = np.zeros(nt)
+        prescribed_forcing = False
+    else:
+        if np.isscalar(F):
+            F = np.ones(nt) * F_in
+        else:
+            if len(F_in) != nt:
+                raise ValueError('F_in must be same size as C, which is '+nt)
+            F = F_in
+        prescribed_forcing = True
     
     if np.isscalar(other_rf):
         other_rf = other_rf * np.ones(nt)
@@ -176,12 +190,14 @@ def inverse_fair_scm(
                 C_pi, C_minus1, E_minus1
             )
         )
-        F[0]          = co2_log(C[0], C_pi, F2x=F2x) + other_rf[0]
+        if not prescribed_forcing:
+            F[0]          = co2_log(C[0], C_pi, F2x=F2x) + other_rf[0]
         T_j[0,:]      = forcing_to_temperature(T_j_minus1, q[0,:], d, F[0])
     else:
         emissions[0]  = root(infer_emissions, 0., args=(C[0], R_i[0,:],
             tau, a, C_pi))['x']
-        F[0]          = co2_log(C[0], C_pi, F2x=F2x) + other_rf[0]
+        if not prescribed_forcing:
+            F[0]          = co2_log(C[0], C_pi, F2x=F2x) + other_rf[0]
         T_j[0,:]      = forcing_to_temperature(T_j[0,:], q[0,:], d, F[0])
 
     # Second timestep onwards
@@ -193,7 +209,8 @@ def inverse_fair_scm(
                 C_pi, C[t-1], emissions[t-1]
             )
         )
-        F[t]     = co2_log(C[t], C_pi, F2x=F2x) + other_rf[t]
+        if not prescribed_forcing:
+            F[t]     = co2_log(C[t], C_pi, F2x=F2x) + other_rf[t]
         T_j[t,:] = forcing_to_temperature(T_j[t-1,:], q[t,:], d, F[t])
 
     # Output temperatures
