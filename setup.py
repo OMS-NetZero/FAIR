@@ -34,7 +34,6 @@ setup(
         'numpy>=1.14.5',
         'scipy>=0.19.0',
         'pandas',
-        'scmdata'
     ],
     zip_safe=False,
     extras_require={
