@@ -3,7 +3,6 @@ from __future__ import division
 import numpy as np
 from scipy.optimize import root
 from .gas_cycle.fair1 import _iirf_simple, _iirf_interp
-from .gas_cycle.gir import calculate_alpha
 from .forcing.ghg import co2_log
 from .defaults import carbon, thermal
 from .constants import molwt
