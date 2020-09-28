@@ -110,3 +110,28 @@ def unstep_concentration(a,dt,alpha,tau,R_old, G_A):
     R_new = ne.evaluate("emissions * a / decay_rate * ( 1. - decay_factor ) + R_old * decay_factor")
 
     return emissions,R_new
+
+def create_output_dataframes(inp_df, gas_np, RF_np, T_np, alpha_np, ext_forcing_np):
+    gas_df = unifiedtools.convert_numpy_output_to_df(   gas_np,\
+                                                        inp_df.columns.values,\
+                                                        inp_df.columns.name,\
+                                                        inp_df.index.values,\
+                                                        inp_df.index.name)
+    RF_np = np.append(RF_np, np.array([ext_forcing_np]))
+    RF_np = np.append(RF_np, np.array([RF_np.sum(axis=0)]))
+    RF_df = unifiedtools.convert_numpy_output_to_df(RF_np,\
+                                                    np.append(inp_df.columns.values,np.array(['External Forcing', 'Total'])),\
+                                                    inp_df.columns.name,\
+                                                    inp_df.index.values,\
+                                                    inp_df.index.name)
+    T_df = unifiedtools.convert_numpy_output_to_df( np.array([T_np]),\
+                                                    np.array(['T']),\
+                                                    None,\
+                                                    inp_df.index.values,\
+                                                    inp_df.index.name)]
+    alpha_df = unifiedtools.convert_numpy_output_to_df( alpha_np,\
+                                                        inp_df.columns.values,\
+                                                        inp_df.columns.name,\
+                                                        inp_df.index.values,\
+                                                        inp_df.index.name)
+    return gas_df, RF_df, T_df, alpha_df
