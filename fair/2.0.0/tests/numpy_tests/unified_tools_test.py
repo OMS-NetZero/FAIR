@@ -195,3 +195,43 @@ def convert_numpy_output_to_df_test():
     assert df.index.name == 'Year'
     assert not np.sum(df.columns.values != np.array(['a','b','c']))
     assert df.columns.name == 'Gas'
+
+def create_output_dataframes_test():
+    inp_df = pd.DataFrame(data = {"a":[7,4,10,1],"b":[9,6,12,3]}, index = [1,2,3,4])
+    inp_df.index = inp_df.index.rename(name='Year')
+    inp_df.columns = inp_df.columns.rename(name='Gas')
+    gas_np = np.array([[1,2,3,4],[5,6,7,8]])
+    RF_np = np.array([[9,10,11,12],[13,14,15,16]])
+    T_np = np.array([17,18,19,20])
+    alpha_np = np.array([[21,22,23,24],[25,26,27,28]])
+    ext_forcing_np = 0
+    gas_df, R_df, T_df, alpha_df = create_output_dataframes(inp_df, gas_np, RF_np, T_np, alpha_np, ext_forcing_np)
+
+    gas_compare_df = = pd.DataFrame(data = {"a":[1,2,3,4],"b":[5,6,7,8]}, index = [1,2,3,4])
+    RF_compare_df = = pd.DataFrame(data = {"a":[9,10,11,12],"b":[13,14,15,16],"External Forcing":[0,0,0,0], "Total":[22,24,26,28]}, index = [1,2,3,4])
+    T_compare_df = = pd.DataFrame(data = {"T":[17,18,19,20]}, index = [1,2,3,4])
+    alpha_compare_df = = pd.DataFrame(data = {"a":[21,22,23,24],"b":[25,26,27,28]}, index = [1,2,3,4])
+
+    assert gas_df.equals(gas_compare_df)
+    assert not np.sum(gas_df.index.values != np.array([1,2,3,4]))
+    assert gas_df.index.name == 'Year'
+    assert not np.sum(gas_df.columns.values != np.array(['a','b']))
+    assert gas_df.columns.name == 'Gas'
+
+    assert RF_df.equals(RF_compare_df)
+    assert not np.sum(RF_df.index.values != np.array([1,2,3,4]))
+    assert RF_df.index.name == 'Year'
+    assert not np.sum(RF_df.columns.values != np.array(['a','b','c', 'External Forcing', 'Total']))
+    assert RF_df.columns.name == 'Gas'
+
+    assert T_df.equals(T_compare_df)
+    assert not np.sum(T_df.index.values != np.array([1,2,3,4]))
+    assert T_df.index.name == 'Year'
+    assert not np.sum(T_df.columns.values != np.array(['T']))
+    assert T_df.columns.name == None
+
+    assert alpha_df.equals(alpha_compare_df)
+    assert not np.sum(alpha_df.index.values != np.array([1,2,3,4]))
+    assert alpha_df.index.name == 'Year'
+    assert not np.sum(alpha_df.columns.values != np.array(['a','b']))
+    assert alpha_df.columns.name == 'Gas'
