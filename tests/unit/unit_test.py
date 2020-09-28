@@ -8,6 +8,7 @@ from fair.constants.general import M_ATMOS
 from fair.defaults import carbon
 from fair.ancil import cmip5_annex2_forcing
 from fair.forcing.ozone_tr import regress
+from fair.inverse import inverse_fair_scm
 import numpy as np
 import os
 
@@ -487,3 +488,38 @@ def test_ozone_treatments_conc_driven():
     assert np.any(F2!=F3)
     assert np.any(F2!=F4)
     assert np.any(F3!=F4)
+
+
+def test_inverse_fail():
+    with pytest.raises(ValueError):
+        emissions, Fe, Te, lambda_eff, ohc, heatflux, afe = inverse_fair_scm(
+            C = rcp85.Concentrations.co2,
+            temperature_function = 'bogus',
+        )
+
+
+def test_inverse_geoffroy():
+    emissions, Fe, Te, lambda_eff, ohc, heatflux, afe = inverse_fair_scm(
+        C = rcp85.Concentrations.co2,
+        temperature_function = 'Geoffroy',
+    )
+
+    emissions, Fe, Te, lambda_eff, ohc, heatflux, afe = inverse_fair_scm(
+        C = rcp85.Concentrations.co2,
+        temperature_function = 'Geoffroy',
+        F_in = rcp85.Forcing.total
+    )
+
+    with pytest.raises(NotImplementedError):
+        emissions, Fe, Te, lambda_eff, ohc, heatflux, afe = inverse_fair_scm(
+            C = rcp85.Concentrations.co2,
+            temperature_function = 'Geoffroy',
+            restart_in=(np.zeros(4), np.zeros(2), 0, 0, 0.16, 0),
+        )
+
+def test_inverse_millar_fin():
+    emissions, Fe, Te = inverse_fair_scm(
+        C = rcp85.Concentrations.co2,
+        temperature_function = 'Millar',
+        F_in = rcp85.Forcing.total
+    )
