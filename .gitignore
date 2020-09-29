@@ -15,6 +15,11 @@
 # cache
 .cache/*
 .pytest_cache/*
+.__pycache__/*
+
+# pytest environment
+.pytest-env/*
+
 
 # Ipython checkpoints
 .ipynb_checkpoints
