@@ -6,6 +6,8 @@ import pandas as pd
 
 import concentration_driven
 
+from tools import unifiedtools
+
 def test_single_species():
   #emissions are based on example CO2 concentrations
   out_dict = concentration_driven._run_numpy( inp_ar = np.array([[399.6173423,\
@@ -45,7 +47,7 @@ def test_single_species():
                                                               2,\
                                                               4,\
                                                               8,\
-                                                              1])
+                                                              8])
                                         )
   emissions_out = out_dict["emissions"]
   T_out = out_dict["T"]
@@ -73,11 +75,11 @@ def test_single_species():
                               0.178314,\
                               0.184508,\
                               0.179664]])
-  assert np.allclose(emissions_out, emissions_compare)
-  assert np.allclose(T_out, T_compare)
-  assert np.allclose(RF_out, RF_compare)
-  assert np.allclose(alpha_out, alpha_compare)
-
+  np.testing.assert_allclose(alpha_out, alpha_compare, atol=0.000001)
+  np.testing.assert_allclose(emissions_out, emissions_compare, atol=0.000001)
+  np.testing.assert_allclose(T_out, T_compare, atol=0.000001)
+  np.testing.assert_allclose(RF_out, RF_compare, atol=0.000001)
+  
 def test_dual_species():
   #emissions are based on exemplar CO2 & CH4 emissions
   out_dict = concentration_driven._run_numpy( inp_ar = np.array([[399.6173423,\
@@ -123,7 +125,7 @@ def test_dual_species():
                                                               2,\
                                                               4,\
                                                               8,\
-                                                              1])
+                                                              8])
                                         )
   emissions_out = out_dict["emissions"]
   T_out = out_dict["T"]
@@ -166,10 +168,10 @@ def test_dual_species():
                               0.371651,\
                               2.373146,\
                               206.035092]])
-  assert np.allclose(emissions_out, emissions_compare)
-  assert np.allclose(T_out, T_compare)
-  assert np.allclose(RF_out, RF_compare)
-  assert np.allclose(alpha_out, alpha_compare)
+  np.testing.assert_allclose(alpha_out, alpha_compare, atol=0.000001)
+  np.testing.assert_allclose(emissions_out, emissions_compare, atol=0.000001)
+  np.testing.assert_allclose(T_out, T_compare, atol=0.000001)
+  np.testing.assert_allclose(RF_out, RF_compare, atol=0.000001)
 
 def test_constant_concentrations():
     
@@ -216,7 +218,7 @@ def test_constant_concentrations():
                                                               2,\
                                                               4,\
                                                               8,\
-                                                              1])
+                                                              8])
                                         )
   emissions_out = out_dict["emissions"]
   T_out = out_dict["T"]
@@ -259,25 +261,21 @@ def test_constant_concentrations():
                               0.992273,\
                               0.992273,\
                               0.992273]])
-  assert np.allclose(emissions_out, emissions_compare)
-  assert np.allclose(T_out, T_compare)
-  assert np.allclose(RF_out, RF_compare)
-  assert np.allclose(alpha_out, alpha_compare)
+  np.testing.assert_allclose(alpha_out, alpha_compare, atol=0.000001)
+  np.testing.assert_allclose(emissions_out, emissions_compare, atol=0.000001)
+  np.testing.assert_allclose(T_out, T_compare, atol=0.000001)
+  np.testing.assert_allclose(RF_out, RF_compare, atol=0.000001)
+  
   
 
 def test_run_df():
-  gas_names = [ "CO2",\
-                "CH4"]
-  gas_concentration_value_np = np.array([[399.6173423,\
-                                        401.8213271,\
-                                        406.3410747,\
-                                        415.7639971,\
-                                        435.6164218],\
-                                        [733.822081,\
-                                        738.822081,\
-                                        750.822081,\
-                                        780.822081,\
-                                        850.822081]])
+  gas_names = np.array([  "CO2",\
+                          "CH4"])
+  gas_concentration_value_np = np.array([[399.6173423, 733.822081 ],\
+                                        [401.8213271, 738.822081 ],\
+                                        [406.3410747, 750.822081 ],\
+                                        [415.7639971, 780.822081 ],\
+                                        [435.6164218, 850.822081 ]])
   year_index_np = np.array([2020,2021,2023,2027,2035])
 
   inp_df = pd.DataFrame(data = gas_concentration_value_np,\
@@ -325,12 +323,12 @@ def test_run_df():
                                 index = gas_parameter_name_np,\
                                 columns = gas_names)
 
-  thermal_parameter_value_np = np.array([283,\
+  thermal_parameter_value_np = np.array([[283,\
                                         9.88,\
                                         0.85],\
                                         [0.311333,\
                                         0.165417,\
-                                        0.242])
+                                        0.242]])
 
   thermal_parameter_name_np = [ "d",\
                                 "q"]
@@ -359,32 +357,33 @@ def test_run_df():
   T_df = out_dict['T']
   alpha_df = out_dict['alpha']
 
-  emissions_compare_np = np.array([[ 319.828087,\
+  emissions_compare_np = np.array([[ 7.506675,\
+                            14.802304,\
+                            34.585501,\
+                            25.434119,\
+                            25.054660],\
+                            [ 319.828087,\
                             46.772580,\
                             23.786699,\
                             18.280039,\
                             18.201683],\
-                          [ 7.506675,\
-                            14.802304,\
-                            34.585501,\
-                            25.434119,\
-                            25.054660]])
+                          ])
   T_compare_np = np.array([  0.161252,\
                             0.405665,\
                             0.514882,\
                             0.539532,\
                             0.740753])
     #This should just be RF from the gasses themselves, not including external forcing
-  RF_compare_np = np.array([[2.005091,\
-                            2.035587,\
-                            2.097619,\
-                            2.224813,\
-                            2.483857],\
-                           [0.000000,\
+  RF_compare_np = np.array([[0.000000,\
                             0.003714,\
                             0.012566,\
                             0.034339,\
                             0.083294],\
+                            [2.005091,\
+                            2.035587,\
+                            2.097619,\
+                            2.224813,\
+                            2.483857],\
                            [-0.256119925,\
                             -0.304324144,\
                             -0.501633962,\
@@ -395,27 +394,30 @@ def test_run_df():
                             1.60855104,\
                             1.35488922,\
                             2.44436825]])
-  alpha_compare_np = np.array([[0.125078,\
-                                0.156356,\
-                                0.178378,\
-                                0.184777,\
-                                0.180490],\
-                              [ 0.992273,\
+  alpha_compare_np = np.array([[ 0.992273,\
                                 0.793780,\
                                 0.371651,\
                                 2.373146,\
-                                206.035092]])
+                                206.035092],\
+                                [0.125078,\
+                                0.156356,\
+                                0.178378,\
+                                0.184777,\
+                                0.180490]
+                              ])
+  
+  sorted_gas_names = gas_names[np.char.lower(gas_names).astype('str').argsort()]
 
-  assert np.allclose(emissions_df.values, emissions_compare_np)
-  assert np.allclose(T_df.values, T_compare_np)
-  assert np.allclose(RF_df.values, RF_compare_np)
-  assert np.allclose(alpha_df.values, alpha_compare_np)
+  np.testing.assert_allclose(unifiedtools.convert_df_to_numpy(emissions_df), emissions_compare_np, atol=0.000001)
+  np.testing.assert_allclose(unifiedtools.convert_df_to_numpy(T_df)[0], T_compare_np, atol=0.000001)
+  np.testing.assert_allclose(unifiedtools.convert_df_to_numpy(RF_df), RF_compare_np, atol=0.000001)
+  np.testing.assert_allclose(unifiedtools.convert_df_to_numpy(alpha_df), alpha_compare_np, atol=0.000001)
 
-  assert emissions_df.index.values == year_index_np
-  assert T_df.index.values == year_index_np
-  assert RF_df.index.values == year_index_np
-  assert alpha_df.index.values == year_index_np
+  np.testing.assert_array_equal(emissions_df.index.tolist(), year_index_np)
+  np.testing.assert_array_equal(T_df.index.tolist(), year_index_np)
+  np.testing.assert_array_equal(RF_df.index.tolist(), year_index_np)
+  np.testing.assert_array_equal(alpha_df.index.tolist(), year_index_np)
 
-  assert emissions_df.columns.values == gas_names
-  assert RF_df.columns.values == np.array(['CO2', 'CH4', 'External Forcing', 'Total'])
-  assert alpha_df.columns.values == gas_names
+  np.testing.assert_array_equal(emissions_df.columns.tolist(), sorted_gas_names)
+  np.testing.assert_array_equal(RF_df.columns.tolist(), np.append(sorted_gas_names,np.array(['External Forcing','Total'])))
+  np.testing.assert_array_equal(alpha_df.columns.tolist(), sorted_gas_names)

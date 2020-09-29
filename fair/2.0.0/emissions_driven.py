@@ -19,51 +19,19 @@ def run(inp_df, cfg):
     :obj:`pd.DataFrame`
         Results of the run
     """
-    raise NotImplementedError
-    emissions_np = unifiedtools.convert_df_to_numpy(inp_df)
+    arg_list = unifiedtools.return_np_function_arg_list(inp_df, cfg, concentration_mode = False)
 
-    #a1_np, ..., tau4_np are in format [gas]
-    a1_np, a2_np, a3_np, a4_np, aer_conc_np, emis2conc_np, f1_np, f2_np, f3_np, PI_conc_np, r0_np, rA_np, rC_np, rT_np, tau1_np, tau2_np, tau3_np, tau4_np = unifiedtools.convert_df_to_numpy(cfg['gas_params'])
+    res_dict = _run_numpy(*arg_list)
 
-    #d_np, q_np are in format [thermal box]
-    d_np, q_np = unifiedtools.convert_df_to_numpy(cfg['thermal_params'])
-
-    ext_forcing_np = unifiedtools.convert_df_to_numpy(cfg['ext_forcing'])
-
-    inp_df.columns.values.sort()
-    inp_df.index.values.sort()
-    time_index = inp_df.index
-
-    timestep_np = np.append(np.diff(time_index),np.diff(time_index)[-1])
-
-    res_dict = _run_numpy(  emissions_np,\
-                            a1 = a1_np,\
-                            a2 = a2_np,\
-                            a3 = a3_np,\
-                            a4 = a4_np,\
-                            tau1 = tau1_np,\
-                            tau2 = tau2_np,\
-                            tau3 = tau3_np,\
-                            tau4 = tau4_np,\
-                            r0 = r0_np,\
-                            rC = rC_np,\
-                            rT = rT_np,\
-                            rA = rA_np,\
-                            PI_conc = PI_conc_np,\
-                            emis2conc = emis2conc_np,\
-                            f1 = f1_np,\
-                            f2 = f2_np,\
-                            f3 = f3_np,\
-                            d = d_np,\
-                            q = q_np,\
-                            ext_forcing = ext_forcing_np,\
-                            timestep = timestep_np)
+    inp_df = inp_df.iloc[:, inp_df.columns.astype('str').str.lower().argsort()]
+    inp_df = inp_df.iloc[inp_df.index.astype('str').str.lower().argsort()]
     C_df, RF_df, T_df, alpha_df = unifiedtools.create_output_dataframes(inp_df,\
                                                                         res_dict["C"],\
                                                                         res_dict["RF"],\
                                                                         res_dict["T"],\
                                                                         res_dict["alpha"],\
-                                                                        ext_forcing_np)
+                                                                        arg_list[-2])
+    
     res_df_dict = {'emissions':inp_df, 'C':C_df, 'RF' : RF_df, 'T' : T_df, 'alpha':alpha_df}
     return res_df_dict
 
@@ -146,7 +114,7 @@ def _run_numpy( inp_ar,\
     for i, tstep in enumerate(timestep):
         alpha[...,i] = unifiedtools.calculate_alpha(G=G,\
                                                     G_A=G_A,\
-                                                    T=T[i-1],\
+                                                    T=np.sum(S,axis=0),\
                                                     r0=r0,\
                                                     rC=rC,\
                                                     rT=rT,\
@@ -172,7 +140,7 @@ def _run_numpy( inp_ar,\
                                                 q=q,\
                                                 d=d,\
                                                 dt=tstep)
-        G += inp_ar[i]
+        G += inp_ar[...,i]
     res = {'C':C, 'RF' : RF, 'T' : T, 'alpha':alpha}
     return res
 

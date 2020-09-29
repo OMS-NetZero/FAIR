@@ -19,53 +19,19 @@ def run(inp_df, cfg):
     :obj:`pd.DataFrame`
         Results of the run
     """
-    inp_np = unifiedtools.convert_df_to_numpy(inp_df)
+    arg_list = unifiedtools.return_np_function_arg_list(inp_df, cfg, concentration_mode = True)
 
-    #a1_np, ..., tau4_np are in format [gas]
-    a1_np, a2_np, a3_np, a4_np, aer_conc_np, emis2conc_np, f1_np, f2_np, f3_np, PI_conc_np, r0_np, rA_np, rC_np, rT_np, tau1_np, tau2_np, tau3_np, tau4_np = unifiedtools.convert_df_to_numpy(cfg['gas_params'])
+    res_dict = _run_numpy(*arg_list)
 
-    #d_np, q_np are in format [thermal box]
-    d_np, q_np = unifiedtools.convert_df_to_numpy(cfg['thermal_params'])
+    inp_df = inp_df.iloc[:, inp_df.columns.astype('str').str.lower().argsort()]
+    inp_df = inp_df.iloc[inp_df.index.astype('str').str.lower().argsort()]
 
-    ext_forcing_np = unifiedtools.convert_df_to_numpy(cfg['ext_forcing'])
-
-    inp_df.columns.values.sort()
-    inp_df.index.values.sort()
-    time_index = inp_df.index
-
-    timestep_np = np.append(np.diff(time_index),np.diff(time_index)[-1])
-
-    #Turns aerosol emissions into concentrations, by adding in Pre-Industrial Concentration
-    concentrations_np = inp_np + PI_conc_np*aer_conc_np
-
-    res_dict = _run_numpy(  concentrations_np,\
-                            a1 = a1_np,\
-                            a2 = a2_np,\
-                            a3 = a3_np,\
-                            a4 = a4_np,\
-                            tau1 = tau1_np,\
-                            tau2 = tau2_np,\
-                            tau3 = tau3_np,\
-                            tau4 = tau4_np,\
-                            r0 = r0_np,\
-                            rC = rC_np,\
-                            rT = rT_np,\
-                            rA = rA_np,\
-                            PI_conc = PI_conc_np,\
-                            emis2conc = emis2conc_np,\
-                            f1 = f1_np,\
-                            f2 = f2_np,\
-                            f3 = f3_np,\
-                            d = d_np,\
-                            q = q_np,\
-                            ext_forcing = ext_forcing_np,\
-                            timestep = timestep_np)
     emissions_df, RF_df, T_df, alpha_df = unifiedtools.create_output_dataframes(inp_df,\
                                                                         res_dict["emissions"],\
                                                                         res_dict["RF"],\
                                                                         res_dict["T"],\
                                                                         res_dict["alpha"],\
-                                                                        ext_forcing_np)
+                                                                        arg_list[-2])
     res_df_dict = {'emissions':emissions_df, 'C':inp_df, 'RF' : RF_df, 'T' : T_df, 'alpha':alpha_df}
     return res_df_dict
 
@@ -146,14 +112,13 @@ def _run_numpy( inp_ar,\
     #g0, g1 in format [species]
     g0,g1 = unifiedtools.calculate_g(a = a,tau = tau)
 
-    G_A_list = np.append((inp_ar[...,:-1] + inp_ar[...,1:])/2,(3*inp_ar[...,-1] - inp_ar[...,-2])/2)
-    G_A_list = (G_A-PI_conc)/emis2conc
+    G_A = np.append((inp_ar[...,:-1] + inp_ar[...,1:])/2,((3*inp_ar[...,-1] - inp_ar[...,-2])/2)[...,np.newaxis],axis=-1)
+    G_A = (G_A - PI_conc[...,np.newaxis])/emis2conc[...,np.newaxis]
 
     for i, tstep in enumerate(timestep):
-        G_A = G_A_list[i]
         alpha[...,i] = unifiedtools.calculate_alpha(G=G,\
-                                                    G_A=G_A,\
-                                                    T=T,\
+                                                    G_A= 0 if i == 0 else G_A[...,i-1],\
+                                                    T=np.sum(S,axis=0),\
                                                     r0=r0,\
                                                     rC=rC,\
                                                     rT=rT,\
@@ -165,7 +130,7 @@ def _run_numpy( inp_ar,\
                                                                 alpha = alpha[np.newaxis,...,i],\
                                                                 tau = tau,\
                                                                 R_old = R,\
-                                                                G_A = G_A)
+                                                                G_A = G_A[...,i])
         RF[...,i] = unifiedtools.step_forcing(  C=inp_ar[...,i],\
                                                 PI_conc=PI_conc,\
                                                 f1=f1,\
