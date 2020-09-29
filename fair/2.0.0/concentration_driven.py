@@ -19,7 +19,6 @@ def run(inp_df, cfg):
     :obj:`pd.DataFrame`
         Results of the run
     """
-    raise NotImplementedError
     inp_np = unifiedtools.convert_df_to_numpy(inp_df)
 
     #a1_np, ..., tau4_np are in format [gas]
