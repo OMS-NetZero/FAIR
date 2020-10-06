@@ -4,9 +4,9 @@ import numpy as np
 
 import pandas as pd
 
-import fair.version_two.concentration_driven as concentration_driven
+import fair.concentration_driven as concentration_driven
 
-from fair.version_two.tools import unifiedtools
+from fair.tools import unifiedtools
 
 def test_single_species():
   #emissions are based on example CO2 concentrations
