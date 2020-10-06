@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 import pandas as pd
 
-from fair.version_two.tools import unifiedtools
+from fair.tools import unifiedtools
 
 def test_calculate_alpha():
     #Based on CO2

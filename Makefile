@@ -20,7 +20,7 @@ help:
 
 .PHONY: test
 test:  $(VENV_DIR) ## run the full testsuite
-	$(VENV_DIR)/bin/pytest --cov -r a --cov-report term-missing tests-2-0-0
+	$(VENV_DIR)/bin/pytest --cov -r a --cov-report term-missing tests
 
 virtual-environment:  ## update venv, create a new venv if it doesn't exist
 	make $(VENV_DIR)
