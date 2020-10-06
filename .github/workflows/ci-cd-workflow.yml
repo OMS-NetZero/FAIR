@@ -21,4 +21,4 @@ jobs:
         pip install -e .[tests]
     - name: Test with pytest
       run: |
-          pytest tests -r a --cov=scmdata --cov-report=xml
+          pytest tests-2-0-0 -r a --cov=scmdata --cov-report=xml
