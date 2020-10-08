@@ -4,7 +4,7 @@ from setuptools.command.test import test as TestCommand
 import versioneer
 
 PACKAGE_NAME = "fair"
-DESCRIPTION = "Data handling for simple climate model data"
+DESCRIPTION = "Python package to perform calculations with the FaIR simple climate model"
 KEYWORDS = [
     "simple climate model",
     "temperature response",
@@ -45,18 +45,21 @@ REQUIREMENTS = [
     "scipy>=0.19.0",
 ]
 REQUIREMENTS_TESTS = ["pytest>=4.0", "nbval", "pytest-cov", "codecov"]
+REQUIREMENTS_DOCS = ["sphinx>2.1", "sphinx_rtd_theme"]
 REQUIREMENTS_DEPLOY = ["twine>=1.11.0", "setuptools>=41.2", "wheel>=0.31.0"]
 
 REQUIREMENTS_DEV = [
     *["black==19.10b0", "flake8", "isort>=5",],
     *REQUIREMENTS_TESTS,
     *REQUIREMENTS_DEPLOY,
+    *REQUIREMENTS_DOCS,
 ]
 
 REQUIREMENTS_EXTRAS = {
     "tests": REQUIREMENTS_TESTS,
     "deploy": REQUIREMENTS_DEPLOY,
     "dev": REQUIREMENTS_DEV,
+    "docs": REQUIREMENTS_DOCS,
 }
 
 SOURCE_DIR = "fair"

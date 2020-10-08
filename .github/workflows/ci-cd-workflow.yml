@@ -2,7 +2,7 @@ name: FaIR CI-CD
 on: [push, pull_request]
 
 jobs:
-  linting:
+  linting-and-docs:
 
     runs-on: ubuntu-latest
     strategy:
@@ -25,9 +25,23 @@ jobs:
         black --check fair tests setup.py --exclude fair/_version.py
         isort --check-only --quiet fair tests setup.py
         flake8 fair tests setup.py
+    - name: Build docs
+      # treat warnings as errors (-W)...
+      # ...but not when being nitpicky (-n)
+      run: |
+          sphinx-build -M html docs/source docs/build -qW
+          sphinx-build -M html docs/source docs/build -Eqn -b coverage
+          if [[ -s docs/build/html/python.txt ]]
+          then
+              echo
+              echo \"Error: Documentation missing:\"
+              echo
+              cat docs/build/html/python.txt
+              exit 1
+          fi
 
   build:
-    needs: linting
+    needs: linting-and-docs
 
     runs-on: ubuntu-latest
     strategy:
