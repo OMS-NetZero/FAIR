@@ -23,6 +23,7 @@ checks: $(VENV_DIR)  ## run all the checks
 		echo "\n\n=== flake8 ==="; $(VENV_DIR)/bin/flake8 fair tests setup.py || echo "--- flake8 failed ---" >&2; \
 		echo "\n\n=== isort ==="; $(VENV_DIR)/bin/isort --check-only --quiet fair tests setup.py || echo "--- isort failed ---" >&2; \
 		echo "\n\n=== tests ==="; $(VENV_DIR)/bin/pytest tests --cov -rfsxEX --cov-report term-missing || echo "--- tests failed ---" >&2; \
+		echo "\n\n=== docs ==="; $(VENV_DIR)/bin/sphinx-build -M html docs/source docs/build -qW || echo "--- docs failed ---" >&2; \
 		echo
 
 .PHONY: format
@@ -31,9 +32,9 @@ format:  ## re-format files
 	make black
 
 black: $(VENV_DIR)  ## apply black formatter to source and tests
-	@status=$$(git status --porcelain setup.py src fair); \
+	@status=$$(git status --porcelain setup.py fair tests docs); \
 	if test ${FORCE} || test "x$${status}" = x; then \
-		$(VENV_DIR)/bin/black --exclude _version.py setup.py fair tests; \
+		$(VENV_DIR)/bin/black --exclude _version.py setup.py fair tests docs; \
 	else \
 		echo Not trying any formatting. Working directory is dirty ... >&2; \
 	fi;
@@ -45,6 +46,10 @@ isort: $(VENV_DIR)  ## format the code
 	else \
 		echo Not trying any formatting. Working directory is dirty ... >&2; \
 	fi;
+
+.PHONY: docs
+docs: $(VENV_DIR)  ## build the docs
+	$(VENV_DIR)/bin/sphinx-build -M html docs/source docs/build
 
 .PHONY: test
 test:  $(VENV_DIR) ## run the full testsuite
