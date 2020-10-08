@@ -4,6 +4,9 @@ import pandas as pd
 
 
 def calculate_alpha(G, G_A, T, r0, rC, rT, rA, g0, g1, iirf100_max=False):
+    """
+    TODO: docstring
+    """
     iirf100_val = ne.evaluate("abs(r0 + rC * (G-G_A) + rT * T + rA * G_A)")
     if iirf100_max:
         iirf100_val = ne.evaluate(  # noqa: F841
@@ -15,6 +18,9 @@ def calculate_alpha(G, G_A, T, r0, rC, rT, rA, g0, g1, iirf100_max=False):
 
 
 def calculate_g(a, tau):
+    """
+    TODO: docstring
+    """
     g1 = ne.evaluate(
         "sum( a * tau * ( 1. - ( 1. + 100/tau ) * exp(-100/tau) ), axis = 0)"
     )
@@ -25,6 +31,9 @@ def calculate_g(a, tau):
 def step_concentration(
     emissions, a, dt, alpha, tau, R_old, G_A_old, PI_conc, emis2conc
 ):
+    """
+    TODO: docstring
+    """
     decay_rate = ne.evaluate("1/(alpha*tau)")  # noqa: F841
     decay_factor = ne.evaluate("exp(-dt*decay_rate)")  # noqa: F841
     R = ne.evaluate(
@@ -37,6 +46,9 @@ def step_concentration(
 
 
 def step_forcing(C, PI_conc, f1, f2, f3):
+    """
+    TODO: docstring
+    """
     logforc = ne.evaluate(
         "f1 * where( (C/PI_conc) <= 0, 0, log(C/PI_conc) )",
         {"f1": f1, "C": C, "PI_conc": PI_conc},
@@ -53,6 +65,9 @@ def step_forcing(C, PI_conc, f1, f2, f3):
 
 
 def step_temperature(S_old, F, q, d, dt=1):
+    """
+    TODO: docstring
+    """
     decay_factor = ne.evaluate("exp(-dt/d)")  # noqa: F841
     S_new = ne.evaluate("q * F * (1 - decay_factor) + S_old * decay_factor")
     T = ne.evaluate("sum( (S_old + S_new)/2, axis=0 )")
@@ -72,7 +87,7 @@ def convert_df_to_numpy(inp_df):
         Input :obj:`pd.DataFrame` to be converted to a numpy array. Column represent e.g. gas species, index represents e.g. time
     Returns
     -------
-    :obj:'np.ndarray'
+    :obj:`np.ndarray`
         df converted to a numpy array with correct order for running. The numpy array is ordered as follows: [Column, Index]
         The columns and indexes are returned in a sorted order
 
@@ -100,19 +115,24 @@ def convert_numpy_output_to_df(
     res_numpy : :obj:`np.ndarray`
         Input :obj:`np.ndarray` to be converted to :obj:`pd.DataFrame`. Array should be n1xn2, where n1 represents columns and n2 represents index.
         e.g. array([[1,2,3,4,5],[6,7,8,9,10]]) would represent 2 gasses with 5 timesteps
+
     column_labels : :obj:`np.ndarray`
         Input :obj:`np.ndarray` giving labels for the columns (e.g. typically gasses), running with the above example:
         e.g. array(["CO2",["CH4]]) would label the gasses
+
     column_name : string
         Input string used to label the columns, in our example this might be "Gas"
+
     index_labels : :obj:`np.ndarray`
         Input :obj:`np.ndarray` giving labels for the index,
         e.g. array([2020,2021,2022,2023,2024]) would label our example above from 2020 to 2024
+
     index_name : : string
         Input string used to label the index, in our example this might be "Year"
+
     Returns
     -------
-    :obj:'np.ndarray'
+    :obj:`np.ndarray`
         df converted to a numpy array with correct order for running. The numpy array is ordered as follows: [Column, Index]
         The columns and indexes are returned in a sorted order
 
@@ -128,6 +148,9 @@ def convert_numpy_output_to_df(
 
 
 def unstep_concentration(a, dt, alpha, tau, R_old, G_A):
+    """
+    TODO: docstring
+    """
 
     decay_rate = ne.evaluate("1/(alpha*tau)")
     decay_factor = ne.evaluate("exp(-dt*decay_rate)")
@@ -142,6 +165,9 @@ def unstep_concentration(a, dt, alpha, tau, R_old, G_A):
 
 
 def create_output_dataframes(inp_df, gas_np, RF_np, T_np, alpha_np, ext_forcing_np):
+    """
+    TODO: docstring
+    """
     gas_df = convert_numpy_output_to_df(
         gas_np,
         inp_df.columns.values,
@@ -172,6 +198,9 @@ def create_output_dataframes(inp_df, gas_np, RF_np, T_np, alpha_np, ext_forcing_
 
 
 def return_np_function_arg_list(inp_df, cfg, concentration_mode=False):
+    """
+    TODO: docstring
+    """
 
     # a1_np, ..., tau4_np are in format [gas]
     (
