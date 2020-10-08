@@ -1,10 +1,8 @@
-import pytest
-
 import numpy as np
 import pandas as pd
+import pytest
 
 import fair.emissions_driven as emissions_driven
-
 from fair.tools import unifiedtools
 
 

@@ -1,11 +1,8 @@
+import numpy as np
+import pandas as pd
 import pytest
 
-import numpy as np
-
-import pandas as pd
-
 import fair.concentration_driven as concentration_driven
-
 from fair.tools import unifiedtools
 
 
