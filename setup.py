@@ -5,7 +5,13 @@ import versioneer
 
 PACKAGE_NAME = "fair"
 DESCRIPTION = "Data handling for simple climate model data"
-KEYWORDS = ['simple climate model', 'temperature response', 'carbon cycle', 'emissions', 'forcing']
+KEYWORDS = [
+    "simple climate model",
+    "temperature response",
+    "carbon cycle",
+    "emissions",
+    "forcing",
+]
 
 AUTHORS = [
     ("John Broadbent", "johngeoffreybroadbent@gmail.com"),
@@ -30,25 +36,19 @@ CLASSIFIERS = [
     "Programming Language :: Python :: 3.8",
 ]
 
-PYTHON_REQUIREMENTS = '>=3.6, <4'
+PYTHON_REQUIREMENTS = ">=3.6, <4"
 REQUIREMENTS = [
-        'matplotlib',
-        'numexpr',
-        'numpy>=1.14.5',
-        'pandas',
-        'scipy>=0.19.0',
-    ]
-REQUIREMENTS_TESTS = (
-    ['pytest>=4.0', 'nbval', 'pytest-cov', 'codecov']
-)
+    "matplotlib",
+    "numexpr",
+    "numpy>=1.14.5",
+    "pandas",
+    "scipy>=0.19.0",
+]
+REQUIREMENTS_TESTS = ["pytest>=4.0", "nbval", "pytest-cov", "codecov"]
 REQUIREMENTS_DEPLOY = ["twine>=1.11.0", "setuptools>=41.2", "wheel>=0.31.0"]
 
 REQUIREMENTS_DEV = [
-    *[
-        "black==19.10b0",
-        "flake8",
-        "isort>=5",
-    ],
+    *["black==19.10b0", "flake8", "isort>=5",],
     *REQUIREMENTS_TESTS,
     *REQUIREMENTS_DEPLOY,
 ]
@@ -61,7 +61,7 @@ REQUIREMENTS_EXTRAS = {
 
 SOURCE_DIR = "fair"
 
-PACKAGES = find_packages(exclude=['tests*','docs*'])
+PACKAGES = find_packages(exclude=["tests*", "docs*"])
 PACKAGE_DATA = {"": ["*.csv"]}
 
 README = "README.rst"
