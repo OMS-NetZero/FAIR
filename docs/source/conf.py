@@ -22,7 +22,7 @@ from fair._version import get_versions
 
 # -- Project information -----------------------------------------------------
 
-project = 'FaIR'
+project = "FaIR"
 authors = ", ".join(["John Broadbent", "Nicholas Leach", "Chris Smith", "Zeb Nicholls"])
 copyright_year = "2020"
 copyright = "{}, {}".format(copyright_year, authors)
@@ -58,7 +58,7 @@ autodoc_default_options = {
 }
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -142,9 +142,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
-latex_documents = [
-    (master_doc, "fair.tex", "FaIR Documentation", author, "manual")
-]
+latex_documents = [(master_doc, "fair.tex", "FaIR Documentation", author, "manual")]
 
 
 # -- Options for manual page output ------------------------------------------

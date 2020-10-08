@@ -4,7 +4,9 @@ from setuptools.command.test import test as TestCommand
 import versioneer
 
 PACKAGE_NAME = "fair"
-DESCRIPTION = "Python package to perform calculations with the FaIR simple climate model"
+DESCRIPTION = (
+    "Python package to perform calculations with the FaIR simple climate model"
+)
 KEYWORDS = [
     "simple climate model",
     "temperature response",
