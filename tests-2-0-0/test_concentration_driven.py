@@ -4,9 +4,9 @@ import numpy as np
 
 import pandas as pd
 
-import concentration_driven
+import fair.version_two.concentration_driven as concentration_driven
 
-from tools import unifiedtools
+from fair.version_two.tools import unifiedtools
 
 def test_single_species():
   #emissions are based on example CO2 concentrations
@@ -58,7 +58,7 @@ def test_single_species():
                           46.772580,\
                           23.792089,\
                           18.293743,\
-                          18.238578]]) 
+                          18.238578]])
   T_compare = np.array([  0.161252,\
                           0.405198,\
                           0.512490,\
@@ -79,7 +79,7 @@ def test_single_species():
   np.testing.assert_allclose(emissions_out, emissions_compare, atol=0.000001)
   np.testing.assert_allclose(T_out, T_compare, atol=0.000001)
   np.testing.assert_allclose(RF_out, RF_compare, atol=0.000001)
-  
+
 def test_dual_species():
   #emissions are based on exemplar CO2 & CH4 emissions
   out_dict = concentration_driven._run_numpy( inp_ar = np.array([[399.6173423,\
@@ -174,7 +174,7 @@ def test_dual_species():
   np.testing.assert_allclose(RF_out, RF_compare, atol=0.000001)
 
 def test_constant_concentrations():
-    
+
   out_dict = concentration_driven._run_numpy( inp_ar = np.array([[278,\
                                                                   278,\
                                                                   278,\
@@ -265,8 +265,8 @@ def test_constant_concentrations():
   np.testing.assert_allclose(emissions_out, emissions_compare, atol=0.000001)
   np.testing.assert_allclose(T_out, T_compare, atol=0.000001)
   np.testing.assert_allclose(RF_out, RF_compare, atol=0.000001)
-  
-  
+
+
 
 def test_run_df():
   gas_names = np.array([  "CO2",\
@@ -317,7 +317,7 @@ def test_run_df():
                                     "f2",\
                                     "f3",\
                                     "aer_conc"])
-  
+
 
   gas_params_df = pd.DataFrame( data = gas_parameter_value_np,\
                                 index = gas_parameter_name_np,\
@@ -346,7 +346,7 @@ def test_run_df():
   ext_forcing_df = pd.DataFrame( data = ext_forcing_value_np,
                                 index = year_index_np,
                                 columns = ["External Forcing"])
-  
+
   cfg = {'gas_params' : gas_params_df,'thermal_params' : thermal_params_df, 'ext_forcing' : ext_forcing_df}
 
   out_dict = concentration_driven.run(inp_df, cfg)
@@ -405,7 +405,7 @@ def test_run_df():
                                 0.184777,\
                                 0.180490]
                               ])
-  
+
   sorted_gas_names = gas_names[np.char.lower(gas_names).astype('str').argsort()]
 
   np.testing.assert_allclose(unifiedtools.convert_df_to_numpy(emissions_df), emissions_compare_np, atol=0.000001)

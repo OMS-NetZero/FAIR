@@ -8,10 +8,10 @@ def readme():
         return f.read()
 
 AUTHORS = [
+    ("John Broadbent", "johngeoffreybroadbent@gmail.com"),
+    ("Nicholas Leach", "nicholas.leach@stx.ox.ac.uk"),
     ("Chris Smith", "c.j.smith1@leeds.ac.uk"),
-    ("Richard Millar", "richard.millar@ouce.ox.ac.uk"),
     ("Zeb Nicholls", "zebedee.nicholls@climate-energy-college.org"),
-    ("Myles Allen", "myles.allen@ouce.ox.ac.uk"),
 ]
 
 setup(
@@ -31,15 +31,15 @@ setup(
     include_package_data=True,
     install_requires=[
         'matplotlib',
+        'numexpr',
         'numpy>=1.14.5',
-        'scipy>=0.19.0',
         'pandas',
-        'scmdata'
+        'scipy>=0.19.0',
     ],
     zip_safe=False,
     extras_require={
         'docs': ['sphinx>=1.4', 'nbsphinx'],
-        'dev' : ['notebook', 'scmdata<0.6', 'wheel', 'twine'],
-        'test': ['pytest>=4.0', 'nbval', 'pytest-cov', 'codecov']
+        'dev' : ['notebook', 'wheel', 'twine'],
+        'tests': ['pytest>=4.0', 'nbval', 'pytest-cov', 'codecov']
     }
 )

@@ -1,17 +1,34 @@
-venv: setup.py
-	[ -d ./venv ] || python3 -m venv venv
-	./venv/bin/pip install --upgrade pip
-	./venv/bin/pip install -e .[docs,dev,test]
-	touch venv
+.DEFAULT_GOAL := help
+
+VENV_DIR ?= venv
+TESTS_DIR=$(PWD)/tests
+
+define PRINT_HELP_PYSCRIPT
+import re, sys
+
+for line in sys.stdin:
+	match = re.match(r'^([a-zA-Z_-]+):.*?## (.*)$$', line)
+	if match:
+		target, help = match.groups()
+		print("%-20s %s" % (target, help))
+endef
+export PRINT_HELP_PYSCRIPT
+
+.PHONY: help
+help:
+	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
 .PHONY: test
-test: venv
-	./venv/bin/pytest -rfsxEX tests
+test:  $(VENV_DIR) ## run the full testsuite
+	$(VENV_DIR)/bin/pytest --cov -r a --cov-report term-missing tests-2-0-0
 
-.PHONY: test_notebooks
-test_notebooks: venv
-	./venv/bin/pytest -rfsxEX --nbval ./notebooks --sanitize ./notebooks/tests_sanitize.cfg
+virtual-environment:  ## update venv, create a new venv if it doesn't exist
+	make $(VENV_DIR)
 
-.PHONY: docs
-docs:
-	./venv/bin/sphinx-build -M html docs docs/_build
+$(VENV_DIR): setup.py
+	[ -d $(VENV_DIR) ] || python3 -m venv $(VENV_DIR)
+
+	$(VENV_DIR)/bin/pip install --upgrade pip wheel
+	$(VENV_DIR)/bin/pip install -e .[dev,tests] --use-feature=2020-resolver
+
+	touch $(VENV_DIR)

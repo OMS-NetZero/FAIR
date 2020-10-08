@@ -3,9 +3,9 @@ import pytest
 import numpy as np
 import pandas as pd
 
-import emissions_driven
+import fair.version_two.emissions_driven as emissions_driven
 
-from tools import unifiedtools
+from fair.version_two.tools import unifiedtools
 
 def test_single_species():
     #emissions are based on exemplar CO2 emissions
@@ -57,7 +57,7 @@ def test_single_species():
                             284.650637,\
                             327.415460,\
                             539.092185,\
-                            663.849687]]) 
+                            663.849687]])
     T_compare = np.array([  -0.022563,\
                             -0.048115,\
                             0.031111,\
@@ -74,7 +74,7 @@ def test_single_species():
                                 0.121295,\
                                 0.109470,\
                                 0.056788]])
-    
+
     np.testing.assert_allclose(alpha_out, alpha_compare, atol=0.000001)
     np.testing.assert_allclose(C_out, C_compare, atol=0.000001)
     np.testing.assert_allclose(T_out, T_compare, atol=0.000001)
@@ -174,7 +174,7 @@ def test_dual_species():
     np.testing.assert_allclose(alpha_out, alpha_compare, atol=0.000001)
 
 def test_zero_emissions():
-    
+
     out_dict = emissions_driven._run_numpy( inp_ar = np.array([[ 0,\
                                                                     0,\
                                                                     0,\
@@ -315,7 +315,7 @@ def test_run_df():
                                     "f2",\
                                     "f3",\
                                     "aer_conc"])
-  
+
 
   gas_params_df = pd.DataFrame( data = gas_parameter_value_np,\
                                 index = gas_parameter_name_np,\
@@ -344,7 +344,7 @@ def test_run_df():
   ext_forcing_df = pd.DataFrame( data = ext_forcing_value_np,
                                 index = year_index_np,
                                 columns = ["External Forcing"])
-  
+
   cfg = {'gas_params' : gas_params_df,'thermal_params' : thermal_params_df, 'ext_forcing' : ext_forcing_df}
 
   out_dict = emissions_driven.run(inp_df, cfg)
