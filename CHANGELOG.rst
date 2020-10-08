@@ -21,6 +21,7 @@ master (FAIR-v2-0-0 for now)
 Added
 ~~~~~
 
+- (`#91 <https://github.com/OMS-NetZero/FAIR/pull/91>`_) Linting of codebase and basic docs structure
 - (`#89 <https://github.com/OMS-NetZero/FAIR/pull/89>`_) Basic continuous integration with github actions
 
 Changed
