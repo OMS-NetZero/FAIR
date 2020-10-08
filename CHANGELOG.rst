@@ -23,6 +23,11 @@ Added
 
 - (`#89 <https://github.com/OMS-NetZero/FAIR/pull/89>`_) Basic continuous integration with github actions
 
+Changed
+~~~~~~~
+
+- (`#90 <https://github.com/OMS-NetZero/FAIR/pull/90>`_) Cleared out all FaIR1.X related code, leaving barebones with which to build FaIR2.0
+
 v1.6.1
 ------
 
