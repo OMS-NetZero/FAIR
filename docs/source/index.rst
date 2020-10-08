@@ -7,10 +7,6 @@ FaIR
 ====
 
 .. include:: ../../README.rst
-    :start-after: sec-begin-links
-    :end-before: sec-end-index
-
-.. include:: ../../README.rst
     :start-after: sec-begin-license
     :end-before: sec-end-license
 
