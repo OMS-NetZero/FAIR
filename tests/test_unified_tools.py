@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import pytest
 
 from fair.tools import unifiedtools
 
@@ -272,7 +271,7 @@ def test_create_output_dataframes():
     assert not np.sum(T_df.index.tolist() != np.array([1, 2, 3, 4]))
     assert T_df.index.name == "Year"
     assert not np.sum(T_df.columns.tolist() != np.array(["T"]))
-    assert T_df.columns.name == None
+    assert T_df.columns.name is None
 
     assert alpha_df.equals(alpha_compare_df)
     assert not np.sum(alpha_df.index.tolist() != np.array([1, 2, 3, 4]))
