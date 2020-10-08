@@ -1,6 +1,6 @@
 import numexpr as ne
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 
 def calculate_alpha(G, G_A, T, r0, rC, rT, rA, g0, g1, iirf100_max=False):
