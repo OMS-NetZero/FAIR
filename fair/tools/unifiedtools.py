@@ -6,7 +6,7 @@ import pandas as pd
 def calculate_alpha(G, G_A, T, r0, rC, rT, rA, g0, g1, iirf100_max=False):
     iirf100_val = ne.evaluate("abs(r0 + rC * (G-G_A) + rT * T + rA * G_A)")
     if iirf100_max:
-        iirf100_val = ne.evaluate(
+        iirf100_val = ne.evaluate(  # noqa: F841
             "where(iirf100_val>iirf100_max,iirf100_max,iirf100_val)"
         )
     alpha_val = ne.evaluate("g0 * exp(iirf100_val / g1)")
@@ -25,8 +25,8 @@ def calculate_g(a, tau):
 def step_concentration(
     emissions, a, dt, alpha, tau, R_old, G_A_old, PI_conc, emis2conc
 ):
-    decay_rate = ne.evaluate("1/(alpha*tau)")
-    decay_factor = ne.evaluate("exp(-dt*decay_rate)")
+    decay_rate = ne.evaluate("1/(alpha*tau)")  # noqa: F841
+    decay_factor = ne.evaluate("exp(-dt*decay_rate)")  # noqa: F841
     R = ne.evaluate(
         "emissions * a / decay_rate * ( 1. - decay_factor ) + R_old * decay_factor"
     )
@@ -53,7 +53,7 @@ def step_forcing(C, PI_conc, f1, f2, f3):
 
 
 def step_temperature(S_old, F, q, d, dt=1):
-    decay_factor = ne.evaluate("exp(-dt/d)")
+    decay_factor = ne.evaluate("exp(-dt/d)")  # noqa: F841
     S_new = ne.evaluate("q * F * (1 - decay_factor) + S_old * decay_factor")
     T = ne.evaluate("sum( (S_old + S_new)/2, axis=0 )")
 
@@ -98,7 +98,7 @@ def convert_numpy_output_to_df(
     ----------
 
     res_numpy : :obj:`np.ndarray`
-        Input :obj:`np.ndarray` to be converted to :obj:`pd.DataFrame`. Array should be n1xn2, where n1 represents columns and n2 represents index. 
+        Input :obj:`np.ndarray` to be converted to :obj:`pd.DataFrame`. Array should be n1xn2, where n1 represents columns and n2 represents index.
         e.g. array([[1,2,3,4,5],[6,7,8,9,10]]) would represent 2 gasses with 5 timesteps
     column_labels : :obj:`np.ndarray`
         Input :obj:`np.ndarray` giving labels for the columns (e.g. typically gasses), running with the above example:

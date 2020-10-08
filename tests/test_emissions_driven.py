@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import pytest
 
 import fair.emissions_driven as emissions_driven
 from fair.tools import unifiedtools
@@ -282,7 +281,6 @@ def test_run_df():
 
     out_dict = emissions_driven.run(inp_df, cfg)
 
-    emissions_df = out_dict["emissions"]
     C_df = out_dict["C"]
     RF_df = out_dict["RF"]
     T_df = out_dict["T"]
