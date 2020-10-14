@@ -3,9 +3,9 @@ import pytest
 import numpy as np
 import pandas as pd
 
-import fair.version_two.emissions_driven as emissions_driven
+import fair.emissions_driven as emissions_driven
 
-from fair.version_two.tools import unifiedtools
+from fair.tools import unifiedtools
 
 def test_single_species():
     #emissions are based on exemplar CO2 emissions
