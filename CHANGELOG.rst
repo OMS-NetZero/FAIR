@@ -1,29 +1,30 @@
 Changelog
----------
+=========
 
-master
-------
+All notable changes to this project will be documented in this file.
 
-(`#78 <https://github.com/OMS-NetZero/FAIR/pull/78>`_) Optimise ``fair.tools.scmdf.scmdf_to_emissions`` a bit
+The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_, and this project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
-(`#77 <https://github.com/OMS-NetZero/FAIR/pull/77>`_) Fixed ``fair.tools.scmdf.scmdf_to_emissions``
+The changes listed in this file are categorised as follows:
 
-(`#76 <https://github.com/OMS-NetZero/FAIR/pull/76>`_) Added in the GIR carbon cycle as an option and ScmDataFrame reader, required for openscm-runner and iiasa-climate-assessment
+    - Added: new features
+    - Changed: changes in existing functionality
+    - Deprecated: soon-to-be removed features
+    - Removed: now removed features
+    - Fixed: any bug fixes
+    - Security: in case of vulnerabilities.
 
-(`#69 <https://github.com/OMS-NetZero/FAIR/pull/69>`_) Added in switch to directly specify tropospheric ozone forcing time series and added in AR6 radiative efficiencies, lifetimes and molecular weights
 
-(`#68 <https://github.com/OMS-NetZero/FAIR/pull/68>`_) Attempting to infill CFCs before 1765 raises ValueError
+master (FAIR-v2-0-0 for now)
+----------------------------
 
-(`#62 <https://github.com/OMS-NetZero/FAIR/pull/62>`_) Add inverse carbon cycle to diagnose emissions from concentrations
+Added
+~~~~~
 
-(`#60 <https://github.com/OMS-NetZero/FAIR/pull/60>`_) Refactor carbon cycle into separate function
+- (`#91 <https://github.com/OMS-NetZero/FAIR/pull/91>`_) Linting of codebase and basic docs structure
+- (`#89 <https://github.com/OMS-NetZero/FAIR/pull/89>`_) Basic continuous integration with github actions
 
-(`#4 <https://github.com/OMS-NetZero/FAIR/issues/4>`_) Make ``iirf_h`` a keyword parameter
+Changed
+~~~~~~~
 
-(`#57 <https://github.com/OMS-NetZero/FAIR/pull/57>`_) Update to the ensemble generator to use the variance of the input data rather than the standard deviation
-
-(`#52 <https://github.com/OMS-NetZero/FAIR/pull/52>`_) Fixed bug that didn't pick up first year of CO2 concentrations and radiative forcing after restart_in. Changed internal book-keeping of CO2 concentrations to be absolute, rather than anomaly from pre-industrial, to be consistent with other GHGs.
-
-(`#49 <https://github.com/OMS-NetZero/FAIR/issues/49>`_) Change name of model to FaIR in docs, README and example notebooks
-
-(`#47 <https://github.com/OMS-NetZero/FAIR/pull/47>`_) Remove ``requirements.txt`` and add ``.readthedocs.yml`` to put install requirements all in one place
+- (`#90 <https://github.com/OMS-NetZero/FAIR/pull/90>`_) Cleared out all FaIR1.X related code, leaving barebones with which to build FaIR2.0
