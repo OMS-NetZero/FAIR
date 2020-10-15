@@ -1,6 +1,7 @@
 import numexpr as ne
 import numpy as np
 import pandas as pd
+import pyam as pyam
 
 
 def calculate_alpha(G, G_A, T, r0, rC, rT, rA, g0, g1, iirf100_max=False):
@@ -196,6 +197,85 @@ def create_output_dataframes(inp_df, gas_np, RF_np, T_np, alpha_np, ext_forcing_
     )
     return gas_df, RF_df, T_df, alpha_df
 
+def create_output_dataframe_aimc_compliant(inp_df, gas_np, RF_np, T_np, alpha_np, ext_forcing_np):
+    """
+    TODO: docstring
+    """
+
+    variable_array = inp_df.index.levels[4].to_numpy()
+    split_variable_array = np.array([variable_array[i].split('|',1) for i in range(len(variable_array))])
+
+    gas_array = split_variable_array[:,1]
+    function_array = split_variable_array[:,0]
+    unique_function_array = np.unique(function_array)
+    if len(unique_function_array) > 1:
+        raise Exception('Error: More than one type of input passed')
+
+    inp_function = unique_function_array[0]
+
+    output_function = "Concentration" if str.lower(inp_function[0]) == 'e' else "Emissions"
+
+    model_region_scenario_array = np.unique(inp_df.index.droplevel(('unit','variable')).to_numpy())
+    if len(model_region_scenario_array) > 1:
+        raise Exception('Error: More than one Model, Region + Scenario combination input passed')
+    model_region_scenario = np.array(model_region_scenario_array[0])
+
+    time_index = inp_df.columns
+
+    data_array = np.array([[]])
+    for i in len(gas_array):
+        gas_name = gas_array[i]
+        
+        gas_output_variable = output_function + "|" + gas_name
+        RF_output_variable = "Effective Radiative Forcing|" + gas_name
+        alpha_output_variable = "Alpha|" + gas_name
+
+        NotImplementedError
+        gas_output_unit = None
+        RF_output_unit = None
+        alpha_output_unit = None
+
+        gas_output_array = np.append(model_region_scenario,[gas_output_unit, gas_output_variable])
+        RF_output_array = np.append(model_region_scenario,[RF_output_unit, RF_output_variable])
+        alpha_output_array = np.append(model_region_scenario,[alpha_output_unit, alpha_output_variable])
+
+        gas_output_array = np.append(gas_output_array,gas_np[i])
+        RF_output_array = np.append(RF_output_array,RF_np[i])
+        alpha_output_array = np.append(alpha_output_array,alpha_np[i])
+
+        data_array = np.append(data_array,[gas_output_array],axis=0)
+        data_array = np.append(data_array,[RF_output_array],axis=0)
+        data_array = np.append(data_array,[alpha_output_array],axis=0)
+
+    ext_RF_output_variable = "Effective Radiative Forcing|External Forcing"
+    ext_RF_output_unit = None
+    ext_RF_output_array = np.append(model_region_scenario,[ext_RF_output_unit,ext_RF_output_variable])
+    ext_RF_output_array = np.append(ext_RF_output_array,ext_forcing_np)
+    data_array = np.append(data_array,[ext_RF_output_array],axis=0)
+
+    total_RF_np = RF_np.sum(axis=0) + ext_forcing_np
+    total_RF_output_variable = "Effective Radiative Forcing"
+    total_RF_output_unit = None
+    total_RF_output_array = np.append(model_region_scenario,[total_RF_output_unit,total_RF_output_variable])
+    total_RF_output_array = np.append(ext_RF_output_array,total_RF_np)
+    data_array = np.append(data_array,[total_RF_output_array],axis=0)
+
+    T_output_variable = "Surface Temperature"
+    T_output_unit = None
+    T_output_array = np.append(model_region_scenario,[T_output_unit,T_output_variable])
+    T_output_array = np.append(T_output_array,T_np)
+    data_array = np.append(data_array,[T_output_array],axis=0)
+
+    output_df = pd.DataFrame(data_array, columns = np.append(pyam.IAMC_IDX.astype('U48'), time_index.to_numpy().astype('datetime64[ns]').astype('U48')),)
+    
+
+
+    pyam_df = pyam.IamDataFrame(output_df)
+
+    output_df = pyam.IamDataFrame(pyam_df.append(inp_df))
+
+    return output_df
+
 
 def return_np_function_arg_list(inp_df, cfg, concentration_mode=False):
     """
@@ -229,13 +309,16 @@ def return_np_function_arg_list(inp_df, cfg, concentration_mode=False):
 
     ext_forcing_np = convert_df_to_numpy(cfg["ext_forcing"])[0]
 
-    inp_df = inp_df.iloc[inp_df.index.astype("str").str.lower().argsort()]
-    time_index = inp_df.index
+    inp_df = inp_df.iloc[inp_df.index.sortlevel(level = "variable")[1]]
+    inp_df = inp_df.iloc[:, inp_df.columns.astype("str").str.lower().argsort()]
 
-    timestep_np = np.append(np.diff(time_index), np.diff(time_index)[-1])
+    time_index = inp_df.columns
+
+    #Timestep is given in nanoseconds initially
+    timestep_np = np.append(np.diff(time_index), np.diff(time_index)[-1]).astype('timedelta64[s]').astype('float64')/(24*60*60*365.25)
 
     # Turns aerosol emissions into concentrations, by adding in Pre-Industrial Concentration
-    inp_np = convert_df_to_numpy(inp_df) + (
+    inp_np = inp_df.to_numpy() + (
         (PI_conc_np * aer_conc_np)[..., np.newaxis] if concentration_mode else 0
     )
 
