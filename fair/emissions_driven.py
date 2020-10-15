@@ -10,7 +10,7 @@ def run(inp_df, cfg):
     Parameters
     ----------
     inp_df : :obj:`pd.DataFrame`
-        Input :obj:`pd.DataFrame` containing the timeseries to run
+        Input :obj:`pd.DataFrame` containing the timeseries to run, in IAMC compliant DataFrame format (i.e. A multiIndex of Model, Region, Scenario, Unit, Variable then Columns for time)
 
     cfg : dict
         Dictionary containing the configuration for this run, in format {'gas_params' : :obj:`pd.DataFrame`, 'thermal_params': :obj:`pd.DataFrame`, 'ext_forcing' : :obj:`pd.DataFrame`}
@@ -28,23 +28,16 @@ def run(inp_df, cfg):
 
     inp_df = inp_df.iloc[:, inp_df.columns.astype("str").str.lower().argsort()]
     inp_df = inp_df.iloc[inp_df.index.astype("str").str.lower().argsort()]
-    C_df, RF_df, T_df, alpha_df = unifiedtools.create_output_dataframes(
-        inp_df,
-        res_dict["C"],
-        res_dict["RF"],
-        res_dict["T"],
-        res_dict["alpha"],
-        arg_list[-2],
-    )
 
-    res_df_dict = {
-        "emissions": inp_df,
-        "C": C_df,
-        "RF": RF_df,
-        "T": T_df,
-        "alpha": alpha_df,
-    }
-    return res_df_dict
+    res_df_iamc_compliant = unifiedtools.create_output_dataframe_aimc_compliant(    inp_df,\
+                                                                                    res_dict["C"],\
+                                                                                    res_dict["RF"],\
+                                                                                    res_dict["T"],\
+                                                                                    res_dict["alpha"],\
+                                                                                    arg_list[-2],
+                                                                                )
+
+    return res_df_iamc_compliant
 
 
 def _run_numpy(
