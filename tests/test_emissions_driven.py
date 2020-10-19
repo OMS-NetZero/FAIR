@@ -294,4 +294,4 @@ def test_run_df():
                             )   
     compare_df = pyam.IamDataFrame(SIMPLE_DF)
 
-    pd.util.testing.assert_frame_equal(res_df.timeseries(), compare_df.timeseries())
+    pd.util.testing.assert_frame_equal(res_df.timeseries(), compare_df.timeseries(), check_exact = False, atol = 1e-04)
