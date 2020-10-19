@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import pyam as pyam
 
 from fair.tools import unifiedtools
 
@@ -461,3 +462,44 @@ def test_return_np_function_arg_list():
         np.testing.assert_allclose(
             concentration_mode_arg_list[i], concentration_mode_arg_list_compare[i]
         )
+
+def test_create_output_dataframe_aimc_compliant():
+    SIMPLE_DF = pd.DataFrame(   [
+                                ['model_a', 'scen_a', 'World', 'Emissions|CO2', 'GtC/yr', 3.00000000e+00, 1.63829600e+01, 6.36765930e+01, 1.80148890e+02],
+                                ['model_a', 'scen_a', 'World', 'Emissions|CH4', 'MtCH4/yr', 2.14867530e+02, 4.40019020e+02, 1.70017052e+03, 3.50032202e+03],
+                                ],
+                                columns=pyam.IAMC_IDX + [2020, 2021, 2023, 2027],
+                            )
+    
+    inp_df = pyam.IamDataFrame(SIMPLE_DF)
+
+    gas_np = np.array([[1, 2, 3, 4], [5, 6, 7, 8]])
+    RF_np = np.array([[9, 10, 11, 12], [13, 14, 15, 16]])
+    T_np = np.array([17, 18, 19, 20])
+    alpha_np = np.array([[21, 22, 23, 24], [25, 26, 27, 28]])
+    ext_forcing_np = np.array([0, 0, 0, 0])
+
+    out_df = unifiedtools.create_output_dataframe_aimc_compliant(inp_df, gas_np, RF_np, T_np, alpha_np, ext_forcing_np)
+
+    SIMPLE_DF = pd.DataFrame(   [
+                                ['model_a', 'scen_a', 'World', 'Alpha|CO2', 'None', 25, 26, 27, 28],
+                                ['model_a', 'scen_a', 'World', 'Alpha|CH4', 'None', 21, 22, 23, 24],
+                                ['model_a', 'scen_a', 'World', 'Atmospheric Concentrations|CO2', 'ppm', 5, 6, 7, 8],
+                                ['model_a', 'scen_a', 'World', 'Atmospheric Concentrations|CH4', 'ppb', 1, 2, 3, 4],
+                                ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing', 'W/m**2', ],
+                                ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing|CH4', 'W/m**2', 9, 10, 11, 12],
+                                ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing|CO2', 'W/m**2', 13, 14, 15, 16],
+                                ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing|External Forcing', 'W/m**2', 0, 0, 0, 0],
+                                ['model_a', 'scen_a', 'World', 'Emissions|CO2', 'GtC/yr', 3.00000000e+00, 1.63829600e+01, 6.36765930e+01, 1.80148890e+02],
+                                ['model_a', 'scen_a', 'World', 'Emissions|CH4', 'MtCH4/yr', 2.14867530e+02, 4.40019020e+02, 1.70017052e+03, 3.50032202e+03],
+                                ['model_a', 'scen_a', 'World', 'Surface Temperature', 'K', 17, 18, 19, 20]
+                                ],
+                                columns=pyam.IAMC_IDX + [2020, 2021, 2023, 2027],
+                            )
+
+    compare_df = pyam.IamDataFrame(SIMPLE_DF)
+
+    pd.util.testing.assert_frame_equal(out_df.timeseries(), compare_df.timeseries())
+
+
+
