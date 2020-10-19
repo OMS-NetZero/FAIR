@@ -26,9 +26,6 @@ def run(inp_df, cfg):
 
     res_dict = _run_numpy(*arg_list)
 
-    inp_df = inp_df.iloc[:, inp_df.columns.astype("str").str.lower().argsort()]
-    inp_df = inp_df.iloc[inp_df.index.astype("str").str.lower().argsort()]
-
     res_df_iamc_compliant = unifiedtools.create_output_dataframe_aimc_compliant(    inp_df,\
                                                                                     res_dict["C"],\
                                                                                     res_dict["RF"],\

@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import pyam as pyam
+import datetime as dt
 
 from fair.tools import unifiedtools
 
@@ -282,21 +283,19 @@ def test_create_output_dataframes():
 
 
 def test_return_np_function_arg_list():
-    gas_names = np.array(["CO2", "CH4"])
-    gas_emission_value_np = np.array(
-        [
-            [3.00000000e00, 2.14867530e02],
-            [1.63829600e01, 4.40019020e02],
-            [6.36765930e01, 1.70017052e03],
-            [1.80148890e02, 3.50032202e03],
-            [2.43531850e01, 2.35473520e02],
-        ]
-    )
     year_index_np = np.array([2020, 2021, 2023, 2027, 2035])
 
-    inp_df = pd.DataFrame(
-        data=gas_emission_value_np, index=year_index_np, columns=gas_names
-    )
+    SIMPLE_DF = pd.DataFrame(   [
+                                ['model_a', 'scen_a', 'World', 'Emissions|CO2', 'GtC/yr', 3.00000000e+00, 1.63829600e+01, 6.36765930e+01, 1.80148890e+02,
+        2.43531850e+01],
+                                ['model_a', 'scen_a', 'World', 'Emissions|CH4', 'MtCH4/yr', 2.14867530e+02, 4.40019020e+02, 1.70017052e+03, 3.50032202e+03,
+        2.35473520e+02],
+                                ],
+                                columns=pyam.IAMC_IDX + [2020, 2021, 2023, 2027, 2035],
+                            )
+
+    inp_df = pyam.IamDataFrame(SIMPLE_DF)
+
     gas_parameter_value_np = np.array(
         [
             [0.2173, 1],
@@ -343,7 +342,7 @@ def test_return_np_function_arg_list():
     )
 
     gas_params_df = pd.DataFrame(
-        data=gas_parameter_value_np, index=gas_parameter_name_np, columns=gas_names
+        data=gas_parameter_value_np, index=gas_parameter_name_np, columns=['CO2','CH4']
     )
 
     thermal_parameter_value_np = np.array(
@@ -468,7 +467,7 @@ def test_create_output_dataframe_aimc_compliant():
                                 ['model_a', 'scen_a', 'World', 'Emissions|CO2', 'GtC/yr', 3.00000000e+00, 1.63829600e+01, 6.36765930e+01, 1.80148890e+02],
                                 ['model_a', 'scen_a', 'World', 'Emissions|CH4', 'MtCH4/yr', 2.14867530e+02, 4.40019020e+02, 1.70017052e+03, 3.50032202e+03],
                                 ],
-                                columns=pyam.IAMC_IDX + [2020, 2021, 2023, 2027],
+                                columns=pyam.IAMC_IDX + [dt.date(year = 2020, month = 1, day = 1), dt.date(year = 2021, month = 1, day = 1), dt.date(year = 2023, month = 1, day = 1), dt.date(year = 2027, month = 1, day = 1)],
                             )
     
     inp_df = pyam.IamDataFrame(SIMPLE_DF)
@@ -486,7 +485,7 @@ def test_create_output_dataframe_aimc_compliant():
                                 ['model_a', 'scen_a', 'World', 'Alpha|CH4', 'None', 21, 22, 23, 24],
                                 ['model_a', 'scen_a', 'World', 'Atmospheric Concentrations|CO2', 'ppm', 5, 6, 7, 8],
                                 ['model_a', 'scen_a', 'World', 'Atmospheric Concentrations|CH4', 'ppb', 1, 2, 3, 4],
-                                ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing', 'W/m**2', ],
+                                ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing', 'W/m**2', 22, 24, 26, 28],
                                 ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing|CH4', 'W/m**2', 9, 10, 11, 12],
                                 ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing|CO2', 'W/m**2', 13, 14, 15, 16],
                                 ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing|External Forcing', 'W/m**2', 0, 0, 0, 0],
@@ -494,7 +493,7 @@ def test_create_output_dataframe_aimc_compliant():
                                 ['model_a', 'scen_a', 'World', 'Emissions|CH4', 'MtCH4/yr', 2.14867530e+02, 4.40019020e+02, 1.70017052e+03, 3.50032202e+03],
                                 ['model_a', 'scen_a', 'World', 'Surface Temperature', 'K', 17, 18, 19, 20]
                                 ],
-                                columns=pyam.IAMC_IDX + [2020, 2021, 2023, 2027],
+                                columns=pyam.IAMC_IDX + [dt.date(year = 2020, month = 1, day = 1), dt.date(year = 2021, month = 1, day = 1), dt.date(year = 2023, month = 1, day = 1), dt.date(year = 2027, month = 1, day = 1)],
                             )
 
     compare_df = pyam.IamDataFrame(SIMPLE_DF)
