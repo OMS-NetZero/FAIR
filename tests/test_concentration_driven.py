@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import pyam as pyam
 
 import fair.concentration_driven as concentration_driven
 from fair.tools import unifiedtools
@@ -175,21 +176,17 @@ def test_constant_concentrations():
 
 
 def test_run_df():
-    gas_names = np.array(["CO2", "CH4"])
-    gas_concentration_value_np = np.array(
-        [
-            [399.6173423, 733.822081],
-            [401.8213271, 738.822081],
-            [406.3410747, 750.822081],
-            [415.7639971, 780.822081],
-            [435.6164218, 850.822081],
-        ]
-    )
     year_index_np = np.array([2020, 2021, 2023, 2027, 2035])
 
-    inp_df = pd.DataFrame(
-        data=gas_concentration_value_np, index=year_index_np, columns=gas_names
-    )
+    SIMPLE_DF = pd.DataFrame(   [
+                                ['model_a', 'scen_a', 'World', 'Atmospheric Concentrations|CO2', 'ppm', 399.6173423, 401.8213271, 406.3410747, 415.7639971, 435.6164218],
+                                ['model_a', 'scen_a', 'World', 'Atmospheric Concentrations|CH4', 'ppb', 733.822081 , 738.822081 , 750.822081 , 780.822081 , 850.822081],
+                                ],
+                                columns=pyam.IAMC_IDX + [2020, 2021, 2023, 2027, 2035],
+                            )
+
+    inp_df = pyam.IamDataFrame(SIMPLE_DF)
+
     gas_parameter_value_np = np.array(
         [
             [0.2173, 1],
@@ -236,7 +233,7 @@ def test_run_df():
     )
 
     gas_params_df = pd.DataFrame(
-        data=gas_parameter_value_np, index=gas_parameter_name_np, columns=gas_names
+        data=gas_parameter_value_np, index=gas_parameter_name_np, columns=['CO2','CH4']
     )
 
     thermal_parameter_value_np = np.array(
@@ -265,61 +262,23 @@ def test_run_df():
         "ext_forcing": ext_forcing_df,
     }
 
-    out_dict = concentration_driven.run(inp_df, cfg)
+    res_df = concentration_driven.run(inp_df, cfg)
 
-    emissions_df = out_dict["emissions"]
-    RF_df = out_dict["RF"]
-    T_df = out_dict["T"]
-    alpha_df = out_dict["alpha"]
+    SIMPLE_DF = pd.DataFrame([['model_a', 'scen_a', 'World', 'Alpha|CO2', 'None', 1.25078000e-01, 1.56356000e-01, 1.78378000e-01, 1.84777000e-01,
+        1.80490000e-01],
+       ['model_a', 'scen_a', 'World', 'Alpha|CH4', 'None', 9.92273000e-01, 7.93780000e-01, 3.71651000e-01, 2.37314600e+00,
+        2.06035092e+02],
+       ['model_a', 'scen_a', 'World', 'Atmospheric Concentrations|CO2', 'ppm', 399.6173423, 401.8213271, 406.3410747, 415.7639971, 435.6164218],
+    ['model_a', 'scen_a', 'World', 'Atmospheric Concentrations|CH4', 'ppb', 733.822081 , 738.822081 , 750.822081 , 780.822081 , 850.822081],
+       ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing', 'W/m**2', 1.74897108, 1.73497686, 1.60855104, 1.35488922, 2.44436825],
+       ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing|CH4', 'W/m**2', 0.000000, 0.003714, 0.012566, 0.034339, 0.083294],
+       ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing|CO2', 'W/m**2', 2.005091, 2.035587, 2.097619, 2.224813, 2.483857],
+       ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing|External Forcing', 'W/m**2', -0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275],
+       ['model_a', 'scen_a', 'World', 'Emissions|CO2', 'GtC/yr', 319.828087, 46.772580, 23.786699, 18.280039, 18.201683],
+       ['model_a', 'scen_a', 'World', 'Emissions|CH4', 'MtCH4/yr', 7.506675, 14.802304, 34.585501, 25.434119, 25.054660],
+       ['model_a', 'scen_a', 'World', 'Surface Temperature', 'K',0.161252, 0.405665, 0.514882, 0.539532, 0.740753]],
+    columns=pyam.IAMC_IDX + [2020, 2021, 2023, 2027, 2035],
+)   
+    compare_df = pyam.IamDataFrame(SIMPLE_DF)
 
-    emissions_compare_np = np.array(
-        [
-            [7.506675, 14.802304, 34.585501, 25.434119, 25.054660],
-            [319.828087, 46.772580, 23.786699, 18.280039, 18.201683],
-        ]
-    )
-    T_compare_np = np.array([0.161252, 0.405665, 0.514882, 0.539532, 0.740753])
-    # This should just be RF from the gasses themselves, not including external forcing
-    RF_compare_np = np.array(
-        [
-            [0.000000, 0.003714, 0.012566, 0.034339, 0.083294],
-            [2.005091, 2.035587, 2.097619, 2.224813, 2.483857],
-            [-0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275],
-            [1.74897108, 1.73497686, 1.60855104, 1.35488922, 2.44436825],
-        ]
-    )
-    alpha_compare_np = np.array(
-        [
-            [0.992273, 0.793780, 0.371651, 2.373146, 206.035092],
-            [0.125078, 0.156356, 0.178378, 0.184777, 0.180490],
-        ]
-    )
-
-    sorted_gas_names = gas_names[np.char.lower(gas_names).astype("str").argsort()]
-
-    np.testing.assert_allclose(
-        unifiedtools.convert_df_to_numpy(emissions_df),
-        emissions_compare_np,
-        atol=0.000001,
-    )
-    np.testing.assert_allclose(
-        unifiedtools.convert_df_to_numpy(T_df)[0], T_compare_np, atol=0.000001
-    )
-    np.testing.assert_allclose(
-        unifiedtools.convert_df_to_numpy(RF_df), RF_compare_np, atol=0.000001
-    )
-    np.testing.assert_allclose(
-        unifiedtools.convert_df_to_numpy(alpha_df), alpha_compare_np, atol=0.000001
-    )
-
-    np.testing.assert_array_equal(emissions_df.index.tolist(), year_index_np)
-    np.testing.assert_array_equal(T_df.index.tolist(), year_index_np)
-    np.testing.assert_array_equal(RF_df.index.tolist(), year_index_np)
-    np.testing.assert_array_equal(alpha_df.index.tolist(), year_index_np)
-
-    np.testing.assert_array_equal(emissions_df.columns.tolist(), sorted_gas_names)
-    np.testing.assert_array_equal(
-        RF_df.columns.tolist(),
-        np.append(sorted_gas_names, np.array(["External Forcing", "Total"])),
-    )
-    np.testing.assert_array_equal(alpha_df.columns.tolist(), sorted_gas_names)
+    pd.util.testing.assert_frame_equal(res_df.timeseries(), compare_df.timeseries())

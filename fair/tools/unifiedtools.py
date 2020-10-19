@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 import pyam as pyam
 
+from ancil import units
+
 
 def calculate_alpha(G, G_A, T, r0, rC, rT, rA, g0, g1, iirf100_max=False):
     """
@@ -202,6 +204,8 @@ def create_output_dataframe_aimc_compliant(inp_df, gas_np, RF_np, T_np, alpha_np
     TODO: docstring
     """
 
+    units = Units()
+
     variable_array = inp_df.index.levels[4].to_numpy()
     split_variable_array = np.array([variable_array[i].split('|',1) for i in range(len(variable_array))])
 
@@ -231,9 +235,9 @@ def create_output_dataframe_aimc_compliant(inp_df, gas_np, RF_np, T_np, alpha_np
         alpha_output_variable = "Alpha|" + gas_name
 
         NotImplementedError
-        gas_output_unit = None
-        RF_output_unit = None
-        alpha_output_unit = None
+        gas_output_unit = units[gas_output_variable]
+        RF_output_unit = units[RF_output_variable]
+        alpha_output_unit = units[alpha_output_variable]
 
         gas_output_array = np.append(model_region_scenario,[gas_output_unit, gas_output_variable])
         RF_output_array = np.append(model_region_scenario,[RF_output_unit, RF_output_variable])
@@ -248,20 +252,20 @@ def create_output_dataframe_aimc_compliant(inp_df, gas_np, RF_np, T_np, alpha_np
         data_array = np.append(data_array,[alpha_output_array],axis=0)
 
     ext_RF_output_variable = "Effective Radiative Forcing|External Forcing"
-    ext_RF_output_unit = None
+    ext_RF_output_unit = units[ext_RF_output_variable]
     ext_RF_output_array = np.append(model_region_scenario,[ext_RF_output_unit,ext_RF_output_variable])
     ext_RF_output_array = np.append(ext_RF_output_array,ext_forcing_np)
     data_array = np.append(data_array,[ext_RF_output_array],axis=0)
 
     total_RF_np = RF_np.sum(axis=0) + ext_forcing_np
     total_RF_output_variable = "Effective Radiative Forcing"
-    total_RF_output_unit = None
+    total_RF_output_unit = units[total_RF_output_variable]
     total_RF_output_array = np.append(model_region_scenario,[total_RF_output_unit,total_RF_output_variable])
     total_RF_output_array = np.append(ext_RF_output_array,total_RF_np)
     data_array = np.append(data_array,[total_RF_output_array],axis=0)
 
     T_output_variable = "Surface Temperature"
-    T_output_unit = None
+    T_output_unit = units[T_output_variable]
     T_output_array = np.append(model_region_scenario,[T_output_unit,T_output_variable])
     T_output_array = np.append(T_output_array,T_np)
     data_array = np.append(data_array,[T_output_array],axis=0)
