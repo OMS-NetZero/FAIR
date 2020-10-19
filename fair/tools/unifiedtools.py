@@ -234,7 +234,6 @@ def create_output_dataframe_aimc_compliant(inp_df, gas_np, RF_np, T_np, alpha_np
         RF_output_variable = "Effective Radiative Forcing|" + gas_name
         alpha_output_variable = "Alpha|" + gas_name
 
-        NotImplementedError
         gas_output_unit = units[gas_output_variable]
         RF_output_unit = units[RF_output_variable]
         alpha_output_unit = units[alpha_output_variable]
