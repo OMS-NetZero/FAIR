@@ -185,7 +185,7 @@ def create_output_dataframe_aimc_compliant(inp_df, gas_np, RF_np, T_np, alpha_np
 
     model_region_scenario_array = np.unique(inp_df.timeseries().index.droplevel(('unit','variable')).to_numpy())
     if len(model_region_scenario_array) > 1:
-        raise Exception('Error: More than one Model, Region + Scenario combination input passed')
+        raise ValueError('More than one Model, Region + Scenario combination input passed')
     model_region_scenario = np.array(model_region_scenario_array[0])
 
     data_array = np.append(
