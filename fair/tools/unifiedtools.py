@@ -166,39 +166,6 @@ def unstep_concentration(a, dt, alpha, tau, R_old, G_A):
 
     return emissions, R_new
 
-
-def create_output_dataframes(inp_df, gas_np, RF_np, T_np, alpha_np, ext_forcing_np):
-    """
-    TODO: docstring
-    """
-    gas_df = convert_numpy_output_to_df(
-        gas_np,
-        inp_df.columns.values,
-        inp_df.columns.name,
-        inp_df.index.values,
-        inp_df.index.name,
-    )
-    RF_np = np.append(RF_np, ext_forcing_np[np.newaxis, ...], axis=0)
-    RF_np = np.append(RF_np, RF_np.sum(axis=0)[np.newaxis, ...], axis=0)
-    RF_df = convert_numpy_output_to_df(
-        RF_np,
-        np.append(inp_df.columns.values, np.array(["External Forcing", "Total"])),
-        inp_df.columns.name,
-        inp_df.index.values,
-        inp_df.index.name,
-    )
-    T_df = convert_numpy_output_to_df(
-        np.array([T_np]), np.array(["T"]), None, inp_df.index.values, inp_df.index.name
-    )
-    alpha_df = convert_numpy_output_to_df(
-        alpha_np,
-        inp_df.columns.values,
-        inp_df.columns.name,
-        inp_df.index.values,
-        inp_df.index.name,
-    )
-    return gas_df, RF_df, T_df, alpha_df
-
 def create_output_dataframe_aimc_compliant(inp_df, gas_np, RF_np, T_np, alpha_np, ext_forcing_np):
     """
     TODO: docstring
@@ -207,75 +174,35 @@ def create_output_dataframe_aimc_compliant(inp_df, gas_np, RF_np, T_np, alpha_np
     units = Units()
 
     variable_array = inp_df.timeseries().index.levels[3].to_numpy()
-    split_variable_array = np.array([variable_array[i].split('|',1) for i in range(len(variable_array))])
+    function_array, gas_array = (np.array([variable_array[i].split('|',1) for i in range(len(variable_array))])).T
 
-    gas_array = split_variable_array[:,1]
-    function_array = split_variable_array[:,0]
     unique_function_array = np.unique(function_array)
     if len(unique_function_array) > 1:
         raise Exception('Error: More than one type of input passed')
-
-    inp_function = unique_function_array[0]
-
-    output_function = "Atmospheric Concentrations" if str.lower(inp_function[0]) == 'e' else "Emissions"
+    output_function = "Atmospheric Concentrations" if str.lower(unique_function_array[0][0]) == 'e' else "Emissions"
 
     model_region_scenario_array = np.unique(inp_df.timeseries().index.droplevel(('unit','variable')).to_numpy())
     if len(model_region_scenario_array) > 1:
         raise Exception('Error: More than one Model, Region + Scenario combination input passed')
     model_region_scenario = np.array(model_region_scenario_array[0])
 
-    time_index = inp_df.timeseries().columns
+    data_array = np.append(
+                            np.append(     
+                                        np.repeat(  
+                                                    model_region_scenario[...,np.newaxis],3*gas_np.shape[0],axis=1).T,\
+                                        np.append(  np.array(   
+                                                                [[var, units[var]] for var in\
+                                                                    [j + '|' + k for j,k in \
+                                                                        zip([output_function, "Effective Radiative Forcing", "Alpha"]*gas_np.shape[0],np.repeat([gas_array],3))]]),\
+                                                    np.array(
+                                                                [*gas_np.T,*RF_np.T,*alpha_np.T]).T.reshape(3*gas_np.shape[0],gas_np.shape[1])\
+                                                    ,axis=1)\
+                                        ,axis=1),
+                            [   [*model_region_scenario,"Effective Radiative Forcing|External Forcing", units["Effective Radiative Forcing|External Forcing"],*ext_forcing_np],\
+                                [*model_region_scenario,"Effective Radiative Forcing", units["Effective Radiative Forcing"],*(RF_np.sum(axis=0) + ext_forcing_np)],\
+                                [*model_region_scenario,"Surface Temperature", units["Surface Temperature"],*T_np]], axis = 0)
 
-    data_array = np.array([[]])
-    for i in range(len(gas_array)):
-        gas_name = gas_array[i]
-        
-        gas_output_variable = output_function + "|" + gas_name
-        RF_output_variable = "Effective Radiative Forcing|" + gas_name
-        alpha_output_variable = "Alpha|" + gas_name
-
-        gas_output_unit = units[gas_output_variable]
-        RF_output_unit = units[RF_output_variable]
-        alpha_output_unit = units[alpha_output_variable]
-
-        gas_output_array = np.append(model_region_scenario,[gas_output_variable, gas_output_unit])
-        RF_output_array = np.append(model_region_scenario,[RF_output_variable, RF_output_unit])
-        alpha_output_array = np.append(model_region_scenario,[alpha_output_variable, alpha_output_unit])
-
-        gas_output_array = np.append(gas_output_array,gas_np[i])
-        RF_output_array = np.append(RF_output_array,RF_np[i])
-        alpha_output_array = np.append(alpha_output_array,alpha_np[i])
-
-        data_array = np.append(data_array,[gas_output_array],axis=int(i==0))
-        data_array = np.append(data_array,[RF_output_array],axis=0)
-        data_array = np.append(data_array,[alpha_output_array],axis=0)
-
-    ext_RF_output_variable = "Effective Radiative Forcing|External Forcing"
-    ext_RF_output_unit = units[ext_RF_output_variable]
-    ext_RF_output_array = np.append(model_region_scenario,[ext_RF_output_variable, ext_RF_output_unit])
-    ext_RF_output_array = np.append(ext_RF_output_array,ext_forcing_np)
-    data_array = np.append(data_array,[ext_RF_output_array],axis=0)
-
-    total_RF_np = RF_np.sum(axis=0) + ext_forcing_np
-    total_RF_output_variable = "Effective Radiative Forcing"
-    total_RF_output_unit = units[total_RF_output_variable]
-    total_RF_output_array = np.append(model_region_scenario,[total_RF_output_variable, total_RF_output_unit])
-    total_RF_output_array = np.append(total_RF_output_array,total_RF_np)
-    data_array = np.append(data_array,[total_RF_output_array],axis=0)
-
-    T_output_variable = "Surface Temperature"
-    T_output_unit = units[T_output_variable]
-    T_output_array = np.append(model_region_scenario,[T_output_variable, T_output_unit])
-    T_output_array = np.append(T_output_array,T_np)
-    data_array = np.append(data_array,[T_output_array],axis=0)
-
-    output_df = pd.DataFrame(data_array, columns = pyam.IAMC_IDX + time_index.to_list(),)
-    
-
-
-    pyam_df = pyam.IamDataFrame(output_df)
-
-    output_df = pyam.IamDataFrame(pyam_df.append(inp_df))
+    output_df = pyam.IamDataFrame(pd.DataFrame(data_array, columns = pyam.IAMC_IDX + inp_df.timeseries().columns.to_list(),)).append(inp_df)
 
     return output_df
 
@@ -285,67 +212,14 @@ def return_np_function_arg_list(inp_df, cfg, concentration_mode=False):
     TODO: docstring
     """
 
-    # a1_np, ..., tau4_np are in format [gas]
-    (
-        a1_np,
-        a2_np,
-        a3_np,
-        a4_np,
-        aer_conc_np,
-        emis2conc_np,
-        f1_np,
-        f2_np,
-        f3_np,
-        PI_conc_np,
-        r0_np,
-        rA_np,
-        rC_np,
-        rT_np,
-        tau1_np,
-        tau2_np,
-        tau3_np,
-        tau4_np,
-    ) = convert_df_to_numpy(cfg["gas_params"]).T
-
-    # d_np, q_np are in format [thermal box]
-    d_np, q_np = convert_df_to_numpy(cfg["thermal_params"]).T
-
-    ext_forcing_np = convert_df_to_numpy(cfg["ext_forcing"])[0]
+    gas_params_numpy = convert_df_to_numpy(cfg["gas_params"]).T
 
     time_index = inp_df.timeseries().columns
-
-    #Timestep is given in nanoseconds initially
-    timestep_np = np.append(np.diff(time_index), np.diff(time_index)[-1]).astype('timedelta64[Y]').astype('float64')
-
-    # Turns aerosol emissions into concentrations, by adding in Pre-Industrial Concentration
-    
-    
-    inp_np = inp_df.timeseries().to_numpy() + (
-        (PI_conc_np * aer_conc_np)[..., np.newaxis] if concentration_mode else 0
-    )
-
     arg_list = [
-        inp_np,
-        a1_np,
-        a2_np,
-        a3_np,
-        a4_np,
-        tau1_np,
-        tau2_np,
-        tau3_np,
-        tau4_np,
-        r0_np,
-        rC_np,
-        rT_np,
-        rA_np,
-        PI_conc_np,
-        emis2conc_np,
-        f1_np,
-        f2_np,
-        f3_np,
-        d_np,
-        q_np,
-        ext_forcing_np,
-        timestep_np,
+        inp_df.timeseries().to_numpy() + ((gas_params_numpy[9] * gas_params_numpy[4])[..., np.newaxis] if concentration_mode else 0),
+        *gas_params_numpy[[0,1,2,3,14,15,16,17,10,12,13,11,9,5,6,7,8]],
+        *convert_df_to_numpy(cfg["thermal_params"]).T,
+        *convert_df_to_numpy(cfg["ext_forcing"]),
+        np.append(np.diff(time_index), np.diff(time_index)[-1]).astype('timedelta64[Y]').astype('float64'),
     ]
     return arg_list
