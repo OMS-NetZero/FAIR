@@ -173,7 +173,9 @@ def create_output_dataframe_aimc_compliant(inp_df, gas_np, RF_np, T_np, alpha_np
 
     units = Units()
 
-    variable_array = inp_df.timeseries().index.levels[3].to_numpy()
+    inp_df_ts = inp_df.timeseries()
+    variable_index_level = inp_df_ts.index.names.tolist().index("variable")
+    variable_array = inp_df_ts.index.levels[variable_index_level].to_numpy()
     function_array, gas_array = (np.array([variable_array[i].split('|',1) for i in range(len(variable_array))])).T
 
     unique_function_array = np.unique(function_array)
