@@ -32,7 +32,8 @@ def test_single_species():
         d=np.array([283, 9.88, 0.85]),
         q=np.array([0.311333, 0.165417, 0.242]),
         ext_forcing=np.array(
-            [-0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275]
+            [-0.256119925, -0.304324144, -0.501633962,
+             -0.904262779, -0.12278275]
         ),
         timestep=np.array([1, 2, 4, 8, 8]),
     )
@@ -44,8 +45,9 @@ def test_single_species():
     emissions_compare = np.array(
         [[319.828087, 46.772580, 23.792089, 18.293743, 18.238578]]
     )
-    T_compare = np.array([0.161252, 0.405198, 0.512490, 0.531526, 0.719456])
-    # This should just be RF from the gas itself, not including external forcing
+    T_compare = np.array([0.161252, 0.405198, 0.512490,
+                          0.531526, 0.719456])
+    # This is RF from the gas itself, not including external forcing
     RF_compare = np.array([[2.005091, 2.035587, 2.097619, 2.224813, 2.483857]])
     alpha_compare = np.array([[0.125078, 0.156356, 0.178314, 0.184508, 0.179664]])
     np.testing.assert_allclose(alpha_out, alpha_compare, atol=0.000001)
