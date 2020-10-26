@@ -1,10 +1,11 @@
 import numpy as np
 import os
+import pandas as pd
 
 units_filename = os.path.join(os.path.dirname(__file__), 'units.csv')
+units_df = pd.read_csv(units_filename, skiprows = 1, index_col = 'Variable')
+units_dict = units_df.to_dict()['Unit']
 
 class Units(dict):
     def __init__(self):
-        alldata   = np.genfromtxt(units_filename, dtype = "str", skip_header=2, delimiter = "\t")
-        self.update(zip([alldata[i,0].replace('"','') for i in range(len(alldata[:,0]))],\
-                        [alldata[i,1].replace('"','') for i in range(len(alldata[:,1]))]))
+       self.update(units_dict)
