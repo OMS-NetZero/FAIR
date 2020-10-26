@@ -26,7 +26,7 @@ def run(inp_df, cfg):
 
     res_dict = _run_numpy(*arg_list)
 
-    res_df_iamc_compliant = unifiedtools.create_output_dataframe_aimc_compliant(    inp_df,\
+    res_df_iamc_compliant = unifiedtools.create_output_dataframe_iamc_compliant(    inp_df,\
                                                                                     res_dict["C"],\
                                                                                     res_dict["RF"],\
                                                                                     res_dict["T"],\
