@@ -10,10 +10,16 @@ def run(inp_df, cfg):
     Parameters
     ----------
     inp_df : :obj:`pd.DataFrame`
-        Input :obj:`pd.DataFrame` containing the timeseries to run
+        Input :obj:`pd.DataFrame` containing the timeseries to run,
+        in IAMC compliant DataFrame format
+        (i.e. A multiIndex of Model, Region, Scenario,
+        Unit, Variable then Columns for time)
 
     cfg : dict
-        Dictionary containing the configuration for this run, in format {'gas_params' : :obj:`pd.DataFrame`, 'thermal_params': :obj:`pd.DataFrame`, 'ext_forcing' : :obj:`pd.DataFrame`}
+        Dictionary containing the configuration for this run,
+        in format {'gas_params' : :obj:`pd.DataFrame`,
+        'thermal_params': :obj:`pd.DataFrame`,
+        'ext_forcing' : :obj:`pd.DataFrame`}
 
     Returns
     -------
@@ -26,13 +32,14 @@ def run(inp_df, cfg):
 
     res_dict = _run_numpy(*arg_list)
 
-    res_df_iamc_compliant = unifiedtools.create_output_dataframe_iamc_compliant(    inp_df,\
-                                                                                    res_dict["emissions"],\
-                                                                                    res_dict["RF"],\
-                                                                                    res_dict["T"],\
-                                                                                    res_dict["alpha"],\
-                                                                                    arg_list[-2],
-                                                                                )
+    res_df_iamc_compliant = unifiedtools\
+        .create_output_dataframe_iamc_compliant(inp_df,
+                                                res_dict["emissions"],
+                                                res_dict["RF"],
+                                                res_dict["T"],
+                                                res_dict["alpha"],
+                                                arg_list[-2]
+                                                )
 
     return res_df_iamc_compliant
 
@@ -64,28 +71,38 @@ def _run_numpy(
     """
     Run FaIR 2.0 from numpy array
 
-    This function can *only* run one scenario, thermal parameter set & gas parameter set at a time
+    This function can *only* run one scenario,
+    thermal parameter set & gas parameter set at a time
 
     Parameters
     ----------
     inp_ar : :obj:`np.ndarray`
         Input :obj:`np.ndarray` containing the timeseries to run. No checks
-        of the column order are performed here. This array contains gasses as concentrations (NOT Aerosol Emissions), i.e. PI_conc + cumulative emissions
+        of the column order are performed here.
+        This array contains gasses as concentrations (NOT Aerosol Emissions),
+        i.e. PI_conc + cumulative emissions
         format: [[species],[time]]
 
-    a1, a2, a3, a4, tau1, tau2, tau3, tau4, r0, rC, rT, rA, PI_conc, emis2conc, f1, f2, f3 : :obj:`np.ndarray`
-        Input :obj:`np.ndarray` containing gas parameters in format: [species],
-        note: all species contain the same number of gas/thermal pool indices (some are simply populated with 0)
+    a1, a2, a3, a4, tau1, tau2, tau3, tau4, r0, rC,
+    rT, rA, PI_conc, emis2conc, f1, f2, f3 : :obj:`np.ndarray`
+        Input :obj:`np.ndarray` containing gas parameters in format:
+        [species],
+        note: all species contain the same number of gas/thermal pool
+        indices (some are simply populated with 0)
 
     d, q : obj:`np.ndarray`
-        Input :obj:`np.ndarray` containing thermal parameters in format: [response box]
+        Input :obj:`np.ndarray` containing thermal parameters in format:
+        [response box]
 
     ext_forcing : :obj:`np.ndarray`
-        Input :obj:`np.ndarray` containing any other prescribed forcing in format: [time]
+        Input :obj:`np.ndarray` containing any other prescribed forcing
+        in format: [time]
 
     timestep : :obj:`np.ndarray`
-        Input :obj:`np.ndarray` specifying the length of each entry in inp_ar in years.
-        For example: if inp_ar were an nx4 array, representing times 2020-2021, 2021-2023, 2023-2027 and 2027-2028:
+        Input :obj:`np.ndarray`
+        specifying the length of each entry in inp_ar in years.
+        For example: if inp_ar were an nx4 array,
+        representing times 2020-2021, 2021-2023, 2023-2027 and 2027-2028:
         timestep would be: np.array([1,2,4,1])
 
 
@@ -95,7 +112,8 @@ def _run_numpy(
         Dictionary containing the results of the run.
         Keys are 'emissions', 'RF', 'T', and 'alpha'
         (Emissions, Radiative Forcing, Temperature and Alpha)
-        Values are in :obj:`np.ndarray` format, with the final index representing 'timestep'
+        Values are in :obj:`np.ndarray` format,
+        with the final index representing 'timestep'
     """
 
     n_species, n_timesteps = inp_ar.shape
@@ -103,10 +121,14 @@ def _run_numpy(
     emissions, RF, alpha = np.zeros((3, n_species, n_timesteps))
     # Temperature
     T = np.zeros(n_timesteps)
-    # S represents the results of the calculations from the thermal boxes, an Impulse Response calculation (T = sum(S))
+    # S represents the results of the calculations from the thermal boxes,
+    # an Impulse Response calculation (T = sum(S))
     S = np.zeros_like(d)
-    # G represents cumulative emissions, while G_A represents emissions accumulated since pre-industrial times, both in the same units as emissions
-    # So at any point, G - G_A is equal to the amount of a species that has been absorbed
+    # G represents cumulative emissions,
+    # while G_A represents emissions accumulated since pre-industrial times,
+    # both in the same units as emissions
+    # So at any point, G - G_A is equal
+    # to the amount of a species that has been absorbed
     G_A, G = np.zeros((2, n_species))
     # R in format [[index],[species]]
     R = np.zeros((4, n_species))
@@ -148,7 +170,8 @@ def _run_numpy(
         )
         G += emissions[..., i]
         S, T[i] = unifiedtools.step_temperature(
-            S_old=S, F=np.sum(RF[..., i], axis=0) + ext_forcing[i], q=q, d=d, dt=tstep
+            S_old=S, F=np.sum(RF[..., i], axis=0) +
+            ext_forcing[i], q=q, d=d, dt=tstep
         )
 
     res = {"emissions": emissions, "RF": RF, "T": T, "alpha": alpha}
