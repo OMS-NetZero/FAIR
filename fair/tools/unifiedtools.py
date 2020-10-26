@@ -198,7 +198,7 @@ def create_output_dataframe_aimc_compliant(inp_df, gas_np, RF_np, T_np, alpha_np
                                                                 [*gas_np.T,*RF_np.T,*alpha_np.T]).T.reshape(3*gas_np.shape[0],gas_np.shape[1])\
                                                     ,axis=1)\
                                         ,axis=1),
-                            [   [*model_region_scenario,"Effective Radiative Forcing|External Forcing", units["Effective Radiative Forcing|External Forcing"],*ext_forcing_np],\
+                            [   [*model_region_scenario,"Effective Radiative Forcing|Other", units["Effective Radiative Forcing|Other"],*ext_forcing_np],\
                                 [*model_region_scenario,"Effective Radiative Forcing", units["Effective Radiative Forcing"],*(RF_np.sum(axis=0) + ext_forcing_np)],\
                                 [*model_region_scenario,"Surface Temperature", units["Surface Temperature"],*T_np]], axis = 0)
 
