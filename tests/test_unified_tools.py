@@ -428,7 +428,7 @@ def test_create_output_dataframe_aimc_compliant():
                                 ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing', 'W/m**2', 22, 24, 26, 28],
                                 ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing|CH4', 'W/m**2', 9, 10, 11, 12],
                                 ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing|CO2', 'W/m**2', 13, 14, 15, 16],
-                                ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing|External Forcing', 'W/m**2', 0, 0, 0, 0],
+                                ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing|Other', 'W/m**2', 0, 0, 0, 0],
                                 ['model_a', 'scen_a', 'World', 'Emissions|CO2', 'GtC/yr', 3.00000000e+00, 1.63829600e+01, 6.36765930e+01, 1.80148890e+02],
                                 ['model_a', 'scen_a', 'World', 'Emissions|CH4', 'MtCH4/yr', 2.14867530e+02, 4.40019020e+02, 1.70017052e+03, 3.50032202e+03],
                                 ['model_a', 'scen_a', 'World', 'Surface Temperature', 'K', 17, 18, 19, 20]
