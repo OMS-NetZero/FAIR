@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import pyam as pyam
 
-from ..ancil.units import *
+from ..ancil.units import Units
 
 
 def calculate_alpha(G, G_A, T, r0, rC, rT, rA, g0, g1, iirf100_max=False):
