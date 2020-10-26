@@ -166,7 +166,7 @@ def unstep_concentration(a, dt, alpha, tau, R_old, G_A):
 
     return emissions, R_new
 
-def create_output_dataframe_aimc_compliant(inp_df, gas_np, RF_np, T_np, alpha_np, ext_forcing_np):
+def create_output_dataframe_iamc_compliant(inp_df, gas_np, RF_np, T_np, alpha_np, ext_forcing_np):
     """
     TODO: docstring
     """
