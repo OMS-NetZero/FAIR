@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import pyam as pyam
 
-from ..ancil.units import *
+from ..ancil.units import Units
 
 
 def calculate_alpha(G, G_A, T, r0, rC, rT, rA, g0, g1, iirf100_max=False):
@@ -173,7 +173,9 @@ def create_output_dataframe_aimc_compliant(inp_df, gas_np, RF_np, T_np, alpha_np
 
     units = Units()
 
-    variable_array = inp_df.timeseries().index.levels[3].to_numpy()
+    inp_df_ts = inp_df.timeseries()
+    variable_index_level = inp_df_ts.index.names.tolist().index("variable")
+    variable_array = inp_df_ts.index.levels[variable_index_level].to_numpy()
     function_array, gas_array = (np.array([variable_array[i].split('|',1) for i in range(len(variable_array))])).T
 
     unique_function_array = np.unique(function_array)
@@ -183,7 +185,7 @@ def create_output_dataframe_aimc_compliant(inp_df, gas_np, RF_np, T_np, alpha_np
 
     model_region_scenario_array = np.unique(inp_df.timeseries().index.droplevel(('unit','variable')).to_numpy())
     if len(model_region_scenario_array) > 1:
-        raise Exception('Error: More than one Model, Region + Scenario combination input passed')
+        raise ValueError('More than one Model, Region + Scenario combination input passed')
     model_region_scenario = np.array(model_region_scenario_array[0])
 
     data_array = np.append(
