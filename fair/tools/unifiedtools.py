@@ -4,6 +4,8 @@ import pandas as pd
 import pyam as pyam
 
 from ..ancil.units import Units
+from ..ancil.default_gas_parameters import Gas_Params
+from ..ancil.default_thermal_parameters import Thermal_Params
 
 
 def calculate_alpha(G, G_A, T, r0, rC, rT, rA, g0, g1, iirf100_max=False):
@@ -197,11 +199,10 @@ def create_output_dataframe_iamc_compliant(inp_df, gas_np, RF_np,
     units = Units()
 
     inp_df_ts = inp_df.timeseries()
-    variable_index_level = inp_df_ts.index.names.tolist().index("variable")
-    variable_array = inp_df_ts.index.levels[variable_index_level].to_numpy()
-    function_array, gas_array = (np.array(
+    variable_array = inp_df.variables().tolist()
+    function_array, gas_array = np.array(
                                     [variable_array[i].split('|', 1) for
-                                        i in range(len(variable_array))])).T
+                                        i in range(len(variable_array))]).T
 
     unique_function_array = np.unique(function_array)
     if len(unique_function_array) > 1:
@@ -209,11 +210,11 @@ def create_output_dataframe_iamc_compliant(inp_df, gas_np, RF_np,
     output_function = "Atmospheric Concentrations" if\
         str.lower(unique_function_array[0][0]) == 'e' else "Emissions"
 
-    model_region_scenario_array = np.unique(inp_df.timeseries()
-                                                  .index.droplevel(('unit',
-                                                                    'variable'
-                                                                    ))
-                                                  .to_numpy())
+    model_region_scenario_array = np.unique(inp_df_ts
+                                                     .index.droplevel(('unit',
+                                                                       'variable'
+                                                                      ))
+                                                     .to_numpy())
     if len(model_region_scenario_array) > 1:
         raise ValueError('More than one Model, \
             Region + Scenario combination input passed')
@@ -230,9 +231,7 @@ def create_output_dataframe_iamc_compliant(inp_df, gas_np, RF_np,
                                     [j + '|' + k for j, k in
                                         zip(
                                             [output_function,
-                                                "Effective \
-                                                    Radiative \
-                                                    Forcing",
+                                                "Effective Radiative Forcing",
                                                 "Alpha"] *
                                             gas_np.shape[0],
                                             np.repeat(
@@ -271,22 +270,48 @@ def create_output_dataframe_iamc_compliant(inp_df, gas_np, RF_np,
     return output_df
 
 
-def return_np_function_arg_list(inp_df, cfg, concentration_mode=False):
+def return_np_function_arg_list(inp_df, cfg, concentration_mode = False):
     """
     TODO: docstring
     """
 
-    gas_params_numpy = convert_df_to_numpy(cfg["gas_params"]).T
+    inp_df_ts = inp_df.timeseries()
+    variable_array = inp_df.variables().tolist()
+    function_array, inp_df_gas_array = np.array(
+                                    [variable_array[i].split('|', 1) for
+                                        i in range(len(variable_array))]).T
 
-    time_index = inp_df.timeseries().columns
+    unique_function_array = np.unique(function_array)
+    if len(unique_function_array) > 1:
+        raise Exception('Error: More than one type of input passed')
+
+    if 'gas_params' in cfg:
+        gas_params_df = cfg["gas_params"]
+        gas_params_df_gas_list = gas_params_df.columns.tolist()
+        for gas in inp_df_gas_array:
+            if gas in gas_params_df_gas_list:
+                gas_params_df[gas] = gas_params_df[gas]
+            else:
+                gas_params_df[gas] = Gas_Params(gas)
+    else:
+        gas_params_df = Gas_Params(inp_df_gas_array)
+    
+    if 'thermal_params' in cfg:
+        thermal_params_df = cfg["thermal_params"]
+    else:
+        thermal_params_df = Thermal_Params()
+
+    gas_params_numpy = convert_df_to_numpy(gas_params_df).T
+
+    time_index = inp_df_ts.columns
     arg_list = [
-        inp_df.timeseries().to_numpy() +
+        inp_df_ts.to_numpy() +
         ((gas_params_numpy[9] *
             gas_params_numpy[4])[..., np.newaxis] if
             concentration_mode else 0),
         *gas_params_numpy[[0, 1, 2, 3, 14, 15, 16, 17,
                            10, 12, 13, 11, 9, 5, 6, 7, 8]],
-        *convert_df_to_numpy(cfg["thermal_params"]).T,
+        *convert_df_to_numpy(thermal_params_df).T,
         *convert_df_to_numpy(cfg["ext_forcing"]),
         np.append(np.diff(time_index),
                   np.diff(time_index)[-1])

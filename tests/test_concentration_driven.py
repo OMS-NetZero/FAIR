@@ -275,7 +275,7 @@ def test_run_df():
        ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing', 'W/m**2', 1.74897108, 1.73497686, 1.60855104, 1.35488922, 2.44436825],
        ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing|CH4', 'W/m**2', 0.000000, 0.003714, 0.012566, 0.034339, 0.083294],
        ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing|CO2', 'W/m**2', 2.005091, 2.035587, 2.097619, 2.224813, 2.483857],
-       ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing|External Forcing', 'W/m**2', -0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275],
+       ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing|Other', 'W/m**2', -0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275],
        ['model_a', 'scen_a', 'World', 'Emissions|CO2', 'GtC/yr', 319.828087, 46.772580, 23.786699, 18.280039, 18.201683],
        ['model_a', 'scen_a', 'World', 'Emissions|CH4', 'MtCH4/yr', 7.506675, 14.802304, 34.585501, 25.434119, 25.054660],
        ['model_a', 'scen_a', 'World', 'Surface Temperature', 'K',0.161252, 0.405665, 0.514882, 0.539532, 0.740753]],
