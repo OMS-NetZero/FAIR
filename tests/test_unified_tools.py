@@ -402,7 +402,130 @@ def test_return_np_function_arg_list():
             concentration_mode_arg_list[i], concentration_mode_arg_list_compare[i]
         )
 
-def test_create_output_dataframe_aimc_compliant():
+def test_return_np_function_arg_list_no_params():
+    year_index_np = np.array([2020, 2021, 2023, 2027, 2035])
+
+    SIMPLE_DF = pd.DataFrame(   [
+                                ['model_a', 'scen_a', 'World', 'Emissions|CO2', 'GtC/yr', 3.00000000e+00, 1.63829600e+01, 6.36765930e+01, 1.80148890e+02,
+        2.43531850e+01],
+                                ['model_a', 'scen_a', 'World', 'Emissions|CH4', 'MtCH4/yr', 2.14867530e+02, 4.40019020e+02, 1.70017052e+03, 3.50032202e+03,
+        2.35473520e+02],
+                                ],
+                                columns=pyam.IAMC_IDX + [2020, 2021, 2023, 2027, 2035],
+                            )
+
+    inp_df = pyam.IamDataFrame(SIMPLE_DF)
+
+    ext_forcing_value_np = np.array(
+        [-0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275]
+    )
+
+    ext_forcing_df = pd.DataFrame(
+        data=ext_forcing_value_np, index=year_index_np, columns=["External Forcing"]
+    )
+
+    cfg = {
+        "ext_forcing": ext_forcing_df,
+    }
+
+    emission_mode_arg_list = unifiedtools.return_np_function_arg_list(
+        inp_df, cfg, concentration_mode=False
+    )
+    concentration_mode_arg_list = unifiedtools.return_np_function_arg_list(
+        inp_df, cfg, concentration_mode=True
+    )
+
+    emission_mode_arg_list_compare = [
+        np.array(
+            [
+                [
+                    2.14867530e02,
+                    4.40019020e02,
+                    1.70017052e03,
+                    3.50032202e03,
+                    2.35473520e02,
+                ],
+                [
+                    3.00000000e00,
+                    1.63829600e01,
+                    6.36765930e01,
+                    1.80148890e02,
+                    2.43531850e01,
+                ],
+            ]
+        ),
+        np.array([1.00000000e00, 2.17300000e-01]),
+        np.array([0.00000000e00, 2.24000000e-01]),
+        np.array([0.00000000e00, 2.82400000e-01]),
+        np.array([0.00000000e00, 2.76300000e-01]),
+        np.array([8.8000000e00, 1.00000000e09]),
+        np.array([1.00000000e00, 3.94400000e02]),
+        np.array([1.00000000e00, 3.65400000e01]),
+        np.array([1.00000000e00, 4.30400000e00]),
+        np.array([8.8, 30.4]),
+        np.array([0.    , 0.0177]),
+        np.array([-0.33,  2.64]),
+        np.array([0.00032, 0.     ]),
+        np.array([720., 278.]),
+        np.array([0.351665695, 0.468887594]),
+        np.array([0.  , 4.57]),
+        np.array([0., 0.]),
+        np.array([0.0385, 0.086 ]),
+        np.array([283, 9.88, 0.85]),
+        np.array([0.311333, 0.165417, 0.242]),
+        np.array([-0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275]),
+        np.array([1, 2, 4, 8, 8]),
+    ]
+    concentration_mode_arg_list_compare = [
+        np.array(
+            [
+                [
+                    2.14867530e02,
+                    4.40019020e02,
+                    1.70017052e03,
+                    3.50032202e03,
+                    2.35473520e02,
+                ],
+                [
+                    3.00000000e00,
+                    1.63829600e01,
+                    6.36765930e01,
+                    1.80148890e02,
+                    2.43531850e01,
+                ],
+            ]
+        ),
+        np.array([1.00000000e00, 2.17300000e-01]),
+        np.array([0.00000000e00, 2.24000000e-01]),
+        np.array([0.00000000e00, 2.82400000e-01]),
+        np.array([0.00000000e00, 2.76300000e-01]),
+        np.array([8.8000000e00, 1.00000000e09]),
+        np.array([1.00000000e00, 3.94400000e02]),
+        np.array([1.00000000e00, 3.65400000e01]),
+        np.array([1.00000000e00, 4.30400000e00]),
+        np.array([8.8, 30.4]),
+        np.array([0.    , 0.0177]),
+        np.array([-0.33,  2.64]),
+        np.array([0.00032, 0.     ]),
+        np.array([720., 278.]),
+        np.array([0.351665695, 0.468887594]),
+        np.array([0.  , 4.57]),
+        np.array([0., 0.]),
+        np.array([0.0385, 0.086 ]),
+        np.array([283, 9.88, 0.85]),
+        np.array([0.311333, 0.165417, 0.242]),
+        np.array([-0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275]),
+        np.array([1, 2, 4, 8, 8]),
+    ]
+    for i in range(len(emission_mode_arg_list)):
+        np.testing.assert_allclose(
+            emission_mode_arg_list[i], emission_mode_arg_list_compare[i]
+        )
+        np.testing.assert_allclose(
+            concentration_mode_arg_list[i], concentration_mode_arg_list_compare[i]
+        )
+
+def test_create_output_dataframe_iamc_compliant():
     SIMPLE_DF = pd.DataFrame(   [
                                 ['model_a', 'scen_a', 'World', 'Emissions|CO2', 'GtC/yr', 3.00000000e+00, 1.63829600e+01, 6.36765930e+01, 1.80148890e+02],
                                 ['model_a', 'scen_a', 'World', 'Emissions|CH4', 'MtCH4/yr', 2.14867530e+02, 4.40019020e+02, 1.70017052e+03, 3.50032202e+03],
@@ -418,7 +541,7 @@ def test_create_output_dataframe_aimc_compliant():
     alpha_np = np.array([[21, 22, 23, 24], [25, 26, 27, 28]])
     ext_forcing_np = np.array([0, 0, 0, 0])
 
-    out_df = unifiedtools.create_output_dataframe_aimc_compliant(inp_df, gas_np, RF_np, T_np, alpha_np, ext_forcing_np)
+    out_df = unifiedtools.create_output_dataframe_iamc_compliant(inp_df, gas_np, RF_np, T_np, alpha_np, ext_forcing_np)
 
     SIMPLE_DF = pd.DataFrame(   [
                                 ['model_a', 'scen_a', 'World', 'Alpha|CO2', 'None', 25, 26, 27, 28],
