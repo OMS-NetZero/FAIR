@@ -3,7 +3,6 @@ import pandas as pd
 import pyam as pyam
 
 import fair.emissions_driven as emissions_driven
-from fair.tools import unifiedtools
 
 
 def test_single_species():

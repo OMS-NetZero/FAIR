@@ -3,7 +3,6 @@ import pandas as pd
 import pyam as pyam
 
 import fair.concentration_driven as concentration_driven
-from fair.tools import unifiedtools
 
 
 def test_single_species():

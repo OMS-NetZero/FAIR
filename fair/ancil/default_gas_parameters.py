@@ -1,6 +1,5 @@
 import os
 
-import numpy as np
 import pandas as pd
 
 gas_params_filename = os.path.join(
