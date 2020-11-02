@@ -4,8 +4,8 @@ import pandas as pd
 import pyam as pyam
 
 from ..ancil.units import Units
-from ..ancil.default_gas_parameters import Gas_Params
-from ..ancil.default_thermal_parameters import Thermal_Params
+from ..ancil.default_gas_parameters import get_gas_params
+from ..ancil.default_thermal_parameters import get_thermal_params
 
 
 def calculate_alpha(G, G_A, T, r0, rC, rT, rA, g0, g1, iirf100_max=False):
@@ -292,14 +292,14 @@ def return_np_function_arg_list(inp_df, cfg, concentration_mode = False):
             if gas in gas_params_df_gas_list:
                 gas_params_df[gas] = gas_params_df[gas]
             else:
-                gas_params_df[gas] = Gas_Params(gas)
+                gas_params_df[gas] = get_gas_params(gas)
     else:
-        gas_params_df = Gas_Params(inp_df_gas_array)
+        gas_params_df = get_gas_params(inp_df_gas_array)
     
     if 'thermal_params' in cfg:
         thermal_params_df = cfg["thermal_params"]
     else:
-        thermal_params_df = Thermal_Params()
+        thermal_params_df = get_thermal_params()
 
     gas_params_numpy = convert_df_to_numpy(gas_params_df).T
 
