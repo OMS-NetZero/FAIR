@@ -1,5 +1,6 @@
-import numpy as np
 import os
+
+import numpy as np
 import pandas as pd
 
 units_filename = os.path.join(os.path.dirname(__file__), 'units.csv')

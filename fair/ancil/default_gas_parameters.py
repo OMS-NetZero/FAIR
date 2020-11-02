@@ -1,5 +1,6 @@
-import numpy as np
 import os
+
+import numpy as np
 import pandas as pd
 
 gas_params_filename = os.path.join(os.path.dirname(__file__), 'default_gas_parameters.csv')

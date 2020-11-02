@@ -1,7 +1,8 @@
+import datetime as dt
+
 import numpy as np
 import pandas as pd
 import pyam as pyam
-import datetime as dt
 
 from fair.tools import unifiedtools
 
