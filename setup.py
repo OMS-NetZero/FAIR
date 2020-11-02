@@ -42,9 +42,10 @@ PYTHON_REQUIREMENTS = ">=3.6, <4"
 REQUIREMENTS = [
     "matplotlib",
     "numexpr",
-    "numpy>=1.14.5",
+    "numpy",
     "pandas",
-    "scipy>=0.19.0",
+    "scipy",
+    "pyam-iamc",
 ]
 REQUIREMENTS_TESTS = ["pytest>=4.0", "nbval", "pytest-cov", "codecov"]
 REQUIREMENTS_DOCS = ["sphinx>2.1", "sphinx_rtd_theme"]
