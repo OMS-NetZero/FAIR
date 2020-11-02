@@ -32,8 +32,7 @@ def test_single_species():
         d=np.array([283, 9.88, 0.85]),
         q=np.array([0.311333, 0.165417, 0.242]),
         ext_forcing=np.array(
-            [-0.256119925, -0.304324144, -0.501633962,
-             -0.904262779, -0.12278275]
+            [-0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275]
         ),
         timestep=np.array([1, 2, 4, 8, 8]),
     )
@@ -45,8 +44,7 @@ def test_single_species():
     emissions_compare = np.array(
         [[319.828087, 46.772580, 23.792089, 18.293743, 18.238578]]
     )
-    T_compare = np.array([0.161252, 0.405198, 0.512490,
-                          0.531526, 0.719456])
+    T_compare = np.array([0.161252, 0.405198, 0.512490, 0.531526, 0.719456])
     # This is RF from the gas itself, not including external forcing
     RF_compare = np.array([[2.005091, 2.035587, 2.097619, 2.224813, 2.483857]])
     alpha_compare = np.array([[0.125078, 0.156356, 0.178314, 0.184508, 0.179664]])
@@ -180,12 +178,35 @@ def test_constant_concentrations():
 def test_run_df():
     year_index_np = np.array([2020, 2021, 2023, 2027, 2035])
 
-    SIMPLE_DF = pd.DataFrame(   [
-                                ['model_a', 'scen_a', 'World', 'Atmospheric Concentrations|CO2', 'ppm', 399.6173423, 401.8213271, 406.3410747, 415.7639971, 435.6164218],
-                                ['model_a', 'scen_a', 'World', 'Atmospheric Concentrations|CH4', 'ppb', 733.822081 , 738.822081 , 750.822081 , 780.822081 , 850.822081],
-                                ],
-                                columns=pyam.IAMC_IDX + [2020, 2021, 2023, 2027, 2035],
-                            )
+    SIMPLE_DF = pd.DataFrame(
+        [
+            [
+                "model_a",
+                "scen_a",
+                "World",
+                "Atmospheric Concentrations|CO2",
+                "ppm",
+                399.6173423,
+                401.8213271,
+                406.3410747,
+                415.7639971,
+                435.6164218,
+            ],
+            [
+                "model_a",
+                "scen_a",
+                "World",
+                "Atmospheric Concentrations|CH4",
+                "ppb",
+                733.822081,
+                738.822081,
+                750.822081,
+                780.822081,
+                850.822081,
+            ],
+        ],
+        columns=pyam.IAMC_IDX + [2020, 2021, 2023, 2027, 2035],
+    )
 
     inp_df = pyam.IamDataFrame(SIMPLE_DF)
 
@@ -235,7 +256,7 @@ def test_run_df():
     )
 
     gas_params_df = pd.DataFrame(
-        data=gas_parameter_value_np, index=gas_parameter_name_np, columns=['CO2','CH4']
+        data=gas_parameter_value_np, index=gas_parameter_name_np, columns=["CO2", "CH4"]
     )
 
     thermal_parameter_value_np = np.array(
@@ -266,21 +287,145 @@ def test_run_df():
 
     res_df = concentration_driven.run(inp_df, cfg)
 
-    SIMPLE_DF = pd.DataFrame([['model_a', 'scen_a', 'World', 'Alpha|CO2', 'None', 1.25078000e-01, 1.56356000e-01, 1.78378000e-01, 1.84777000e-01,
-        1.80490000e-01],
-       ['model_a', 'scen_a', 'World', 'Alpha|CH4', 'None', 9.92273000e-01, 7.93780000e-01, 3.71651000e-01, 2.37314600e+00,
-        2.06035092e+02],
-       ['model_a', 'scen_a', 'World', 'Atmospheric Concentrations|CO2', 'ppm', 399.6173423, 401.8213271, 406.3410747, 415.7639971, 435.6164218],
-    ['model_a', 'scen_a', 'World', 'Atmospheric Concentrations|CH4', 'ppb', 733.822081 , 738.822081 , 750.822081 , 780.822081 , 850.822081],
-       ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing', 'W/m**2', 1.74897108, 1.73497686, 1.60855104, 1.35488922, 2.44436825],
-       ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing|CH4', 'W/m**2', 0.000000, 0.003714, 0.012566, 0.034339, 0.083294],
-       ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing|CO2', 'W/m**2', 2.005091, 2.035587, 2.097619, 2.224813, 2.483857],
-       ['model_a', 'scen_a', 'World', 'Effective Radiative Forcing|Other', 'W/m**2', -0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275],
-       ['model_a', 'scen_a', 'World', 'Emissions|CO2', 'GtC/yr', 319.828087, 46.772580, 23.786699, 18.280039, 18.201683],
-       ['model_a', 'scen_a', 'World', 'Emissions|CH4', 'MtCH4/yr', 7.506675, 14.802304, 34.585501, 25.434119, 25.054660],
-       ['model_a', 'scen_a', 'World', 'Surface Temperature', 'K',0.161252, 0.405665, 0.514882, 0.539532, 0.740753]],
-    columns=pyam.IAMC_IDX + [2020, 2021, 2023, 2027, 2035],
-)   
+    SIMPLE_DF = pd.DataFrame(
+        [
+            [
+                "model_a",
+                "scen_a",
+                "World",
+                "Alpha|CO2",
+                "None",
+                1.25078000e-01,
+                1.56356000e-01,
+                1.78378000e-01,
+                1.84777000e-01,
+                1.80490000e-01,
+            ],
+            [
+                "model_a",
+                "scen_a",
+                "World",
+                "Alpha|CH4",
+                "None",
+                9.92273000e-01,
+                7.93780000e-01,
+                3.71651000e-01,
+                2.37314600e00,
+                2.06035092e02,
+            ],
+            [
+                "model_a",
+                "scen_a",
+                "World",
+                "Atmospheric Concentrations|CO2",
+                "ppm",
+                399.6173423,
+                401.8213271,
+                406.3410747,
+                415.7639971,
+                435.6164218,
+            ],
+            [
+                "model_a",
+                "scen_a",
+                "World",
+                "Atmospheric Concentrations|CH4",
+                "ppb",
+                733.822081,
+                738.822081,
+                750.822081,
+                780.822081,
+                850.822081,
+            ],
+            [
+                "model_a",
+                "scen_a",
+                "World",
+                "Effective Radiative Forcing",
+                "W/m**2",
+                1.74897108,
+                1.73497686,
+                1.60855104,
+                1.35488922,
+                2.44436825,
+            ],
+            [
+                "model_a",
+                "scen_a",
+                "World",
+                "Effective Radiative Forcing|CH4",
+                "W/m**2",
+                0.000000,
+                0.003714,
+                0.012566,
+                0.034339,
+                0.083294,
+            ],
+            [
+                "model_a",
+                "scen_a",
+                "World",
+                "Effective Radiative Forcing|CO2",
+                "W/m**2",
+                2.005091,
+                2.035587,
+                2.097619,
+                2.224813,
+                2.483857,
+            ],
+            [
+                "model_a",
+                "scen_a",
+                "World",
+                "Effective Radiative Forcing|Other",
+                "W/m**2",
+                -0.256119925,
+                -0.304324144,
+                -0.501633962,
+                -0.904262779,
+                -0.12278275,
+            ],
+            [
+                "model_a",
+                "scen_a",
+                "World",
+                "Emissions|CO2",
+                "GtC/yr",
+                319.828087,
+                46.772580,
+                23.786699,
+                18.280039,
+                18.201683,
+            ],
+            [
+                "model_a",
+                "scen_a",
+                "World",
+                "Emissions|CH4",
+                "MtCH4/yr",
+                7.506675,
+                14.802304,
+                34.585501,
+                25.434119,
+                25.054660,
+            ],
+            [
+                "model_a",
+                "scen_a",
+                "World",
+                "Surface Temperature",
+                "K",
+                0.161252,
+                0.405665,
+                0.514882,
+                0.539532,
+                0.740753,
+            ],
+        ],
+        columns=pyam.IAMC_IDX + [2020, 2021, 2023, 2027, 2035],
+    )
     compare_df = pyam.IamDataFrame(SIMPLE_DF)
 
-    pd.testing.assert_frame_equal(res_df.timeseries(), compare_df.timeseries(), check_exact = False, atol = 1e-04)
+    pd.testing.assert_frame_equal(
+        res_df.timeseries(), compare_df.timeseries(), check_exact=False, atol=1e-04
+    )
