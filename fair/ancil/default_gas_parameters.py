@@ -3,11 +3,13 @@ import os
 import numpy as np
 import pandas as pd
 
-gas_params_filename = os.path.join(os.path.dirname(__file__), 'default_gas_parameters.csv')
-gas_params_df = pd.read_csv(gas_params_filename, skiprows=1, index_col='Gas').T
+gas_params_filename = os.path.join(
+    os.path.dirname(__file__), "default_gas_parameters.csv"
+)
+gas_params_df = pd.read_csv(gas_params_filename, skiprows=1, index_col="Gas").T
 
 
-def get_gas_params(gas_list = None):
+def get_gas_params(gas_list=None):
     """Get gas parameters from the defauls.
 
     Parameters

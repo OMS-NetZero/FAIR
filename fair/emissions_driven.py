@@ -32,14 +32,14 @@ def run(inp_df, cfg):
 
     res_dict = _run_numpy(*arg_list)
 
-    res_df_iamc_compliant = unifiedtools\
-        .create_output_dataframe_iamc_compliant(inp_df,
-                                                res_dict["C"],
-                                                res_dict["RF"],
-                                                res_dict["T"],
-                                                res_dict["alpha"],
-                                                arg_list[-2]
-                                                )
+    res_df_iamc_compliant = unifiedtools.create_output_dataframe_iamc_compliant(
+        inp_df,
+        res_dict["C"],
+        res_dict["RF"],
+        res_dict["T"],
+        res_dict["alpha"],
+        arg_list[-2],
+    )
 
     return res_df_iamc_compliant
 
@@ -137,8 +137,7 @@ def _run_numpy(
     g0, g1 = unifiedtools.calculate_g(a=a, tau=tau)
     for i, tstep in enumerate(timestep):
         alpha[..., i] = unifiedtools.calculate_alpha(
-            G=G, G_A=G_A, T=np.sum(S, axis=0),
-            r0=r0, rC=rC, rT=rT, rA=rA, g0=g0, g1=g1
+            G=G, G_A=G_A, T=np.sum(S, axis=0), r0=r0, rC=rC, rT=rT, rA=rA, g0=g0, g1=g1
         )
         C[..., i], R, G_A = unifiedtools.step_concentration(
             emissions=inp_ar[np.newaxis, ..., i],
@@ -155,8 +154,7 @@ def _run_numpy(
             C=C[..., i], PI_conc=PI_conc, f1=f1, f2=f2, f3=f3
         )
         S, T[i] = unifiedtools.step_temperature(
-            S_old=S, F=np.sum(RF[..., i], axis=0) +
-            ext_forcing[i], q=q, d=d, dt=tstep
+            S_old=S, F=np.sum(RF[..., i], axis=0) + ext_forcing[i], q=q, d=d, dt=tstep
         )
         G += inp_ar[..., i]
     res = {"C": C, "RF": RF, "T": T, "alpha": alpha}
