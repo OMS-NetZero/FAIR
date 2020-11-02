@@ -27,6 +27,7 @@ Added
 Changed
 ~~~~~~~
 
+- (https://github.com/JGBroadbent/FAIR/pull/2) Update dependencies
 - (`#90 <https://github.com/OMS-NetZero/FAIR/pull/90>`_) Cleared out all FaIR1.X related code, leaving barebones with which to build FaIR2.0
 
 v1.6.1
