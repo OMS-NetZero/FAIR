@@ -32,14 +32,14 @@ def run(inp_df, cfg):
 
     res_dict = _run_numpy(*arg_list)
 
-    res_df_iamc_compliant = unifiedtools\
-        .create_output_dataframe_iamc_compliant(inp_df,
-                                                res_dict["emissions"],
-                                                res_dict["RF"],
-                                                res_dict["T"],
-                                                res_dict["alpha"],
-                                                arg_list[-2]
-                                                )
+    res_df_iamc_compliant = unifiedtools.create_output_dataframe_iamc_compliant(
+        inp_df,
+        res_dict["emissions"],
+        res_dict["RF"],
+        res_dict["T"],
+        res_dict["alpha"],
+        arg_list[-2],
+    )
 
     return res_df_iamc_compliant
 
@@ -170,8 +170,7 @@ def _run_numpy(
         )
         G += emissions[..., i]
         S, T[i] = unifiedtools.step_temperature(
-            S_old=S, F=np.sum(RF[..., i], axis=0) +
-            ext_forcing[i], q=q, d=d, dt=tstep
+            S_old=S, F=np.sum(RF[..., i], axis=0) + ext_forcing[i], q=q, d=d, dt=tstep
         )
 
     res = {"emissions": emissions, "RF": RF, "T": T, "alpha": alpha}
