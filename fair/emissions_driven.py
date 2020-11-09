@@ -26,7 +26,7 @@ def run(inp_df, cfg):
     :obj:`pd.DataFrame`
         Results of the run
     """
-    arg_list = unifiedtools.return_np_function_arg_list(
+    arg_list, forcing_list = unifiedtools.return_np_function_arg_list(
         inp_df, cfg, concentration_mode=False
     )
 
@@ -38,7 +38,8 @@ def run(inp_df, cfg):
         res_dict["RF"],
         res_dict["T"],
         res_dict["alpha"],
-        arg_list[-2],
+        arg_list[-3],
+        forcing_list
     )
 
     return res_df_iamc_compliant
@@ -67,6 +68,7 @@ def _run_numpy(
     q,
     ext_forcing,
     timestep,
+    mapping_ar,
 ):
     """
     Run FaIR 2.0 from numpy array
@@ -82,11 +84,15 @@ def _run_numpy(
         format: [[species],[time]]
 
     a1, a2, a3, a4, tau1, tau2, tau3, tau4, r0, rC,
-    rT, rA, PI_conc, emis2conc, f1, f2, f3 : :obj:`np.ndarray`
+    rT, rA, PI_conc, emis2conc : :obj:`np.ndarray`
         Input :obj:`np.ndarray` containing gas parameters in format:
         [species],
         note: all species contain the same number of gas/thermal pool
         indices (some are simply populated with 0)
+    
+    f1, f2, f3 : :obj:`np.ndarray`
+        Input :obj:`np.ndarray` containing gas forcing parameters
+        in format: [forcing]
 
     d, q : obj:`np.ndarray`
         Input :obj:`np.ndarray` containing thermal parameters in format:
@@ -102,6 +108,11 @@ def _run_numpy(
         For example: if inp_ar were an nx4 array,
         representing times 2020-2021, 2021-2023, 2023-2027 and 2027-2028:
         timestep would be: np.array([1,2,4,1])
+    
+    mapping_ar : :obj:`np.ndarray`
+        Input :obj:`np.ndarray` containing mapping between gases and forcing
+        for example: [0,1] would just map gas -> forcing directly
+        [0,0,1] would map for two forcings from the gas at index 0
 
 
     Returns
@@ -115,8 +126,12 @@ def _run_numpy(
     """
 
     n_species, n_timesteps = inp_ar.shape
-    # Concentration, Radiative Forcing and Alpha
-    C, RF, alpha = np.zeros((3, n_species, n_timesteps))
+    # Concentrations and Alpha
+    C, alpha = np.zeros((2, n_species, n_timesteps))
+    
+    n_forcing = len(f1)
+    # Radiative Forcing
+    RF = np.zeros((n_forcing, n_timesteps))
     # Temperature
     T = np.zeros(n_timesteps)
     # S represents the results of the calculations from the thermal boxes,
@@ -151,7 +166,7 @@ def _run_numpy(
             emis2conc=emis2conc,
         )
         RF[..., i] = unifiedtools.step_forcing(
-            C=C[..., i], PI_conc=PI_conc, f1=f1, f2=f2, f3=f3
+            C=C[mapping_ar, i], PI_conc=PI_conc[mapping_ar], f1=f1, f2=f2, f3=f3
         )
         S, T[i] = unifiedtools.step_temperature(
             S_old=S, F=np.sum(RF[..., i], axis=0) + ext_forcing[i], q=q, d=d, dt=tstep

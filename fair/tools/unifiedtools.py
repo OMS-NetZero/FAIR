@@ -2,6 +2,7 @@ import numexpr as ne
 import numpy as np
 import pandas as pd
 import pyam as pyam
+import re
 
 from ..ancil.default_gas_parameters import get_gas_params
 from ..ancil.default_thermal_parameters import get_thermal_params
@@ -80,6 +81,37 @@ def step_temperature(S_old, F, q, d, dt=1):
 
     return S_new, T
 
+def sort_df(inp_df):
+    """
+    Convert input df to output df sorted alphabetically.
+    Note, this method deliberately sorts based on lower case values,
+    this is an attempt to make the software easier to use
+    (i.e. one might absent mindedly write a gas as 'CO2' in the gas parameter
+    dataframe and 'co2' in the concentrations/emissions dataframe)
+
+    Parameters
+    ----------
+
+    inp_df : :obj:`pd.DataFrame`
+        Input :obj:`pd.DataFrame` to be sorted by rows/columns.
+        Column represent e.g. gas species, index represents e.g. time
+
+    Returns
+    -------
+
+    :obj:`pd.DataFrame`
+        df sorted by rows/columns.
+
+    """
+    # sorts the df so ordering is 'correct' within levels/index
+    # sort the df columns
+    df = inp_df.iloc[:, inp_df.columns.astype("str").str.lower().argsort()]
+    # Sort the df index
+    df = df.iloc[df.index.astype("str").str.lower().argsort()]
+
+    return df
+
+
 
 def convert_df_to_numpy(inp_df):
     """
@@ -105,14 +137,8 @@ def convert_df_to_numpy(inp_df):
         The columns and indexes are returned in a sorted order
 
     """
-
-    # sorts the df so ordering is 'correct' within levels/index
-    # sort the df columns
-    df = inp_df.iloc[:, inp_df.columns.astype("str").str.lower().argsort()]
-    # Sort the df index
-    df = df.iloc[df.index.astype("str").str.lower().argsort()]
     # converts df to a numpy.ndarray [Column, Index]
-    res = df.to_numpy().T
+    res = sort_df(inp_df).to_numpy().T
     return res
 
 
@@ -189,7 +215,7 @@ def unstep_concentration(a, dt, alpha, tau, R_old, G_A):
 
 
 def create_output_dataframe_iamc_compliant(
-    inp_df, gas_np, RF_np, T_np, alpha_np, ext_forcing_np
+    inp_df, gas_np, RF_np, T_np, alpha_np, ext_forcing_np, forcing_list
 ):
     """
     TODO: docstring
@@ -224,34 +250,64 @@ def create_output_dataframe_iamc_compliant(
 
     data_array = np.append(
         np.append(
-            np.repeat(
-                model_region_scenario[..., np.newaxis], 3 * gas_np.shape[0], axis=1
-            ).T,
             np.append(
-                np.array(
-                    [
-                        [var, units[var]]
-                        for var in [
-                            j + "|" + k
-                            for j, k in zip(
-                                [
-                                    output_function,
-                                    "Effective Radiative Forcing",
-                                    "Alpha",
-                                ]
-                                * gas_np.shape[0],
-                                np.repeat([gas_array], 3),
-                            )
+                np.repeat(
+                    model_region_scenario[..., np.newaxis], len(forcing_list), axis=1
+                ).T,
+                np.append(
+                    np.array(
+                        [
+                            [var, units[var]]
+                            for var in [
+                                j + "|" + k
+                                for j, k in zip(
+                                    [
+                                        "Effective Radiative Forcing",
+                                    ]
+                                    * len(forcing_list),
+                                    forcing_list,
+                                )
+                            ]
                         ]
-                    ]
-                ),
-                np.array([*gas_np.T, *RF_np.T, *alpha_np.T]).T.reshape(
-                    3 * gas_np.shape[0], gas_np.shape[1]
+                    ),
+                    np.array([*RF_np.T]).T.reshape(
+                        len(forcing_list), gas_np.shape[1]
+                    ),
+                    axis=1,
                 ),
                 axis=1,
             ),
-            axis=1,
-        ),
+            np.append(
+                np.repeat(
+                    model_region_scenario[..., np.newaxis], 2 * gas_np.shape[0], axis=1
+                ).T,
+                np.append(
+                    np.array(
+                        [
+                            [var, units[var]]
+                            for var in [
+                                j + "|" + k
+                                for j, k in zip(
+                                    [
+                                        output_function,
+                                        "Alpha",
+                                    ]
+                                    * gas_np.shape[0],
+                                    np.repeat([gas_array], 2),
+                                )
+                            ]
+                        ]
+                    ),
+                    np.array([*gas_np.T, *alpha_np.T]).T.reshape(
+                        2 * gas_np.shape[0], gas_np.shape[1]
+                    ),
+                    axis=1,
+                ),
+                axis=1,
+            ),
+            axis=0,
+        )
+        ,
         [
             [
                 *model_region_scenario,
@@ -299,16 +355,27 @@ def return_np_function_arg_list(inp_df, cfg, concentration_mode=False):
     if len(unique_function_array) > 1:
         raise Exception("Error: More than one type of input passed")
 
+    gas_params_df = get_gas_params(inp_df_gas_array)
+
     if "gas_params" in cfg:
-        gas_params_df = cfg["gas_params"]
-        gas_params_df_gas_list = gas_params_df.columns.tolist()
-        for gas in inp_df_gas_array:
-            if gas in gas_params_df_gas_list:
-                gas_params_df[gas] = gas_params_df[gas]
-            else:
-                gas_params_df[gas] = get_gas_params(gas)
-    else:
-        gas_params_df = get_gas_params(inp_df_gas_array)
+        gas_params_inp_df = cfg["gas_params"]
+        for forcing in gas_params_inp_df.columns.tolist():
+            gas_params_df[forcing] = gas_params_inp_df[forcing]
+    
+    gas_params_df = sort_df(gas_params_df)
+
+    forcing_array = np.array(gas_params_df.columns.tolist())
+    
+    mapping_array = np.zeros(len(forcing_array), dtype = int)
+    for j in range(len(inp_df_gas_array)):
+        gas = inp_df_gas_array[j]
+        match_list = list(map(lambda x: bool(re.match(r'^'+gas, x)), forcing_array))
+        for i in range(len(match_list)):
+            if match_list[i]:
+                mapping_array[i] = j
+
+    gas_index_list = [np.where(forcing_array == gas)[0][0] for gas in inp_df_gas_array]        
+    
 
     if "thermal_params" in cfg:
         thermal_params_df = cfg["thermal_params"]
@@ -321,15 +388,33 @@ def return_np_function_arg_list(inp_df, cfg, concentration_mode=False):
     arg_list = [
         inp_df_ts.to_numpy()
         + (
-            (gas_params_numpy[9] * gas_params_numpy[4])[..., np.newaxis]
+            (gas_params_numpy[9][gas_index_list] * 
+                gas_params_numpy[4][gas_index_list])[..., np.newaxis]
             if concentration_mode
             else 0
         ),
-        *gas_params_numpy[[0, 1, 2, 3, 14, 15, 16, 17, 10, 12, 13, 11, 9, 5, 6, 7, 8]],
+        gas_params_numpy[0][gas_index_list], 
+        gas_params_numpy[1][gas_index_list], 
+        gas_params_numpy[2][gas_index_list], 
+        gas_params_numpy[3][gas_index_list], 
+        gas_params_numpy[14][gas_index_list], 
+        gas_params_numpy[15][gas_index_list], 
+        gas_params_numpy[16][gas_index_list], 
+        gas_params_numpy[17][gas_index_list], 
+        gas_params_numpy[10][gas_index_list], 
+        gas_params_numpy[12][gas_index_list], 
+        gas_params_numpy[13][gas_index_list], 
+        gas_params_numpy[11][gas_index_list], 
+        gas_params_numpy[9][gas_index_list], 
+        gas_params_numpy[5][gas_index_list], 
+        gas_params_numpy[6], 
+        gas_params_numpy[7], 
+        gas_params_numpy[8],
         *convert_df_to_numpy(thermal_params_df).T,
         *convert_df_to_numpy(cfg["ext_forcing"]),
         np.append(np.diff(time_index), np.diff(time_index)[-1])
         .astype("timedelta64[Y]")
         .astype("float64"),
+        mapping_array,
     ]
-    return arg_list
+    return arg_list, forcing_array
