@@ -5,6 +5,7 @@ import pandas as pd
 import pyam as pyam
 
 from fair.tools import unifiedtools
+from fair.ancil.default_gas_parameters import get_gas_params
 
 
 def test_calculate_alpha():
@@ -738,3 +739,10 @@ def test_create_output_dataframe_iamc_compliant():
     compare_df = pyam.IamDataFrame(SIMPLE_DF)
 
     pd.testing.assert_frame_equal(out_df.timeseries(), compare_df.timeseries())
+
+def test_get_gas_params():
+    gas_params_carbon_dioxide = get_gas_params(['CO2'])
+    gas_params_carbon_dioxide_secondary = get_gas_params(['CO2|Test different source'])
+
+    pd.testing.assert_frame_equal(gas_params_carbon_dioxide, gas_params_carbon_dioxide_secondary)
+

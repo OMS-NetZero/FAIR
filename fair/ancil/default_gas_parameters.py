@@ -48,8 +48,16 @@ def get_gas_params(gas_list=None):
     if gas_list is not None:
         for gas in gas_list:
             forcings = gas_params_df.filter(regex = '^'+gas)
-            for forcing in forcings.columns:
-                res[forcing] = gas_params_df[forcing]
+            if forcings.shape[1] != 0:
+                for forcing in forcings.columns:
+                    res[forcing] = gas_params_df[forcing]
+            elif '|' in gas:
+                sub_gas = gas[0:gas.index('|')]
+                sub_gas_params = get_gas_params[sub_gas]
+                for forcing in sub_gas_params.columns:
+                    forcing_string = \
+                        forcing[forcing.index(sub_gas)+len(sub_gas):]
+                    res[gas+forcing_string] = sub_gas_params[forcing]
     else:
         res = gas_params_df
     return res
