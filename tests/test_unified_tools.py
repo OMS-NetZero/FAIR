@@ -334,10 +334,10 @@ def test_return_np_function_arg_list():
         "ext_forcing": ext_forcing_df,
     }
 
-    emission_mode_arg_list = unifiedtools.return_np_function_arg_list(
+    emission_mode_arg_list, emissions_mode_forcing_list = unifiedtools.return_np_function_arg_list(
         inp_df, cfg, concentration_mode=False
     )
-    concentration_mode_arg_list = unifiedtools.return_np_function_arg_list(
+    concentration_mode_arg_list, concentration_mode_forcing_list = unifiedtools.return_np_function_arg_list(
         inp_df, cfg, concentration_mode=True
     )
 
@@ -381,6 +381,7 @@ def test_return_np_function_arg_list():
         np.array([0.311333, 0.165417, 0.242]),
         np.array([-0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275]),
         np.array([1, 2, 4, 8, 8]),
+        np.array([0,1]),
     ]
     concentration_mode_arg_list_compare = [
         np.array(
@@ -416,7 +417,11 @@ def test_return_np_function_arg_list():
         np.array([0.311333, 0.165417, 0.242]),
         np.array([-0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275]),
         np.array([1, 2, 4, 8, 8]),
+        np.array([0,1]),
     ]
+
+    forcing_list = np.array(['CH4','CO2'])
+
     for i in range(len(emission_mode_arg_list)):
         np.testing.assert_allclose(
             emission_mode_arg_list[i], emission_mode_arg_list_compare[i]
@@ -424,6 +429,8 @@ def test_return_np_function_arg_list():
         np.testing.assert_allclose(
             concentration_mode_arg_list[i], concentration_mode_arg_list_compare[i]
         )
+    np.testing.assert_equal(emissions_mode_forcing_list,forcing_list)
+    np.testing.assert_equal(concentration_mode_forcing_list,forcing_list)
 
 
 def test_return_np_function_arg_list_no_params():
@@ -473,10 +480,10 @@ def test_return_np_function_arg_list_no_params():
         "ext_forcing": ext_forcing_df,
     }
 
-    emission_mode_arg_list = unifiedtools.return_np_function_arg_list(
+    emission_mode_arg_list, emissions_mode_forcing_list = unifiedtools.return_np_function_arg_list(
         inp_df, cfg, concentration_mode=False
     )
-    concentration_mode_arg_list = unifiedtools.return_np_function_arg_list(
+    concentration_mode_arg_list, concentration_mode_forcing_list = unifiedtools.return_np_function_arg_list(
         inp_df, cfg, concentration_mode=True
     )
 
@@ -520,6 +527,7 @@ def test_return_np_function_arg_list_no_params():
         np.array([0.311333, 0.165417, 0.242]),
         np.array([-0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275]),
         np.array([1, 2, 4, 8, 8]),
+        np.array([0,1]),
     ]
     concentration_mode_arg_list_compare = [
         np.array(
@@ -561,7 +569,10 @@ def test_return_np_function_arg_list_no_params():
         np.array([0.311333, 0.165417, 0.242]),
         np.array([-0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275]),
         np.array([1, 2, 4, 8, 8]),
+        np.array([0,1]),
     ]
+    forcing_list = np.array(['CH4','CO2'])
+
     for i in range(len(emission_mode_arg_list)):
         np.testing.assert_allclose(
             emission_mode_arg_list[i], emission_mode_arg_list_compare[i]
@@ -569,6 +580,8 @@ def test_return_np_function_arg_list_no_params():
         np.testing.assert_allclose(
             concentration_mode_arg_list[i], concentration_mode_arg_list_compare[i]
         )
+    np.testing.assert_equal(emissions_mode_forcing_list,forcing_list)
+    np.testing.assert_equal(concentration_mode_forcing_list,forcing_list)
 
 
 def test_create_output_dataframe_iamc_compliant():
@@ -613,9 +626,10 @@ def test_create_output_dataframe_iamc_compliant():
     T_np = np.array([17, 18, 19, 20])
     alpha_np = np.array([[21, 22, 23, 24], [25, 26, 27, 28]])
     ext_forcing_np = np.array([0, 0, 0, 0])
+    forcing_list = np.array(['CH4','CO2'])
 
     out_df = unifiedtools.create_output_dataframe_iamc_compliant(
-        inp_df, gas_np, RF_np, T_np, alpha_np, ext_forcing_np
+        inp_df, gas_np, RF_np, T_np, alpha_np, ext_forcing_np, forcing_list
     )
 
     SIMPLE_DF = pd.DataFrame(
