@@ -38,7 +38,6 @@ def run(inp_df, cfg):
         res_dict["RF"],
         res_dict["T"],
         res_dict["alpha"],
-        arg_list[-3],
         forcing_list
     )
 

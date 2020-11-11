@@ -213,131 +213,80 @@ def unstep_concentration(a, dt, alpha, tau, R_old, G_A):
 
     return emissions, R_new
 
+def split_ts_vars(inp_df_ts, i):
+    return [var.split("|", 1)[i] for 
+        var in inp_df_ts.index.get_level_values('variable')]
 
 def create_output_dataframe_iamc_compliant(
-    inp_df, gas_np, RF_np, T_np, alpha_np, ext_forcing_np, forcing_list
+    inp_df, gas_np, RF_np, T_np, alpha_np, forcing_list
 ):
     """
     TODO: docstring
     """
 
     units = Units()
-
     inp_df_ts = inp_df.timeseries()
-    variable_array = inp_df.variables().tolist()
-    function_array, gas_array = np.array(
-        [variable_array[i].split("|", 1) for i in range(len(variable_array))]
-    ).T
+    ext_forc_np = np.zeros(RF_np.shape[1])
+    unique_fn_array = np.unique(split_ts_vars(inp_df_ts,0))
 
-    unique_function_array = np.unique(function_array)
-    if len(unique_function_array) > 1:
-        raise Exception("Error: More than one type of input passed")
-    output_function = (
-        "Atmospheric Concentrations"
-        if str.lower(unique_function_array[0][0]) == "e"
-        else "Emissions"
-    )
+    if len(unique_fn_array) == 2 and \
+        'Effective Radiative Forcing' in unique_fn_array:
+        ext_forc_np = np.sum(inp_df.filter(variable = \
+            'Effective Radiative Forcing*').timeseries().to_numpy(),axis=0)
+    elif len(unique_fn_array) > 1:
+        raise Exception("Error: Too many inputs passed")
+    
+    conc_mode = not 'Emissions' in unique_fn_array
+    out_fn = ["Atmospheric Concentrations|","Emissions|"][conc_mode]
+    gases = split_ts_vars(inp_df.filter(variable = 'Emissions*' \
+        if not conc_mode else 'Atmospheric Concentrations*').timeseries(),1)
 
     model_region_scenario_array = np.unique(
-        inp_df_ts.index.droplevel(("unit", "variable")).to_numpy()
-    )
+        inp_df_ts.index.droplevel(("unit", "variable")).to_numpy())
     if len(model_region_scenario_array) > 1:
-        raise ValueError(
-            "More than one Model, \
-            Region + Scenario combination input passed"
-        )
-    model_region_scenario = np.array(model_region_scenario_array[0])
-
-    data_array = np.append(
-        np.append(
-            np.append(
-                np.repeat(
-                    model_region_scenario[..., np.newaxis], len(forcing_list), axis=1
-                ).T,
-                np.append(
-                    np.array(
-                        [
-                            [var, units[var]]
-                            for var in [
-                                j + "|" + k
-                                for j, k in zip(
-                                    [
-                                        "Effective Radiative Forcing",
-                                    ]
-                                    * len(forcing_list),
-                                    forcing_list,
-                                )
-                            ]
-                        ]
-                    ),
-                    np.array([*RF_np.T]).T.reshape(
-                        len(forcing_list), gas_np.shape[1]
-                    ),
-                    axis=1,
-                ),
-                axis=1,
-            ),
-            np.append(
-                np.repeat(
-                    model_region_scenario[..., np.newaxis], 2 * gas_np.shape[0], axis=1
-                ).T,
-                np.append(
-                    np.array(
-                        [
-                            [var, units[var]]
-                            for var in [
-                                j + "|" + k
-                                for j, k in zip(
-                                    [
-                                        output_function,
-                                        "Alpha",
-                                    ]
-                                    * gas_np.shape[0],
-                                    np.repeat([gas_array], 2),
-                                )
-                            ]
-                        ]
-                    ),
-                    np.array([*gas_np.T, *alpha_np.T]).T.reshape(
-                        2 * gas_np.shape[0], gas_np.shape[1]
-                    ),
-                    axis=1,
-                ),
-                axis=1,
-            ),
-            axis=0,
-        )
-        ,
+        raise ValueError( "More than one Model, \
+            Region + Scenario combination input passed")
+    header = lambda var: [*model_region_scenario_array[0], var, units[var]]
+    
+    data_array = np.array(
         [
-            [
-                *model_region_scenario,
-                "Effective Radiative Forcing|Other",
-                units["Effective Radiative Forcing|Other"],
-                *ext_forcing_np,
+            *[
+                [
+                    *header("Effective Radiative Forcing|"+forc), *RF_np[i]
+                ]
+                    for i,forc in enumerate(forcing_list)
+            ],
+            *[
+                [
+                    *header(out_fn+gas), *gas_np[i]
+                ] 
+                    for i,gas in enumerate(gases)
+            ],
+            *[
+                [
+                    *header("Alpha|"+gas), *alpha_np[i]
+                ]
+                    for i,gas in enumerate(gases)
             ],
             [
-                *model_region_scenario,
-                "Effective Radiative Forcing",
-                units["Effective Radiative Forcing"],
-                *(RF_np.sum(axis=0) + ext_forcing_np),
+                *header("Effective Radiative Forcing"),
+                *(RF_np.sum(axis=0) + ext_forc_np)
             ],
             [
-                *model_region_scenario,
-                "Surface Temperature",
-                units["Surface Temperature"],
-                *T_np,
+                *header("Surface Temperature"),*T_np
             ],
-        ],
-        axis=0,
+        ]
     )
 
     output_df = pyam.IamDataFrame(
         pd.DataFrame(
-            data_array, columns=pyam.IAMC_IDX + inp_df.timeseries().columns.to_list()
+            data_array, columns=pyam.IAMC_IDX + inp_df_ts.columns.to_list()
         )
     ).append(inp_df)
 
     return output_df
+
+
 
 
 def return_np_function_arg_list(inp_df, cfg, concentration_mode=False):
@@ -345,76 +294,43 @@ def return_np_function_arg_list(inp_df, cfg, concentration_mode=False):
     TODO: docstring
     """
 
-    inp_df_ts = inp_df.timeseries()
-    variable_array = inp_df.variables().tolist()
-    function_array, inp_df_gas_array = np.array(
-        [variable_array[i].split("|", 1) for i in range(len(variable_array))]
-    ).T
+    unique_fn_array = np.unique(split_ts_vars(inp_df.timeseries(),0))
 
-    unique_function_array = np.unique(function_array)
-    if len(unique_function_array) > 1:
-        raise Exception("Error: More than one type of input passed")
+    if len(unique_fn_array) == 2 and \
+        'Effective Radiative Forcing' in unique_fn_array:
+        ext_forc_df = inp_df.filter(variable = 'Effective Radiative Forcing*')
+    elif len(unique_fn_array) > 1:
+        raise Exception("Error: Too many inputs passed")
 
-    gas_params_df = get_gas_params(inp_df_gas_array)
-
+    gas_df = inp_df.filter(variable = 'Atmospheric Concentrations*'\
+        if concentration_mode else 'Emissions*').timeseries()
+    gas_np = np.array(split_ts_vars(gas_df,1))
+    gas_params_df = get_gas_params(gas_np)
     if "gas_params" in cfg:
         gas_params_inp_df = cfg["gas_params"]
-        for forcing in gas_params_inp_df.columns.tolist():
-            gas_params_df[forcing] = gas_params_inp_df[forcing]
-    
+        gas_params_df[gas_params_inp_df.columns.tolist()] = gas_params_inp_df
     gas_params_df = sort_df(gas_params_df)
 
-    forcing_array = np.array(gas_params_df.columns.tolist())
-    
-    mapping_array = np.zeros(len(forcing_array), dtype = int)
-    for j in range(len(inp_df_gas_array)):
-        gas = inp_df_gas_array[j]
-        match_list = list(map(lambda x: bool(re.match(r'^'+gas, x)), forcing_array))
-        for i in range(len(match_list)):
-            if match_list[i]:
-                mapping_array[i] = j
+    forc_np = np.array(gas_params_df.columns.tolist())
 
-    gas_index_list = [np.where(forcing_array == gas)[0][0] for gas in inp_df_gas_array]        
-    
+    all_forcing_params_numpy = convert_df_to_numpy(gas_params_df)
+    gas_param_np = all_forcing_params_numpy[[
+        np.where(forc_np == gas)[0][0] for gas in gas_np]]\
+        .T[[0,1,2,3,14,15,16,17,10,12,13,11,9,5,4]]
 
-    if "thermal_params" in cfg:
-        thermal_params_df = cfg["thermal_params"]
-    else:
-        thermal_params_df = get_thermal_params()
-
-    gas_params_numpy = convert_df_to_numpy(gas_params_df).T
-
-    time_index = inp_df_ts.columns
     arg_list = [
-        inp_df_ts.to_numpy()
-        + (
-            (gas_params_numpy[9][gas_index_list] * 
-                gas_params_numpy[4][gas_index_list])[..., np.newaxis]
-            if concentration_mode
-            else 0
-        ),
-        gas_params_numpy[0][gas_index_list], 
-        gas_params_numpy[1][gas_index_list], 
-        gas_params_numpy[2][gas_index_list], 
-        gas_params_numpy[3][gas_index_list], 
-        gas_params_numpy[14][gas_index_list], 
-        gas_params_numpy[15][gas_index_list], 
-        gas_params_numpy[16][gas_index_list], 
-        gas_params_numpy[17][gas_index_list], 
-        gas_params_numpy[10][gas_index_list], 
-        gas_params_numpy[12][gas_index_list], 
-        gas_params_numpy[13][gas_index_list], 
-        gas_params_numpy[11][gas_index_list], 
-        gas_params_numpy[9][gas_index_list], 
-        gas_params_numpy[5][gas_index_list], 
-        gas_params_numpy[6], 
-        gas_params_numpy[7], 
-        gas_params_numpy[8],
-        *convert_df_to_numpy(thermal_params_df).T,
-        *convert_df_to_numpy(cfg["ext_forcing"]),
-        np.append(np.diff(time_index), np.diff(time_index)[-1])
-        .astype("timedelta64[Y]")
-        .astype("float64"),
-        mapping_array,
+        gas_df.to_numpy() + ((gas_param_np[12]*gas_param_np[14])
+            [..., np.newaxis] if concentration_mode else 0),
+        *gas_param_np[0:14], 
+        *all_forcing_params_numpy.T[[6,7,8]],
+        *convert_df_to_numpy(cfg["thermal_params"]
+            if "thermal_params" in cfg else get_thermal_params()).T,
+        np.sum(ext_forc_df.timeseries().to_numpy(),axis=0)
+            if ext_forc_df !=None else 0,
+        np.diff(gas_df.columns)[[*range(len(gas_df.columns)-1),-1]]
+            .astype("timedelta64[Y]").astype("float64"),
+        np.array([i for x in forc_np 
+            for i,gas in enumerate(gas_np) if re.match(r'^'+gas,x) ]),
     ]
-    return arg_list, forcing_array
+
+    return arg_list, forc_np
