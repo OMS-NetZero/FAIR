@@ -213,7 +213,7 @@ def unstep_concentration(a, dt, alpha, tau, R_old, G_A):
 
     return emissions, R_new
 
-def split_ts_vars(inp_df_ts, i):
+def split_vars(inp_df_ts, i):
     return [var.split("|", 1)[i] for 
         var in inp_df_ts.index.get_level_values('variable')]
 
@@ -223,29 +223,45 @@ def create_output_dataframe_iamc_compliant(
     """
     TODO: docstring
     """
-
-    units = Units()
     inp_df_ts = inp_df.timeseries()
     ext_forc_np = np.zeros(RF_np.shape[1])
-    unique_fn_array = np.unique(split_ts_vars(inp_df_ts,0))
+    fn_np = np.unique(split_vars(inp_df_ts,0))
 
-    if len(unique_fn_array) == 2 and \
-        'Effective Radiative Forcing' in unique_fn_array:
-        ext_forc_np = np.sum(inp_df.filter(variable = \
-            'Effective Radiative Forcing*').timeseries().to_numpy(),axis=0)
-    elif len(unique_fn_array) > 1:
+    if len(fn_np) == 2 and 'Effective Radiative Forcing' in fn_np:
+        ext_forc_np = np.sum(
+            inp_df_ts.filter(regex = 'Effective Radiative Forcing', axis = 0)
+            .to_numpy(),axis=0
+            )
+    elif len(fn_np) > 1:
         raise Exception("Error: Too many inputs passed")
     
-    conc_mode = not 'Emissions' in unique_fn_array
-    out_fn = ["Atmospheric Concentrations|","Emissions|"][conc_mode]
-    gases = split_ts_vars(inp_df.filter(variable = 'Emissions*' \
-        if not conc_mode else 'Atmospheric Concentrations*').timeseries(),1)
+    [[out_fn,gases]] = \
+        [
+            [
+                f[f[0] in fn_np]+"|",
+                split_vars(
+                    inp_df_ts.filter(
+                        regex=f[f[1] in fn_np],
+                        axis=0,
+                        )
+                    ,1,
+                    ),
+            ]
+        for f in 
+        [
+            [
+                "Emissions",
+                "Atmospheric Concentrations",
+            ]
+        ]
+        ]
 
     model_region_scenario_array = np.unique(
         inp_df_ts.index.droplevel(("unit", "variable")).to_numpy())
     if len(model_region_scenario_array) > 1:
         raise ValueError( "More than one Model, \
             Region + Scenario combination input passed")
+    units = Units()
     header = lambda var: [*model_region_scenario_array[0], var, units[var]]
     
     data_array = np.array(
@@ -286,51 +302,118 @@ def create_output_dataframe_iamc_compliant(
 
     return output_df
 
-
-
-
 def return_np_function_arg_list(inp_df, cfg, concentration_mode=False):
     """
     TODO: docstring
     """
-
-    unique_fn_array = np.unique(split_ts_vars(inp_df.timeseries(),0))
-
-    if len(unique_fn_array) == 2 and \
-        'Effective Radiative Forcing' in unique_fn_array:
-        ext_forc_df = inp_df.filter(variable = 'Effective Radiative Forcing*')
-    elif len(unique_fn_array) > 1:
+    inp_df_ts = inp_df.timeseries()
+    unique_fn_array = np.unique(split_vars(inp_df_ts,0))
+    
+    if len(unique_fn_array) >2 or (len(unique_fn_array) ==2
+    and not 'Effective Radiative Forcing' in unique_fn_array):
         raise Exception("Error: Too many inputs passed")
 
-    gas_df = inp_df.filter(variable = 'Atmospheric Concentrations*'\
-        if concentration_mode else 'Emissions*').timeseries()
-    gas_np = np.array(split_ts_vars(gas_df,1))
-    gas_params_df = get_gas_params(gas_np)
+    gas_df = inp_df_ts.filter(
+        regex = [
+            'Emissions',
+            'Atmospheric Concentrations',][concentration_mode], axis = 0
+    )
+    
+    gas_np = np.array(split_vars(gas_df,1))
+    forc_p_df = get_gas_params(gas_np)
     if "gas_params" in cfg:
-        gas_params_inp_df = cfg["gas_params"]
-        gas_params_df[gas_params_inp_df.columns.tolist()] = gas_params_inp_df
-    gas_params_df = sort_df(gas_params_df)
+        forc_p_df[cfg["gas_params"].columns.tolist()] = cfg["gas_params"]
+    forc_p_df = sort_df(forc_p_df)
 
-    forc_np = np.array(gas_params_df.columns.tolist())
+    forc_np = np.array(forc_p_df.columns.tolist())
 
-    all_forcing_params_numpy = convert_df_to_numpy(gas_params_df)
-    gas_param_np = all_forcing_params_numpy[[
-        np.where(forc_np == gas)[0][0] for gas in gas_np]]\
-        .T[[0,1,2,3,14,15,16,17,10,12,13,11,9,5,4]]
-
-    arg_list = [
-        gas_df.to_numpy() + ((gas_param_np[12]*gas_param_np[14])
-            [..., np.newaxis] if concentration_mode else 0),
-        *gas_param_np[0:14], 
-        *all_forcing_params_numpy.T[[6,7,8]],
-        *convert_df_to_numpy(cfg["thermal_params"]
-            if "thermal_params" in cfg else get_thermal_params()).T,
-        np.sum(ext_forc_df.timeseries().to_numpy(),axis=0)
-            if ext_forc_df !=None else 0,
-        np.diff(gas_df.columns)[[*range(len(gas_df.columns)-1),-1]]
-            .astype("timedelta64[Y]").astype("float64"),
-        np.array([i for x in forc_np 
-            for i,gas in enumerate(gas_np) if re.match(r'^'+gas,x) ]),
+    forc_p_np = convert_df_to_numpy(forc_p_df).T
+    gas_p_np = forc_p_np\
+        [
+            :,
+            [
+                np.where(forc_np == g)[0][0] for g in gas_np #matches forcings to gases
+            ],
+        ][
+            [
+                0,#a1
+                1,#a2
+                2,#a3
+                3,#a4
+                14,#tau1
+                15,#tau2
+                16,#tau3
+                17,#tau4
+                10,#r0
+                12,#rC
+                13,#rT
+                11,#rA
+                9,#PI_conc
+                5,#emis2conc
+                4,#aer_conc
+            ]
+        ]
+    
+    arg_list = \
+    [
+        gas_df.to_numpy() + 
+        np.multiply(*gas_p_np
+            [
+                [
+                    12,#PI_conc
+                    14,#aer_conc
+                ]
+            ]
+        )
+            [...,np.newaxis]*concentration_mode
+        , #emissions/concentrations, with concentration mode aerosol concentrations converted to PI_conc + aer_conc
+        *gas_p_np
+        [
+            0:14 #a1,a2,a3,a4,tau1,tau2,tau3,tau4,r0,rC,rT,rA,PI_conc,emis2conc
+        ]
+        , #gas cycle parameters
+        *forc_p_np
+        [
+            [
+                6,#f1
+                7,#f2
+                8,#f3
+            ]
+        ]
+        , #forcing parameters
+        *convert_df_to_numpy(
+            cfg["thermal_params"]
+            if "thermal_params" in cfg #thermal params inputted
+            else get_thermal_params() #default thermal params
+        ).T
+        , #thermal parameters, either inputted or default
+        np.sum(
+            inp_df_ts.filter(
+                regex = 'Effective Radiative Forcing', axis = 0
+            ).to_numpy(),
+            axis=0
+        )
+        , #external forcing, if 'Effective Radiative Forcing' is not present, this returns an array of zeros
+        np.diff(gas_df.columns)[
+            [
+                *range(
+                    len(gas_df.columns)-1
+                ),
+                -1,
+            ]
+        ]
+        .astype("timedelta64[Y]").astype("float64")
+        , #this gives the time difference between different gas emission/conc timestamps (assumes the final timestep is the same as the penultimate)
+        np.array(
+            [
+                i
+                for forc in forc_np
+                for i,gas in enumerate(gas_np)
+                if re.match(r'^'+gas,forc)
+            ],
+        )
+        , #maps forcings onto gases, i.e. BC|BC on Snow -> BC
     ]
+
 
     return arg_list, forc_np
