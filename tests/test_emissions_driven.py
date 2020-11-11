@@ -220,6 +220,30 @@ def test_run_df():
                 3.50032202e03,
                 2.35473520e02,
             ],
+            [
+                "model_a",
+                "scen_a",
+                "World",
+                "Effective Radiative Forcing|Volcanic",
+                "W/m**2",
+                -0.15611993, 
+                -0.10432414, 
+                -0.20163396, 
+                -0.50426278,  
+                0.37721725,
+            ],
+            [
+                "model_a",
+                "scen_a",
+                "World",
+                "Effective Radiative Forcing|Other",
+                "W/m**2",
+                -0.1,
+                -0.2,
+                -0.3,
+                -0.4,
+                -0.5,
+            ],
         ],
         columns=pyam.IAMC_IDX + [2020, 2021, 2023, 2027, 2035],
     )
@@ -287,18 +311,9 @@ def test_run_df():
         columns=[1, 2, 3],
     )
 
-    ext_forcing_value_np = np.array(
-        [-0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275]
-    )
-
-    ext_forcing_df = pd.DataFrame(
-        data=ext_forcing_value_np, index=year_index_np, columns=["External Forcing"]
-    )
-
     cfg = {
         "gas_params": gas_params_df,
         "thermal_params": thermal_params_df,
-        "ext_forcing": ext_forcing_df,
     }
 
     res_df = emissions_driven.run(inp_df, cfg)
@@ -393,13 +408,25 @@ def test_run_df():
                 "model_a",
                 "scen_a",
                 "World",
+                "Effective Radiative Forcing|Volcanic",
+                "W/m**2",
+                -0.15611993, 
+                -0.10432414, 
+                -0.20163396, 
+                -0.50426278,  
+                0.37721725,
+            ],
+            [
+                "model_a",
+                "scen_a",
+                "World",
                 "Effective Radiative Forcing|Other",
                 "W/m**2",
-                -0.256119925,
-                -0.304324144,
-                -0.501633962,
-                -0.904262779,
-                -0.12278275,
+                -0.1,
+                -0.2,
+                -0.3,
+                -0.4,
+                -0.5,
             ],
             [
                 "model_a",
@@ -463,9 +490,34 @@ def test_run_df_dual_forcing():
                 1.80148890e02,
                 2.43531850e01,
             ],
+            [
+                "model_a",
+                "scen_a",
+                "World",
+                "Effective Radiative Forcing|Volcanic",
+                "W/m**2",
+                -0.15611993, 
+                -0.10432414, 
+                -0.20163396, 
+                -0.50426278,  
+                0.37721725,
+            ],
+            [
+                "model_a",
+                "scen_a",
+                "World",
+                "Effective Radiative Forcing|Other",
+                "W/m**2",
+                -0.1,
+                -0.2,
+                -0.3,
+                -0.4,
+                -0.5,
+            ],
         ],
         columns=pyam.IAMC_IDX + [2020, 2021, 2023, 2027, 2035],
     )
+
 
     inp_df = pyam.IamDataFrame(SIMPLE_DF)
 
@@ -530,18 +582,9 @@ def test_run_df_dual_forcing():
         columns=[1, 2, 3],
     )
 
-    ext_forcing_value_np = np.array(
-        [-0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275]
-    )
-
-    ext_forcing_df = pd.DataFrame(
-        data=ext_forcing_value_np, index=year_index_np, columns=["External Forcing"]
-    )
-
     cfg = {
         "gas_params": gas_params_df,
         "thermal_params": thermal_params_df,
-        "ext_forcing": ext_forcing_df,
     }
 
     res_df = emissions_driven.run(inp_df, cfg)
@@ -612,13 +655,25 @@ def test_run_df_dual_forcing():
                 "model_a",
                 "scen_a",
                 "World",
+                "Effective Radiative Forcing|Volcanic",
+                "W/m**2",
+                -0.15611993, 
+                -0.10432414, 
+                -0.20163396, 
+                -0.50426278,  
+                0.37721725,
+            ],
+            [
+                "model_a",
+                "scen_a",
+                "World",
                 "Effective Radiative Forcing|Other",
                 "W/m**2",
-                -0.256119925,
-                -0.304324144,
-                -0.501633962,
-                -0.904262779,
-                -0.12278275,
+                -0.1,
+                -0.2,
+                -0.3,
+                -0.4,
+                -0.5,
             ],
             [
                 "model_a",
