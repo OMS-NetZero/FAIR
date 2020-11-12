@@ -101,6 +101,21 @@ def test_rcp85():
     assert np.allclose(T, T_expected)
 
 
+def test_geoffroy():
+    output = fair.forward.fair_scm(
+        emissions=rcp85.Emissions.emissions,
+        temperature_function='Geoffroy'
+    )
+    datadir = os.path.join(os.path.dirname(__file__), 'rcp85_geoffroy/')
+    C_expected = np.load(datadir + 'C.npy')
+    F_expected = np.load(datadir + 'F.npy')
+    T_expected = np.load(datadir + 'T.npy')
+
+    assert np.allclose(output[0], C_expected)
+    assert np.allclose(output[1], F_expected)
+    assert np.allclose(output[2], T_expected)
+
+
 # rcp3pd and rcp6 have been renamed. The modules should still work otherwise
 # the tests would not have got to this point. But we import directly here to
 # ensure compatibility.
