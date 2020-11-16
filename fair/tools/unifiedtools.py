@@ -46,7 +46,7 @@ def step_concentration(
         "emissions * a / decay_rate *\
             ( 1. - decay_factor ) + R_old * decay_factor"
     )
-    G_A = ne.evaluate("sum(R,axis=0)")
+    G_A = ne.evaluate("sum(R,axis=0)") 
     C = ne.evaluate("PI_conc + emis2conc * (G_A + G_A_old) / 2")
 
     return C, R, G_A
