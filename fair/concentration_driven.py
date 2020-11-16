@@ -120,8 +120,8 @@ def _run_numpy(
     -------
     dict
         Dictionary containing the results of the run.
-        Keys are 'emissions', 'RF', 'T', and 'alpha'
-        (Emissions, Radiative Forcing, Temperature and Alpha)
+        Keys are 'emissions', 'RF', 'T', 'alpha' and 'S'
+        (Emissions, Radiative Forcing, Temperature, Alpha and Temperature Boxes)
         Values are in :obj:`np.ndarray` format,
         with the final index representing 'timestep'
     """
@@ -187,5 +187,5 @@ def _run_numpy(
             S_old=S, F=np.sum(RF[..., i], axis=0) + ext_forcing[i], q=q, d=d, dt=tstep
         )
 
-    res = {"emissions": emissions, "RF": RF, "T": T, "alpha": alpha}
+    res = {"emissions": emissions, "RF": RF, "T": T, "alpha": alpha, "S", S}
     return res
