@@ -118,8 +118,8 @@ def _run_numpy(
     -------
     dict
         Dictionary containing the results of the run.
-        Keys are 'emissions', 'RF', 'T', 'alpha' and 'S'
-        (Emissions, Radiative Forcing, Temperature, Alpha and Temperature Boxes)
+        Keys are 'C', 'RF', 'T', 'alpha' and 'S'
+        (Concentration, Radiative Forcing, Temperature, Alpha and Temperature Boxes)
         Values are in :obj:`np.ndarray` format,
         with the final index representing 'timestep'
     """
