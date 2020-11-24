@@ -790,75 +790,280 @@ def _forward_interpretter(
     if restart_out:
         Raise ValueError('Restarts are not supported in FaIR 2.0')
 
+    #C_out & T_out are identical for AR6 and non-AR6 diagnostics
+    C_out = np.array(
+        [
+            C_res[inp_ar_i['CO2']], #0
+            C_res[inp_ar_i['CH4']], #1
+            C_res[inp_ar_i['N2O']], #2
+            C_res[inp_ar_i['CF4']], #3
+            C_res[inp_ar_i['C2F6']], #4
+            C_res[inp_ar_i['C6F14']], #5
+            C_res[inp_ar_i['HFC23']], #6
+            C_res[inp_ar_i['HFC32']], #7
+            C_res[inp_ar_i['HFC43_10MEE']], #8
+            C_res[inp_ar_i['HFC125']], #9
+            C_res[inp_ar_i['HFC134A']], #10
+            C_res[inp_ar_i['HFC143A']], #11
+            C_res[inp_ar_i['HFC227EA']], #12
+            C_res[inp_ar_i['HFC245FA']], #13
+            C_res[inp_ar_i['SF6']], #14
+            C_res[inp_ar_i['CFC11']], #15
+            C_res[inp_ar_i['CFC12']], #16
+            C_res[inp_ar_i['CFC113']], #17
+            C_res[inp_ar_i['CFC114']], #18
+            C_res[inp_ar_i['CFC115']], #19
+            C_res[inp_ar_i['CCL4']], #20
+            C_res[inp_ar_i['CH3CCL3']], #21
+            C_res[inp_ar_i['HCFC22']], #22
+            C_res[inp_ar_i['HCFC141B']], #23
+            C_res[inp_ar_i['HCFC142B']], #24
+            C_res[inp_ar_i['HALON1211']], #25
+            C_res[inp_ar_i['HALON1202']], #26
+            C_res[inp_ar_i['HALON1301']], #27
+            C_res[inp_ar_i['HALON2402']], #28
+            C_res[inp_ar_i['CH3BR']], #29
+            C_res[inp_ar_i['CH3CL']], #30
+        ]
+    )
+    T_out = T_res
+    if diagnostics == 'AR6':
+        F_out = np.array(
+            [
+                F_res[forc_i['CO2']], #0
+                F_res[forc_i['CH4']], #1
+                F_res[forc_i['N2O']], #2
+                F_res[forc_i['CF4']], #3
+                F_res[forc_i['C2F6']], #4
+                F_res[forc_i['C6F14']], #5
+                F_res[forc_i['HFC23']], #6
+                F_res[forc_i['HFC32']], #7
+                F_res[forc_i['HFC43_10MEE']], #8
+                F_res[forc_i['HFC125']], #9
+                F_res[forc_i['HFC134A']], #10
+                F_res[forc_i['HFC143A']], #11
+                F_res[forc_i['HFC227EA']], #12
+                F_res[forc_i['HFC245FA']], #13
+                F_res[forc_i['SF6']], #14
+                F_res[forc_i['CFC11']], #15
+                F_res[forc_i['CFC12']], #16
+                F_res[forc_i['CFC113']], #17
+                F_res[forc_i['CFC114']], #18
+                F_res[forc_i['CFC115']], #19
+                F_res[forc_i['CCL4']], #20
+                F_res[forc_i['CH3CCL3']], #21
+                F_res[forc_i['HCFC22']], #22
+                F_res[forc_i['HCFC141B']], #23
+                F_res[forc_i['HCFC142B']], #24
+                F_res[forc_i['HALON1211']], #25
+                F_res[forc_i['HALON1202']], #26
+                F_res[forc_i['HALON1301']], #27
+                F_res[forc_i['HALON2402']], #28
+                F_res[forc_i['CH3BR']], #29
+                F_res[forc_i['CH3CL']], #30
+                F_tropO3 if tropO3_forcing[0].lower()=='e' else 
+                np.sum(F_res[
+                    [
+                        forc_i['CH4|Trop_o3'],
+                        forc_i['CO|Trop_o3'],
+                        forc_i['NOx|Trop_o3'],
+                        forc_i['NMVOC|Trop_o3'],
+                    ]
+                ]), #31 = iF_tro3
+                np.sum(F_res[
+                    [
+                        forc_i['CCL4|strat_o3'],
+                        forc_i['CFC113|strat_o3'],
+                        forc_i['CFC114|strat_o3'],
+                        forc_i['CFC115|strat_o3'],
+                        forc_i['CFC11|strat_o3'],
+                        forc_i['CFC12|strat_o3'],
+                        forc_i['CH3CCL3|strat_o3'],
+                        forc_i['HALON1211|strat_o3'],
+                        forc_i['HALON1202|strat_o3'],
+                        forc_i['HALON1301|strat_o3'],
+                        forc_i['HALON2402|strat_o3'],
+                        forc_i['HCFC141B|strat_o3'],
+                        forc_i['HCFC142B|strat_o3'],
+                        forc_i['HCFC22|strat_o3'],
+                        forc_i['CH3BR|strat_o3'],
+                        forc_i['CH3CL|strat_o3'],
+                    ]
+                ]), #32 = iF_sto3
+                F_res[forc_i['CH4|Strat_h2o'], #33 = iF_ch4h
+                F_contrails if contrail_forcing.lower()[0]=='e'
+                    else F_res[forc_i['NOx_avi|contrails']], #34 = iF_cont
+                F_res[forc_i['SOx']], #35 = iF_adso
+                np.sum(F_res[
+                    [
+                        forc_i['CO'],
+                        forc_i['NMVOC'],
+                    ]
+                ]), #36 = iF_advo
+                np.sum(F_res[
+                    [
+                        forc_i['NOx'],
+                        forc_i['NH3'],
+                    ]
+                ]), #37 = iF_adni
+                F_res[forc_i['BC']], #38 = iF_adbc
+                F_res[forc_i['OC']], #39 = iF_adoc
+                np.sum(F_res[
+                    [
+                        forc_i['SOx|aci'],
+                        forc_i['BC|aci'],
+                        forc_i['OC|aci'],
+                    ]
+                ]), #40 = iF_aeri
+                F_res[forc_i['BC|BC_on_snow']] if bcsnow_forcing.lower()[0]=='e'
+                    else F_bcsnow, #41 = iF_bcsn
+                F_landuse if landuse_forcing.lower()[0]=='e' 
+                    else F_res[forc_i['cumulative_co2_land']], #42 = iF_luch
+                F_volcanic, #43 = iF_volc
+                F_solar, #44 = iF_solr
+            ]
+            )
+    else:
+        F_out = np.array(
+            [
+                F_res[forc_i['CO2']], #0
+                F_res[forc_i['CH4']], #1
+                F_res[forc_i['N2O']], #2
+                np.sum(F_res[
+                    [
+                        forc_i['CF4'],
+                        forc_i['C2F6']
+                        forc_i['C6F14'],
+                        forc_i['HFC23'],
+                        forc_i['HFC32'],
+                        forc_i['HFC43_10MEE'],
+                        forc_i['HFC125'],
+                        forc_i['HFC134A'],
+                        forc_i['HFC143A'],
+                        forc_i['HFC227EA'],
+                        forc_i['HFC245FA'],
+                        forc_i['SF6'],
+                        forc_i['CFC11'],
+                        forc_i['CFC12'],
+                        forc_i['CFC113'],
+                        forc_i['CFC114'],
+                        forc_i['CFC115'],
+                        forc_i['CCL4'],
+                        forc_i['CH3CCL3'],
+                        forc_i['HCFC22'],
+                        forc_i['HCFC141B'],
+                        forc_i['HCFC142B'],
+                        forc_i['HALON1211'],
+                        forc_i['HALON1202'],
+                        forc_i['HALON1301'],
+                        forc_i['HALON2402'],
+                        forc_i['CH3BR'],
+                        forc_i['CH3CL'],
+                    ]
+                ]), #3 = sum(minor gases)
+                F_tropO3 if tropO3_forcing[0].lower()=='e' else 
+                np.sum(F_res[
+                    [
+                        forc_i['CH4|Trop_o3'],
+                        forc_i['CO|Trop_o3'],
+                        forc_i['NOx|Trop_o3'],
+                        forc_i['NMVOC|Trop_o3'],
+                    ]
+                ]), #4 = iF_tro3
+                np.sum(F_res[
+                    [
+                        forc_i['CCL4|strat_o3'],
+                        forc_i['CFC113|strat_o3'],
+                        forc_i['CFC114|strat_o3'],
+                        forc_i['CFC115|strat_o3'],
+                        forc_i['CFC11|strat_o3'],
+                        forc_i['CFC12|strat_o3'],
+                        forc_i['CH3CCL3|strat_o3'],
+                        forc_i['HALON1211|strat_o3'],
+                        forc_i['HALON1202|strat_o3'],
+                        forc_i['HALON1301|strat_o3'],
+                        forc_i['HALON2402|strat_o3'],
+                        forc_i['HCFC141B|strat_o3'],
+                        forc_i['HCFC142B|strat_o3'],
+                        forc_i['HCFC22|strat_o3'],
+                        forc_i['CH3BR|strat_o3'],
+                        forc_i['CH3CL|strat_o3'],
+                    ]
+                ]), #5 = iF_sto3
+                F_res[forc_i['CH4|Strat_h2o'], #6 = iF_ch4h
+                F_contrails if contrail_forcing.lower()[0]=='e'
+                    else F_res[forc_i['NOx_avi|contrails']], #7 = iF_cont
+                np.sum(F_res[
+                    [
+                        forc_i['SOx|aci'],
+                        forc_i['BC|aci'],
+                        forc_i['OC|aci'],
+                        forc_i['SOx'],
+                        forc_i['CO'],
+                        forc_i['NMVOC'],
+                        forc_i['NOx'],
+                        forc_i['BC'],
+                        forc_i['OC'],
+                        forc_i['NH3'],
+                        forc_i['CF4'],
+                    ]
+                ]) if aerosol_forcing.lower() != 'e'
+                    else F_aerosol, #8 = iF_aer
+                F_res[forc_i['BC|BC_on_snow']] if bcsnow_forcing.lower()[0]=='e'
+                    else F_bcsnow, #9 = iF_bcsn
+                F_landuse if landuse_forcing.lower()[0]=='e' 
+                    else F_res[forc_i['cumulative_co2_land']], #10 = iF_luch
+                F_volcanic, #11 = iF_volc
+                F_solar, #12 = iF_solr
+            ]
+            )
     
 
 
-    if diagnostics == 'AR6':
-        C_out = C_res[[0,1,2,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38]]
-        F_out = np.array(
-            [
-                *F_res[[0,1,2,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38]],
-                np.sum(F_res[[41, 43, 44, 45, 46]]),
-                np.sum(F_res[[51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66]])
-                F_res[42],
-                F_res[47],
-                F_res[3],
-                F_res[4]+F_res[5],
-                F_res[6] + F_res[10],
-                F_res[8],
-                F_res[9],
-                F_res[48] + F_res[49] + F_res[50],
-                F_res[46],
-                F_landuse if landuse_forcing.lower()[0]=='e' else F_res[40],
-                F_volcanic,
-                F_solar
-            ]
-            )
-        T_out = T_res
+    ariaci = np.zeros((nt,2))
+    ariaci[:,0] = np.sum(F_res[
+        [
+            forc_i['SOx'],
+            forc_i['CO'],
+            forc_i['NMVOC'],
+            forc_i['NOx'],
+            forc_i['BC'],
+            forc_i['OC'],
+            forc_i['NH3'],
+        ]
+    ]) # = aerosol direct forcing
+    ariaci[:,1] = np.sum(F_res[
+        [
+            forc_i['SOx|aci'],
+            forc_i['BC|aci'],
+            forc_i['OC|aci'],
+            forc_i['ghan_forcing'],
+        ]
+    ])
+    cumulative_emissions = np.cumsum(emissions[:,1:3].sum(axis=1))
+    airborne_emissions = C_res[0]/emis2conc[0]
+    c_dtemp = ocean_heat_capacity[0]*[S_out[0,0], *np.diff(S_out[0,:])] + ocean_heat_capacity[1]*[S_out[1,0], *np.diff(S_out[1,:])]
+    heatflux = c_dtemp/timestep
+    ntoa_joule = 4 * np.pi * EARTH_RADIUS**2 * SECONDS_PER_YEAR
+    del_ohc  = ntoa_joule * c_dtemp
+    ohc = np.cumsum(del_ohc)
+    factor_lambda_eff = (deep_ocean_efficacy-1.0)*ocean_heat_exchange
+    lambda_eff = np.zeros(nt)
+    for i in range(nt):
+        if S[0,i] > 1e-6:
+            ratio = (S[0,i] - S[1,i])/S[1,i]
+            lambda_eff[i] = lambda_global + factor_lambda_eff*ratio
+        else:
+            lambda_eff[i] = lambda_global + factor_lambda_eff
 
-            if ariaci_out:
-                ariaci = np.zeros((nt,2))
-                ariaci[:,0] = F_res[3] + F_res[4] + F_res[5]+ F_res[6]+ F_res[8]+ F_res[9]+ F_res[10]
-                ariaci[:,1] = F_res[48] + F_res[49] + F_res[50] + F_res[39]
-                if temperature_function=='Geoffroy':
-                    c_dtemp = ocean_heat_capacity[0]*[S_out[0,0], *np.diff(S_out[0,:])] + ocean_heat_capacity[1]*[S_out[1,0], *np.diff(S_out[1,:])]
-                    heatflux = c_dtemp/timestep
-                    ntoa_joule = 4 * np.pi * EARTH_RADIUS**2 * SECONDS_PER_YEAR
-                    del_ohc  = ntoa_joule * c_dtemp
-                    ohc = np.cumsum(del_ohc)
-
-                    factor_lambda_eff = (deep_ocean_efficacy-1.0)*ocean_heat_exchange
-                    lambda_eff = np.zeros(nt)
-                    for i in range(nt):
-                        if S[0,i] > 1e-6:
-                            ratio = (S[0,i] - S[1,i])/S[1,i]
-                            lambda_eff[i] = lambda_global + factor_lambda_eff*ratio
-                        else:
-                            lambda_eff[i] = lambda_global + factor_lambda_eff
-                    return C_out, F_out, T_out, ariaci, lambda_eff, ohc, heatflux
-                    
-
-                else:
-                    return C_out, F_out, T_out, ariaci
-            else:
-                if temperature_function=='Geoffroy':
-                    Raise ValueError('Geoffroy is not currently implemented in FaIR 2.0')
-                    cumulative_emissions = np.cumsum(emissions[:,1:3].sum(axis=1))
-                    airborne_emissions = C_res[0]/emis2conc[0]
-                    c_dtemp = ocean_heat_capacity[0]*[S_out[0,0], *np.diff(S_out[0,:])] + ocean_heat_capacity[1]*[S_out[1,0], *np.diff(S_out[1,:])]
-                    heatflux = c_dtemp/timestep
-                    ntoa_joule = 4 * np.pi * EARTH_RADIUS**2 * SECONDS_PER_YEAR
-                    del_ohc  = ntoa_joule * c_dtemp
-                    ohc = np.cumsum(del_ohc)
-
-                    factor_lambda_eff = (deep_ocean_efficacy-1.0)*ocean_heat_exchange
-                    lambda_eff = np.zeros(nt)
-                    for i in range(nt):
-                        if S[0,i] > 1e-6:
-                            ratio = (S[0,i] - S[1,i])/S[1,i]
-                            lambda_eff[i] = lambda_global + factor_lambda_eff*ratio
-                        else:
-                            lambda_eff[i] = lambda_global + factor_lambda_eff
-                    return C_out, F_out, T_out, lambda_eff, ohc, heatflux, airborne_emissions/cumulative_emissions
-                else:
-                    return C_out, F_out, T_out
+    if ariaci_out:
+         # = aerosol indirect forcing
+        if temperature_function=='Geoffroy':
+            return C_out, F_out, T_out, ariaci, lambda_eff, ohc, heatflux
+        else:
+            return C_out, F_out, T_out, ariaci
+    else:
+        if temperature_function=='Geoffroy':
+            return C_out, F_out, T_out, lambda_eff, ohc, heatflux, airborne_emissions/cumulative_emissions
+        else:
+            return C_out, F_out, T_out
