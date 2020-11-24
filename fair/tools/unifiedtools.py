@@ -11,7 +11,72 @@ from ..ancil.units import Units
 
 def calculate_alpha(G, G_A, T, r0, rC, rT, rA, g0, g1, iirf100_max=False):
     """
-    TODO: docstring
+
+    Calculates α as per Leach et al. (2020). 
+    α is a state-dependent timescale adjustment factor.
+
+    Based on a numerical solution of
+    iIRF100 (100-year integrated Impulse Response Function, 
+    the average airborne fraction over a period of 100 years) 
+    as per Millar et al. (2017).
+
+    Parameters
+    ----------
+
+    G : :obj:`np.ndarray`
+        Cumulative Emissions of each species, in format [species]
+
+    G_A : :obj:`np.ndarray`
+        Accumulated Emissions of each species, in format [species],
+        note the difference between cumulative and accumulated emissions:
+        Cumulative emissions does not account for the various processes by which
+        gas species decay from the atmosphere, whereas accumulated emissions increases
+        monotonically with concentration 
+        (fundamentally acting as a translated and scaled concentration)
+
+    T : float
+        Atmospheric Temperature
+
+    r0 : :obj:`np.ndarray`
+        Strength of pre-industrial uptake from atmospheric processes
+        (Pre-Industrial iIRF100)
+        In format [species]
+
+    rC : :obj:`np.ndarray`
+        Sensitivity of uptake from atmosphere 
+        to cumulative uptake of agent since model initialisation
+        In format [species]
+
+    rT : :obj:`np.ndarray`
+        Sensitivity of uptake from atmosphere 
+        to model temperature change since initialisation
+        In format [species]
+
+    rA : :obj:`np.ndarray`
+        Sensitivity of uptake from atmosphere 
+        to current atmospheric burden of agent
+        In format [species]
+
+    g0, g1 : :obj:`np.ndarray`
+        value and gradient of the analytic approximation for α equal to the
+        numerical solution of the Millar et al. (2017) as described in
+        Leach et al. (2020)
+        iIRF100 parameterisation at α = 1
+        In format [species]
+
+
+    iirf100_max
+        Maximum value of iIRF100, if a Boolean False is passed the maximum
+        value is not considered, otherwise this parameter limits the
+        iIRF100 values for each species individually.
+
+    Returns
+    -------
+
+    :obj:`np.ndarray`
+        α is a state-dependent timescale adjustment factor, given for each species.
+        In format [species]
+
     """
     iirf100_val = ne.evaluate("abs(r0 + rC * (G-G_A) + rT * T + rA * G_A)")
     if iirf100_max:
@@ -25,7 +90,32 @@ def calculate_alpha(G, G_A, T, r0, rC, rT, rA, g0, g1, iirf100_max=False):
 
 def calculate_g(a, tau):
     """
-    TODO: docstring
+    Calculates g1 and g0, 
+    the value and gradient of the analytic approximation for α equal to the
+    numerical solution of the Millar et al. (2017) as described in
+    Leach et al. (2020)
+
+    Parameters
+    ----------
+
+    a : :obj:`np.ndarray`
+        Fraction of emissions entering the atmospheric pool for each species
+        In format [species]
+
+    tau : :obj:`np.ndarray`
+        Atmospheric lifetime of gas in each atmospheric pool
+        In Format [species]
+    
+    Returns
+    -------
+
+    g0, g1 : :obj:`np.ndarray`
+        value and gradient of the analytic approximation for α equal to the
+        numerical solution of the Millar et al. (2017) as described in
+        Leach et al. (2020)
+        iIRF100 parameterisation at α = 1
+        In format [species]
+
     """
     g1 = ne.evaluate(
         "sum( a * tau * ( 1. - ( 1. + 100/tau ) * exp(-100/tau) ), axis = 0)"
@@ -38,7 +128,68 @@ def step_concentration(
     emissions, a, dt, alpha, tau, R_old, G_A_old, PI_conc, emis2conc
 ):
     """
-    TODO: docstring
+    Updates the concentration after a timestep, 
+    as described in Leach et al. (2020). 
+    Here we assume that the rate of emissions
+    is constant across a timestep, leading to the value
+    of R = (a/k) * (1-exp(-kt)) * emissions + R_old * exp(-kt)
+
+    Parameters
+    ----------
+
+    emissions : :obj:`np.ndarray`
+        Emissions over the timestep
+        In Format [species]
+
+    a : :obj:`np.ndarray`
+        Fraction of emissions entering each species' atmospheric pool
+        In Format [pool, species]
+
+    dt : float
+        Timestep over which the change in concentration is being calculated
+
+    alpha : :obj:`np.ndarray`
+        Multiplicative adjustment coefficient of pool lifetimes, for each species
+        In Format [species]
+
+    tau : :obj:`np.ndarray`
+        Atmospheric lifetime of each species in each pool
+        In Format [pool, species]
+
+    R_old : :obj:`np.ndarray`
+        Quantity of agents in each atmospheric pool at the beginning of the timestep
+        In Format [pool, species]
+
+    G_A_old : :obj:`np.ndarray`
+        Accumulated concentration of agents across all atmospheric pools at the beginning
+        of the timestep
+        In Format [species]
+
+    PI_conc : :obj:`np.ndarray`
+        Pre-Industrial Atmospheric Concentrations of each species
+        In Format [species]
+
+    emis2conc : :obj:`np.ndarray`
+        Conversion factor between emissions and concentration units for each species
+        i.e. emis2conc * emissions_units -> concentration_units
+        In Format [species]
+    
+    Returns
+    -------
+
+    C : :obj:`np.ndarray`
+        Atmospheric concentrations of each species at the end of the timestep,
+        In Format [species]
+
+    R : :obj:`np.ndarray`
+        Quantity of agents in each atmospheric pool at the end of the timestep
+        In Format [pool, species]
+
+    G_A : :obj:`np.ndarray`
+        Accumulated concentration of agents across all atmospheric pools at the end
+        of the timestep
+        In Format [species]
+
     """
     decay_rate = ne.evaluate("1/(alpha*tau)")  # noqa: F841
     decay_factor = ne.evaluate("exp(-dt*decay_rate)")  # noqa: F841
@@ -54,7 +205,57 @@ def step_concentration(
 
 def step_forcing(C, PI_conc, f1, f2, f3):
     """
-    TODO: docstring
+    Calculates forcing as per Leach et al. (2020).
+
+    This uses logarithmic, square-root and linear terms;  
+    motivated by the concentration-forcing relationships in Myhre et al. (2013)
+    of CO2, CH4 and N2O, and all other well-mixed GHGs respectively
+
+    For most agents, the concentration- (or for aerosols, emission-) forcing relationship 
+    can be reasonably approximated by one of these terms in isolation, 
+    however if there is substantial evidence the relationship deviates 
+    significantly from any one term, others are able to be included to provide a more
+    accurate fit.
+
+    The aerosol emission-forcing relationships can be specified by using tau = 1 for these
+    species (so concentration follows emissions) and specifying PI_conc as Pre-Industrial
+    emissions.
+
+    This function can also be used to calculate "Secondary" forcings, such as the effect of
+    Black Carbon on Snow. To do this, simply map Concentrations of species -> Concentrations of
+    Forcing Agents, thereby duplicating the Concentrations of species for secondary forcings.
+
+    Parameters
+    ----------
+
+    C : :obj:`np.ndarray`
+        Atmospheric concentrations of each forcing agent
+        In Format [agent]
+
+    PI_conc : :obj:`np.ndarray`
+        Pre-Industrial Atmospheric concentrations of each forcing agent
+        In Format [agent]
+
+    f1 : :obj:`np.ndarray`
+        Logarithmic concentration–forcing coefficient of each forcing agent
+        In Format [agent]
+    
+    f2 : :obj:`np.ndarray`
+        Linear concentration–forcing coefficient of each forcing agent
+        In Format [agent]
+
+    f3 : :obj:`np.ndarray`
+        Square root concentration–forcing coefficient of each forcing agent
+        In Format [agent]
+
+    Returns
+    -------
+
+    RF : :obj:`np.ndarray`
+        Radiative forcing of each forcing agent, sum of Logarithmic, Linear and
+        Square Root terms
+        In Format [agent]
+
     """
     logforc = ne.evaluate(
         "f1 * where( (C/PI_conc) <= 0, 0, log(C/PI_conc) )",
@@ -73,7 +274,52 @@ def step_forcing(C, PI_conc, f1, f2, f3):
 
 def step_temperature(S_old, F, q, d, dt=1):
     """
-    TODO: docstring
+    Increments temperature over a timestep as described in Leach et al. (2020)
+
+    This function assumes that the radiative forcing remains constant across
+    the timestep, leading to the equation:
+
+    S = qF - Aexp(-t/d)
+
+    The function also assumes that temperature changes linearly across a timestep
+    such that the average temperature during a timestep can be given as
+    T = (Tstart + Tend)/2
+
+    Parameters
+    ----------
+
+    S_old : :obj:`np.ndarray`
+        The thermal responses at the start of the timestep,
+        In Format [box]
+
+    F : float
+        Total Forcing across the timestep (Sum of radiative forcing
+        by forcing agent and external forcing)
+
+    q : :obj:`np.ndarray`
+        Equilibrium response of each thermal box
+        In Format [box]
+
+    d : :obj:`np.ndarray`
+        Response timescale of each thermal box
+        In Format [box]
+
+    dt : float
+        Length of the timestep
+    
+    Returns
+    -------
+
+    S_new : :obj:`np.ndarray`
+        The thermal responses at the end of the timestep,
+        In Format [box]
+    
+    T : float
+        Average Atmospheric Temperature across the timestep
+        Temperature is the sum of thermal responses, this is
+        simply the average of Temperature at the start and end
+        of the timestep
+
     """
     decay_factor = ne.evaluate("exp(-dt/d)")  # noqa: F841
     S_new = ne.evaluate("q * F * (1 - decay_factor) + S_old * decay_factor")
@@ -198,7 +444,52 @@ def convert_numpy_output_to_df(
 
 def unstep_concentration(a, dt, alpha, tau, R_old, G_A):
     """
-    TODO: docstring
+
+    Uses accumulated emissions to calculate emissions after a timestep,
+    effectively reversing the process used to calculate Concentrations
+    described in Leach et al. (2020). 
+    Here we assume that the rate of emissions
+    is constant across a timestep, leading to the value
+    of R = (a/k) * (1-exp(-kt)) * emissions + R_old * exp(-kt)
+
+    Parameters
+    ----------
+
+    a : :obj:`np.ndarray`
+        Fraction of emissions entering each species' atmospheric pool
+        In Format [pool, species]
+
+    dt : float
+        Timestep over which the change in concentration is being calculated
+
+    alpha : :obj:`np.ndarray`
+        Multiplicative adjustment coefficient of pool lifetimes, for each species
+        In Format [species]
+
+    tau : :obj:`np.ndarray`
+        Atmospheric lifetime of each species in each pool
+        In Format [pool, species]
+
+    R_old : :obj:`np.ndarray`
+        Quantity of agents in each atmospheric pool at the beginning of the timestep
+        In Format [pool, species]
+
+    G_A : :obj:`np.ndarray`
+        Accumulated concentration of agents across all atmospheric pools at the end
+        of the timestep
+        In Format [species]
+    
+    Returns
+    -------
+
+    emissions : :obj:`np.ndarray`
+        Emissions of each species over the timestep,
+        In Format [species]
+
+    R_new : :obj:`np.ndarray`
+        Quantity of agents in each atmospheric pool at the end of the timestep
+        In Format [pool, species]
+
     """
 
     decay_rate = ne.evaluate("1/(alpha*tau)")
@@ -221,7 +512,39 @@ def create_output_dataframe_iamc_compliant(
     inp_df, gas_np, RF_np, T_np, alpha_np, forcing_list
 ):
     """
-    TODO: docstring
+    Correctly formats the output of the FaIR 2.0 'core' model
+    to an IAMC-Compliant Dataframe
+
+    Parameters
+    ----------
+
+    inp_df : :obj:`pd.DataFrame`
+        The input dataframe passed to the model, contains either Emissions
+        or Concentrations and any external forcings
+    
+    gas_np : :obj:`np.ndarray`
+        Output of the FaIR 2.0 'core' model, either Emissions or Concentrations
+        of gases.
+        In Format [species, time]
+    
+    RF_np : :obj:`np.ndarray`
+        Output of the FaIR 2.0 'core' model, Radiative Forcing by forcing agent
+        In Format [agent, time]
+
+    T_np : :obj:`np.ndarray`
+        Output of the FaIR 2.0 'core' model, Temperature
+        In Format [time]
+
+    alpha_np : :obj:`np.ndarray`
+
+    forcing_list : list
+        List of all Radiative Forcings, corresponding to the RF_np forcings
+
+    Returns
+    -------
+
+    :obj:`pyam.IamDataFrame`
+        IAMC-Compliant DataFrame of Output Data
     """
     inp_df_ts = inp_df.timeseries()
     ext_forc_np = np.zeros(RF_np.shape[1])
@@ -304,7 +627,33 @@ def create_output_dataframe_iamc_compliant(
 
 def return_np_function_arg_list(inp_df, cfg, concentration_mode=False):
     """
-    TODO: docstring
+    Correctly formats the output of the FaIR 2.0 'core' model
+    to an IAMC-Compliant Dataframe
+
+    Parameters
+    ----------
+
+    inp_df : :obj:`pd.DataFrame`
+        The input dataframe passed to the model, contains either Emissions
+        or Concentrations and any external forcings
+    
+    cfg : dict
+        Dictionary containing parameters to be used. If a particular parameter isn't
+        included, a default value is used
+        parameters are given as pandas dataframes
+    
+    concentration_mode : bool
+        Boolean value indicating whether 
+
+    Returns
+    -------
+
+    arg_list : list
+        Correctly formatted input list for the emissions/concentration driven
+        models
+
+    forc_np : :obj:`np.ndarray`
+        Numpy array enumerating the different forcings outputted by the model
     """
     inp_df_ts = inp_df.timeseries()
     unique_fn_array = np.unique(split_vars(inp_df_ts,0))
@@ -312,6 +661,7 @@ def return_np_function_arg_list(inp_df, cfg, concentration_mode=False):
     if len(unique_fn_array) >2 or (len(unique_fn_array) ==2
     and not 'Effective Radiative Forcing' in unique_fn_array):
         raise Exception("Error: Too many inputs passed")
+    
 
     gas_df = inp_df_ts.filter(
         regex = [

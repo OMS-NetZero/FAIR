@@ -187,5 +187,5 @@ def _run_numpy(
             S_old=S, F=np.sum(RF[..., i], axis=0) + ext_forcing[i], q=q, d=d, dt=tstep
         )
 
-    res = {"emissions": emissions, "RF": RF, "T": T, "alpha": alpha, "S", S}
+    res = {"emissions": emissions, "RF": RF, "T": T, "alpha": alpha, "S" : S}
     return res
