@@ -759,7 +759,7 @@ def return_np_function_arg_list(inp_df, cfg, concentration_mode=False):
                 i
                 for forc in forc_np
                 for i,gas in enumerate(gas_np)
-                if re.match(r'^'+gas,forc)
+                if re.match(r'^'+gas.replace('|','\|') + '$' +'|' + '^' + gas.replace('|','\|') + '\|',forc)
             ],
         )
         , #maps forcings onto gases, i.e. BC|BC on Snow -> BC
