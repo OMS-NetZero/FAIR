@@ -633,8 +633,8 @@ def fair_scm(
                         T[t-1],
                         r0, rc, rt, g0, g1)
                     C[t,0], R_i[t,:], airborne_emissions[t] = step_concentration(
-                        R_i[t-1,:] + oxidised_CH4,
-                        np.sum(emissions[t-1,1:3]),
+                        R_i[t-1,:],
+                        np.sum(emissions[t-1,1:3]) + oxidised_CH4,
                         time_scale_sf,
                         a,
                         tau,
@@ -642,7 +642,7 @@ def fair_scm(
                     )
                 else:
                     C[t,0], C_acc[t], R_i[t,:], time_scale_sf = carbon_cycle(
-                      np.sum(emissions[t-1,1:3]),
+                      np.sum(emissions[t-1,1:3]) + oxidised_CH4,
                       C_acc[t-1],
                       T[t-1],
                       r0,
@@ -653,7 +653,7 @@ def fair_scm(
                       a,
                       tau,
                       iirf_h,
-                      R_i[t-1,:] + oxidised_CH4,
+                      R_i[t-1,:],
                       C_pi[0],
                       C[t-1,0],
                       np.sum(emissions[t,1:3])
@@ -749,8 +749,8 @@ def fair_scm(
                         T[t-1],
                         r0, rc, rt, g0, g1)
                     C[t,0], R_i[t,:], airborne_emissions[t] = step_concentration(
-                        R_i[t-1,:] + oxidised_CH4,
-                        emissions[t-1],
+                        R_i[t-1,:],
+                        emissions[t-1] + oxidised_CH4,
                         time_scale_sf,
                         a,
                         tau,
