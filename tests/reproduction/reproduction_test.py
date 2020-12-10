@@ -376,3 +376,17 @@ def test_ariaci_stevens():
     )
     assert np.allclose(F[:,8], np.sum(ariaci,axis=1))
 
+
+def test_methane_oxidation():
+    Cexc, Fexc, Texc = fair.forward.fair_scm(
+        emissions=rcp45.Emissions.emissions,
+        fossilCH4_frac=0,
+    )
+    Cinc, Finc, Tinc = fair.forward.fair_scm(
+        emissions=rcp45.Emissions.emissions,
+        fossilCH4_frac=rcp45.fossilCH4_frac
+    )
+    # runs including oxidation should have slightly higher atmospheric CO2
+    # and hence slightly higher warming
+    assert np.all(Cinc >= Cexc)
+    assert np.all(Tinc >= Texc)
