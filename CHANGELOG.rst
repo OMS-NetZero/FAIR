@@ -4,6 +4,8 @@ Changelog
 master
 ------
 
+(`#95 <https://github.com/OMS-NetZero/FAIR/pull/95>`_) Put oxidised methane in the correct place
+
 (`#87 <https://github.com/OMS-NetZero/FAIR/pull/87>`_) Add Geoffroy temperature and prescribed forcing to inverse
 
 (`#84 <https://github.com/OMS-NetZero/FAIR/pull/84>`_) Fix concentration-driven runs for 45-species FaIR
