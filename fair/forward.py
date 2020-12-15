@@ -623,8 +623,9 @@ def fair_scm(
                 # pool
                 oxidised_CH4 = ((C[t-1,1]-C_pi[1]) *
                   (1.0 - np.exp(-1.0/lifetimes[1])) * 
-                  (molwt.C/molwt.CH4 * 0.001 * oxCH4_frac * fossilCH4_frac[t]))
-                oxidised_CH4 = np.max((oxidised_CH4, 0))
+                  (molwt.C/molwt.CH4 * 0.001 * oxCH4_frac * fossilCH4_frac[t]) *
+                  emis2conc[1])
+                oxidised_CH4 = np.max((oxidised_CH4, 0)) 
 
                 if gir_carbon_cycle:
                     time_scale_sf = calculate_alpha(
