@@ -33,12 +33,8 @@ Changed
 v1.6.1
 ------
 
-(`#87 <https://github.com/OMS-NetZero/FAIR/pull/87>`_) Add Geoffroy temperature and prescribed forcing to inverse
-
-(`#84 <https://github.com/OMS-NetZero/FAIR/pull/84>`_) Fix concentration-driven runs for 45-species FaIR
-
-(`#83 <https://github.com/OMS-NetZero/FAIR/pull/83>`_) Support scmdata >= 0.7.1
-
-(`#82 <https://github.com/OMS-NetZero/FAIR/pull/82>`_) Expand AR6 forcing diagnostics to get aerosol direct forcing by species
-
-(`#78 <https://github.com/OMS-NetZero/FAIR/pull/78>`_) Optimise ``fair.tools.scmdf.scmdf_to_emissions`` a bit
+- (`#87 <https://github.com/OMS-NetZero/FAIR/pull/87>`_) Add Geoffroy temperature and prescribed forcing to inverse
+- (`#84 <https://github.com/OMS-NetZero/FAIR/pull/84>`_) Fix concentration-driven runs for 45-species FaIR
+- (`#83 <https://github.com/OMS-NetZero/FAIR/pull/83>`_) Support scmdata >= 0.7.1
+- (`#82 <https://github.com/OMS-NetZero/FAIR/pull/82>`_) Expand AR6 forcing diagnostics to get aerosol direct forcing by species
+- (`#78 <https://github.com/OMS-NetZero/FAIR/pull/78>`_) Optimise ``fair.tools.scmdf.scmdf_to_emissions`` a bit
