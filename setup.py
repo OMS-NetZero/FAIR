@@ -127,4 +127,4 @@ setup(
     extras_require=REQUIREMENTS_EXTRAS,
     python_requires=PYTHON_REQUIREMENTS,
     zip_safe=False,
-)`
+)
