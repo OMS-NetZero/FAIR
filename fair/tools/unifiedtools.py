@@ -579,7 +579,10 @@ def create_output_dataframe_iamc_compliant(
             Region + Scenario combination input passed"
         )
     units = Units()
-    header = lambda var: [*model_region_scenario_array[0], var, units[var]]
+#    header = lambda var: [*model_region_scenario_array[0], var, units[var]]
+
+    def header(var):
+        return [*model_region_scenario_array[0], var, units[var]]
 
     data_array = np.array(
         [
@@ -639,7 +642,7 @@ def return_np_function_arg_list(inp_df, cfg, concentration_mode=False):
 
     if len(unique_fn_array) > 2 or (
         len(unique_fn_array) == 2
-        and not "Effective Radiative Forcing" in unique_fn_array
+        and "Effective Radiative Forcing" not in unique_fn_array
     ):
         raise Exception("Error: Too many inputs passed")
 
