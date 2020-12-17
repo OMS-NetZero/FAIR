@@ -49,12 +49,12 @@ def get_gas_params(gas_list=None):
         for gas in gas_list:
             forcings = gas_params_df.filter(
                 regex=r"^"
-                + gas.replace("|", "\|")
+                + gas.replace("|", "\|")  # noqa: W605
                 + "$"
                 + "|"
                 + "^"
-                + gas.replace("|", "\|")
-                + "\|"
+                + gas.replace("|", "\|")  # noqa: W605
+                + "\|"  # noqa: W605
             )
             if forcings.shape[1] != 0:
                 for forcing in forcings.columns:

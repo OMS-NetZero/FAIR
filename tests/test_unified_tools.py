@@ -226,8 +226,6 @@ def test_convert_numpy_output_to_df():
 
 
 def test_return_np_function_arg_list():
-    year_index_np = np.array([2020, 2021, 2023, 2027, 2035])
-
     SIMPLE_DF = pd.DataFrame(
         [
             [
@@ -512,8 +510,6 @@ def test_return_np_function_arg_list():
 
 
 def test_return_np_function_arg_list_no_params():
-    year_index_np = np.array([2020, 2021, 2023, 2027, 2035])
-
     SIMPLE_DF = pd.DataFrame(
         [
             [

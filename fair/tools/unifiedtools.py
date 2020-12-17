@@ -240,7 +240,7 @@ def step_forcing(C, PI_conc, f1, f2, f3):
     f1 : :obj:`np.ndarray`
         Logarithmic concentration–forcing coefficient of each forcing agent
         In Format [agent]
- 
+
     f2 : :obj:`np.ndarray`
         Linear concentration–forcing coefficient of each forcing agent
         In Format [agent]
@@ -307,7 +307,7 @@ def step_temperature(S_old, F, q, d, dt=1):
 
     dt : float
         Length of the timestep
- 
+
     Returns
     -------
 
@@ -707,12 +707,12 @@ def return_np_function_arg_list(inp_df, cfg, concentration_mode=False):
                 for i, gas in enumerate(gas_np)
                 if re.match(
                     r"^"
-                    + gas.replace("|", "\|")
+                    + gas.replace("|", "\|")  # noqa: W605
                     + "$"
                     + "|"
                     + "^"
-                    + gas.replace("|", "\|")
-                    + "\|",
+                    + gas.replace("|", "\|")  # noqa: W605
+                    + "\|",  # noqa: W605
                     forc,
                 )
             ],

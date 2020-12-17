@@ -178,8 +178,6 @@ def test_constant_concentrations():
 
 
 def test_run_df():
-    year_index_np = np.array([2020, 2021, 2023, 2027, 2035])
-
     SIMPLE_DF = pd.DataFrame(
         [
             [
@@ -461,8 +459,6 @@ def test_run_df():
 
 
 def test_run_df_dual_forcing():
-    year_index_np = np.array([2020, 2021, 2023, 2027, 2035])
-
     SIMPLE_DF = pd.DataFrame(
         [
             [
