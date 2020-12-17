@@ -34,7 +34,7 @@ def test_single_species():
             [-0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275]
         ),
         timestep=np.array([1, 2, 4, 8, 8]),
-        mapping_ar=np.array([0])
+        mapping_ar=np.array([0]),
     )
     emissions_out = out_dict["emissions"]
     T_out = out_dict["T"]
@@ -86,7 +86,7 @@ def test_dual_species():
             [-0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275]
         ),
         timestep=np.array([1, 2, 4, 8, 8]),
-        mapping_ar=np.array([0,1])
+        mapping_ar=np.array([0, 1]),
     )
     emissions_out = out_dict["emissions"]
     T_out = out_dict["T"]
@@ -149,7 +149,7 @@ def test_constant_concentrations():
         q=np.array([0.311333, 0.165417, 0.242]),
         ext_forcing=np.array([0, 0, 0, 0, 0]),
         timestep=np.array([1, 2, 4, 8, 8]),
-        mapping_ar=np.array([0,1])
+        mapping_ar=np.array([0, 1]),
     )
     emissions_out = out_dict["emissions"]
     T_out = out_dict["T"]
@@ -212,10 +212,10 @@ def test_run_df():
                 "World",
                 "Effective Radiative Forcing|Volcanic",
                 "W/m**2",
-                -0.15611993, 
-                -0.10432414, 
-                -0.20163396, 
-                -0.50426278,  
+                -0.15611993,
+                -0.10432414,
+                -0.20163396,
+                -0.50426278,
                 0.37721725,
             ],
             [
@@ -396,10 +396,10 @@ def test_run_df():
                 "World",
                 "Effective Radiative Forcing|Volcanic",
                 "W/m**2",
-                -0.15611993, 
-                -0.10432414, 
-                -0.20163396, 
-                -0.50426278,  
+                -0.15611993,
+                -0.10432414,
+                -0.20163396,
+                -0.50426278,
                 0.37721725,
             ],
             [
@@ -459,6 +459,7 @@ def test_run_df():
         res_df.timeseries(), compare_df.timeseries(), check_exact=False, atol=1e-04
     )
 
+
 def test_run_df_dual_forcing():
     year_index_np = np.array([2020, 2021, 2023, 2027, 2035])
 
@@ -482,10 +483,10 @@ def test_run_df_dual_forcing():
                 "World",
                 "Effective Radiative Forcing|Volcanic",
                 "W/m**2",
-                -0.15611993, 
-                -0.10432414, 
-                -0.20163396, 
-                -0.50426278,  
+                -0.15611993,
+                -0.10432414,
+                -0.20163396,
+                -0.50426278,
                 0.37721725,
             ],
             [
@@ -552,7 +553,9 @@ def test_run_df_dual_forcing():
     )
 
     gas_params_df = pd.DataFrame(
-        data=gas_parameter_value_np, index=gas_parameter_name_np, columns=["CO2", "CO2|Secondary Forcing"]
+        data=gas_parameter_value_np,
+        index=gas_parameter_name_np,
+        columns=["CO2", "CO2|Secondary Forcing"],
     )
 
     thermal_parameter_value_np = np.array(
@@ -642,10 +645,10 @@ def test_run_df_dual_forcing():
                 "World",
                 "Effective Radiative Forcing|Volcanic",
                 "W/m**2",
-                -0.15611993, 
-                -0.10432414, 
-                -0.20163396, 
-                -0.50426278,  
+                -0.15611993,
+                -0.10432414,
+                -0.20163396,
+                -0.50426278,
                 0.37721725,
             ],
             [

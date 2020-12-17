@@ -38,7 +38,7 @@ def run(inp_df, cfg):
         res_dict["RF"],
         res_dict["T"],
         res_dict["alpha"],
-        forcing_list
+        forcing_list,
     )
 
     return res_df_iamc_compliant
@@ -127,7 +127,7 @@ def _run_numpy(
     n_species, n_timesteps = inp_ar.shape
     # Concentrations and Alpha
     C, alpha = np.zeros((2, n_species, n_timesteps))
-    
+
     n_forcing = len(f1)
     # Radiative Forcing
     RF = np.zeros((n_forcing, n_timesteps))
@@ -171,5 +171,5 @@ def _run_numpy(
             S_old=S, F=np.sum(RF[..., i], axis=0) + ext_forcing[i], q=q, d=d, dt=tstep
         )
         G += inp_ar[..., i]
-    res = {"C": C, "RF": RF, "T": T, "alpha": alpha, "S" : S}
+    res = {"C": C, "RF": RF, "T": T, "alpha": alpha, "S": S}
     return res

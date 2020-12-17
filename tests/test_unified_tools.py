@@ -260,10 +260,10 @@ def test_return_np_function_arg_list():
                 "World",
                 "Effective Radiative Forcing|Volcanic",
                 "W/m**2",
-                -0.15611993, 
-                -0.10432414, 
-                -0.20163396, 
-                -0.50426278,  
+                -0.15611993,
+                -0.10432414,
+                -0.20163396,
+                -0.50426278,
                 0.37721725,
             ],
             [
@@ -316,10 +316,10 @@ def test_return_np_function_arg_list():
                 "World",
                 "Effective Radiative Forcing|Volcanic",
                 "W/m**2",
-                -0.15611993, 
-                -0.10432414, 
-                -0.20163396, 
-                -0.50426278,  
+                -0.15611993,
+                -0.10432414,
+                -0.20163396,
+                -0.50426278,
                 0.37721725,
             ],
             [
@@ -406,10 +406,16 @@ def test_return_np_function_arg_list():
         "thermal_params": thermal_params_df,
     }
 
-    emission_mode_arg_list, emissions_mode_forcing_list = unifiedtools.return_np_function_arg_list(
+    (
+        emission_mode_arg_list,
+        emissions_mode_forcing_list,
+    ) = unifiedtools.return_np_function_arg_list(
         inp_df_emissions_mode, cfg, concentration_mode=False
     )
-    concentration_mode_arg_list, concentration_mode_forcing_list = unifiedtools.return_np_function_arg_list(
+    (
+        concentration_mode_arg_list,
+        concentration_mode_forcing_list,
+    ) = unifiedtools.return_np_function_arg_list(
         inp_df_concentrations_mode, cfg, concentration_mode=True
     )
 
@@ -453,7 +459,7 @@ def test_return_np_function_arg_list():
         np.array([0.311333, 0.165417, 0.242]),
         np.array([-0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275]),
         np.array([1, 2, 4, 8, 8]),
-        np.array([0,1]),
+        np.array([0, 1]),
     ]
     concentration_mode_arg_list_compare = [
         np.array(
@@ -489,10 +495,10 @@ def test_return_np_function_arg_list():
         np.array([0.311333, 0.165417, 0.242]),
         np.array([-0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275]),
         np.array([1, 2, 4, 8, 8]),
-        np.array([0,1]),
+        np.array([0, 1]),
     ]
 
-    forcing_list = np.array(['CH4','CO2'])
+    forcing_list = np.array(["CH4", "CO2"])
 
     for i in range(len(emission_mode_arg_list)):
         np.testing.assert_allclose(
@@ -501,8 +507,8 @@ def test_return_np_function_arg_list():
         np.testing.assert_allclose(
             concentration_mode_arg_list[i], concentration_mode_arg_list_compare[i]
         )
-    np.testing.assert_equal(emissions_mode_forcing_list,forcing_list)
-    np.testing.assert_equal(concentration_mode_forcing_list,forcing_list)
+    np.testing.assert_equal(emissions_mode_forcing_list, forcing_list)
+    np.testing.assert_equal(concentration_mode_forcing_list, forcing_list)
 
 
 def test_return_np_function_arg_list_no_params():
@@ -540,10 +546,10 @@ def test_return_np_function_arg_list_no_params():
                 "World",
                 "Effective Radiative Forcing|Volcanic",
                 "W/m**2",
-                -0.15611993, 
-                -0.10432414, 
-                -0.20163396, 
-                -0.50426278,  
+                -0.15611993,
+                -0.10432414,
+                -0.20163396,
+                -0.50426278,
                 0.37721725,
             ],
             [
@@ -596,10 +602,10 @@ def test_return_np_function_arg_list_no_params():
                 "World",
                 "Effective Radiative Forcing|Volcanic",
                 "W/m**2",
-                -0.15611993, 
-                -0.10432414, 
-                -0.20163396, 
-                -0.50426278,  
+                -0.15611993,
+                -0.10432414,
+                -0.20163396,
+                -0.50426278,
                 0.37721725,
             ],
             [
@@ -619,14 +625,19 @@ def test_return_np_function_arg_list_no_params():
     )
 
     inp_df_concentrations_mode = pyam.IamDataFrame(SIMPLE_DF)
-    
 
     cfg = {}
 
-    emission_mode_arg_list, emissions_mode_forcing_list = unifiedtools.return_np_function_arg_list(
+    (
+        emission_mode_arg_list,
+        emissions_mode_forcing_list,
+    ) = unifiedtools.return_np_function_arg_list(
         inp_df_emissions_mode, cfg, concentration_mode=False
     )
-    concentration_mode_arg_list, concentration_mode_forcing_list = unifiedtools.return_np_function_arg_list(
+    (
+        concentration_mode_arg_list,
+        concentration_mode_forcing_list,
+    ) = unifiedtools.return_np_function_arg_list(
         inp_df_concentrations_mode, cfg, concentration_mode=True
     )
 
@@ -670,7 +681,7 @@ def test_return_np_function_arg_list_no_params():
         np.array([0.311333, 0.165417, 0.242]),
         np.array([-0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275]),
         np.array([1, 2, 4, 8, 8]),
-        np.array([0,1]),
+        np.array([0, 1]),
     ]
     concentration_mode_arg_list_compare = [
         np.array(
@@ -712,9 +723,9 @@ def test_return_np_function_arg_list_no_params():
         np.array([0.311333, 0.165417, 0.242]),
         np.array([-0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275]),
         np.array([1, 2, 4, 8, 8]),
-        np.array([0,1]),
+        np.array([0, 1]),
     ]
-    forcing_list = np.array(['CH4','CO2'])
+    forcing_list = np.array(["CH4", "CO2"])
 
     for i in range(len(emission_mode_arg_list)):
         np.testing.assert_allclose(
@@ -723,8 +734,8 @@ def test_return_np_function_arg_list_no_params():
         np.testing.assert_allclose(
             concentration_mode_arg_list[i], concentration_mode_arg_list_compare[i]
         )
-    np.testing.assert_equal(emissions_mode_forcing_list,forcing_list)
-    np.testing.assert_equal(concentration_mode_forcing_list,forcing_list)
+    np.testing.assert_equal(emissions_mode_forcing_list, forcing_list)
+    np.testing.assert_equal(concentration_mode_forcing_list, forcing_list)
 
 
 def test_create_output_dataframe_iamc_compliant():
@@ -758,9 +769,9 @@ def test_create_output_dataframe_iamc_compliant():
                 "World",
                 "Effective Radiative Forcing|Volcanic",
                 "W/m**2",
-                0.1, 
-                0.2, 
-                0.3, 
+                0.1,
+                0.2,
+                0.3,
                 0.4,
             ],
             [
@@ -790,7 +801,7 @@ def test_create_output_dataframe_iamc_compliant():
     RF_np = np.array([[9, 10, 11, 12], [13, 14, 15, 16]])
     T_np = np.array([17, 18, 19, 20])
     alpha_np = np.array([[21, 22, 23, 24], [25, 26, 27, 28]])
-    forcing_list = np.array(['CH4','CO2'])
+    forcing_list = np.array(["CH4", "CO2"])
 
     out_df = unifiedtools.create_output_dataframe_iamc_compliant(
         inp_df, gas_np, RF_np, T_np, alpha_np, forcing_list
@@ -861,9 +872,9 @@ def test_create_output_dataframe_iamc_compliant():
                 "World",
                 "Effective Radiative Forcing|Volcanic",
                 "W/m**2",
-                0.1, 
-                0.2, 
-                0.3, 
+                0.1,
+                0.2,
+                0.3,
                 0.4,
             ],
             [
@@ -914,7 +925,10 @@ def test_create_output_dataframe_iamc_compliant():
 
     pd.testing.assert_frame_equal(out_df.timeseries(), compare_df.timeseries())
 
+
 def test_get_gas_params():
-    gas_params_carbon_dioxide = get_gas_params(['CO2'])
-    gas_params_carbon_dioxide_secondary = get_gas_params(['CO2|Test different source'])
-    pd.testing.assert_frame_equal(gas_params_carbon_dioxide, gas_params_carbon_dioxide_secondary)
+    gas_params_carbon_dioxide = get_gas_params(["CO2"])
+    gas_params_carbon_dioxide_secondary = get_gas_params(["CO2|Test different source"])
+    pd.testing.assert_frame_equal(
+        gas_params_carbon_dioxide, gas_params_carbon_dioxide_secondary
+    )
