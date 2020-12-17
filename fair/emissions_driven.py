@@ -88,7 +88,7 @@ def _run_numpy(
         [species],
         note: all species contain the same number of gas/thermal pool
         indices (some are simply populated with 0)
-    
+
     f1, f2, f3 : :obj:`np.ndarray`
         Input :obj:`np.ndarray` containing gas forcing parameters
         in format: [forcing]
@@ -107,7 +107,7 @@ def _run_numpy(
         For example: if inp_ar were an nx4 array,
         representing times 2020-2021, 2021-2023, 2023-2027 and 2027-2028:
         timestep would be: np.array([1,2,4,1])
-    
+
     mapping_ar : :obj:`np.ndarray`
         Input :obj:`np.ndarray` containing mapping between gases and forcing
         for example: [0,1] would just map gas -> forcing directly

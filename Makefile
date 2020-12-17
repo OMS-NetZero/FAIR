@@ -47,6 +47,10 @@ isort: $(VENV_DIR)  ## format the code
 		echo Not trying any formatting. Working directory is dirty ... >&2; \
 	fi;
 
+flake: $(VENV_DIR)  ## PEP8 compliance
+	$(VENV_DIR)/bin/flake8 fair tests setup.py;
+
+
 .PHONY: docs
 docs: $(VENV_DIR)  ## build the docs
 	$(VENV_DIR)/bin/sphinx-build -M html docs/source docs/build
