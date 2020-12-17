@@ -13,12 +13,12 @@ from ..ancil.units import Units
 def calculate_alpha(G, G_A, T, r0, rC, rT, rA, g0, g1, iirf100_max=False):
     """
 
-    Calculates α as per Leach et al. (2020). 
+    Calculates α as per Leach et al. (2020).
     α is a state-dependent timescale adjustment factor.
 
     Based on a numerical solution of
-    iIRF100 (100-year integrated Impulse Response Function, 
-    the average airborne fraction over a period of 100 years) 
+    iIRF100 (100-year integrated Impulse Response Function,
+    the average airborne fraction over a period of 100 years)
     as per Millar et al. (2017).
 
     Parameters
@@ -32,7 +32,7 @@ def calculate_alpha(G, G_A, T, r0, rC, rT, rA, g0, g1, iirf100_max=False):
         note the difference between cumulative and accumulated emissions:
         Cumulative emissions does not account for the various processes by which
         gas species decay from the atmosphere, whereas accumulated emissions increases
-        monotonically with concentration 
+        monotonically with concentration
         (fundamentally acting as a translated and scaled concentration)
 
     T : float
@@ -44,17 +44,17 @@ def calculate_alpha(G, G_A, T, r0, rC, rT, rA, g0, g1, iirf100_max=False):
         In format [species]
 
     rC : :obj:`np.ndarray`
-        Sensitivity of uptake from atmosphere 
+        Sensitivity of uptake from atmosphere
         to cumulative uptake of agent since model initialisation
         In format [species]
 
     rT : :obj:`np.ndarray`
-        Sensitivity of uptake from atmosphere 
+        Sensitivity of uptake from atmosphere
         to model temperature change since initialisation
         In format [species]
 
     rA : :obj:`np.ndarray`
-        Sensitivity of uptake from atmosphere 
+        Sensitivity of uptake from atmosphere
         to current atmospheric burden of agent
         In format [species]
 
@@ -91,7 +91,7 @@ def calculate_alpha(G, G_A, T, r0, rC, rT, rA, g0, g1, iirf100_max=False):
 
 def calculate_g(a, tau):
     """
-    Calculates g1 and g0, 
+    Calculates g1 and g0,
     the value and gradient of the analytic approximation for α equal to the
     numerical solution of the Millar et al. (2017) as described in
     Leach et al. (2020)
@@ -106,7 +106,7 @@ def calculate_g(a, tau):
     tau : :obj:`np.ndarray`
         Atmospheric lifetime of gas in each atmospheric pool
         In Format [species]
-    
+
     Returns
     -------
 
@@ -129,8 +129,8 @@ def step_concentration(
     emissions, a, dt, alpha, tau, R_old, G_A_old, PI_conc, emis2conc
 ):
     """
-    Updates the concentration after a timestep, 
-    as described in Leach et al. (2020). 
+    Updates the concentration after a timestep,
+    as described in Leach et al. (2020).
     Here we assume that the rate of emissions
     is constant across a timestep, leading to the value
     of R = (a/k) * (1-exp(-kt)) * emissions + R_old * exp(-kt)
@@ -174,7 +174,7 @@ def step_concentration(
         Conversion factor between emissions and concentration units for each species
         i.e. emis2conc * emissions_units -> concentration_units
         In Format [species]
-    
+
     Returns
     -------
 
@@ -208,13 +208,13 @@ def step_forcing(C, PI_conc, f1, f2, f3):
     """
     Calculates forcing as per Leach et al. (2020).
 
-    This uses logarithmic, square-root and linear terms;  
+    This uses logarithmic, square-root and linear terms;
     motivated by the concentration-forcing relationships in Myhre et al. (2013)
     of CO2, CH4 and N2O, and all other well-mixed GHGs respectively
 
-    For most agents, the concentration- (or for aerosols, emission-) forcing relationship 
-    can be reasonably approximated by one of these terms in isolation, 
-    however if there is substantial evidence the relationship deviates 
+    For most agents, the concentration- (or for aerosols, emission-) forcing relationship
+    can be reasonably approximated by one of these terms in isolation,
+    however if there is substantial evidence the relationship deviates
     significantly from any one term, others are able to be included to provide a more
     accurate fit.
 
@@ -240,7 +240,7 @@ def step_forcing(C, PI_conc, f1, f2, f3):
     f1 : :obj:`np.ndarray`
         Logarithmic concentration–forcing coefficient of each forcing agent
         In Format [agent]
-    
+ 
     f2 : :obj:`np.ndarray`
         Linear concentration–forcing coefficient of each forcing agent
         In Format [agent]
@@ -307,14 +307,14 @@ def step_temperature(S_old, F, q, d, dt=1):
 
     dt : float
         Length of the timestep
-    
+ 
     Returns
     -------
 
     S_new : :obj:`np.ndarray`
         The thermal responses at the end of the timestep,
         In Format [box]
-    
+
     T : float
         Average Atmospheric Temperature across the timestep
         Temperature is the sum of thermal responses, this is
@@ -448,7 +448,7 @@ def unstep_concentration(a, dt, alpha, tau, R_old, G_A):
 
     Uses accumulated emissions to calculate emissions after a timestep,
     effectively reversing the process used to calculate Concentrations
-    described in Leach et al. (2020). 
+    described in Leach et al. (2020).
     Here we assume that the rate of emissions
     is constant across a timestep, leading to the value
     of R = (a/k) * (1-exp(-kt)) * emissions + R_old * exp(-kt)
@@ -479,7 +479,7 @@ def unstep_concentration(a, dt, alpha, tau, R_old, G_A):
         Accumulated concentration of agents across all atmospheric pools at the end
         of the timestep
         In Format [species]
-    
+
     Returns
     -------
 
@@ -525,12 +525,12 @@ def create_output_dataframe_iamc_compliant(
     inp_df : :obj:`pd.DataFrame`
         The input dataframe passed to the model, contains either Emissions
         or Concentrations and any external forcings
-    
+
     gas_np : :obj:`np.ndarray`
         Output of the FaIR 2.0 'core' model, either Emissions or Concentrations
         of gases.
         In Format [species, time]
-    
+
     RF_np : :obj:`np.ndarray`
         Output of the FaIR 2.0 'core' model, Radiative Forcing by forcing agent
         In Format [agent, time]
@@ -615,14 +615,14 @@ def return_np_function_arg_list(inp_df, cfg, concentration_mode=False):
     inp_df : :obj:`pd.DataFrame`
         The input dataframe passed to the model, contains either Emissions
         or Concentrations and any external forcings
-    
+
     cfg : dict
         Dictionary containing parameters to be used. If a particular parameter isn't
         included, a default value is used
         parameters are given as pandas dataframes
-    
+
     concentration_mode : bool
-        Boolean value indicating whether 
+        Boolean value indicating whether
 
     Returns
     -------
