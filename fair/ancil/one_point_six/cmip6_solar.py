@@ -1,5 +1,6 @@
-import numpy as np
 import os
+
+import numpy as np
 
 forcing_filename = os.path.join(os.path.dirname(__file__), 'cmip6_solar.csv')
 

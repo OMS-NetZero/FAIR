@@ -1,8 +1,9 @@
+import re
+
 import numexpr as ne
 import numpy as np
 import pandas as pd
 import pyam as pyam
-import re
 
 from ..ancil.default_gas_parameters import get_gas_params
 from ..ancil.default_thermal_parameters import get_thermal_params

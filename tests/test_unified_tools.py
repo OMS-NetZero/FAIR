@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 import pyam as pyam
 
-from fair.tools import unifiedtools
 from fair.ancil.default_gas_parameters import get_gas_params
+from fair.tools import unifiedtools
 
 
 def test_calculate_alpha():
