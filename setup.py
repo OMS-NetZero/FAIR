@@ -50,12 +50,14 @@ REQUIREMENTS = [
 REQUIREMENTS_TESTS = ["pytest>=4.0", "nbval", "pytest-cov", "codecov"]
 REQUIREMENTS_DOCS = ["sphinx>2.1", "sphinx_rtd_theme"]
 REQUIREMENTS_DEPLOY = ["twine>=1.11.0", "setuptools>=41.2", "wheel>=0.31.0"]
+REQUIREMENTS_NOTEBOOKS = ["notebook"]
 
 REQUIREMENTS_DEV = [
     *["black==19.10b0", "flake8", "isort>=5",],
     *REQUIREMENTS_TESTS,
     *REQUIREMENTS_DEPLOY,
     *REQUIREMENTS_DOCS,
+    *REQUIREMENTS_NOTEBOOKS,
 ]
 
 REQUIREMENTS_EXTRAS = {
@@ -63,6 +65,7 @@ REQUIREMENTS_EXTRAS = {
     "deploy": REQUIREMENTS_DEPLOY,
     "dev": REQUIREMENTS_DEV,
     "docs": REQUIREMENTS_DOCS,
+    "notebooks": REQUIREMENTS_NOTEBOOKS,
 }
 
 SOURCE_DIR = "fair"
@@ -124,4 +127,4 @@ setup(
     extras_require=REQUIREMENTS_EXTRAS,
     python_requires=PYTHON_REQUIREMENTS,
     zip_safe=False,
-)
+)`
