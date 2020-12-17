@@ -579,7 +579,7 @@ def create_output_dataframe_iamc_compliant(
             Region + Scenario combination input passed"
         )
     units = Units()
-#    header = lambda var: [*model_region_scenario_array[0], var, units[var]]
+    #    header = lambda var: [*model_region_scenario_array[0], var, units[var]]
 
     def header(var):
         return [*model_region_scenario_array[0], var, units[var]]
