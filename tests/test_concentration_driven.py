@@ -34,7 +34,6 @@ def test_single_species():
             [-0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275]
         ),
         timestep=np.array([1, 2, 4, 8, 8]),
-        mapping_ar=np.array([0]),
     )
     emissions_out = out_dict["emissions"]
     T_out = out_dict["T"]
@@ -86,7 +85,6 @@ def test_dual_species():
             [-0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275]
         ),
         timestep=np.array([1, 2, 4, 8, 8]),
-        mapping_ar=np.array([0, 1]),
     )
     emissions_out = out_dict["emissions"]
     T_out = out_dict["T"]
@@ -149,7 +147,6 @@ def test_constant_concentrations():
         q=np.array([0.311333, 0.165417, 0.242]),
         ext_forcing=np.array([0, 0, 0, 0, 0]),
         timestep=np.array([1, 2, 4, 8, 8]),
-        mapping_ar=np.array([0, 1]),
     )
     emissions_out = out_dict["emissions"]
     T_out = out_dict["T"]
@@ -178,6 +175,8 @@ def test_constant_concentrations():
 
 
 def test_run_df():
+    year_index_np = np.array([2020, 2021, 2023, 2027, 2035])
+
     SIMPLE_DF = pd.DataFrame(
         [
             [
@@ -203,30 +202,6 @@ def test_run_df():
                 750.822081,
                 780.822081,
                 850.822081,
-            ],
-            [
-                "model_a",
-                "scen_a",
-                "World",
-                "Effective Radiative Forcing|Volcanic",
-                "W/m**2",
-                -0.15611993,
-                -0.10432414,
-                -0.20163396,
-                -0.50426278,
-                0.37721725,
-            ],
-            [
-                "model_a",
-                "scen_a",
-                "World",
-                "Effective Radiative Forcing|Other",
-                "W/m**2",
-                -0.1,
-                -0.2,
-                -0.3,
-                -0.4,
-                -0.5,
             ],
         ],
         columns=pyam.IAMC_IDX + [2020, 2021, 2023, 2027, 2035],
@@ -295,9 +270,18 @@ def test_run_df():
         columns=[1, 2, 3],
     )
 
+    ext_forcing_value_np = np.array(
+        [-0.256119925, -0.304324144, -0.501633962, -0.904262779, -0.12278275]
+    )
+
+    ext_forcing_df = pd.DataFrame(
+        data=ext_forcing_value_np, index=year_index_np, columns=["External Forcing"]
+    )
+
     cfg = {
         "gas_params": gas_params_df,
         "thermal_params": thermal_params_df,
+        "ext_forcing": ext_forcing_df,
     }
 
     res_df = concentration_driven.run(inp_df, cfg)
@@ -392,25 +376,13 @@ def test_run_df():
                 "model_a",
                 "scen_a",
                 "World",
-                "Effective Radiative Forcing|Volcanic",
-                "W/m**2",
-                -0.15611993,
-                -0.10432414,
-                -0.20163396,
-                -0.50426278,
-                0.37721725,
-            ],
-            [
-                "model_a",
-                "scen_a",
-                "World",
                 "Effective Radiative Forcing|Other",
                 "W/m**2",
-                -0.1,
-                -0.2,
-                -0.3,
-                -0.4,
-                -0.5,
+                -0.256119925,
+                -0.304324144,
+                -0.501633962,
+                -0.904262779,
+                -0.12278275,
             ],
             [
                 "model_a",
@@ -447,241 +419,6 @@ def test_run_df():
                 0.514882,
                 0.539532,
                 0.740753,
-            ],
-        ],
-        columns=pyam.IAMC_IDX + [2020, 2021, 2023, 2027, 2035],
-    )
-    compare_df = pyam.IamDataFrame(SIMPLE_DF)
-
-    pd.testing.assert_frame_equal(
-        res_df.timeseries(), compare_df.timeseries(), check_exact=False, atol=1e-04
-    )
-
-
-def test_run_df_dual_forcing():
-    SIMPLE_DF = pd.DataFrame(
-        [
-            [
-                "model_a",
-                "scen_a",
-                "World",
-                "Atmospheric Concentrations|CO2",
-                "ppm",
-                399.6173423,
-                401.8213271,
-                406.3410747,
-                415.7639971,
-                435.6164218,
-            ],
-            [
-                "model_a",
-                "scen_a",
-                "World",
-                "Effective Radiative Forcing|Volcanic",
-                "W/m**2",
-                -0.15611993,
-                -0.10432414,
-                -0.20163396,
-                -0.50426278,
-                0.37721725,
-            ],
-            [
-                "model_a",
-                "scen_a",
-                "World",
-                "Effective Radiative Forcing|Other",
-                "W/m**2",
-                -0.1,
-                -0.2,
-                -0.3,
-                -0.4,
-                -0.5,
-            ],
-        ],
-        columns=pyam.IAMC_IDX + [2020, 2021, 2023, 2027, 2035],
-    )
-
-    inp_df = pyam.IamDataFrame(SIMPLE_DF)
-
-    gas_parameter_value_np = np.array(
-        [
-            [0.2173, 0],
-            [0.224, 0],
-            [0.2824, 0],
-            [0.2763, 0],
-            [1000000, 0],
-            [394.4, 0],
-            [36.54, 0],
-            [4.304, 0],
-            [28.627296, 0],
-            [0.019773, 0],
-            [4.334433, 0],
-            [0, 0],
-            [278, 0],
-            [0.468952343952344, 0],
-            [5.754389, 7.754389],
-            [0.001215, 0.000215],
-            [-0.069598, -0.169598],
-            [False, False],
-        ]
-    )
-    gas_parameter_name_np = np.array(
-        [
-            "a1",
-            "a2",
-            "a3",
-            "a4",
-            "tau1",
-            "tau2",
-            "tau3",
-            "tau4",
-            "r0",
-            "rC",
-            "rT",
-            "rA",
-            "PI_conc",
-            "emis2conc",
-            "f1",
-            "f2",
-            "f3",
-            "aer_conc",
-        ]
-    )
-
-    gas_params_df = pd.DataFrame(
-        data=gas_parameter_value_np,
-        index=gas_parameter_name_np,
-        columns=["CO2", "CO2|Secondary Forcing"],
-    )
-
-    thermal_parameter_value_np = np.array(
-        [[283, 9.88, 0.85], [0.311333, 0.165417, 0.242]]
-    )
-
-    thermal_parameter_name_np = ["d", "q"]
-
-    thermal_params_df = pd.DataFrame(
-        data=thermal_parameter_value_np,
-        index=thermal_parameter_name_np,
-        columns=[1, 2, 3],
-    )
-
-    cfg = {
-        "gas_params": gas_params_df,
-        "thermal_params": thermal_params_df,
-    }
-
-    res_df = concentration_driven.run(inp_df, cfg)
-
-    SIMPLE_DF = pd.DataFrame(
-        [
-            [
-                "model_a",
-                "scen_a",
-                "World",
-                "Alpha|CO2",
-                "None",
-                0.125078,
-                0.183391,
-                0.226640,
-                0.246305,
-                0.255681,
-            ],
-            [
-                "model_a",
-                "scen_a",
-                "World",
-                "Atmospheric Concentrations|CO2",
-                "ppm",
-                399.6173423,
-                401.8213271,
-                406.3410747,
-                415.7639971,
-                435.6164218,
-            ],
-            [
-                "model_a",
-                "scen_a",
-                "World",
-                "Effective Radiative Forcing",
-                "W/m**2",
-                4.026507,
-                4.042586,
-                3.975949,
-                3.840896,
-                5.165787,
-            ],
-            [
-                "model_a",
-                "scen_a",
-                "World",
-                "Effective Radiative Forcing|CO2",
-                "W/m**2",
-                2.005091,
-                2.035587,
-                2.097619,
-                2.224813,
-                2.483857,
-            ],
-            [
-                "model_a",
-                "scen_a",
-                "World",
-                "Effective Radiative Forcing|CO2|Secondary Forcing",
-                "W/m**2",
-                2.277536,
-                2.311323,
-                2.379964,
-                2.520346,
-                2.804713,
-            ],
-            [
-                "model_a",
-                "scen_a",
-                "World",
-                "Effective Radiative Forcing|Volcanic",
-                "W/m**2",
-                -0.15611993,
-                -0.10432414,
-                -0.20163396,
-                -0.50426278,
-                0.37721725,
-            ],
-            [
-                "model_a",
-                "scen_a",
-                "World",
-                "Effective Radiative Forcing|Other",
-                "W/m**2",
-                -0.1,
-                -0.2,
-                -0.3,
-                -0.4,
-                -0.5,
-            ],
-            [
-                "model_a",
-                "scen_a",
-                "World",
-                "Emissions|CO2",
-                "GtC/yr",
-                319.828087,
-                42.795570,
-                21.111965,
-                16.331542,
-                16.436508,
-            ],
-            [
-                "model_a",
-                "scen_a",
-                "World",
-                "Surface Temperature",
-                "K",
-                0.371238,
-                0.940002,
-                1.232837,
-                1.411276,
-                1.774069,
             ],
         ],
         columns=pyam.IAMC_IDX + [2020, 2021, 2023, 2027, 2035],

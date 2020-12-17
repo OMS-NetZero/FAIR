@@ -12,7 +12,6 @@ thermal_params_df = pd.read_csv(
 
 def get_thermal_params():
     """Gets default thermal parameters.
-
     Returns
     -------
     thermal_params_df : :obj:`pandas.DataFrame`
