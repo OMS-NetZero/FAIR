@@ -62,6 +62,6 @@ $(VENV_DIR): setup.py
 	[ -d $(VENV_DIR) ] || python3 -m venv $(VENV_DIR)
 
 	$(VENV_DIR)/bin/pip install --upgrade pip wheel
-	$(VENV_DIR)/bin/pip install -e .[dev] --use-feature=2020-resolver
+	$(VENV_DIR)/bin/pip install -e .[dev]
 
 	touch $(VENV_DIR)
