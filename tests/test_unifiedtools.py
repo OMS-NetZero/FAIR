@@ -724,3 +724,7 @@ def test_create_output_dataframe_iamc_compliant():
     compare_df = pyam.IamDataFrame(SIMPLE_DF)
 
     pd.testing.assert_frame_equal(out_df.timeseries(), compare_df.timeseries())
+
+
+def test_q_to_ecs_tcr():
+    unifiedtools.q_to_tcr_ecs()
