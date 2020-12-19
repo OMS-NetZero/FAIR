@@ -84,10 +84,12 @@ def step_temperature(S_old, F, q, d, dt=1):
 def convert_df_to_numpy(inp_df):
     """
     Convert input df to numpy array with correct order for running.
+
     Note, this method deliberately sorts based on lower case values,
     this is an attempt to make the software easier to use
     (i.e. one might absent mindedly write a gas as 'CO2' in the gas parameter
     dataframe and 'co2' in the concentrations/emissions dataframe)
+
     Parameters
     ----------
     inp_df : :obj:`pd.DataFrame`
@@ -116,8 +118,10 @@ def convert_numpy_output_to_df(
 ):
     """
     Convert the numpy output to a dataframe i.e. add metadata to the outputs.
+
     Note that this function assumes that the labels
     have been given in the correct order.
+
     Parameters
     ----------
     res_numpy : :obj:`np.ndarray`

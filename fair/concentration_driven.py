@@ -6,6 +6,7 @@ from .tools import unifiedtools
 def run(inp_df, cfg):
     """
     Run FaIR 2.0
+
     Parameters
     ----------
     inp_df : :obj:`pd.DataFrame`
