@@ -114,7 +114,7 @@ def convert_df_to_numpy(inp_df):
 
 
 def convert_numpy_output_to_df(
-    res_numpy, column_labels, column_name, index_labels, index_name
+    res_numpy, column_labels, column_name, index_labels, index_name, dtype=None,
 ):
     """
     Convert the numpy output to a dataframe i.e. add metadata to the outputs.
@@ -144,6 +144,8 @@ def convert_numpy_output_to_df(
     index_name : : string
         Input string used to label the index,
         in our example this might be "Year"
+    dtype : :obj:`np.dtype`
+        Data type of data
     Returns
     -------
     :obj:`np.ndarray`
@@ -153,7 +155,7 @@ def convert_numpy_output_to_df(
     """
     # here you add metadata so users know timesteps, units etc. that were used
     # in the run
-    res = pd.DataFrame(data=res_numpy.T)
+    res = pd.DataFrame(data=res_numpy.T, dtype=dtype)
     res.columns = column_labels
     res.columns.name = column_name
     res.index = index_labels

@@ -209,19 +209,17 @@ def test_convert_numpy_output_to_df():
     column_name = "Gas"
     index_labels = np.array([2019, 2020, 2022, 2023, 2050])
     index_name = "Year"
+    # Sometimes, the assertion fails as different data types are assumed by default.
     df = unifiedtools.convert_numpy_output_to_df(
-        res, column_labels, column_name, index_labels, index_name
+        res, column_labels, column_name, index_labels, index_name, dtype=np.int64
     )
     df_compare = pd.DataFrame(
         data={"a": [1, 2, 3, 4, 5], "b": [6, 7, 8, 9, 10], "c": [11, 12, 13, 14, 15]},
-        index=[2019, 2020, 2022, 2023, 2050],
+        index=[2019, 2020, 2022, 2023, 2050], dtype=np.int64
     )
-
-    assert df.equals(df_compare)
-    assert not np.sum(df.index.tolist() != np.array([2019, 2020, 2022, 2023, 2050]))
-    assert df.index.name == "Year"
-    assert not np.sum(df.columns.tolist() != np.array(["a", "b", "c"]))
-    assert df.columns.name == "Gas"
+    df_compare.index.name = "Year"
+    df_compare.columns.name = "Gas"
+    pd.testing.assert_frame_equal(df, df_compare)
 
 
 def test_return_np_function_arg_list():
