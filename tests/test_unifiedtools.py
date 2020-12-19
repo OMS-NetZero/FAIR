@@ -215,7 +215,8 @@ def test_convert_numpy_output_to_df():
     )
     df_compare = pd.DataFrame(
         data={"a": [1, 2, 3, 4, 5], "b": [6, 7, 8, 9, 10], "c": [11, 12, 13, 14, 15]},
-        index=[2019, 2020, 2022, 2023, 2050], dtype=np.int64
+        index=[2019, 2020, 2022, 2023, 2050],
+        dtype=np.int64,
     )
     df_compare.index.name = "Year"
     df_compare.columns.name = "Gas"
