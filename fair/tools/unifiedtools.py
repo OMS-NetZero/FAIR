@@ -336,10 +336,10 @@ def q_to_tcr_ecs(input_parameters=True , F_2x=3.76):
     if type(input_parameters.columns) != pd.core.indexes.multi.MultiIndex:
         return 'input_parameters not in MultiIndex DataFrame. Set help=True for formatting of input.'
     else:
-        output_params = pd.DataFrame(index = ['ECS','TCR'],columns = input_parameters.columns.levels[0])
+        output_params = pd.DataFrame(index=['ECS','TCR'],columns=input_parameters.columns.levels[0])
         for param_set in input_parameters.columns.levels[0]:
             params = input_parameters.xs(param_set,level=0,axis=1)
             ECS = F_2x * params.loc['q'].sum()
-            TCR = F_2x * ( params.loc['q'] * (1 - (params.loc['d']/69.66) * ( 1 - np.exp(-69.66/params.loc['d']) ) ) ).sum()
+            TCR = F_2x * (params.loc['q'] * (1 - (params.loc['d'] / 69.66) * (1 - np.exp(-69.66 / params.loc['d'])))).sum()
             output_params.loc[:,param_set] = [ECS,TCR]
         return output_params
