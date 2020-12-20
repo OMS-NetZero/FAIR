@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import pyam as pyam
 
+from fair.ancil import default_thermal_parameters
 from fair.tools import unifiedtools
 
 
@@ -726,4 +727,8 @@ def test_create_output_dataframe_iamc_compliant():
 
 
 def test_q_to_ecs_tcr():
-    unifiedtools.q_to_tcr_ecs()
+    test_thermal_parameters = default_thermal_parameters.get_thermal_params()
+    df = unifiedtools.q_to_tcr_ecs(test_thermal_parameters)
+    print(df)
+    df_compare = pd.DataFrame(data=[2.702500, 1.565593], index=["ECS", "TCR"],)
+    pd.testing.assert_frame_equal(df, df_compare)
