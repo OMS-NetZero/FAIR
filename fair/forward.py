@@ -860,6 +860,8 @@ def fair_scm(
                         )
                     else:
                         F[t,iF_tro3] = F_tropO3[t]
+                else:
+                    F[t,iF_tro3] = F_tropO3[t]
 
                 if tropO3_forcing[0].lower()!='t':
                     F[t,iF_sto3] = ozone_st.magicc(C[t,15:], C_pi[15:])
