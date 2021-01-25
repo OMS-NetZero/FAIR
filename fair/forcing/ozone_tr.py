@@ -87,7 +87,6 @@ def cmip6_stevenson(emissions, C_CH4, T=0, feedback=False,
         F = F_CH4 + F_CO + F_NMVOC + F_NOx + temperature_feedback(T)
     else:
         F = F_CH4 + F_CO + F_NMVOC + F_NOx
-
     return F
 
 

@@ -8,8 +8,8 @@ from .ancil import natural, cmip6_volcanic, cmip6_solar, historical_scaling
 from .constants import molwt, lifetime, radeff
 from .constants.general import M_ATMOS, ppm_gtc
 from .defaults import carbon, thermal
-from .forcing import ozone_tr, ozone_st, h2o_st, contrails, aerosols, bc_snow,\
-                                         landuse
+from .forcing import (ozone, ozone_tr, ozone_st, h2o_st, contrails, aerosols,
+    bc_snow, landuse)
 from .gas_cycle.gir import calculate_alpha, step_concentration
 from .gas_cycle.fair1 import carbon_cycle
 from .forcing.ghg import co2_log, minor_gases
@@ -90,6 +90,7 @@ def fair_scm(
     ref_isSO2=True, # is Stevens SO2 emissions in units SO2 (T) or S (F)
     useMultigas=True,
     tropO3_forcing='stevenson',
+    ozone_feedback=-0.037, # W m-2 K-1, only for Thornhill-Skeie
     lifetimes=False,
     aerosol_forcing="aerocom+ghan",
     scaleAerosolAR5=True,
@@ -441,27 +442,38 @@ def fair_scm(
         # because SLCFs can still be given as emissions with GHGs as
         # concentrations
         if type(emissions) is not bool:
-            if tropO3_forcing[0].lower()=='s':
+            if tropO3_forcing[0].lower()=='s':  # stevenson
                 F[0,iF_tro3] = ozone_tr.stevenson(emissions[0,:], C[0,1],
                   T=np.sum(T_j[0,:]), 
                   feedback=useTropO3TFeedback,
                   fix_pre1850_RCP=fixPre1850RCP,
                   PI=pi_tro3)
-            elif tropO3_forcing[0].lower()=='c':
+            elif tropO3_forcing[0].lower()=='c':  # cmip6 stevenson
                 F[0,iF_tro3] = ozone_tr.cmip6_stevenson(emissions[0,:], C[0,1],
                   T=np.sum(T_j[0,:]),
                   feedback=useTropO3TFeedback,
                   PI=np.array([C_pi[1],E_pi[6],E_pi[7],E_pi[8]]),
                   beta=b_tro3)
-            elif tropO3_forcing[0].lower()=='r':
+            elif tropO3_forcing[0].lower()=='r':  # regression
                 F[0,iF_tro3] = ozone_tr.regress(emissions[0,:]-E_pi[:], beta=b_tro3)
+            elif tropO3_forcing[0].lower()=='t':  # thornhill-skeie
+                F[0,iF_tro3] = ozone.thornhill_skeie(
+                    emissions=emissions[0,:],
+                    concentrations=C[0,:],
+                    temperature=T[0],
+                    feedback=ozone_feedback,
+                    beta=b_tro3,
+                    emissions_pi=E_pi,
+                    concentrations_pi=C_pi,
+                )
             else:
                 F[0,iF_tro3] = F_tropO3[0]
         else:
             F[0,iF_tro3] = F_tropO3[0]
 
-        # Stratospheric ozone depends on concentrations of ODSs (index 15-30)
-        F[0,iF_sto3] = ozone_st.magicc(C[0,15:], C_pi[15:])
+        if tropO3_forcing[0].lower()!='t':
+            # Stratospheric ozone depends on concentrations of ODSs (index 15-30)
+            F[0,iF_sto3] = ozone_st.magicc(C[0,15:], C_pi[15:])
 
         # Stratospheric water vapour is a function of the methane ERF
         F[0,iF_ch4h] = h2o_st.linear(F[0,1], ratio=stwv_from_ch4)
@@ -711,9 +723,21 @@ def fair_scm(
                       beta=b_tro3)
                 elif tropO3_forcing[0].lower()=='r':
                     F[t,iF_tro3] = ozone_tr.regress(emissions[t,:]-E_pi, beta=b_tro3)
+                elif tropO3_forcing[0].lower()=='t':
+                    F[t,iF_tro3] = ozone.thornhill_skeie(
+                        emissions=emissions[t,:],
+                        concentrations=C[t,:],
+                        temperature=T[t-1],
+                        feedback=ozone_feedback,
+                        beta=b_tro3,
+                        emissions_pi=E_pi,
+                        concentrations_pi=C_pi,
+                    )
                 else:
                     F[t,iF_tro3] = F_tropO3[t]
-                F[t,iF_sto3] = ozone_st.magicc(C[t,15:], C_pi[15:])
+
+                if tropO3_forcing[0].lower()!='t':
+                    F[t,iF_sto3] = ozone_st.magicc(C[t,15:], C_pi[15:])
                 F[t,iF_ch4h] = h2o_st.linear(F[t,1], ratio=stwv_from_ch4)
 
                 # multiply by scale factors
@@ -824,11 +848,23 @@ def fair_scm(
                           beta=b_tro3)
                     elif tropO3_forcing[0].lower()=='r':
                         F[t,iF_tro3] = ozone_tr.regress(emissions[t,:]-E_pi, beta=b_tro3)
+                    elif tropO3_forcing[0].lower()=='t':
+                        F[t,iF_tro3] = ozone.thornhill_skeie(
+                            emissions=emissions[t,:],
+                            concentrations=C[t,:],
+                            temperature=T[t-1],
+                            feedback=ozone_feedback,
+                            beta=b_tro3,
+                            emissions_pi=E_pi,
+                            concentrations_pi=C_pi,
+                        )
                     else:
                         F[t,iF_tro3] = F_tropO3[t]
                 else:
                     F[t,iF_tro3] = F_tropO3[t]
-                F[t,iF_sto3] = ozone_st.magicc(C[t,15:], C_pi[15:])
+
+                if tropO3_forcing[0].lower()!='t':
+                    F[t,iF_sto3] = ozone_st.magicc(C[t,15:], C_pi[15:])
                 F[t,iF_ch4h] = h2o_st.linear(F[t,1], ratio=stwv_from_ch4)
 
                 # multiply by scale factors
