@@ -13,7 +13,7 @@ def thornhill_skeie(
                        1.14647701e-04,  5.14366051e-12,  3.78354423e-03]),
         emissions_pi=np.zeros(40),
         concentrations_pi=np.zeros(31),
-    )
+    ):
     """Calculates total ozone forcing from precursor emissions and
     concentrations based on AerChemMIP and CMIP6 Historical behaviour
 
@@ -65,27 +65,28 @@ def thornhill_skeie(
 
     def eesc(c_ods, c_ods_pi):
         return (
-            np.sum(cl * (c_ods-c_cods_pi) * fc/fc[0]) + 
+            np.sum(cl * (c_ods-c_ods_pi) * fc/fc[0]) + 
             45 * np.sum(br * (c_ods-c_ods_pi) * fc/fc[0])
         ) * fc[0]
 
 
     c_ch4, c_n2o = concentrations[:, [2, 3]].T 
-    delta_c_ods = eesc(concentrations[:,15:].T, concentrations_pi[15:])
+#    delta_c_ods = eesc(concentrations[:,15:].T, concentrations_pi[None, 15:])
+    c_ods = concentrations[:,15:]
     e_co, e_nmvoc, e_nox = emissions[:,[6, 7, 8]].T
-    c_ch4_pi, c_n2o_pi = concentrations_pi[2, 3]
-    e_co_pi, e_nmvoc_pi, e_nox_pi = emissions_pi[6, 7, 8]
+    c_ch4_pi, c_n2o_pi = concentrations_pi[[2, 3]]
+    c_ods_pi = concentrations_pi[15:]
+    e_co_pi, e_nmvoc_pi, e_nox_pi = emissions_pi[[6, 7, 8]]
 
     forcing = np.zeros(nt)
 
     for i in range(nt):
         f_ch4   = beta[0] * (c_ch4[i] - c_ch4_pi)
         f_n2o   = beta[1] * (c_n2o[i] - c_n2o_pi)
-        f_ods   = beta[2] * (delta_c_ods[i])
+        f_ods   = beta[2] * eesc(c_ods[i], c_ods_pi)
         f_co    = beta[3] * (e_co[i] - e_co_pi)
         f_nmvoc = beta[4] * (e_nmvoc[i] - e_nmvoc_pi)
         f_nox   = beta[5] * (e_nox[i] - e_nox_pi)
-    )
         forcing[i] = f_ch4 + f_n2o + f_ods + f_co + f_nmvoc + f_nox + feedback * temperature[i]
 
     return forcing

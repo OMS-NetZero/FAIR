@@ -8,6 +8,7 @@ from fair.constants.general import M_ATMOS
 from fair.defaults import carbon
 from fair.ancil import cmip5_annex2_forcing
 from fair.forcing.ozone_tr import regress
+from fair.forcing.ozone import thornhill_skeie
 from fair.inverse import inverse_fair_scm
 import numpy as np
 import os
@@ -526,4 +527,11 @@ def test_inverse_millar_fin():
 
 
 def test_thornhill_skeie():
-    raise AssertionError
+    forcing = thornhill_skeie(
+        emissions = rcp85.Emissions.emissions,
+        concentrations = rcp85.Concentrations.gases,
+        temperature = np.linspace(0,5,736),
+        feedback = -0.037,
+        emissions_pi = rcp85.Emissions.emissions[0,:],
+        concentrations_pi = rcp85.Concentrations.gases[0,:],
+    )
