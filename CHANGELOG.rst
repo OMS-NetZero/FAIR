@@ -4,6 +4,9 @@ Changelog
 master
 ------
 
+v1.6.2
+------
+
 (`#99 <https://github.com/OMS-NetZero/FAIR/pull/99>`_) Add option to use ozone forcing dependent on N2O concentrations
 
 v1.6.1
