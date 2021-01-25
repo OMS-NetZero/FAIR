@@ -70,15 +70,18 @@ def thornhill_skeie(
         ) * fc[0]
 
 
-    c_ch4, c_n2o = concentrations[:, [2, 3]].T 
+    c_ch4, c_n2o = concentrations[:, [1, 2]].T
 #    delta_c_ods = eesc(concentrations[:,15:].T, concentrations_pi[None, 15:])
     c_ods = concentrations[:,15:]
     e_co, e_nmvoc, e_nox = emissions[:,[6, 7, 8]].T
-    c_ch4_pi, c_n2o_pi = concentrations_pi[[2, 3]]
+    c_ch4_pi, c_n2o_pi = concentrations_pi[[1, 2]]
     c_ods_pi = concentrations_pi[15:]
     e_co_pi, e_nmvoc_pi, e_nox_pi = emissions_pi[[6, 7, 8]]
 
+
     forcing = np.zeros(nt)
+    if np.isscalar(temperature):
+        temperature = np.ones(nt) * temperature
 
     for i in range(nt):
         f_ch4   = beta[0] * (c_ch4[i] - c_ch4_pi)
