@@ -523,3 +523,7 @@ def test_inverse_millar_fin():
         temperature_function = 'Millar',
         F_in = rcp85.Forcing.total
     )
+
+
+def test_thornhill_skeie():
+    raise AssertionError
