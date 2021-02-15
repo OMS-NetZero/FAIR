@@ -4,6 +4,11 @@ Changelog
 master
 ------
 
+v1.6.3
+------
+
+(`#94 <https://github.com/OMS-NetZero/FAIR/pull/94>`_) Enable restarts with Geoffroy temperature function and GIR carbon cycle
+
 v1.6.2
 ------
 
