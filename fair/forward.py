@@ -283,7 +283,7 @@ def fair_scm(
             else:
                 raise ValueError("F_tropO3 should be a scalar or (nt,) array")
 
-    else:
+    else:  # initialisations for CO2-only mode
         ngas = 1
         nF   = 1
 
@@ -371,18 +371,90 @@ def fair_scm(
         ohc = np.zeros(nt)
         lambda_eff = np.zeros(nt)
 
+    if restart_in or restart_out:
+        if useMultigas and tropO3_forcing[0].lower() == 's':
+            raise NotImplementedError(
+                'stevenson tropospheric ozone forcing not configured to work ' +
+                'with restarts')
+        if temperature_function == 'Geoffroy':
+            raise NotImplementedError(
+                'Geoffroy temperatures not configured to work with restarts')
+
     if restart_in:
         R_minus1 = restart_in[0]
         T_j_minus1 = restart_in[1]
         C_acc_minus1 = restart_in[2]
         E_minus1 = restart_in[3]
-        C_minus1 = np.sum(R_minus1,axis=-1) + C_0[0]
+        time_scale_sf = restart_in[4]
+
+        if useMultigas:
+            emissions0 = np.sum(emissions[0, 1:3])
+            C_minus1 = restart_in[5]
+            co2_minus1 = C_minus1[0]
+            emissions_minus1 = restart_in[6]
+            natural_minus1 = restart_in[7]
+            cumulative_land_co2 = restart_in[8]
+
+            # add oxidised methane to carbon pools
+            oxidised_CH4 = ((C_minus1[1]-C_pi[1]) *
+              (1.0 - np.exp(-1.0/lifetimes[1])) *
+              (molwt.C/molwt.CH4 * 0.001 * oxCH4_frac * fossilCH4_frac[0]))
+            oxidised_CH4 = np.max((oxidised_CH4, 0))
+            R_minus1 += oxidised_CH4
+
+            # b. methane
+            C[0, 1] = emis_to_conc(
+                C_minus1[1],
+                emissions_minus1[3]+natural_minus1[0],
+                emissions[0,3]+natural[0,0],
+                1.0,
+                lifetimes[1],
+                1.0/emis2conc[1]
+                )
+
+            # c. NITROUS OXIDE
+            C[0, 2] = emis_to_conc(
+                C_minus1[2],
+                emissions_minus1[4]+natural[0,1],
+                emissions[0,4]+natural[0,1],
+                1.0,
+                lifetimes[2],
+                1.0/emis2conc[2]
+                )
+
+            # d. OTHER WMGHGs
+            C[0, 3:] = emis_to_conc(
+                C_minus1[3:],
+                emissions_minus1[12:],
+                emissions[0,12:],
+                1.0,
+                np.array(lifetimes[3:]),
+                1.0/emis2conc[3:]
+                )
+
+        else:  # emissions for CO2 only mode
+            emissions0 = emissions[0]
+            co2_minus1 = np.sum(R_minus1, axis=-1) + C_0[0]
 
         if gir_carbon_cycle:
-            raise NotImplementedError('GIR carbon cycle not configured to ' +
-                'work with restarts')
+            airborne_emissions_minus1 = restart_in[-2]
+            cumulative_emissions_minus1 = restart_in[-1]
+            cumulative_emissions += cumulative_emissions_minus1
+            time_scale_sf = calculate_alpha(
+                cumulative_emissions_minus1,
+                airborne_emissions_minus1,
+                np.sum(T_j_minus1),
+                r0, rc, rt, g0, g1)
+            C[0, 0], R_i[0, :], airborne_emissions[0] = step_concentration(
+                R_minus1,
+                E_minus1,
+                time_scale_sf,
+                a,
+                tau,
+                C_pi[0],
+            )
         else:
-            C[0,0], C_acc[0], R_i[0,:], time_scale_sf = carbon_cycle(
+            C[0, 0], C_acc[0], R_i[0, :], time_scale_sf = carbon_cycle(
               E_minus1,
               C_acc_minus1,
               np.sum(T_j_minus1),
@@ -390,32 +462,17 @@ def fair_scm(
               rc,
               rt,
               iirf_max,
-              0.16,
+              time_scale_sf,
               a,
               tau,
               iirf_h,
               R_minus1,
               C_pi[0],
-              C_minus1,
-              emissions[0]
+              co2_minus1,
+              emissions0
             )
 
-        if np.isscalar(other_rf):
-            F[0,0] = co2_log(C[0,0], C_pi[0], F2x) + other_rf
-        else:
-            F[0,0] = co2_log(C[0,0], C_pi[0], F2x) + other_rf[0]
-
-        F[0,0] = F[0,0] * scale[0]
-
-        if temperature_function=='Millar':
-            T_j[0,:] = forcing_to_temperature(T_j_minus1, q[0,:], d, F[0,:])
-            T[0]=np.sum(T_j[0,:])
-        else:
-            # leave unimplemented unless somebody invents a use case
-            raise(NotImplementedError('Restarts not implemented with Geoffroy '+
-                'temperature function'))
-
-    else:
+    else:  # no restart file
         # Initialise the carbon pools to be correct for first timestep in
         # numerical method
         if emissions_driven:
@@ -426,6 +483,7 @@ def fair_scm(
                 R_i[0,:] = a * emissions[0,np.newaxis] / ppm_gtc
             C[0,0] = np.sum(R_i[0,:],axis=-1) + C_0[0]
 
+    # Calculate forcings from concentrations
     if useMultigas:
         # CO2, CH4 and N2O are co-dependent
         F[0,0:3] = ghg(C[0,0:3], C_pi[0:3], F2x=F2x, scale_F2x=scale_F2x)
@@ -580,7 +638,10 @@ def fair_scm(
         # concentrations
         if type(emissions) is not bool:
             if landuse_forcing.lower()[0]=='c':
-                F[:,iF_luch] = landuse.cumulative(emissions-E_pi, aCO2land=aCO2land)
+                F[:, iF_luch] = landuse.cumulative(emissions - E_pi, aCO2land=aCO2land)
+                if restart_in:
+                    F[:,iF_luch] += cumulative_land_co2*aCO2land
+
             elif landuse_forcing.lower()[0]=='e':
                 F[:,iF_luch] = F_landuse
             else:
@@ -596,39 +657,52 @@ def fair_scm(
         # multiply by scale factors
         F[0,:] = F[0,:] * scale[0,:]
 
-    else:
+    else:  # Calculate forcing for CO2-only mode, first time step
         if np.isscalar(other_rf):
             F[0,0] = co2_log(C[0,0], C_pi[0], F2x) + other_rf
         else:
             F[0,0] = co2_log(C[0,0], C_pi[0], F2x) + other_rf[0]
         F[0,0] = F[0,0] * scale[0]
 
-    if restart_in == False:
-        # Update the thermal response boxes
+    if not restart_in:
         if temperature_function=='Millar':
-            T_j[0,:] = (q[0,:]/d)*(np.sum(F[0,:]))
-            T[0] = np.sum(T_j[0,:])
+            T_j_minus1 = 0
         else:
-            T_j[0,:,:], heatflux[0], del_ohc, lambda_eff[0] = forcing_to_temperature(
-                T_j[0,:,:],
-                np.sum(F[0,:]),
-                np.sum(F[0,:]),
-                lambda_global=lambda_global,
-                ocean_heat_capacity=ocean_heat_capacity,
-                ocean_heat_exchange=ocean_heat_exchange,
-                deep_ocean_efficacy=deep_ocean_efficacy,
-                dt=1
-            )
-            T[0] = np.sum(T_j[0,:,:], axis=1)[0]
-            ohc[0] = ohc[0] + del_ohc
+            T_j_minus1 = np.zeros(T_j[0, :, :].shape)
 
+    # Calculate temperatures for first time step
+
+    # Update the thermal response boxes
+    if temperature_function=='Millar':
+        if not restart_in:  # TODO: why should this be different for the first timestep?
+            T_j[0, :] = (q[0, :] / d) * (np.sum(F[0, :]))
+        else:
+            if useMultigas:
+                T_j[0, :] = forcing_to_temperature(
+                    T_j_minus1, q[0, :], d, F[0, :], e=efficacy)
+            else:
+                T_j[0, :] = forcing_to_temperature(
+                    T_j_minus1, q[0, :], d, F[0, :])
+        T[0] = np.sum(T_j[0,:])
+
+    else:
+        T_j[0,:,:], heatflux[0], del_ohc, lambda_eff[0] = forcing_to_temperature(
+            T_j_minus1[:,:],
+            np.sum(F[0,:]),
+            np.sum(F[0,:]),
+            lambda_global=lambda_global,
+            ocean_heat_capacity=ocean_heat_capacity,
+            ocean_heat_exchange=ocean_heat_exchange,
+            deep_ocean_efficacy=deep_ocean_efficacy,
+            dt=1
+        )
+        T[0] = np.sum(T_j[0,:,:], axis=1)[0]
+        ohc[0] = ohc[0] + del_ohc
 
     for t in range(1,nt):
 
         if emissions_driven:
             if useMultigas:
-                if t == 1:
-                    time_scale_sf = 0.16
                 # Calculate concentrations
                 # a. CARBON DIOXIDE
                 # Firstly add any oxidised methane from last year to the CO2
@@ -653,6 +727,8 @@ def fair_scm(
                         C_pi[0],
                     )
                 else:
+                    if t == 1 and not restart_in:
+                        time_scale_sf = 0.16
                     C[t,0], C_acc[t], R_i[t,:], time_scale_sf = carbon_cycle(
                       np.sum(emissions[t-1,1:3]),
                       C_acc[t-1],
@@ -763,9 +839,7 @@ def fair_scm(
                     T[t] = np.sum(T_j[t,:,:], axis=1)[0]
                     ohc[t] = ohc[t-1] + del_ohc
 
-            else:
-                if t == 1:
-                    time_scale_sf = 0.16
+            else:  # for CO2-only mode
                 if gir_carbon_cycle:
                     time_scale_sf = calculate_alpha(
                         cumulative_emissions[t-1],
@@ -773,7 +847,7 @@ def fair_scm(
                         T[t-1],
                         r0, rc, rt, g0, g1)
                     C[t,0], R_i[t,:], airborne_emissions[t] = step_concentration(
-                        R_i[t-1,:] + oxidised_CH4,
+                        R_i[t-1,:],
                         emissions[t-1],
                         time_scale_sf,
                         a,
@@ -781,6 +855,8 @@ def fair_scm(
                         C_pi[0],
                     )
                 else:
+                    if t == 1 and not restart_in:
+                        time_scale_sf = 0.16
                     C[t,0], C_acc[t], R_i[t,:], time_scale_sf = carbon_cycle(
                       emissions[t-1],
                       C_acc[t-1],
@@ -824,8 +900,7 @@ def fair_scm(
                     T[t] = np.sum(T_j[t,:,:], axis=1)[0]
                     ohc[t] = ohc[t-1] + del_ohc
 
-
-        else:
+        else:  # if not emissions driven
 
             if useMultigas:
                 F[t,0:3] = ghg(C[t,0:3], C_pi[0:3], F2x=F2x)
@@ -921,10 +996,26 @@ def fair_scm(
 
     if restart_out:
         if useMultigas:
-            E_minus1 = np.sum(emissions[-1,1:3])
+            E_minus1 = np.sum(emissions[-1, 1:3])
+            if restart_in:
+                cumulative_land_co2 += np.sum((emissions - E_pi)[:, 2])
+            else:
+                cumulative_land_co2 = np.sum((emissions - E_pi)[:, 2])
+            restart_out_val = (R_i[-1],
+                               T_j[-1],
+                               C_acc[-1],
+                               E_minus1,
+                               time_scale_sf,
+                               C[-1, :],
+                               emissions[-1, :],
+                               natural[-1, :],
+                               cumulative_land_co2,
+                               )
         else:
             E_minus1 = emissions[-1]
-        restart_out_val=(R_i[-1],T_j[-1],C_acc[-1],E_minus1)
+            restart_out_val = (R_i[-1], T_j[-1], C_acc[-1], E_minus1, time_scale_sf)
+        if gir_carbon_cycle:
+            restart_out_val += (airborne_emissions[-1], cumulative_emissions[-1])
         return C, F, T, restart_out_val
 
     if ariaci_out:

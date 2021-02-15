@@ -101,6 +101,21 @@ def test_rcp85():
     assert np.allclose(T, T_expected)
 
 
+def test_geoffroy():
+    output = fair.forward.fair_scm(
+        emissions=rcp85.Emissions.emissions,
+        temperature_function='Geoffroy'
+    )
+    datadir = os.path.join(os.path.dirname(__file__), 'rcp85_geoffroy/')
+    C_expected = np.load(datadir + 'C.npy')
+    F_expected = np.load(datadir + 'F.npy')
+    T_expected = np.load(datadir + 'T.npy')
+
+    assert np.allclose(output[0], C_expected)
+    assert np.allclose(output[1], F_expected)
+    assert np.allclose(output[2], T_expected)
+
+
 # rcp3pd and rcp6 have been renamed. The modules should still work otherwise
 # the tests would not have got to this point. But we import directly here to
 # ensure compatibility.
@@ -198,30 +213,95 @@ def test_forward_versus_reverse():
     assert np.allclose(T_forward, T_inverse, atol=0.01, rtol=0.01)
 
 
-def test_restart_co2_continuous():
+gir_switch = [True, False]
+
+
+@pytest.mark.parametrize('gir_switch', gir_switch)
+def test_restart_co2_continuous(gir_switch):
     """Tests to check that a CO2-only run with a restart produces the same
     results as a CO2-only run without a restart."""
 
     C, F, T = fair.forward.fair_scm(
         emissions   = rcp45.Emissions.co2[:20],
-        useMultigas = False
+        useMultigas = False,
+        gir_carbon_cycle=gir_switch,
         )
 
     C1, F1, T1, restart = fair.forward.fair_scm(
         emissions   = rcp45.Emissions.co2[:10],
         useMultigas = False,
-        restart_out = True
+        restart_out = True,
+        gir_carbon_cycle=gir_switch,
         )
 
     C2, F2, T2 = fair.forward.fair_scm(
         emissions   = rcp45.Emissions.co2[10:20],
         useMultigas = False,
-        restart_in  = restart
+        restart_in  = restart,
+        gir_carbon_cycle=gir_switch,
         )
 
-    assert np.all(C == np.concatenate((C1, C2)))
-    assert np.all(F == np.concatenate((F1, F2)))
-    assert np.all(T == np.concatenate((T1, T2)))
+    assert np.allclose(C, np.concatenate((C1, C2)))
+    assert np.allclose(F, np.concatenate((F1, F2)))
+    assert np.allclose(T, np.concatenate((T1, T2)))
+
+
+@pytest.mark.parametrize('gir_switch', gir_switch)
+def test_restart_multigas(gir_switch):
+    anthropogenic_emissions = rcp85.Emissions.emissions
+    natural_emissions = np.array([209.2492, 11.1555])
+
+    out = fair.forward.fair_scm(
+        emissions=anthropogenic_emissions[:200],
+        useMultigas=True,
+        natural=natural_emissions,
+        F_volcanic=0,
+        F_solar=0,
+        tropO3_forcing='cmip6',
+        fixPre1850RCP=False,
+        fossilCH4_frac=0.1,
+        gir_carbon_cycle=gir_switch,
+    )
+    out1 = fair.forward.fair_scm(
+        emissions=anthropogenic_emissions[:10],
+        useMultigas=True,
+        natural=natural_emissions,
+        F_volcanic=0,
+        F_solar=0,
+        tropO3_forcing='cmip6',
+        fixPre1850RCP=False,
+        restart_out=True,
+        fossilCH4_frac=0.1,
+        gir_carbon_cycle=gir_switch,
+    )
+    out2 = fair.forward.fair_scm(
+        emissions=anthropogenic_emissions[10:200],
+        useMultigas=True,
+        natural=natural_emissions,
+        F_volcanic=0,
+        F_solar=0,
+        tropO3_forcing='cmip6',
+        fixPre1850RCP=False,
+        restart_in=out1[-1],
+        fossilCH4_frac=0.1,
+        gir_carbon_cycle=gir_switch,
+    )
+
+    C, C1, C2 = out[0], out1[0], out2[0]
+    F, F1, F2 = out[1], out1[1], out2[1]
+    T, T1, T2 = out[2], out1[2], out2[2]
+    assert np.allclose(C, np.concatenate((C1, C2)))
+    assert np.allclose(F, np.concatenate((F1, F2)))
+    assert np.allclose(T, np.concatenate((T1, T2)))
+
+
+def test_restart_exceptions():
+    with pytest.raises(NotImplementedError):
+        fair.forward.fair_scm(
+            emissions=rcp85.Emissions.emissions,
+            temperature_function='Geoffroy',
+            restart_out=True,
+        )
 
 
 def test_inverse_restart():
