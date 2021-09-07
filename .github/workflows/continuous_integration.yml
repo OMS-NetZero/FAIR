@@ -20,3 +20,5 @@ jobs:
     - name: Test with pytest
       run: |
           pytest tests -r a --cov=fair --cov-report=xml
+    - name: Coverage report
+      run: codecov
