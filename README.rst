@@ -89,8 +89,7 @@ temperature and atmospheric concentration response to carbon dioxide
 emissions, Atmos. Chem. Phys., 17, 7213-7228,
 https://doi.org/10.5194/acp-17-7213-2017, 2017.
 
-.. |Build Status| image:: https://travis-ci.org/OMS-NetZero/FAIR.svg?branch=master
-   :target: https://travis-ci.org/OMS-NetZero/FAIR
+.. |Build Status| image:: https://github.com/OMS-NetZero/FAIR/actions/workflows/continuous_integration.yml/badge.svg
 .. |Binder| image:: https://mybinder.org/badge.svg
    :target: https://mybinder.org/v2/gh/OMS-NetZero/FAIR/master?filepath=notebooks/Example-Usage.ipynb
 .. |Docs Status| image:: https://readthedocs.org/projects/fair/badge/?version=latest
