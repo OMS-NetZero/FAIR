@@ -16,7 +16,7 @@ jobs:
     - name: Install dev dependencies
       run: |
         pip install --upgrade pip wheel
-        pip install -e .[dev]
+        pip install -e .[dev,test]
     - name: Test with pytest
       run: |
           pytest tests -r a --cov=fair --cov-report=xml
