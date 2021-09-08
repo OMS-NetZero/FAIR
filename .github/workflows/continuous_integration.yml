@@ -1,5 +1,11 @@
 name: continuous-integration
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
 jobs:
   build:
     runs-on: ubuntu-latest
