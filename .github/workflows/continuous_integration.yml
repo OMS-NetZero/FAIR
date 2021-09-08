@@ -28,3 +28,9 @@ jobs:
           pytest tests -r a --cov=fair --cov-report=xml
     - name: Coverage report
       run: codecov
+    - name: Upload coverage to Codecov
+      if: startsWith(runner.os, 'Linux') && matrix.python-version == 3.7
+      uses: codecov/codecov-action@v1
+      with:
+        file: ./coverage.xml
+
