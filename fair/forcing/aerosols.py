@@ -2,8 +2,9 @@ from __future__ import division
 
 import numpy as np
 from ..constants import molwt
-from ..RCPs.rcp45 import Emissions as r45e
+from ..RCPs import rcp45
 
+r45e = rcp45.Emissions
 
 def Stevens(emissions, stevens_params=np.array([0.001875, 0.634, 60.]),
     ref_isSO2=True, E_pi=0):

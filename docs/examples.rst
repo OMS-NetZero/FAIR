@@ -18,7 +18,7 @@ Impulse Response (FaIR) model run in the jupyter notebook.
 
 .. parsed-literal::
 
-    '1.5.1+15.g4289e4f.dirty'
+    '1.6.3+15.g290624a.dirty'
 
 
 
@@ -30,7 +30,7 @@ Impulse Response (FaIR) model run in the jupyter notebook.
     plt.style.use('seaborn-darkgrid')
     plt.rcParams['figure.figsize'] = (16, 9)
 
-The “engine” of FaIR is the ``fair_scm`` function in the ``forward``
+The "engine" of FaIR is the ``fair_scm`` function in the ``forward``
 module.
 
 .. code:: ipython3
@@ -235,7 +235,7 @@ scaled by the impact of land and ocean carbon uptake as described in
 ordered from slowest carbon pool to fastest, and ``a`` is the fraction
 of new CO2 emissions going in to each pool. The first element of ``tau``
 is usually very large and represents the fraction of CO2 emissions that
-remain in the atmosphere “quasi-permanently”, i.e. removed only on
+remain in the atmosphere "quasi-permanently", i.e. removed only on
 geological time scales, far past the range of times in which FaIR is
 expected to give useful results (although nobody will stop you using a
 smaller value as we demonstrate). An error should be thrown if the sum
@@ -361,7 +361,7 @@ upper limit on the time-integrated airborne fraction.
 
 .. parsed-literal::
 
-    /nfs/see-fs-02_users/mencsm/FAIR/fair/forward.py:127: RuntimeWarning: iirf_h=60.000000, which is less than iirf_max (97.000000)
+    c:\users\mencsm\git\fair\fair\forward.py:122: RuntimeWarning: iirf_h=60.000000, which is less than iirf_max (97.000000)
       % (iirf_h, iirf_max), RuntimeWarning)
 
 
@@ -515,7 +515,7 @@ temperature.
 The alternative is to specify the values of ``q`` directly (a 2D array)
 that go into the temperature calculation, bypassing ``tcrecs``
 completely (setting ``tcrecs=None``). It is not known under what
-circumstances the user may want to do this, but be assured it’s
+circumstances the user may want to do this, but be assured it's
 possible!
 
 .. code:: ipython3
@@ -538,7 +538,7 @@ possible!
 
 .. parsed-literal::
 
-    500.5524349046053 3.1476987553820783 2.279051054881363
+    500.5524349046088 3.147698755382115 2.279051054881381
 
 
 Temperature time constants
@@ -546,7 +546,7 @@ Temperature time constants
 
 The slow and fast response of global mean surface temperature is
 governed by the two-element array ``d``: this parameter determines the
-rate at which radiative forcing is “realised” as a change in surface
+rate at which radiative forcing is "realised" as a change in surface
 temperature.
 
 .. code:: ipython3
@@ -623,11 +623,11 @@ are:
    arrays of size (nt, 31) and (nt, 13) respectively
 -  More input options to ``fair_scm`` become available.
 
-The basic call to fair_scm remains the same:
+The basic call to fair\_scm remains the same:
 
 ::
 
-   (C,F,T) = fair_scm(emissions=emissions, **kwargs)
+    (C,F,T) = fair_scm(emissions=emissions, **kwargs)
 
 Emissions
 ~~~~~~~~~
@@ -635,89 +635,89 @@ Emissions
 In multi-species model, emissions are input as an ``(nt, 40)`` emissions
 array. The index order and units of the columns are as follows:
 
-+-------+-------------------+---------+
-| Index | Species           | Units   |
-+=======+===================+=========+
-| 0     | Year              | year    |
-+-------+-------------------+---------+
-| 1     | CO2-fossil        | GtC/yr  |
-+-------+-------------------+---------+
-| 2     | CO2-landuse       | GtC/yr  |
-+-------+-------------------+---------+
-| 3     | CH4               | Mt/yr   |
-+-------+-------------------+---------+
-| 4     | N2O               | MtN2/yr |
-+-------+-------------------+---------+
-| 5     | SOx               | MtS/yr  |
-+-------+-------------------+---------+
-| 6     | CO                | Mt/yr   |
-+-------+-------------------+---------+
-| 7     | NMVOC             | Mt/yr   |
-+-------+-------------------+---------+
-| 8     | NOx               | MtN/yr  |
-+-------+-------------------+---------+
-| 9     | BC                | Mt/yr   |
-+-------+-------------------+---------+
-| 10    | OC                | Mt/yr   |
-+-------+-------------------+---------+
-| 11    | NH3               | Mt/yr   |
-+-------+-------------------+---------+
-| 12    | CF4               | kt/yr   |
-+-------+-------------------+---------+
-| 13    | C2F6              | kt/yr   |
-+-------+-------------------+---------+
-| 14    | C6F14             | kt/yr   |
-+-------+-------------------+---------+
-| 15    | HFC23             | kt/yr   |
-+-------+-------------------+---------+
-| 16    | HFC32             | kt/yr   |
-+-------+-------------------+---------+
-| 17    | HFC43-10          | kt/yr   |
-+-------+-------------------+---------+
-| 18    | HFC125            | kt/yr   |
-+-------+-------------------+---------+
-| 19    | HFC134a           | kt/yr   |
-+-------+-------------------+---------+
-| 20    | HFC143a           | kt/yr   |
-+-------+-------------------+---------+
-| 21    | HFC227ea          | kt/yr   |
-+-------+-------------------+---------+
-| 22    | HFC245fa          | kt/yr   |
-+-------+-------------------+---------+
-| 23    | SF6               | kt/yr   |
-+-------+-------------------+---------+
-| 24    | CFC11             | kt/yr   |
-+-------+-------------------+---------+
-| 25    | CFC12             | kt/yr   |
-+-------+-------------------+---------+
-| 26    | CFC113            | kt/yr   |
-+-------+-------------------+---------+
-| 27    | CFC114            | kt/yr   |
-+-------+-------------------+---------+
-| 28    | CFC115            | kt/yr   |
-+-------+-------------------+---------+
-| 29    | CCl4              | kt/yr   |
-+-------+-------------------+---------+
-| 30    | Methyl chloroform | kt/yr   |
-+-------+-------------------+---------+
-| 31    | HCFC22            | kt/yr   |
-+-------+-------------------+---------+
-| 32    | HCFC141b          | kt/yr   |
-+-------+-------------------+---------+
-| 33    | HCFC142b          | kt/yr   |
-+-------+-------------------+---------+
-| 34    | Halon 1211        | kt/yr   |
-+-------+-------------------+---------+
-| 35    | Halon 1202        | kt/yr   |
-+-------+-------------------+---------+
-| 36    | Halon 1301        | kt/yr   |
-+-------+-------------------+---------+
-| 37    | Halon 2401        | kt/yr   |
-+-------+-------------------+---------+
-| 38    | CH3Br             | kt/yr   |
-+-------+-------------------+---------+
-| 39    | CH3Cl             | kt/yr   |
-+-------+-------------------+---------+
++---------+---------------------+-----------+
+| Index   | Species             | Units     |
++=========+=====================+===========+
+| 0       | Year                | year      |
++---------+---------------------+-----------+
+| 1       | CO2-fossil          | GtC/yr    |
++---------+---------------------+-----------+
+| 2       | CO2-landuse         | GtC/yr    |
++---------+---------------------+-----------+
+| 3       | CH4                 | Mt/yr     |
++---------+---------------------+-----------+
+| 4       | N2O                 | MtN2/yr   |
++---------+---------------------+-----------+
+| 5       | SOx                 | MtS/yr    |
++---------+---------------------+-----------+
+| 6       | CO                  | Mt/yr     |
++---------+---------------------+-----------+
+| 7       | NMVOC               | Mt/yr     |
++---------+---------------------+-----------+
+| 8       | NOx                 | MtN/yr    |
++---------+---------------------+-----------+
+| 9       | BC                  | Mt/yr     |
++---------+---------------------+-----------+
+| 10      | OC                  | Mt/yr     |
++---------+---------------------+-----------+
+| 11      | NH3                 | Mt/yr     |
++---------+---------------------+-----------+
+| 12      | CF4                 | kt/yr     |
++---------+---------------------+-----------+
+| 13      | C2F6                | kt/yr     |
++---------+---------------------+-----------+
+| 14      | C6F14               | kt/yr     |
++---------+---------------------+-----------+
+| 15      | HFC23               | kt/yr     |
++---------+---------------------+-----------+
+| 16      | HFC32               | kt/yr     |
++---------+---------------------+-----------+
+| 17      | HFC43-10            | kt/yr     |
++---------+---------------------+-----------+
+| 18      | HFC125              | kt/yr     |
++---------+---------------------+-----------+
+| 19      | HFC134a             | kt/yr     |
++---------+---------------------+-----------+
+| 20      | HFC143a             | kt/yr     |
++---------+---------------------+-----------+
+| 21      | HFC227ea            | kt/yr     |
++---------+---------------------+-----------+
+| 22      | HFC245fa            | kt/yr     |
++---------+---------------------+-----------+
+| 23      | SF6                 | kt/yr     |
++---------+---------------------+-----------+
+| 24      | CFC11               | kt/yr     |
++---------+---------------------+-----------+
+| 25      | CFC12               | kt/yr     |
++---------+---------------------+-----------+
+| 26      | CFC113              | kt/yr     |
++---------+---------------------+-----------+
+| 27      | CFC114              | kt/yr     |
++---------+---------------------+-----------+
+| 28      | CFC115              | kt/yr     |
++---------+---------------------+-----------+
+| 29      | CCl4                | kt/yr     |
++---------+---------------------+-----------+
+| 30      | Methyl chloroform   | kt/yr     |
++---------+---------------------+-----------+
+| 31      | HCFC22              | kt/yr     |
++---------+---------------------+-----------+
+| 32      | HCFC141b            | kt/yr     |
++---------+---------------------+-----------+
+| 33      | HCFC142b            | kt/yr     |
++---------+---------------------+-----------+
+| 34      | Halon 1211          | kt/yr     |
++---------+---------------------+-----------+
+| 35      | Halon 1202          | kt/yr     |
++---------+---------------------+-----------+
+| 36      | Halon 1301          | kt/yr     |
++---------+---------------------+-----------+
+| 37      | Halon 2401          | kt/yr     |
++---------+---------------------+-----------+
+| 38      | CH3Br               | kt/yr     |
++---------+---------------------+-----------+
+| 39      | CH3Cl               | kt/yr     |
++---------+---------------------+-----------+
 
 The index order of the columns follows that of the RCP datasets at
 http://www.pik-potsdam.de/~mmalte/rcps/.
@@ -729,71 +729,71 @@ Multi-species FaIR tracks the atmospheric concentrations of 31 GHG
 species; ``C`` is returned as a ``(nt, 31)`` array. The colums are
 indexed as follows:
 
-+-------+-------------------+-------+
-| Index | Species           | Units |
-+=======+===================+=======+
-| 0     | CO2               | ppm   |
-+-------+-------------------+-------+
-| 1     | CH4               | ppb   |
-+-------+-------------------+-------+
-| 2     | N2O               | ppb   |
-+-------+-------------------+-------+
-| 3     | CF4               | ppt   |
-+-------+-------------------+-------+
-| 4     | C2F6              | ppt   |
-+-------+-------------------+-------+
-| 5     | C6F14             | ppt   |
-+-------+-------------------+-------+
-| 6     | HFC23             | ppt   |
-+-------+-------------------+-------+
-| 7     | HFC32             | ppt   |
-+-------+-------------------+-------+
-| 8     | HFC43-10          | ppt   |
-+-------+-------------------+-------+
-| 9     | HFC125            | ppt   |
-+-------+-------------------+-------+
-| 10    | HFC134a           | ppt   |
-+-------+-------------------+-------+
-| 11    | HFC143a           | ppt   |
-+-------+-------------------+-------+
-| 12    | HFC227ea          | ppt   |
-+-------+-------------------+-------+
-| 13    | HFC245fa          | ppt   |
-+-------+-------------------+-------+
-| 14    | SF6               | ppt   |
-+-------+-------------------+-------+
-| 15    | CFC11             | ppt   |
-+-------+-------------------+-------+
-| 16    | CFC12             | ppt   |
-+-------+-------------------+-------+
-| 17    | CFC113            | ppt   |
-+-------+-------------------+-------+
-| 18    | CFC114            | ppt   |
-+-------+-------------------+-------+
-| 19    | CFC115            | ppt   |
-+-------+-------------------+-------+
-| 20    | CCl4              | ppt   |
-+-------+-------------------+-------+
-| 21    | Methyl chloroform | ppt   |
-+-------+-------------------+-------+
-| 22    | HCFC22            | ppt   |
-+-------+-------------------+-------+
-| 23    | HCFC141b          | ppt   |
-+-------+-------------------+-------+
-| 24    | HCFC142b          | ppt   |
-+-------+-------------------+-------+
-| 25    | Halon 1211        | ppt   |
-+-------+-------------------+-------+
-| 26    | Halon 1202        | ppt   |
-+-------+-------------------+-------+
-| 27    | Halon 1301        | ppt   |
-+-------+-------------------+-------+
-| 28    | Halon 2401        | ppt   |
-+-------+-------------------+-------+
-| 29    | CH3Br             | ppt   |
-+-------+-------------------+-------+
-| 30    | CH3Cl             | ppt   |
-+-------+-------------------+-------+
++---------+---------------------+---------+
+| Index   | Species             | Units   |
++=========+=====================+=========+
+| 0       | CO2                 | ppm     |
++---------+---------------------+---------+
+| 1       | CH4                 | ppb     |
++---------+---------------------+---------+
+| 2       | N2O                 | ppb     |
++---------+---------------------+---------+
+| 3       | CF4                 | ppt     |
++---------+---------------------+---------+
+| 4       | C2F6                | ppt     |
++---------+---------------------+---------+
+| 5       | C6F14               | ppt     |
++---------+---------------------+---------+
+| 6       | HFC23               | ppt     |
++---------+---------------------+---------+
+| 7       | HFC32               | ppt     |
++---------+---------------------+---------+
+| 8       | HFC43-10            | ppt     |
++---------+---------------------+---------+
+| 9       | HFC125              | ppt     |
++---------+---------------------+---------+
+| 10      | HFC134a             | ppt     |
++---------+---------------------+---------+
+| 11      | HFC143a             | ppt     |
++---------+---------------------+---------+
+| 12      | HFC227ea            | ppt     |
++---------+---------------------+---------+
+| 13      | HFC245fa            | ppt     |
++---------+---------------------+---------+
+| 14      | SF6                 | ppt     |
++---------+---------------------+---------+
+| 15      | CFC11               | ppt     |
++---------+---------------------+---------+
+| 16      | CFC12               | ppt     |
++---------+---------------------+---------+
+| 17      | CFC113              | ppt     |
++---------+---------------------+---------+
+| 18      | CFC114              | ppt     |
++---------+---------------------+---------+
+| 19      | CFC115              | ppt     |
++---------+---------------------+---------+
+| 20      | CCl4                | ppt     |
++---------+---------------------+---------+
+| 21      | Methyl chloroform   | ppt     |
++---------+---------------------+---------+
+| 22      | HCFC22              | ppt     |
++---------+---------------------+---------+
+| 23      | HCFC141b            | ppt     |
++---------+---------------------+---------+
+| 24      | HCFC142b            | ppt     |
++---------+---------------------+---------+
+| 25      | Halon 1211          | ppt     |
++---------+---------------------+---------+
+| 26      | Halon 1202          | ppt     |
++---------+---------------------+---------+
+| 27      | Halon 1301          | ppt     |
++---------+---------------------+---------+
+| 28      | Halon 2401          | ppt     |
++---------+---------------------+---------+
+| 29      | CH3Br               | ppt     |
++---------+---------------------+---------+
+| 30      | CH3Cl               | ppt     |
++---------+---------------------+---------+
 
 Effective radiative forcing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -801,35 +801,35 @@ Effective radiative forcing
 Finally, a ``(nt, 13)`` array ``F`` of effective radiative forcing is
 returned (all units W m-2):
 
-+-------+-----------------------------------------------+
-| Index | Species                                       |
-+=======+===============================================+
-| 0     | CO2                                           |
-+-------+-----------------------------------------------+
-| 1     | CH4                                           |
-+-------+-----------------------------------------------+
-| 2     | N2O                                           |
-+-------+-----------------------------------------------+
-| 3     | All other well-mixed GHGs                     |
-+-------+-----------------------------------------------+
-| 4     | Tropospheric O3                               |
-+-------+-----------------------------------------------+
-| 5     | Stratospheric O3                              |
-+-------+-----------------------------------------------+
-| 6     | Stratospheric water vapour from CH4 oxidation |
-+-------+-----------------------------------------------+
-| 7     | Contrails                                     |
-+-------+-----------------------------------------------+
-| 8     | Aerosols                                      |
-+-------+-----------------------------------------------+
-| 9     | Black carbon on snow                          |
-+-------+-----------------------------------------------+
-| 10    | Land use change                               |
-+-------+-----------------------------------------------+
-| 11    | Volcanic                                      |
-+-------+-----------------------------------------------+
-| 12    | Solar                                         |
-+-------+-----------------------------------------------+
++---------+-------------------------------------------------+
+| Index   | Species                                         |
++=========+=================================================+
+| 0       | CO2                                             |
++---------+-------------------------------------------------+
+| 1       | CH4                                             |
++---------+-------------------------------------------------+
+| 2       | N2O                                             |
++---------+-------------------------------------------------+
+| 3       | All other well-mixed GHGs                       |
++---------+-------------------------------------------------+
+| 4       | Tropospheric O3                                 |
++---------+-------------------------------------------------+
+| 5       | Stratospheric O3                                |
++---------+-------------------------------------------------+
+| 6       | Stratospheric water vapour from CH4 oxidation   |
++---------+-------------------------------------------------+
+| 7       | Contrails                                       |
++---------+-------------------------------------------------+
+| 8       | Aerosols                                        |
++---------+-------------------------------------------------+
+| 9       | Black carbon on snow                            |
++---------+-------------------------------------------------+
+| 10      | Land use change                                 |
++---------+-------------------------------------------------+
+| 11      | Volcanic                                        |
++---------+-------------------------------------------------+
+| 12      | Solar                                           |
++---------+-------------------------------------------------+
 
 With the exception of volcanic and solar, all forcing outputs are
 calculated from the input emissions.
@@ -890,7 +890,7 @@ for illustration). Note this is a completely hypothetical scenario!
                      oxCH4_frac=0.61, # proportion of fossil CH4 eventually oxidised to CO2
                      stwv_from_ch4=0.1, # proportion of CH4 ERF contributing to strat H2O
                      ghg_forcing='Etminan',  # etminan or myhre
-                     useStevenson=False, # Stevenson or regression based trop. O3 forcing?
+                     tropO3_forcing='Stevenson',
                      b_aero = np.array([-35,0,-5,-6,450,-40,-10])*1e-4,
                      b_tro3 = np.array([3., 1., 8., 99.])*1e-4,
                      aerosol_forcing = 'aerocom+ghan',  # aerocom, aerocom+ghan or stevens
@@ -989,6 +989,68 @@ Here we show the FaIR implementation of the RCP scenarios.
 .. image:: examples_files/examples_30_0.png
 
 
+SSP scenarios
+-------------
+
+From version 1.6.4 the SSPs are also available. However, these are
+experimental and only provided for convenience: the SSPs are defined
+from 1750 (but we only run from 1765), and the natural emissions of CH4
+and N2O are not balanced so historical concentrations are not exactly
+reproduced.
+
+Available scenarios are ``ssp119``, ``ssp126``, ``ssp245``, ``ssp370``,
+``ssp370_lowNTCF``, ``ssp434``, ``ssp460``, ``ssp534`` and ``ssp585``,
+
+.. code:: ipython3
+
+    # Get RCP modules
+    from fair.SSPs import ssp126, ssp245, ssp370, ssp585
+    
+    # Basic RCP runs
+    C126, F126, T126 = fair.forward.fair_scm(emissions=ssp126.Emissions.emissions)
+    C245, F245, T245 = fair.forward.fair_scm(emissions=ssp245.Emissions.emissions)
+    C370, F370, T370 = fair.forward.fair_scm(emissions=ssp370.Emissions.emissions)
+    C585, F585, T585 = fair.forward.fair_scm(emissions=ssp585.Emissions.emissions)
+    
+    fig = plt.figure()
+    ax1 = fig.add_subplot(221)
+    ax2 = fig.add_subplot(222)
+    ax3 = fig.add_subplot(223)
+    ax4 = fig.add_subplot(224)
+    
+    ax1.plot(rcp26.Emissions.year, ssp126.Emissions.co2_fossil, color='green', label='SSP1-2.6')
+    # just show CO2 conc.
+    ax2.plot(rcp26.Emissions.year, C126[:, 0], color='green')
+    # sum over axis 1 to get total ERF
+    ax3.plot(rcp26.Emissions.year, np.sum(F126, axis=1), color='green')
+    ax4.plot(rcp26.Emissions.year, T126, color='green')
+    
+    ax1.plot(rcp45.Emissions.year, ssp245.Emissions.co2_fossil, color='blue', label='SSP2-4.5')
+    ax2.plot(rcp45.Emissions.year, C245[:, 0], color='blue')
+    ax3.plot(rcp45.Emissions.year, np.sum(F245, axis=1), color='blue')
+    ax4.plot(rcp45.Emissions.year, T245, color='blue')
+    
+    ax1.plot(rcp60.Emissions.year, ssp370.Emissions.co2_fossil, color='red', label='SSP3-7.0')
+    ax2.plot(rcp60.Emissions.year, C370[:, 0], color='red')
+    ax3.plot(rcp60.Emissions.year, np.sum(F370, axis=1), color='red')
+    ax4.plot(rcp60.Emissions.year, T370, color='red')
+    
+    ax1.plot(rcp85.Emissions.year, ssp585.Emissions.co2_fossil, color='black', label='SSP5-8.5')
+    ax2.plot(rcp85.Emissions.year, C585[:, 0], color='black')
+    ax3.plot(rcp85.Emissions.year, np.sum(F585, axis=1), color='black')
+    ax4.plot(rcp85.Emissions.year, T585, color='black')
+    
+    ax1.set_ylabel('Fossil CO$_2$ Emissions (GtC)')
+    ax1.legend()
+    ax2.set_ylabel('CO$_2$ concentrations (ppm)')
+    ax3.set_ylabel('Total radiative forcing (W m$^{-2}$)')
+    ax4.set_ylabel('Temperature anomaly (K)');
+
+
+
+.. image:: examples_files/examples_32_0.png
+
+
 Concentrations of well-mixed greenhouse gases
 ---------------------------------------------
 
@@ -1045,7 +1107,7 @@ HFC134a equivalent concentrations. Refer to table above for gas indices.
 
 
 
-.. image:: examples_files/examples_32_0.png
+.. image:: examples_files/examples_34_0.png
 
 
 Radiative forcing
@@ -1089,7 +1151,7 @@ radiative forcing time series coming out of FaIR.
 
 
 
-.. image:: examples_files/examples_34_0.png
+.. image:: examples_files/examples_36_0.png
 
 
 Running in concentration-driven mode
@@ -1134,7 +1196,7 @@ CO2 only
 
 
 
-.. image:: examples_files/examples_37_0.png
+.. image:: examples_files/examples_39_0.png
 
 
 Diagnosing CO2 emissions
@@ -1183,7 +1245,7 @@ example of a 1% per year CO2 increase will be demonstrated.
 
 
 
-.. image:: examples_files/examples_42_0.png
+.. image:: examples_files/examples_44_0.png
 
 
 Multi-gas
@@ -1229,7 +1291,7 @@ stratospheric water vapour from methane) is not affected.
 
 
 
-.. image:: examples_files/examples_44_0.png
+.. image:: examples_files/examples_46_0.png
 
 
 Natural emissions and GHG lifetimes
@@ -1290,7 +1352,7 @@ maintaining historical concentrations.
 
 
 
-.. image:: examples_files/examples_46_1.png
+.. image:: examples_files/examples_48_1.png
 
 
 Ensemble generation
@@ -1298,7 +1360,7 @@ Ensemble generation
 
 An advantage of FaIR is that it is very quick to run (much less than a
 second on an average machine). Therefore it can be used to generate
-probabilistic future ensembles. We’ll show a 100-member ensemble.
+probabilistic future ensembles. We'll show a 100-member ensemble.
 
 FaIR comes with a built-in ensemble generator that takes into account
 the fact that ECS and TCR are highly correlated (at least in CMIP5
@@ -1351,7 +1413,7 @@ from a doubling of CO2.
 
 
 
-.. image:: examples_files/examples_49_0.png
+.. image:: examples_files/examples_51_0.png
 
 
 Adding a temperature constraint
@@ -1395,7 +1457,7 @@ observations.
 
 
 
-.. image:: examples_files/examples_53_0.png
+.. image:: examples_files/examples_55_0.png
 
 
 Some, but not all, of the higher end scenarios have been constrained
@@ -1433,7 +1495,8 @@ emissions from 2020, with a constant non-CO2 radiative forcing.
         natural     = fair.ancil.natural.Emissions.emissions[:255,:],
         restart_out = True,
         F_solar     = 0.,
-        F_volcanic  = 0.
+        F_volcanic  = 0.,
+        tropO3_forcing = 'constant',  # fancy options don't work with restarts
     )
     
     # constant non-CO2 forcing from 2019 to 2500
@@ -1451,7 +1514,8 @@ emissions from 2020, with a constant non-CO2 radiative forcing.
     C45, F45, T45 = fair_scm(
         emissions  = rcp45.Emissions.emissions,
         F_solar    = 0.,
-        F_volcanic = 0.
+        F_volcanic = 0.,
+        tropO3_forcing = 'constant',  # fancy options don't work with restarts
     )
 
 .. code:: ipython3
@@ -1483,7 +1547,7 @@ emissions from 2020, with a constant non-CO2 radiative forcing.
 
 
 
-.. image:: examples_files/examples_57_0.png
+.. image:: examples_files/examples_59_0.png
 
 
 Switching the carbon cycle
@@ -1525,7 +1589,7 @@ uncertain that this level of approximation is sufficient.
 
 
 
-.. image:: examples_files/examples_59_0.png
+.. image:: examples_files/examples_61_0.png
 
 
 Geoffroy temperature function
@@ -1609,6 +1673,6 @@ two-layer model, some of which was used here.
 
 
 
-.. image:: examples_files/examples_61_1.png
+.. image:: examples_files/examples_63_1.png
 
 
