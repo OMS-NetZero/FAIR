@@ -2,6 +2,7 @@ import pytest
 
 import fair
 from fair.RCPs import rcp3pd, rcp45, rcp6, rcp85, rcp26, rcp60
+from fair.SSPs import ssp119, ssp126, ssp245, ssp370, ssp370_lowNTCF, ssp434, ssp460, ssp534, ssp585
 import numpy as np
 import os
 from fair.constants import molwt, radeff, lifetime
@@ -92,6 +93,150 @@ def test_rcp85():
         efficacy=np.ones(13)
     )
     datadir = os.path.join(os.path.dirname(__file__), 'rcp85/')
+    C_expected = np.load(datadir + 'C.npy')
+    F_expected = np.load(datadir + 'F.npy')
+    T_expected = np.load(datadir + 'T.npy')
+
+    assert np.allclose(C, C_expected)
+    assert np.allclose(F, F_expected)
+    assert np.allclose(T, T_expected)
+
+    
+def test_ssp119():
+    C,F,T = fair.forward.fair_scm(
+        emissions=ssp119.Emissions.emissions,
+        aviNOx_frac=ssp119.aviNOx_frac,
+        fossilCH4_frac=ssp119.fossilCH4_frac
+    )
+    datadir = os.path.join(os.path.dirname(__file__), 'ssp119/')
+    C_expected = np.load(datadir + 'C.npy')
+    F_expected = np.load(datadir + 'F.npy')
+    T_expected = np.load(datadir + 'T.npy')
+
+    assert np.allclose(C, C_expected)
+    assert np.allclose(F, F_expected)
+    assert np.allclose(T, T_expected)
+
+
+def test_ssp126():
+    C,F,T = fair.forward.fair_scm(
+        emissions=ssp126.Emissions.emissions,
+        aviNOx_frac=ssp126.aviNOx_frac,
+        fossilCH4_frac=ssp126.fossilCH4_frac
+    )
+    datadir = os.path.join(os.path.dirname(__file__), 'ssp126/')
+    C_expected = np.load(datadir + 'C.npy')
+    F_expected = np.load(datadir + 'F.npy')
+    T_expected = np.load(datadir + 'T.npy')
+
+    assert np.allclose(C, C_expected)
+    assert np.allclose(F, F_expected)
+    assert np.allclose(T, T_expected)
+
+
+def test_ssp245():
+    C,F,T = fair.forward.fair_scm(
+        emissions=ssp245.Emissions.emissions,
+        aviNOx_frac=ssp245.aviNOx_frac,
+        fossilCH4_frac=ssp245.fossilCH4_frac
+    )
+    datadir = os.path.join(os.path.dirname(__file__), 'ssp245/')
+    C_expected = np.load(datadir + 'C.npy')
+    F_expected = np.load(datadir + 'F.npy')
+    T_expected = np.load(datadir + 'T.npy')
+
+    assert np.allclose(C, C_expected)
+    assert np.allclose(F, F_expected)
+    assert np.allclose(T, T_expected)
+
+
+def test_ssp370():
+    C,F,T = fair.forward.fair_scm(
+        emissions=ssp370.Emissions.emissions,
+        aviNOx_frac=ssp370.aviNOx_frac,
+        fossilCH4_frac=ssp370.fossilCH4_frac
+    )
+    datadir = os.path.join(os.path.dirname(__file__), 'ssp370/')
+    C_expected = np.load(datadir + 'C.npy')
+    F_expected = np.load(datadir + 'F.npy')
+    T_expected = np.load(datadir + 'T.npy')
+
+    assert np.allclose(C, C_expected)
+    assert np.allclose(F, F_expected)
+    assert np.allclose(T, T_expected)
+
+
+def test_ssp370_lowNTCF():
+    C,F,T = fair.forward.fair_scm(
+        emissions=ssp370_lowNTCF.Emissions.emissions,
+        aviNOx_frac=ssp370_lowNTCF.aviNOx_frac,
+        fossilCH4_frac=ssp370_lowNTCF.fossilCH4_frac
+    )
+    datadir = os.path.join(os.path.dirname(__file__), 'ssp370_lowNTCF/')
+    C_expected = np.load(datadir + 'C.npy')
+    F_expected = np.load(datadir + 'F.npy')
+    T_expected = np.load(datadir + 'T.npy')
+
+    assert np.allclose(C, C_expected)
+    assert np.allclose(F, F_expected)
+    assert np.allclose(T, T_expected)
+
+    
+def test_ssp434():
+    C,F,T = fair.forward.fair_scm(
+        emissions=ssp434.Emissions.emissions,
+        aviNOx_frac=ssp434.aviNOx_frac,
+        fossilCH4_frac=ssp434.fossilCH4_frac
+    )
+    datadir = os.path.join(os.path.dirname(__file__), 'ssp434/')
+    C_expected = np.load(datadir + 'C.npy')
+    F_expected = np.load(datadir + 'F.npy')
+    T_expected = np.load(datadir + 'T.npy')
+
+    assert np.allclose(C, C_expected)
+    assert np.allclose(F, F_expected)
+    assert np.allclose(T, T_expected)
+
+    
+def test_ssp460():
+    C,F,T = fair.forward.fair_scm(
+        emissions=ssp460.Emissions.emissions,
+        aviNOx_frac=ssp460.aviNOx_frac,
+        fossilCH4_frac=ssp460.fossilCH4_frac
+    )
+    datadir = os.path.join(os.path.dirname(__file__), 'ssp460/')
+    C_expected = np.load(datadir + 'C.npy')
+    F_expected = np.load(datadir + 'F.npy')
+    T_expected = np.load(datadir + 'T.npy')
+
+    assert np.allclose(C, C_expected)
+    assert np.allclose(F, F_expected)
+    assert np.allclose(T, T_expected)
+
+    
+def test_ssp534():
+    C,F,T = fair.forward.fair_scm(
+        emissions=ssp534.Emissions.emissions,
+        aviNOx_frac=ssp534.aviNOx_frac,
+        fossilCH4_frac=ssp534.fossilCH4_frac
+    )
+    datadir = os.path.join(os.path.dirname(__file__), 'ssp534/')
+    C_expected = np.load(datadir + 'C.npy')
+    F_expected = np.load(datadir + 'F.npy')
+    T_expected = np.load(datadir + 'T.npy')
+
+    assert np.allclose(C, C_expected)
+    assert np.allclose(F, F_expected)
+    assert np.allclose(T, T_expected)
+
+    
+def test_ssp585():
+    C,F,T = fair.forward.fair_scm(
+        emissions=ssp585.Emissions.emissions,
+        aviNOx_frac=ssp585.aviNOx_frac,
+        fossilCH4_frac=ssp585.fossilCH4_frac
+    )
+    datadir = os.path.join(os.path.dirname(__file__), 'ssp585/')
     C_expected = np.load(datadir + 'C.npy')
     F_expected = np.load(datadir + 'F.npy')
     T_expected = np.load(datadir + 'T.npy')
