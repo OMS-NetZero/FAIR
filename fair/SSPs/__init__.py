@@ -8,75 +8,35 @@ concentrations_filename = os.path.join(
 forcing_filename = os.path.join(
     os.path.dirname(__file__), 'data/rcmip-radiative-forcing-annual-means-5-1-0-ssp-only.csv')
 
+class FaIRHelper:
+    pass
+    
+    
+def get_ssp(
+        emissions_filename,
+        concentration_filename,
+        forcing_filename,
+        scenario
+    ):
+    emissions = load_emissions_data(emissions_filename, scenario)
+    concentrations = load_concentrations_data(concentrations_filename, scenario)
+    forcing = load_forcing_data(forcing_filename, scenario)
 
-# I know we can refactor this but can't think immediately how
-class ssp119:
-    Emissions = load_emissions_data(emissions_filename, "ssp119")
-    Concentrations = load_concentrations_data(concentrations_filename, "ssp119")
-    Forcing = load_forcing_data(forcing_filename, "ssp119")
-    fossilCH4_frac = Emissions.fossilCH4_frac
-    aviNOx_frac = Emissions.aviNOx_frac
-    
-    
-class ssp126:
-    Emissions = load_emissions_data(emissions_filename, "ssp126")
-    Concentrations = load_concentrations_data(concentrations_filename, "ssp126")
-    Forcing = load_forcing_data(forcing_filename, "ssp126")
-    fossilCH4_frac = Emissions.fossilCH4_frac
-    aviNOx_frac = Emissions.aviNOx_frac
-    
-    
-class ssp245:
-    Emissions = load_emissions_data(emissions_filename, "ssp245")
-    Concentrations = load_concentrations_data(concentrations_filename, "ssp245")
-    Forcing = load_forcing_data(forcing_filename, "ssp245")
-    fossilCH4_frac = Emissions.fossilCH4_frac
-    aviNOx_frac = Emissions.aviNOx_frac
+    out = FaIRHelper()
+    out.Emissions = emissions
+    out.Concentrations = concentrations
+    out.Forcing = forcing
+    out.aviNOx_frac = emissions.aviNOx_frac
+    out.fossilCH4_frac = emissions.fossilCH4_frac
+    return out
 
-    
-class ssp370:
-    Emissions = load_emissions_data(emissions_filename, "ssp370")
-    Concentrations = load_concentrations_data(concentrations_filename, "ssp370")
-    Forcing = load_forcing_data(forcing_filename, "ssp370")
-    fossilCH4_frac = Emissions.fossilCH4_frac
-    aviNOx_frac = Emissions.aviNOx_frac
-    
 
-class ssp370_lowNTCF:
-    Emissions = load_emissions_data(emissions_filename, "ssp370-lowNTCF-aerchemmip")
-    Concentrations = load_concentrations_data(concentrations_filename, "ssp370-lowNTCF-aerchemmip")
-    Forcing = load_forcing_data(forcing_filename, "ssp370-lowNTCF-aerchemmip")
-    fossilCH4_frac = Emissions.fossilCH4_frac
-    aviNOx_frac = Emissions.aviNOx_frac
-
-    
-class ssp434:
-    Emissions = load_emissions_data(emissions_filename, "ssp434")
-    Concentrations = load_concentrations_data(concentrations_filename, "ssp434")
-    Forcing = load_forcing_data(forcing_filename, "ssp434")
-    fossilCH4_frac = Emissions.fossilCH4_frac
-    aviNOx_frac = Emissions.aviNOx_frac
-    
-
-class ssp460:
-    Emissions = load_emissions_data(emissions_filename, "ssp460")
-    Concentrations = load_concentrations_data(concentrations_filename, "ssp460")
-    Forcing = load_forcing_data(forcing_filename, "ssp460")
-    fossilCH4_frac = Emissions.fossilCH4_frac
-    aviNOx_frac = Emissions.aviNOx_frac
-
-    
-class ssp534:
-    Emissions = load_emissions_data(emissions_filename, "ssp534-over")
-    Concentrations = load_concentrations_data(concentrations_filename, "ssp534-over")
-    Forcing = load_forcing_data(forcing_filename, "ssp534-over")
-    fossilCH4_frac = Emissions.fossilCH4_frac
-    aviNOx_frac = Emissions.aviNOx_frac
-
-    
-class ssp585:
-    Emissions = load_emissions_data(emissions_filename, "ssp585")
-    Concentrations = load_concentrations_data(concentrations_filename, "ssp585")
-    Forcing = load_forcing_data(forcing_filename, "ssp585")
-    fossilCH4_frac = Emissions.fossilCH4_frac
-    aviNOx_frac = Emissions.aviNOx_frac
+ssp119 = get_ssp(emissions_filename, concentrations_filename, forcing_filename, "ssp119")
+ssp126 = get_ssp(emissions_filename, concentrations_filename, forcing_filename, "ssp126")
+ssp245 = get_ssp(emissions_filename, concentrations_filename, forcing_filename, "ssp245")
+ssp370 = get_ssp(emissions_filename, concentrations_filename, forcing_filename, "ssp370")
+ssp370_lowNTCF = get_ssp(emissions_filename, concentrations_filename, forcing_filename, "ssp370-lowNTCF-aerchemmip")
+ssp434 = get_ssp(emissions_filename, concentrations_filename, forcing_filename, "ssp434")
+ssp460 = get_ssp(emissions_filename, concentrations_filename, forcing_filename, "ssp460")
+ssp534 = get_ssp(emissions_filename, concentrations_filename, forcing_filename, "ssp534-over")
+ssp585 = get_ssp(emissions_filename, concentrations_filename, forcing_filename, "ssp585")
