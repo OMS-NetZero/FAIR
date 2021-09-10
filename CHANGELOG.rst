@@ -4,6 +4,9 @@ Changelog
 master
 ------
 
+v1.6.4
+------
+
 (`#101 <https://github.com/OMS-NetZero/FAIR/pull/101>`_) Add the SSP emissions scenarios as a module interface, like RCPs
 
 v1.6.3
