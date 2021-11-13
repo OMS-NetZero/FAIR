@@ -364,6 +364,7 @@ def fair_scm(
     C_0 = np.copy(C_pi)
     if emissions_driven:
         C = np.zeros((nt, ngas))
+        total_co2_added = np.zeros(nt)
         R_i = np.zeros(carbon_boxes_shape)
 
     if temperature_function!='Millar':
@@ -388,7 +389,6 @@ def fair_scm(
         time_scale_sf = restart_in[4]
 
         if useMultigas:
-            emissions0 = np.sum(emissions[0, 1:3])
             C_minus1 = restart_in[5]
             co2_minus1 = C_minus1[0]
             emissions_minus1 = restart_in[6]
@@ -400,7 +400,8 @@ def fair_scm(
               (1.0 - np.exp(-1.0/lifetimes[1])) *
               (molwt.C/molwt.CH4 * 0.001 * oxCH4_frac * fossilCH4_frac[0]))
             oxidised_CH4 = np.max((oxidised_CH4, 0))
-            R_minus1 += oxidised_CH4
+            total_co2_added[0] = np.sum(emissions[0, 1:3]) + oxidised_CH4
+            emissions0 = total_co2_added[0]
 
             # b. methane
             C[0, 1] = emis_to_conc(
@@ -477,7 +478,7 @@ def fair_scm(
         # numerical method
         if emissions_driven:
             if useMultigas:
-                R_i[0,:] = a * (np.sum(emissions[0,1:3])) / ppm_gtc
+                R_i[0,:] = a * total_co2_added[0] / ppm_gtc
                 C[0,1:] = C_0[1:]
             else:
                 R_i[0,:] = a * emissions[0,np.newaxis] / ppm_gtc
@@ -705,12 +706,14 @@ def fair_scm(
             if useMultigas:
                 # Calculate concentrations
                 # a. CARBON DIOXIDE
-                # Firstly add any oxidised methane from last year to the CO2
-                # pool
+                # Firstly calculate the oxidised methane from last year
                 oxidised_CH4 = ((C[t-1,1]-C_pi[1]) *
                   (1.0 - np.exp(-1.0/lifetimes[1])) * 
-                  (molwt.C/molwt.CH4 * 0.001 * oxCH4_frac * fossilCH4_frac[t]))
+                  (molwt.C/molwt.CH4 * 0.001 * oxCH4_frac * fossilCH4_frac[t]) *
+                  emis2conc[1])
                 oxidised_CH4 = np.max((oxidised_CH4, 0))
+                # and add it to the CO2 emissions for this year
+                total_co2_added[t] = np.sum(emissions[t, 1:3]) + oxidised_CH4
 
                 if gir_carbon_cycle:
                     time_scale_sf = calculate_alpha(
@@ -719,8 +722,8 @@ def fair_scm(
                         T[t-1],
                         r0, rc, rt, g0, g1)
                     C[t,0], R_i[t,:], airborne_emissions[t] = step_concentration(
-                        R_i[t-1,:] + oxidised_CH4,
-                        np.sum(emissions[t-1,1:3]),
+                        R_i[t-1,:],
+                        total_co2_added[t-1],
                         time_scale_sf,
                         a,
                         tau,
@@ -730,7 +733,7 @@ def fair_scm(
                     if t == 1 and not restart_in:
                         time_scale_sf = 0.16
                     C[t,0], C_acc[t], R_i[t,:], time_scale_sf = carbon_cycle(
-                      np.sum(emissions[t-1,1:3]),
+                      total_co2_added[t-1],
                       C_acc[t-1],
                       T[t-1],
                       r0,
@@ -741,10 +744,10 @@ def fair_scm(
                       a,
                       tau,
                       iirf_h,
-                      R_i[t-1,:] + oxidised_CH4,
+                      R_i[t-1,:],
                       C_pi[0],
                       C[t-1,0],
-                      np.sum(emissions[t,1:3])
+                      total_co2_added[t],
                     )
 
                 # b. METHANE
@@ -996,7 +999,7 @@ def fair_scm(
 
     if restart_out:
         if useMultigas:
-            E_minus1 = np.sum(emissions[-1, 1:3])
+            E_minus1 = np.sum(emissions[-1, 1:3]) + oxidised_CH4
             if restart_in:
                 cumulative_land_co2 += np.sum((emissions - E_pi)[:, 2])
             else:
