@@ -688,13 +688,14 @@ def fair_scm(
     else:
         T_j[0,:,:], heatflux[0], del_ohc, lambda_eff[0] = forcing_to_temperature(
             T_j_minus1[:,:],
-            np.sum(F[0,:]),
-            np.sum(F[0,:]),
+            F[t-1,:],
+            F[t,:],
             lambda_global=lambda_global,
             ocean_heat_capacity=ocean_heat_capacity,
             ocean_heat_exchange=ocean_heat_exchange,
             deep_ocean_efficacy=deep_ocean_efficacy,
-            dt=1
+            dt=1,
+            e=efficacy
         )
         T[0] = np.sum(T_j[0,:,:], axis=1)[0]
         ohc[0] = ohc[0] + del_ohc
@@ -828,13 +829,14 @@ def fair_scm(
                 else:
                     T_j[t,:,:], heatflux[t], del_ohc, lambda_eff[t] = forcing_to_temperature(
                         T_j[t-1,:,:],
-                        np.sum(F[t-1,:]),
-                        np.sum(F[t,:]),
+                        F[t-1,:],
+                        F[t,:],
                         lambda_global=lambda_global,
                         ocean_heat_capacity=ocean_heat_capacity,
                         ocean_heat_exchange=ocean_heat_exchange,
                         deep_ocean_efficacy=deep_ocean_efficacy,
-                        dt=1
+                        dt=1,
+                        e=efficacy
                     )
                     T[t] = np.sum(T_j[t,:,:], axis=1)[0]
                     ohc[t] = ohc[t-1] + del_ohc
@@ -954,13 +956,14 @@ def fair_scm(
                 else:
                     T_j[t,:,:], heatflux[t], del_ohc, lambda_eff[t] = forcing_to_temperature(
                         T_j[t-1,:,:],
-                        np.sum(F[t-1,:]),
-                        np.sum(F[t,:]),
+                        F[t-1,:],
+                        F[t,:],
                         lambda_global=lambda_global,
                         ocean_heat_capacity=ocean_heat_capacity,
                         ocean_heat_exchange=ocean_heat_exchange,
                         deep_ocean_efficacy=deep_ocean_efficacy,
-                        dt=1
+                        dt=1,
+                        e=efficacy
                     )
                     T[t] = np.sum(T_j[t,:,:], axis=1)[0]
                     ohc[t] = ohc[t-1] + del_ohc
