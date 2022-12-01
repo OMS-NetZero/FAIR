@@ -8,13 +8,14 @@ from ..constants.general import EARTH_RADIUS, SECONDS_PER_YEAR
 
 def forcing_to_temperature(
     temp,
-    f0,
-    f1,
+    f0_array,
+    f1_array,
     lambda_global=1.18,
     ocean_heat_capacity=np.array([8.2, 109.0]),
     ocean_heat_exchange=0.67,
     deep_ocean_efficacy=1.28,
-    dt=1):
+    dt=1,
+    e=1.0):
     """Calculate temperature from a given radiative forcing.
 
     This follows the forcing to temperature function described in Geoffroy
@@ -25,8 +26,8 @@ def forcing_to_temperature(
     Inputs:
         temp: (2,2) numpy array (layer, component) of ocean temperatures
             in timestep t-1 (layer = mixed, deep); (component=fast; slow)
-        f0: effective radiative forcing in timestep t-1
-        f1: effective radiative forcing in timestep t
+        f0_array: effective radiative forcing in timestep t-1
+        f1_array: effective radiative forcing in timestep t
 
     Keywords:
         lambda_global: Climate feedback parameter (convention positive
@@ -45,7 +46,10 @@ def forcing_to_temperature(
 
     # care with unit handling. This will be a large number - divide 1e21 for ZJ
     ntoa_joule = 4 * np.pi * EARTH_RADIUS**2 * SECONDS_PER_YEAR
-             
+        
+    f0 = np.sum(f0_array*e)
+    f1 = np.sum(f1_array*e)
+        
     # Define derived constants                
     cdeep_p = ocean_heat_capacity[1] * deep_ocean_efficacy
     gamma_p = ocean_heat_exchange * deep_ocean_efficacy
