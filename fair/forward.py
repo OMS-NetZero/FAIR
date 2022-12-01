@@ -688,8 +688,8 @@ def fair_scm(
     else:
         T_j[0,:,:], heatflux[0], del_ohc, lambda_eff[0] = forcing_to_temperature(
             T_j_minus1[:,:],
-            F[t-1,:],
-            F[t,:],
+            F[0,:],
+            F[0,:],
             lambda_global=lambda_global,
             ocean_heat_capacity=ocean_heat_capacity,
             ocean_heat_exchange=ocean_heat_exchange,
