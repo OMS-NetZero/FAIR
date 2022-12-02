@@ -686,17 +686,29 @@ def fair_scm(
         T[0] = np.sum(T_j[0,:])
 
     else:
-        T_j[0,:,:], heatflux[0], del_ohc, lambda_eff[0] = forcing_to_temperature(
-            T_j_minus1[:,:],
-            F[0,:],
-            F[0,:],
-            lambda_global=lambda_global,
-            ocean_heat_capacity=ocean_heat_capacity,
-            ocean_heat_exchange=ocean_heat_exchange,
-            deep_ocean_efficacy=deep_ocean_efficacy,
-            dt=1,
-            e=efficacy
-        )
+        if useMultigas:
+            T_j[0,:,:], heatflux[0], del_ohc, lambda_eff[0] = forcing_to_temperature(
+                T_j_minus1[:,:],
+                F[0,:],
+                F[0,:],
+                lambda_global=lambda_global,
+                ocean_heat_capacity=ocean_heat_capacity,
+                ocean_heat_exchange=ocean_heat_exchange,
+                deep_ocean_efficacy=deep_ocean_efficacy,
+                dt=1,
+                e=efficacy
+            )
+        else:
+            T_j[0,:,:], heatflux[0], del_ohc, lambda_eff[0] = forcing_to_temperature(
+                T_j_minus1[:,:],
+                F[0,:],
+                F[0,:],
+                lambda_global=lambda_global,
+                ocean_heat_capacity=ocean_heat_capacity,
+                ocean_heat_exchange=ocean_heat_exchange,
+                deep_ocean_efficacy=deep_ocean_efficacy,
+                dt=1,
+            )
         T[0] = np.sum(T_j[0,:,:], axis=1)[0]
         ohc[0] = ohc[0] + del_ohc
 
