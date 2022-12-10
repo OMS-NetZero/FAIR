@@ -4,6 +4,8 @@ Changelog
 master
 ------
 
+(`#109 <https://github.com/OMS-NetZero/FAIR/pull/109>`_) Fixes error when running inverse_fair_scm with a scalar F_in value.
+
 v1.6.4
 ------
 

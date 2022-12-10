@@ -525,6 +525,11 @@ def test_inverse_millar_fin():
         F_in = rcp85.Forcing.total
     )
 
+def test_inverse_const_forcing():
+    emissions, Fe, Te = inverse_fair_scm(
+        C = rcp85.Concentrations.co2,
+        F_in = 0
+    )
 
 def test_thornhill_skeie():
     forcing = thornhill_skeie(

@@ -197,7 +197,7 @@ def inverse_fair_scm(
         prescribed_forcing = False
     else:
         if np.isscalar(F_in):
-            F_in = np.ones(nt) * F_in
+            F = np.ones(nt) * F_in
         else:
             if len(F_in) != nt:
                 raise ValueError('F_in must be same size as C, which is '+nt)
