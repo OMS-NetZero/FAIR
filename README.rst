@@ -3,6 +3,7 @@
 | |Docs Status|
 | |Zenodo|
 | |Codecov|
+| |pypi|
 
 FaIR
 ====
@@ -99,3 +100,5 @@ https://doi.org/10.5194/acp-17-7213-2017, 2017.
    :target: https://doi.org/10.5281/zenodo.1247898
 .. |Codecov| image:: https://codecov.io/gh/OMS-NetZero/FAIR/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/OMS-NetZero/FAIR
+.. |pypi| image:: https://img.shields.io/pypi/v/fair
+   :target: https://pypi.org/project/fair/

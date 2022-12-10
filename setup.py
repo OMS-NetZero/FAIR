@@ -16,7 +16,7 @@ AUTHORS = [
 here = pathlib.Path(__file__).parent.resolve()
 
 # Get the long description from the README file
-long_description = (here / "README.md").read_text(encoding="utf-8")
+long_description = (here / "README.rst").read_text(encoding="utf-8")
 
 # using climate-assessment as a template here
 REQUIREMENTS_INSTALL = [
@@ -66,7 +66,7 @@ setup(
     url="https://github.com/OMS-NetZero/FAIR",
     author=", ".join([author[0] for author in AUTHORS]),
     author_email=", ".join([author[1] for author in AUTHORS]),
-    license='Apache 2.0',
+    license="Apache 2.0",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
