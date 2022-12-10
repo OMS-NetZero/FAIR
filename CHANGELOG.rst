@@ -1,10 +1,10 @@
 Changelog
 ---------
 
-master
+v2.1.0
 ------
 
-(`#109 <https://github.com/OMS-NetZero/FAIR/pull/109>`_) Fixes error when running inverse_fair_scm with a scalar F_in value.
+(`#110 <https://github.com/OMS-NetZero/FAIR/pull/110>`_) Large overhaul of FaIR including adding most features from v2.0.0-alpha, plus species-dependent methane lifetime and new interface
 
 v1.6.4
 ------
