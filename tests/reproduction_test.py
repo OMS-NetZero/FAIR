@@ -29,7 +29,7 @@ def test_ssp_emissions_cmip6_ebm3_calibrations():
     HERE = os.path.dirname(os.path.realpath(__file__))
 
     df = pd.read_csv(
-        os.path.join(HERE, "..", "data", "calibration", "4xCO2_cummins_ebm3.csv")
+        os.path.join(HERE, "test_data", "4xCO2_cummins_ebm3.csv")
     )
     models = df["model"].unique()
     configs = []

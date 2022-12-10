@@ -29,10 +29,11 @@ REQUIREMENTS_INSTALL = [
 REQUIREMENTS_NOTEBOOKS = ["notebook", "ipywidgets"]
 REQUIREMENTS_TESTS = [
     "codecov",
+    "netCDF4",
+    "pooch",
     "pytest-cov",
     "pytest-console-scripts",
     "pytest>=4.0",
-    "matplotlib",
 ]
 REQUIREMENTS_DOCS = ["sphinx>=1.4", "sphinx_rtd_theme"]
 REQUIREMENTS_DEPLOY = [
