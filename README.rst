@@ -1,9 +1,4 @@
-| |Build Status|
-| |Binder|
-| |Docs Status|
-| |Zenodo|
-| |Codecov|
-| |pypi|
+|Build Status| |Binder| |Docs Status| |Zenodo| |Codecov| |pypi|
 
 FaIR
 ====
@@ -80,22 +75,9 @@ Citation
 
 If you use FaIR in your work, please cite the following reference depending on the version:
 
-- **v2.0+:** Leach, N. J., Jenkins, S., Nicholls, Z., Smith, C. J., Lynch, J., Cain, M.,
-Walsh, T., Wu, B., Tsutsui, J., and Allen, M. R.: FaIRv2.0.0: a generalized impulse
-response model for climate uncertainty and future scenario exploration, Geosci. Model
-Dev., 14, 3007–3036, https://doi.org/10.5194/gmd-14-3007-2021, 2021
-
-- **v1.1-v1.6**: Smith, C. J., Forster, P. M., Allen, M., Leach, N., Millar, R. J.,
-Passerello, G. A., and Regayre, L. A.: FAIR v1.3: A simple
-emissions-based impulse response and carbon cycle model, Geosci. Model
-Dev., https://doi.org/10.5194/gmd-11-2273-2018, 2018.
-
-- **v1.0** (or the concept of the state-dependent impulse-response function for CO2):
-Millar, R. J., Nicholls, Z. R., Friedlingstein, P., and Allen, M. R.: A
-modified impulse-response representation of the global near-surface air
-temperature and atmospheric concentration response to carbon dioxide
-emissions, Atmos. Chem. Phys., 17, 7213-7228,
-https://doi.org/10.5194/acp-17-7213-2017, 2017.
+- **v2.0+:** Leach, N. J., Jenkins, S., Nicholls, Z., Smith, C. J., Lynch, J., Cain, M., Walsh, T., Wu, B., Tsutsui, J., and Allen, M. R.: FaIRv2.0.0: a generalized impulse response model for climate uncertainty and future scenario exploration, Geosci. Model Dev., 14, 3007–3036, https://doi.org/10.5194/gmd-14-3007-2021, 2021
+- **v1.1-v1.6**: Smith, C. J., Forster, P. M., Allen, M., Leach, N., Millar, R. J., Passerello, G. A., and Regayre, L. A.: FAIR v1.3: A simple emissions-based impulse response and carbon cycle model, Geosci. Model Dev., https://doi.org/10.5194/gmd-11-2273-2018, 2018.
+- **v1.0** (or the concept of the state-dependent impulse-response function for CO2): Millar, R. J., Nicholls, Z. R., Friedlingstein, P., and Allen, M. R.: A modified impulse-response representation of the global near-surface air temperature and atmospheric concentration response to carbon dioxide emissions, Atmos. Chem. Phys., 17, 7213-7228, https://doi.org/10.5194/acp-17-7213-2017, 2017.
 
 .. |Build Status| image:: https://github.com/OMS-NetZero/FAIR/actions/workflows/continuous_integration.yml/badge.svg
 .. |Binder| image:: https://mybinder.org/badge.svg
