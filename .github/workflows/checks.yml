@@ -2,9 +2,9 @@ name: Continuous integration
 
  on:
    push:
-     branches: [ "main" ]
+     branches: [ "master" ]
    pull_request:
-     branches: [ "main" ]
+     branches: [ "master" ]
 
  # template mostly borrowed from openscm-runner
  # https://github.com/openscm/openscm-runner
