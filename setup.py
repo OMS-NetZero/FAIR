@@ -1,6 +1,4 @@
-import os
 import pathlib
-import sys
 
 from setuptools import find_packages, setup
 
