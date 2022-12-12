@@ -22,6 +22,7 @@ long_description = (here / "README.rst").read_text(encoding="utf-8")
 REQUIREMENTS_INSTALL = [
     "numpy",
     "pandas",
+    "pooch",
     "scipy",
     "tqdm",
     "xarray",
@@ -31,7 +32,6 @@ REQUIREMENTS_TESTS = [
     "codecov",
     "nbmake",
     "netCDF4",
-    "pooch",
     "pytest-cov",
     "pytest-console-scripts",
     "pytest>=4.0",
