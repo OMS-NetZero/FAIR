@@ -82,7 +82,7 @@ If you use FaIR in your work, please cite the following reference depending on t
 .. |Build Status| image:: https://github.com/OMS-NetZero/FAIR/actions/workflows/checks.yml/badge.svg
 .. |Binder| image:: https://mybinder.org/badge.svg
    :target: https://mybinder.org/v2/gh/OMS-NetZero/FAIR/master?filepath=examples/basic_run_example.ipynb
-.. |Docs Status| image:: https://readthedocs.org/projects/fair/badge/?version=latest
+.. |Docs Status| image:: https://readthedocs.org/projects/fair/badge/?version=v2.1
    :target: http://fair.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 .. |Zenodo| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1247898.svg
