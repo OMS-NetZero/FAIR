@@ -1,4 +1,4 @@
-Installation
+Installation 
 ============
 
 From the Python Package Index (PyPI)
