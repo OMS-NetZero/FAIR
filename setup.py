@@ -1,10 +1,10 @@
+import os
 import pathlib
-import os, sys
+import sys
 
 from setuptools import find_packages, setup
 
 import versioneer
-
 
 AUTHORS = [
     ("Chris Smith", "c.j.smith1@leeds.ac.uk"),
@@ -28,12 +28,7 @@ REQUIREMENTS_INSTALL = [
     "tqdm",
     "xarray",
 ]
-REQUIREMENTS_NOTEBOOKS = [
-    "matplotlib",
-    "nbstripout",
-    "notebook",
-    "ipywidgets"
-]
+REQUIREMENTS_NOTEBOOKS = ["matplotlib", "nbstripout", "notebook", "ipywidgets"]
 REQUIREMENTS_TESTS = [
     "codecov",
     "nbmake",
