@@ -78,7 +78,6 @@ class FAIR:
         n_layers=3,
         iirf_max=100,
         br_cl_ods_potential=45,
-        aci_method="logsum",
         ghg_method="meinshausen2020",
         ch4_method="leach2021",
         temperature_prescribed=False,
@@ -97,9 +96,6 @@ class FAIR:
         br_cl_ods_potential : float, default=45
             factor describing the ratio of efficiency that each bromine atom
             has as an ozone depleting substance relative to each chlorine atom.
-        aci_method : str, default="logsum"
-            method to use for calculating forcing from aerosol-cloud
-            interactions. Valid methods are logsum.
         ghg_method : str, default="meinshausen2020"
             method to use for calculating greenhouse gas forcing from CO2, CH4
             and N2O. Valid methods are leach2021, meinshausen2020,
@@ -113,9 +109,8 @@ class FAIR:
         Raises
         ------
         ValueError :
-            if aci_method, ghg_method or ch4_method given are not valid methods.
+            if ghg_method or ch4_method given are not valid methods.
         """
-        self._aci_method = aci_method
         self._ghg_method = ghg_method
         self._ch4_method = ch4_method
         self.gasboxes = range(n_gasboxes)
@@ -127,20 +122,6 @@ class FAIR:
         self.temperature_prescribed = temperature_prescribed
 
     # must be a less cumbsersome way to code this
-    @property
-    def aci_method(self):
-        """Return aerosol-cloud interactions forcing method."""
-        return self._aci_method.lower()
-
-    @aci_method.setter
-    def aci_method(self, value):
-        if value.lower() in ["logsum"]:
-            self._aci_method = value.lower()
-        else:
-            raise ValueError(
-                f"aci_method should be logsum; you " f"provided {value.lower()}."
-            )
-
     @property
     def ch4_method(self):
         """Return methane lifetime method."""

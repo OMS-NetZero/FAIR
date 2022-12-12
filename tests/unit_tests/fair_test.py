@@ -46,16 +46,6 @@ def minimal_ghg_run():
     return fair_obj
 
 
-def test_aci_method():
-    f.aci_method = "LOGSUM"
-    assert f.aci_method == "logsum"
-
-
-def test_invalid_aci_method():
-    with pytest.raises(ValueError):
-        f.aci_method = "Quaas2022"
-
-
 def test_ghg_method():
     f.ghg_method = "LEACH2021"
     assert f.ghg_method == "leach2021"
