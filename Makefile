@@ -65,7 +65,7 @@ first-venv: ## create a new virtual environment for the very first repo setup
 
 .PHONY: test_notebooks
 test_notebooks: $(VENV_DIR)
-	$(VENV_DIR)/bin/pytest -rfsxEX --nbval ./notebooks --sanitize ./notebooks/tests_sanitize.cfg
+	$(VENV_DIR)/bin/pytest  --nbmake ./examples
 
 .PHONY: docs
 docs:

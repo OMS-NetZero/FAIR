@@ -82,3 +82,5 @@ jobs:
               echo "Error: Test coverage has to be at least ${MIN_COVERAGE}"
               exit 1
           fi
+      # we could run the notebook tests, but we probably don't want to do this every
+      # time and use all our minutes.
