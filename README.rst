@@ -79,9 +79,9 @@ If you use FaIR in your work, please cite the following reference depending on t
 - **v1.1-v1.6**: Smith, C. J., Forster, P. M., Allen, M., Leach, N., Millar, R. J., Passerello, G. A., and Regayre, L. A.: FAIR v1.3: A simple emissions-based impulse response and carbon cycle model, Geosci. Model Dev., https://doi.org/10.5194/gmd-11-2273-2018, 2018.
 - **v1.0** (or the concept of the state-dependent impulse-response function for CO2): Millar, R. J., Nicholls, Z. R., Friedlingstein, P., and Allen, M. R.: A modified impulse-response representation of the global near-surface air temperature and atmospheric concentration response to carbon dioxide emissions, Atmos. Chem. Phys., 17, 7213-7228, https://doi.org/10.5194/acp-17-7213-2017, 2017.
 
-.. |Build Status| image:: https://github.com/OMS-NetZero/FAIR/actions/workflows/continuous_integration.yml/badge.svg
+.. |Build Status| image:: https://github.com/OMS-NetZero/FAIR/actions/workflows/checks.yml/badge.svg
 .. |Binder| image:: https://mybinder.org/badge.svg
-   :target: https://mybinder.org/v2/gh/OMS-NetZero/FAIR/master?filepath=notebooks/Example-Usage.ipynb
+   :target: https://mybinder.org/v2/gh/OMS-NetZero/FAIR/master?filepath=examples/basic_run_example.ipynb
 .. |Docs Status| image:: https://readthedocs.org/projects/fair/badge/?version=latest
    :target: http://fair.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
