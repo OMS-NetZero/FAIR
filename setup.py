@@ -20,6 +20,7 @@ long_description = (here / "README.rst").read_text(encoding="utf-8")
 
 # using climate-assessment as a template here
 REQUIREMENTS_INSTALL = [
+    "matplotlib",  # not a requirement of fair, but needed for binder examples
     "numpy",
     "pandas",
     "pooch",
@@ -27,7 +28,7 @@ REQUIREMENTS_INSTALL = [
     "tqdm",
     "xarray",
 ]
-REQUIREMENTS_NOTEBOOKS = ["matplotlib", "nbstripout", "notebook", "ipywidgets"]
+REQUIREMENTS_NOTEBOOKS = ["nbstripout", "notebook", "ipywidgets"]
 REQUIREMENTS_TESTS = [
     "codecov",
     "nbmake",
