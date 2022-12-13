@@ -1,3 +1,2 @@
 include versioneer.py
 include src/fair/_version.py
-graft src/fair/defaults/data/ar6

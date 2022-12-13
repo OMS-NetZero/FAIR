@@ -84,6 +84,7 @@ setup(
     keywords="simple, climate, model, temperature, CO2, forcing, emissions",
     package_dir={"": "src"},
     packages=find_packages(where="src"),
+    package_data={'': ['*.csv']},
     python_requires=">=3.6, <4",
     install_requires=REQUIREMENTS_INSTALL,
     extras_require=requirements_extras,
