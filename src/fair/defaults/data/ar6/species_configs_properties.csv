@@ -1,0 +1,65 @@
+name,type,input_mode,greenhouse_gas,aerosol_chemistry_from_emissions,aerosol_chemistry_from_concentration,partition_fraction0,partition_fraction1,partition_fraction2,partition_fraction3,unperturbed_lifetime0,unperturbed_lifetime1,unperturbed_lifetime2,unperturbed_lifetime3,tropospheric_adjustment,forcing_efficacy,forcing_temperature_feedback,forcing_scale,molecular_weight,baseline_concentration,forcing_reference_concentration,forcing_reference_emissions,iirf_0,iirf_airborne,iirf_uptake,iirf_temperature,baseline_emissions,g1,g0,greenhouse_gas_radiative_efficiency,contrails_radiative_efficiency,erfari_radiative_efficiency,h2o_stratospheric_factor,lapsi_radiative_efficiency,land_use_cumulative_emissions_to_forcing,ozone_radiative_efficiency,cl_atoms,br_atoms,fractional_release,aci_scale,aci_shape,ch4_lifetime_chemical_sensitivity,lifetime_temperature_sensitivity
+CO2 FFI,co2 ffi,emissions,0,0,0,nan,nan,nan,nan,nan,nan,nan,nan,0,1,0,1,nan,nan,nan,0,nan,nan,nan,nan,0,nan,nan,nan,nan,nan,nan,nan,0,nan,nan,nan,nan,nan,0,0,nan
+CO2 AFOLU,co2 afolu,emissions,0,0,0,nan,nan,nan,nan,nan,nan,nan,nan,0,1,0,1,nan,nan,nan,0,nan,nan,nan,nan,0,nan,nan,nan,nan,nan,nan,nan,-0.00028729,nan,nan,nan,nan,nan,0,0,nan
+CO2,co2,calculated,1,0,0,0.2173,0.224,0.2824,0.2763,1000000000,394.4,36.54,4.304,0.05,1,0,1,44.009,278.3,277.15,0,29,0.000819,0.00846,4,0,11.41262243,0.010178288,0.0000133,0,0,0,0,nan,0,0,0,0,nan,0,0,nan
+CH4,ch4,emissions,1,0,1,1,0,0,0,8.25,8.25,8.25,8.25,-0.14,1,0,1,16.043,729.2,731.41,0,8.249955097,0.00032,0,-0.3,0,8.249410814,0.36785517,0.000388644,0,-0.00000227,0.091914639,0,0,0.000175,0,0,0,nan,0,0.000254099,-0.0408
+N2O,n2o,emissions,1,0,1,1,0,0,0,109,109,109,109,0.07,1,0,1,44.013,270.1,273.87,0,65.44969575,-0.0065,0,0,0,25.49528818,0.076755588,0.003195507,0,-0.0000364,0,0,0,0.00071,0,0,0,nan,0,-0.000722665,nan
+Sulfur,sulfur,emissions,0,1,0,nan,nan,nan,nan,nan,nan,nan,nan,0,1,0,1,64.069,nan,nan,2.440048435,nan,nan,nan,nan,2.440048435,nan,nan,nan,0,-0.00286,0,0,0,0,nan,nan,nan,nan,0.0169,0,nan
+BC,black carbon,emissions,0,1,0,nan,nan,nan,nan,nan,nan,nan,nan,0,1,0,1,12.011,nan,nan,2.097770755,nan,nan,nan,nan,2.097770755,nan,nan,nan,0,0.021,0,0.011585926,0,0,nan,nan,nan,nan,1.04E-015,0,nan
+OC,organic carbon,emissions,0,1,0,nan,nan,nan,nan,nan,nan,nan,nan,0,1,0,1,12.011,nan,nan,15.44766815,nan,nan,nan,nan,15.44766815,nan,nan,nan,0,-0.00396,0,0,0,0,nan,nan,nan,nan,0.0309,0,nan
+NH3,other slcf,emissions,0,1,0,nan,nan,nan,nan,nan,nan,nan,nan,0,1,0,1,17.031,nan,nan,6.927690091,nan,nan,nan,nan,6.927690091,nan,nan,nan,0,-0.000565,0,0,0,0,nan,nan,nan,nan,0,0,nan
+NOx,other slcf,emissions,0,1,0,nan,nan,nan,nan,nan,nan,nan,nan,0,1,0,1,46.006,nan,nan,12.73521194,nan,nan,nan,nan,12.73521194,nan,nan,nan,0,-0.000067,0,0,0,0.0018,nan,nan,nan,nan,0,-0.002564856,nan
+VOC,other slcf,emissions,0,1,0,nan,nan,nan,nan,nan,nan,nan,nan,0,1,0,1,59.746,nan,nan,60.02182622,nan,nan,nan,nan,60.02182622,nan,nan,nan,0,-0.000016,0,0,0,0.000329,nan,nan,nan,nan,0,0.001619264,nan
+CO,other slcf,emissions,0,1,0,nan,nan,nan,nan,nan,nan,nan,nan,0,1,0,1,28.01,nan,nan,348.5273588,nan,nan,nan,nan,348.5273588,nan,nan,nan,0,0,0,0,0,0.000155,nan,nan,nan,nan,0,0,nan
+CFC-11,cfc-11,emissions,1,0,0,1,0,0,0,52,52,52,52,0.13,1,0,1,137.36,0,0,0,44.39985903,0,0,0,0,29.78420333,0.225210813,0.25941,0,0,0,0,0,0,3,0,0.47,nan,0,0,nan
+CFC-12,other halogen,emissions,1,0,0,1,0,0,0,102,102,102,102,0.12,1,0,1,120.91,0,0,0,63.73327742,0,0,0,0,26.21688273,0.087948721,0.31998,0,0,0,0,0,0,2,0,0.23,nan,0,0,nan
+CFC-113,other halogen,emissions,1,0,0,1,0,0,0,93,93,93,93,0,1,0,1,187.37,0,0,0,61.26784005,0,0,0,0,27.14723796,0.104677409,0.30142,0,0,0,0,0,0,3,0,0.29,nan,0,0,nan
+CFC-114,other halogen,emissions,1,0,0,1,0,0,0,189,189,189,189,0,1,0,1,170.92,0,0,0,77.65355287,0,0,0,0,18.74008878,0.015863837,0.31433,0,0,0,0,0,0,2,0,0.12,nan,0,0,nan
+CFC-115,other halogen,emissions,1,0,0,1,0,0,0,540,540,540,540,0,1,0,1,154.46,0,0,0,91.28678945,0,0,0,0,8.191750463,0.0000145,0.24625,0,0,0,0,0,0,1,0,0.04,nan,0,0,nan
+HCFC-22,other halogen,emissions,1,0,0,1,0,0,0,11.9,11.9,11.9,11.9,0,1,0,1,86.47,0,0,0,11.89733306,0,0,0,0,11.87492178,0.367185805,0.21385,0,0,0,0,0,0,1,0,0.13,nan,0,0,nan
+HCFC-141b,other halogen,emissions,1,0,0,1,0,0,0,9.4,9.4,9.4,9.4,0,1,0,1,116.95,0,0,0,9.39977459,0,0,0,0,9.397376608,0.367785579,0.16065,0,0,0,0,0,0,2,0,0.34,nan,0,0,nan
+HCFC-142b,other halogen,emissions,1,0,0,1,0,0,0,18,18,18,18,0,1,0,1,100.49,0,0,0,17.93041344,0,0,0,0,17.54382142,0.35986159,0.19329,0,0,0,0,0,0,1,0,0.17,nan,0,0,nan
+CCl4,other halogen,emissions,1,0,0,1,0,0,0,32,32,32,32,0,1,0,1,153.8,0.025,0.025,0,30.59401812,0,0,0,0.024856862,26.20032476,0.311082807,0.16616,0,0,0,0,0,0,4,0,0.56,nan,0,0,nan
+CHCl3,other halogen,emissions,1,0,0,1,0,0,0,0.501,0.501,0.501,0.501,0,1,0,1,119.37,4.8,4.8,0,0.501,0,0,0,300.92479,0.501,0.367879441,0.07357,0,0,0,0,0,0,3,0,0,nan,0,0,nan
+CH2Cl2,other halogen,emissions,1,0,0,1,0,0,0,0.493,0.493,0.493,0.493,0,1,0,1,84.93,6.91,6.91,0,0.493,0,0,0,246.6579,0.493,0.367879441,0.02882,0,0,0,0,0,0,2,0,0,nan,0,0,nan
+CH3Cl,other halogen,emissions,1,0,0,1,0,0,0,0.9,0.9,0.9,0.9,0,1,0,1,50.49,457,457,0,0.9,0,0,0,4275.7449,0.9,0.367879441,0.00466,0,0,0,0,0,0,1,0,0.44,nan,0,0,nan
+CH3CCl3,other halogen,emissions,1,0,0,1,0,0,0,5,5,5,5,0,1,0,1,133.4,0,0,0,4.99999999,0,0,0,0,4.999999784,0.367879426,0.06454,0,0,0,0,0,0,3,0,0.67,nan,0,0,nan
+CH3Br,other halogen,emissions,1,0,0,1,0,0,0,0.8,0.8,0.8,0.8,0,1,0,1,94.94,5.3,5.3,0,0.8,0,0,0,105.08773,0.8,0.367879441,0.00432,0,0,0,0,0,0,0,1,0.6,nan,0,0,nan
+Halon-1202,other halogen,emissions,1,0,0,1,0,0,0,2.5,2.5,2.5,2.5,0,1,0,1,209.82,0,0,0,2.5,0,0,0,0,2.5,0.367879441,0.27171,0,0,0,0,0,0,0,2,0.62,nan,0,0,nan
+Halon-1211,other halogen,emissions,1,0,0,1,0,0,0,16,16,16,16,0,1,0,1,165.36,0.00445,0.00445,0,15.96911273,0,0,0,0.007723273,15.77606732,0.363405278,0.30014,0,0,0,0,0,0,1,1,0.62,nan,0,0,nan
+Halon-1301,other halogen,emissions,1,0,0,1,0,0,0,72,72,72,72,0,1,0,1,148.91,0,0,0,54.04664097,0,0,0,0,29.11142009,0.156211519,0.29943,0,0,0,0,0,0,0,1,0.28,nan,0,0,nan
+Halon-2402,other halogen,emissions,1,0,0,1,0,0,0,28,28,28,28,0,1,0,1,259.82,0,0,0,27.21276153,0,0,0,0,24.40119555,0.327842336,0.31169,0,0,0,0,0,0,0,2,0.65,nan,0,0,nan
+CF4,f-gas,emissions,1,0,0,1,0,0,0,50000,50000,50000,50000,0,1,0,1,88.004,34.05,34.05,0,99.90006663,0,0,0,0.010071225,0.099866767,0,0.09859,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+C2F6,f-gas,emissions,1,0,0,1,0,0,0,10000,10000,10000,10000,0,1,0,1,138.01,0,0,0,99.50166251,0,0,0,0,0.496679133,9.91E-088,0.26105,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+C3F8,f-gas,emissions,1,0,0,1,0,0,0,2600,2600,2600,2600,0,1,0,1,188.02,0,0,0,98.10134266,0,0,0,0,1.874471219,1.87E-023,0.26999,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+c-C4F8,f-gas,emissions,1,0,0,1,0,0,0,3200,3200,3200,3200,0,1,0,1,200.03,0,0,0,98.45364968,0,0,0,0,1.530326228,1.15E-028,0.31392,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+C4F10,f-gas,emissions,1,0,0,1,0,0,0,2600,2600,2600,2600,0,1,0,1,238.03,0,0,0,98.10134266,0,0,0,0,1.874471219,1.87E-023,0.36874,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+C5F12,f-gas,emissions,1,0,0,1,0,0,0,4100,4100,4100,4100,0,1,0,1,288.03,0,0,0,98.79034238,0,0,0,0,1.199862922,1.75E-036,0.4076,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+C6F14,f-gas,emissions,1,0,0,1,0,0,0,3100,3100,3100,3100,0,1,0,1,338.04,0,0,0,98.40430085,0,0,0,0,1.578633139,8.48E-028,0.44888,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+C7F16,f-gas,emissions,1,0,0,1,0,0,0,3000,3000,3000,3000,0,1,0,1,388.05,0,0,0,98.35169855,0,0,0,0,1.630088506,6.26E-027,0.50312,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+C8F18,f-gas,emissions,1,0,0,1,0,0,0,3000,3000,3000,3000,0,1,0,1,438.06,0,0,0,98.35169855,0,0,0,0,1.630088506,6.26E-027,0.55787,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+NF3,f-gas,emissions,1,0,0,1,0,0,0,569,569,569,569,0,1,0,1,71.002,0,0,0,91.70559121,0,0,0,0,7.822566817,0.0000081,0.20448,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+SF6,f-gas,emissions,1,0,0,1,0,0,0,3200,3200,3200,3200,0,1,0,1,146.06,0,0,0,98.45364968,0,0,0,0,1.530326228,1.15E-028,0.56657,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+SO2F2,f-gas,emissions,1,0,0,1,0,0,0,36,36,36,36,0,1,0,1,102.06,0,0,0,33.76164514,0,0,0,0,27.54399273,0.29354177,0.21074,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+HFC-125,f-gas,emissions,1,0,0,1,0,0,0,30,30,30,30,0,1,0,1,120.02,0,0,0,28.9297802,0,0,0,0,25.36238086,0.319608933,0.23378,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+HFC-134a,f-gas,emissions,1,0,0,1,0,0,0,14,14,14,14,0,1,0,1,102.03,0,0,0,13.98893314,0,0,0,0,13.9098841,0.365794734,0.16714,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+HFC-143a,f-gas,emissions,1,0,0,1,0,0,0,51,51,51,51,0,1,0,1,84.04,0,0,0,43.82185266,0,0,0,0,29.74705396,0.229202513,0.168,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+HFC-152a,f-gas,emissions,1,0,0,1,0,0,0,1.6,1.6,1.6,1.6,0,1,0,1,66.05,0,0,0,1.6,0,0,0,0,1.6,0.367879441,0.10174,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+HFC-227ea,f-gas,emissions,1,0,0,1,0,0,0,36,36,36,36,0,1,0,1,170.03,0,0,0,33.76164514,0,0,0,0,27.54399273,0.29354177,0.27325,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+HFC-23,f-gas,emissions,1,0,0,1,0,0,0,228,228,228,228,0,1,0,1,78.014,0,0,0,80.95345964,0,0,0,0,16.459363,0.007310939,0.19111,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+HFC-236fa,f-gas,emissions,1,0,0,1,0,0,0,213,213,213,213,0,1,0,1,152.04,0,0,0,79.80574885,0,0,0,0,17.27323657,0.009850859,0.25069,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+HFC-245fa,f-gas,emissions,1,0,0,1,0,0,0,7.9,7.9,7.9,7.9,0,1,0,1,134.05,0,0,0,7.899974868,0,0,0,0,7.89965674,0.367864627,0.24498,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+HFC-32,f-gas,emissions,1,0,0,1,0,0,0,5.4,5.4,5.4,5.4,0,1,0,1,52.023,0,0,0,5.399999951,0,0,0,0,5.399999044,0.367879379,0.11144,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+HFC-365mfc,f-gas,emissions,1,0,0,1,0,0,0,8.9,8.9,8.9,8.9,0,1,0,1,148.07,0,0,0,8.899882598,0,0,0,0,8.89856347,0.367824911,0.22813,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+HFC-4310mee,f-gas,emissions,1,0,0,1,0,0,0,17,17,17,17,0,1,0,1,252.05,0,0,0,16.95260031,0,0,0,0,16.67377861,0.36177885,0.35731,0,0,0,0,0,0,0,0,0,nan,0,0,nan
+NOx aviation,nox aviation,emissions,0,0,0,nan,nan,nan,nan,nan,nan,nan,nan,0,1,0,1,nan,nan,nan,0,nan,nan,nan,nan,0,nan,nan,nan,0.014664524,0,0,0,0,0,nan,nan,nan,nan,0,0,nan
+Solar,solar,forcing,0,0,0,nan,nan,nan,nan,nan,nan,nan,nan,0,1,0,1,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0,0,nan
+Volcanic,volcanic,forcing,0,0,0,nan,nan,nan,nan,nan,nan,nan,nan,0,1,0,1,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0,0,nan
+Aerosol-radiation interactions,ari,calculated,0,0,0,nan,nan,nan,nan,nan,nan,nan,nan,0,1,0,1,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0,0,nan
+Aerosol-cloud interactions,aci,calculated,0,0,0,nan,nan,nan,nan,nan,nan,nan,nan,0,1,0,1,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,-1.03057237,0,0,nan
+Ozone,ozone,calculated,0,0,0,nan,nan,nan,nan,nan,nan,nan,nan,0,1,-0.037,1,47.998,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0,0,nan
+Contrails,contrails,calculated,0,0,0,nan,nan,nan,nan,nan,nan,nan,nan,0,1,0,1,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0,0,nan
+Light absorbing particles on snow and ice,lapsi,calculated,0,0,0,nan,nan,nan,nan,nan,nan,nan,nan,0,1,0,1,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0,0,nan
+Stratospheric water vapour,h2o stratospheric,calculated,0,0,0,nan,nan,nan,nan,nan,nan,nan,nan,0,1,0,1,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0,0,nan
+Land use,land use,calculated,0,0,0,nan,nan,nan,nan,nan,nan,nan,nan,0,1,0,1,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,0,0,nan
+Equivalent effective stratospheric chlorine,eesc,calculated,0,0,1,nan,nan,nan,nan,nan,nan,nan,nan,0,1,0,1,35.45,344.3627591056,0,nan,nan,nan,nan,nan,nan,nan,nan,nan,nan,-0.00000717,nan,nan,nan,-0.000125,nan,nan,nan,nan,0,-0.00000533,nan

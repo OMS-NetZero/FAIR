@@ -1,7 +1,8 @@
 [run]
-omit = fair/_version.py
+branch = True
 source = fair
+omit = *_version.py
 
 [report]
-omit=
-    tests/*
+fail_under = 90
+ignore_errors = True

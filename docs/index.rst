@@ -1,26 +1,22 @@
-.. FaIR documentation master file, created by
-   sphinx-quickstart on Mon Mar 12 17:36:07 2018.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 FaIR: Finite Amplitude Impulse Response simple climate model
 ============================================================
 
+FaIR is a reduced-complexity climate model.
+
+FaIR produces global mean temperature projections from various forcers. Input datasets can be provided in terms of emissions, concentrations (for greenhouse gases) or effective radiative forcing. Species can be mixed and matched (e.g. if you want to provide CO:sub:`2` and short-lived climate forcer emissions, with concentrations of non-CO:sub:`2` greenhouse gases and prescribed forcing for volcanic and solar forcing, like the esm-hist runs of CMIP6 Earth System Models).
+
+.. figure:: outline.png
+  :width: 600
+  :alt: Process diagram
+
+  Simplified outline of available processes in FaIR. Some processes have been omitted for clarity.
+
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
 
-   intro.rst
-   installation.rst
-   examples.ipynb
-   references.rst
+   install
+   basic_run_example
 
-.. .. autofunction:: fair.forcing.aerosols.aerocom_direct
+Indices and tables
+==================
 
-
-.. Indices and tables
-.. ==================
-
-.. * :ref:`genindex`
-.. * :ref:`modindex`
-.. * :ref:`search`
+   * :ref:`search`

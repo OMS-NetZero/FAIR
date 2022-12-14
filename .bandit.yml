@@ -1,0 +1,2 @@
+exclude_dirs:
+  - src/fair/_version.py
