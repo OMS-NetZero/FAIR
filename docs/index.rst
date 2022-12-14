@@ -5,7 +5,7 @@ FaIR is a reduced-complexity climate model: in our opinion, *the simplest repres
 
 FaIR produces global mean temperature projections from input forcing datasets. Input datasets can be provided in terms of emissions, concentrations (for greenhouse gases) or radiative forcing. Species can be mixed and matched (e.g. if you want to provide CO:sub:`2` and short-lived climate forcer emissions, with concentrations of non-CO:sub:`2` greenhouse gases and prescribed forcing for volcanic and solar forcing, like the esm-hist runs of CMIP6 Earth System Models).
 
-.. image:: outline.png
+.. figure:: outline.png
   :width: 600
   :alt: Process diagram
 
@@ -14,10 +14,9 @@ FaIR produces global mean temperature projections from input forcing datasets. I
 .. toctree::
 
    install
+   basic_run_example
 
 Indices and tables
 ==================
 
-   * :ref:`genindex`
-   * :ref:`modindex`
    * :ref:`search`
