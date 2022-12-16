@@ -1,19 +1,19 @@
-.. |Build Status| image:: https://github.com/OMS-NetZero/FAIR/actions/workflows/checks.yml/badge.svg
+.. image:: https://github.com/OMS-NetZero/FAIR/actions/workflows/checks.yml/badge.svg
 
-.. |Binder| image:: https://mybinder.org/badge.svg
+.. image:: https://mybinder.org/badge.svg
    :target: https://mybinder.org/v2/gh/OMS-NetZero/FAIR/master?filepath=examples/basic_run_example.ipynb
 
-.. |Docs Status| image:: https://readthedocs.org/projects/fair/badge/?version=v2.1
+.. image:: https://readthedocs.org/projects/fair/badge/?version=v2.1
    :target: http://fair.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
-.. |Zenodo| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1247898.svg
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1247898.svg
    :target: https://doi.org/10.5281/zenodo.1247898
 
-.. |Codecov| image:: https://codecov.io/gh/OMS-NetZero/FAIR/branch/master/graph/badge.svg
+.. image:: https://codecov.io/gh/OMS-NetZero/FAIR/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/OMS-NetZero/FAIR
 
-.. |pypi| image:: https://img.shields.io/pypi/v/fair
+.. image:: https://img.shields.io/pypi/v/fair
    :target: https://pypi.org/project/fair/
 
 

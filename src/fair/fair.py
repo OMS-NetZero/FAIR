@@ -51,25 +51,34 @@ DEFAULT_SPECIES_CONFIG_FILE = os.path.join(
 
 
 class FAIR:
-    """FaIR simple climate model [1]_, [2]_, [3]_.
+    """Initialise FaIR.
 
-    References
+    Parameters
     ----------
-    .. [1] Leach, N. J., Jenkins, S., Nicholls, Z., Smith, C. J., Lynch, J.,
-        Cain, M., Walsh, T., Wu, B., Tsutsui, J., and Allen, M. R. (2021).
-        FaIRv2.0.0: a generalized impulse response model for climate uncertainty
-        and future scenario exploration. Geoscientific Model Development, 14,
-        3007–3036
+    n_gasboxes : int
+        the number of atmospheric greenhouse gas boxes to run the model with
+    n_layers : int
+        the number of ocean layers in the energy balance or impulse
+        response model to run with
+    iirf_max : float
+        limit for time-integral of greenhouse gas impulse response function.
+    br_cl_ods_potential : float
+        factor describing the ratio of efficiency that each bromine atom
+        has as an ozone depleting substance relative to each chlorine atom.
+    ghg_method : str
+        method to use for calculating greenhouse gas forcing from CO2, CH4
+        and N2O. Valid options are {"leach2021", "meinshausen2020", "etminan2016",
+        "myhre1998"}
+    ch4_method : str
+        method to use for calculating methane lifetime change. Valid options are
+        {"leach2021", "thornhill2021"}.
+    temperature_prescribed : bool
+        Run FaIR with temperatures prescribed.
 
-    .. [2] Smith, C. J., Forster, P. M.,  Allen, M., Leach, N., Millar, R. J.,
-        Passerello, G. A., and Regayre, L. A. (2018). FAIR v1.3: a simple
-        emissions-based impulse response and carbon cycle model, Geosci. Model
-        Dev., 11, 2273–2297
-
-    .. [3] Millar, R.J., Nicholls, Z.R., Friedlingstein, P., Allen, M.R. (2017).
-        A modified impulse-response representation of the global near-surface
-        air temperature and atmospheric concentration response to carbon dioxide
-        emissions. Atmospheric Chemistry and Physics, 17, 7213-7228.
+    Raises
+    ------
+    ValueError
+        if ``ghg_method`` or ``ch4_method`` given are not valid options.
     """
 
     def __init__(
@@ -82,35 +91,7 @@ class FAIR:
         ch4_method="leach2021",
         temperature_prescribed=False,
     ):
-        """Initialise FaIR.
-
-        Parameters
-        ----------
-        n_gasboxes : int, default=4
-            the number of atmospheric greenhouse gas boxes to run the model with
-        n_layers : int, default=3
-            the number of ocean layers in the energy balance or impulse
-            response model to run with
-        iirf_max : float, default=100
-            limit for time-integral of greenhouse gas impulse response function.
-        br_cl_ods_potential : float, default=45
-            factor describing the ratio of efficiency that each bromine atom
-            has as an ozone depleting substance relative to each chlorine atom.
-        ghg_method : str, default="meinshausen2020"
-            method to use for calculating greenhouse gas forcing from CO2, CH4
-            and N2O. Valid methods are leach2021, meinshausen2020,
-            etminan2016 and myhre1998.
-        ch4_method : str, default="leach2021"
-            method to use for calculating methane lifetime change. Valid
-            methods are leach2021 and thornhill2021.
-        temperature_prescribed : bool, default=False
-            Run FaIR with temperatures prescribed.
-
-        Raises
-        ------
-        ValueError :
-            if ghg_method or ch4_method given are not valid methods.
-        """
+        """Initialise FaIR."""
         self._ghg_method = ghg_method
         self._ch4_method = ch4_method
         self.gasboxes = range(n_gasboxes)
@@ -133,7 +114,7 @@ class FAIR:
             self._ch4_method = value.lower()
         else:
             raise ValueError(
-                f"ch4_method should be thornhill2021 or leach2021; you provided "
+                f"ch4_method should be ``thornhill2021`` or ``leach2021``; you provided "
                 f"{value.lower()}."
             )
 
@@ -153,8 +134,8 @@ class FAIR:
             self._ghg_method = value.lower()
         else:
             raise ValueError(
-                f"ghg_method should be one of [leach2021, meinshausen2020, "
-                f"etminan2016, myhre1998]; you provided {value.lower()}."
+                f"``ghg_method`` should be one of 'leach2021', 'meinshausen2020', "
+                f"'etminan2016' or 'myhre1998'; you provided '{value.lower()}'."
             )
 
     def define_time(self, start, end, step):
@@ -206,18 +187,34 @@ class FAIR:
             names of species to include in FaIR
         properties : dict
             mapping of each specie to particular run properties. This is a
-            nested dict, which must contain the five required entries.
+            nested dict, where each dict key contains a dict of 5 keys as follows:
+            
+            ``type`` : str
+                the type of specie that is being provided. Valid inputs are
+                "co2 ffi", "co2 afolu", "co2", "ch4", "n2o", "cfc-11",
+                "other halogen", "f-gas", "sulfur", "black carbon",
+                "organic carbon", "other slcf", "nox aviation", "eesc", "ozone",
+                "ari", "aci", "contrails", "lapsi","h2o stratospheric", "land use",
+                "volcanic", "solar", "unspecified",
+            ``input_mode`` : {'emissions', 'concentration', 'forcing', 'calculated'}
+                describes how the specie is input into the model.
+            ``greenhouse_gas`` : bool
+                is the specie a greenhouse gas?
+            ``aerosol_chemistry_from_emissions`` : bool
+                does the specie's emissions affect aerosols and/or chemistry?
+            ``aerosol_chemistry_from_concentration`` : bool
+                does the specie's concentration affect aerosols and/or chemistry?
 
         Raises
         ------
-        ValueError :
+        ValueError
             if a specie in species does not have a matching key in properties.
-        ValueError :
+        ValueError
             if an invalid species type is specified.
-        ValueError :
+        ValueError
             if an invalid input_type (driving mode) is provided for a particular
             type.
-        ValueError :
+        ValueError
             if duplicate species types are provided for types that must be
             unique.
         """
@@ -265,7 +262,7 @@ class FAIR:
                 )
 
     def allocate(self):
-        """Create `xarray`s of data input and output."""
+        """Create ``xarray`` DataArrays of data input and output."""
         # check dimensions declared
         required_attributes_and_uncalled_method = {
             "_n_timepoints": "define_time()",
@@ -276,8 +273,8 @@ class FAIR:
         for attr, method in required_attributes_and_uncalled_method.items():
             if not hasattr(self, attr):
                 raise AttributeError(
-                    f"'FAIR' object has no attribute '{attr}'. Did you forget to call "
-                    f"'{method}'?"
+                    f"``FAIR`` object has no attribute '{attr}'. Did you forget to call "
+                    f"``{method}``?"
                 )
 
         # driver/output variables
@@ -578,7 +575,7 @@ class FAIR:
 
         Parameters
         ----------
-        filename : str, optional
+        filename : str
             Path of the CSV file to read the species configs from. If omitted, the
             default configs file will be read.
         """
@@ -731,21 +728,23 @@ class FAIR:
         r"""Convert greenhouse gas lifetime to time-integrated airborne fraction.
 
         iirf_0 is the 100-year time-integrated airborne fraction to a pulse
-        emission. We know that the gas's atmospheric airborne fraction $a(t)$ for a
-        gas with lifetime $\tau$ after time $t$ is therefore
+        emission. We know that the gas's atmospheric airborne fraction :math:`a(t)` for a
+        gas with lifetime :math:`\tau` after time :math:`t` is therefore
 
-        $a(t) = \exp(-t/tau)$
+        .. math::
+            a(t) = \exp(-t/tau)
 
-        and integrating this for 100 years after a pulse emissions gives us:
+        and integrating this for :math:`H` years after a pulse emissions gives us:
 
-        $r_0(t) = \int_0^{100} \exp(-t/\tau) dt = \tau (1 - \exp (-100 / \tau))$.
+        .. math::
+            r_0(t) = \int_0^{H} \exp(-t/\tau) dt = \tau (1 - \exp (-H / \tau)).
 
-        100 years is the default time horizon in FaIR but this can be set to any
+        :math:`H` = 100 years is the default time horizon in FaIR but this can be set to any
         value.
 
         Parameters
         ----------
-        iirf_horizon : float, optional, default=100
+        iirf_horizon : float
             time horizon for time-integrated airborne fraction (yr).
         """
         gasbox_axis = self.species_configs["partition_fraction"].get_axis_num("gasbox")
@@ -757,7 +756,13 @@ class FAIR:
         )
 
     def calculate_g(self, iirf_horizon=100):
-        """Calculate lifetime scaling parameters."""
+        """Calculate lifetime scaling parameters.
+
+        Parameters
+        ----------
+        iirf_horizon : float
+            time horizon for time-integrated airborne fraction (yr).
+        """
         gasbox_axis = self.species_configs["partition_fraction"].get_axis_num("gasbox")
         self.species_configs["g1"] = np.sum(
             self.species_configs["partition_fraction"]
@@ -1372,9 +1377,9 @@ class FAIR:
 
         Parameters
         ----------
-        progress : bool, optional, default=True
+        progress : bool
             Display progress bar.
-        suppress_warnings : bool, optional, default=True
+        suppress_warnings : bool
             Hide warnings relating to covariance in energy balance matrix.
         """
         self._check_properties()

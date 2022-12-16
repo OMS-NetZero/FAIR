@@ -18,6 +18,45 @@ class EnergyBalanceModel:
     this are increased as once derived, the "layers" of the energy balance
     model do not communicate with each other. The model description can be
     found in references [1]_, [2]_, [3]_ and [4]_.
+
+    Parameters
+    ----------
+    ocean_heat_capacity : ``np.ndarray``
+        Ocean heat capacity of each layer (top first), W m-2 yr K-1
+    ocean_heat_transfer : ``np.ndarray``
+        Heat exchange coefficient between ocean layers (top first). The
+        first element of this array is akin to the climate feedback
+        parameter, with the convention that stabilising feedbacks are
+        positive (opposite to most climate sensitivity literature).
+        W m-2 K-1
+    deep_ocean_efficacy : float
+        efficacy of deepest ocean layer. See e.g. [4]_.
+    forcing_4co2 : float
+        effective radiative forcing from a quadrupling of atmospheric
+        CO2 concentrations above pre-industrial.
+    stochastic_run : bool
+        Activate the stochastic variability component from [2]_.
+    sigma_eta : float
+        Standard deviation of stochastic forcing component from [2]_.
+    sigma_xi : float
+        Standard deviation of stochastic disturbance applied to surface
+        layer. See [2]_.
+    gamma_autocorrelation : float
+        Stochastic forcing continuous-time autocorrelation parameter.
+        See [2]_.
+    seed : int or None
+        Random seed to use for stochastic variability.
+    timestep : float
+        Time interval of the model (yr)
+
+    Raises
+    ------
+    ValueError
+        if the shapes of ``ocean_heat_capacity`` and ``ocean_heat_transfer`` differ.
+    ValueError
+        if there are not at least two layers in the energy balance model.
+
+
     References
     ----------
     .. [1] Leach, N. J., Jenkins, S., Nicholls, Z., Smith, C. J., Lynch, J.,
@@ -52,48 +91,7 @@ class EnergyBalanceModel:
         timestep=1,
         n_timesteps=1,
     ):
-        """Initialise the EnergyBalanceModel.
-
-        Parameters
-        ----------
-        ocean_heat_capacity : `np.ndarray`
-            Ocean heat capacity of each layer (top first), W m-2 yr K-1
-        ocean_heat_transfer : `np.ndarray`
-            Heat exchange coefficient between ocean layers (top first). The
-            first element of this array is akin to the climate feedback
-            parameter, with the convention that stabilising feedbacks are
-            positive (opposite to most climate sensitivity literature).
-            W m-2 K-1
-        deep_ocean_efficacy : float
-            efficacy of deepest ocean layer. See e.g. [1]_.
-        forcing_4co2 : float
-            effective radiative forcing from a quadrupling of atmospheric
-            CO2 concentrations above pre-industrial.
-        stochastic_run : bool
-            Activate the stochastic variability component from [2]_.
-        sigma_eta : float
-            Standard deviation of stochastic forcing component from [2]_.
-        sigma_xi : float
-            Standard deviation of stochastic disturbance applied to surface
-            layer. See [2]_.
-        gamma_autocorrelation : float
-            Stochastic forcing continuous-time autocorrelation parameter.
-            See [2]_.
-        seed : int or None
-            Random seed to use for stochastic variability.
-        timestep : float
-            Time interval of the model (yr)
-        References
-        ----------
-        .. [1] Geoffroy, O., Saint-Martin, D., Bellon, G., Voldoire, A., Olivié,
-            D. J. L., & Tytéca, S. (2013). Transient Climate Response in a Two-
-            Layer Energy-Balance Model. Part II: Representation of the Efficacy
-            of Deep-Ocean Heat Uptake and Validation for CMIP5 AOGCMs, Journal
-            of Climate, 26(6), 1859-1876
-        .. [2] Cummins, D. P., Stephenson, D. B., & Stott, P. A. (2020). Optimal
-            Estimation of Stochastic Energy Balance Model Parameters, Journal of
-            Climate, 33(18), 7909-7926.
-        """
+        """Initialise the EnergyBalanceModel."""
         # adjust ocean heat capacity to be a rate: units W m-2 K-1
         self.ocean_heat_transfer = np.asarray(ocean_heat_transfer)
         self.deep_ocean_efficacy = deep_ocean_efficacy

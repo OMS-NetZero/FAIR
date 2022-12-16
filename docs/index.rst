@@ -11,12 +11,19 @@ FaIR produces global mean temperature projections from various forcers. Input da
 
   Simplified outline of available processes in FaIR. Some processes have been omitted for clarity.
 
+Contents
+========
+
 .. toctree::
+   :maxdepth: 1
 
    install
-   basic_run_example
+   examples
+   api_reference
 
 Indices and tables
 ==================
 
-   * :ref:`search`
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

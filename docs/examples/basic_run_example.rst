@@ -1,5 +1,5 @@
-Example of FaIRv2.1
-===================
+Basic example
+=============
 
 FaIR v2.1 is object-oriented and designed to be more flexible than its
 predecessors. This does mean that setting up a problem is different to
@@ -67,9 +67,8 @@ an emissions driven run). The total number of scenarios that will be run
 is the product of ``scenarios`` and ``configs``. For example we might
 want to run three emissions ``scenarios`` – let’s say SSP1-2.6, SSP2-4.5
 and SSP3-7.0 – using climate calibrations (``configs``) from the UKESM,
-GFDL, MIROC and NorESM climate models. This would give us a total of
-3$:raw-latex:`\times`$4 = 12 ensemble members in total which are run in
-parallel.
+GFDL, MIROC and NorESM climate models. This would give us a total of 12
+ensemble members in total which are run in parallel.
 
 The most difficult part to learning FaIR 2.1 is correctly defining the
 ``scenarios`` and ``configs``. As in previous versions of FaIR, there is
@@ -107,16 +106,8 @@ set out step by step, and is as follows:
 10. Analyse results by accessing the DataArrays that are attributes of
     ``FAIR``.
 
-.. code:: ipython3
-
-    %load_ext autoreload
-
-.. code:: ipython3
-
-    %autoreload 2
-
 1. Create FaIR instance
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 We’ll call our instance ``f``: it’s nice and short and the ``fair`` name
 is reserved for the module.
@@ -130,7 +121,7 @@ is reserved for the module.
     f = FAIR()
 
 2. Define time horizon
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 There are two different time indicators in FaIR: the ``timebound`` and
 the ``timepoint``. ``timebound``\ s, as the name suggests, are at the
@@ -155,7 +146,7 @@ Secondly, the number of ``timebound``\ s is one more than the number of
     print(f.timepoints)
 
 3. Define scenarios
--------------------
+~~~~~~~~~~~~~~~~~~~
 
 The scenarios are a list of strings that label the scenario dimension of
 the model, helping you keep track of inputs and outputs.
@@ -171,7 +162,7 @@ scenario (where emissions or concentrations change instantly) and a
     f.scenarios
 
 4. Define configs
------------------
+~~~~~~~~~~~~~~~~~
 
 Similarly to the scenarios, the configs are a labelling tool. Each
 config has associated climate- and species-related settings, which we
@@ -187,7 +178,7 @@ low climate sensitivity.
     f.configs
 
 5. Define species
------------------
+~~~~~~~~~~~~~~~~~
 
 This defines the forcers – anthropogenic or natural – that are present
 in your scenario. A ``species`` could be something directly emitted like
@@ -213,8 +204,7 @@ We’ll use totally fake data here - this is not intended to represent a
 real-world scenario but just to highlight how FaIR works. Full
 simulations may have 50 or more species included and the ``properties``
 dictionary can get quite large, so it can be beneficial to edit it in a
-spreadsheet as a table and load it in. This functionality is
-forthcoming.
+CSV and load it in.
 
 In total, we have 8 species in this model. We want to run
 
@@ -339,7 +329,7 @@ the properties; but
     f.define_species(species, properties)
 
 6. Modify run options
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 When we initialise the FAIR class, a number of options are given as
 defaults.
@@ -366,7 +356,7 @@ appropriate attribute.
     f.aci_method
 
 7. Create input and output data
--------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Steps 2–5 above dimensioned our problem; now, we want to actually create
 some data to put into it.
@@ -389,7 +379,7 @@ the ``FAIR`` class:
     f.temperature
 
 8. Fill in the data
--------------------
+~~~~~~~~~~~~~~~~~~~
 
 The data created is nothing more special than ``xarray`` DataArrays, and
 using ``xarray`` methods we can allocate values to the emissions:
@@ -412,7 +402,7 @@ matters is that the data is there.
     from fair.interface import fill, initialise
 
 8a. fill emissions, concentrations …
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Remember that some species in our problem are emissions driven, some are
 concentration driven, and you might have species which are forcing
@@ -458,7 +448,7 @@ future.
     initialise(f.airborne_emissions, 0)
 
 8b. Fill in ``climate_configs``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This defines how the model responds to a forcing: the default behaviour
 is the three-layer energy balance model as described in Cummins et
@@ -485,7 +475,7 @@ al. (2020). The number of layers can be changed in ``run_control``.
     fill(f.climate_configs["deep_ocean_efficacy"], 0.8, config='low')
 
 8c. Fill in ``species_configs``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This is again an ``xarray`` Dataset, with lots of options. Most of these
 will be made loadable defaults, and indeed you can load up defaults with
@@ -501,7 +491,7 @@ carbon cycle sensitivities).
     f.species_configs
 
 Greenhouse gas state-dependence
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+'''''''''''''''''''''''''''''''
 
 ``iirf_0`` is the baseline time-integrated airborne fraction (usually
 over 100 years). It can be calculated from the variables above, but
@@ -564,7 +554,7 @@ sometimes we might want to change these values.
     fill(f.species_configs['iirf_temperature'], 0, specie='N2O')
 
 Aerosol emissions or concentrations to forcing
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+''''''''''''''''''''''''''''''''''''''''''''''
 
 Note, both here and with the GHG parameters above, we don’t have to
 change parameters away from NaN if they are not relevant, e.g. Sulfur is
@@ -581,14 +571,14 @@ precursor so we don’t care about ``erfari_radiative_efficiency``.
     fill(f.species_configs["aci_shape"], 1/260.34644166, specie='Sulfur')
 
 9. run FaIR
------------
+~~~~~~~~~~~
 
 .. code:: ipython3
 
     f.run()
 
 10. plot results
-----------------
+~~~~~~~~~~~~~~~~
 
 .. code:: ipython3
 
