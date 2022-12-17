@@ -26,28 +26,28 @@ def etminan2016(
 ):
     """Greenhouse gas forcing from concentrations.
 
-    This uses the Etminan et al. (2016) [1]_ relationships for CO2, CH4 and N2O
+    This uses the [Etminan2016]_ relationships for CO2, CH4 and N2O
     including band overlaps between these three gases. Forcing from minor
     greenhouse gases are a linear function of their concentration based on their
     radiative efficiency.
 
     Note that the relationship can be poorly behaved outside of the range of
-    valid values in Etminan et al., (180-2000 ppm CO2, 340-3500 ppb CH4, 200-525
+    valid values in [Etminan2016]_, (180-2000 ppm CO2, 340-3500 ppb CH4, 200-525
     ppb N2O) particularly for CO2 concentrations above 2000 ppm. It is
-    recommended to use `meinshausen2020`, which is a re-fit of the coefficients
+    recommended to use "meinshausen2020", which is a re-fit of the coefficients
     and extension to be better behaved outside of the valid concentration range.
 
     Parameters
     ----------
-    concentration : ndarray
+    concentration : np.ndarray
         concentration of greenhouse gases. "CO2", "CH4" and "N2O" must be
         included in units of [ppm, ppb, ppb]. Other GHGs are units of ppt.
-    baseline_concentration : ndarray
+    baseline_concentration : np.ndarray
         pre-industrial concentration of the gases (see above).
-    forcing_scaling : ndarray
+    forcing_scaling : np.ndarray
         scaling of the calculated radiative forcing (e.g. for conversion to
         effective radiative forcing and forcing uncertainty).
-    radiative_efficiency : ndarray
+    radiative_efficiency : np.ndarray
         radiative efficiency to use for linear-forcing gases, in W m-2 ppb-1
     co2_indices : np.ndarray of bool
         index along SPECIES_AXIS relating to CO2.
@@ -58,39 +58,32 @@ def etminan2016(
     minor_greenhouse_gas_indices : np.ndarray of bool
         indices of other GHGs that are not CO2, CH4 or N2O.
     a1 : float
-        fitting parameter (see Etminan et al. 2016)
+        fitting parameter (see [Etminan2016]_)
     b1 : float
-        fitting parameter (see Etminan et al. 2016)
+        fitting parameter (see [Etminan2016]_)
     c1 : float
-        fitting parameter (see Etminan et al. 2016)
+        fitting parameter (see [Etminan2016]_)
     d1 : float
-        fitting parameter (see Etminan et al. 2016)
+        fitting parameter (see [Etminan2016]_)
     a2 : float
-        fitting parameter (see Etminan et al. 2016)
+        fitting parameter (see [Etminan2016]_)
     b2 : float
-        fitting parameter (see Etminan et al. 2016)
+        fitting parameter (see [Etminan2016]_)
     c2 : float
-        fitting parameter (see Etminan et al. 2016)
+        fitting parameter (see [Etminan2016]_)
     d2 : float
-        fitting parameter (see Etminan et al. 2016)
+        fitting parameter (see [Etminan2016]_)
     a3 : float
-        fitting parameter (see Etminan et al. 2016)
+        fitting parameter (see [Etminan2016]_)
     b3 : float
-        fitting parameter (see Etminan et al. 2016)
+        fitting parameter (see [Etminan2016]_)
     d3 : float
-        fitting parameter (see Etminan et al. 2016)
+        fitting parameter (see [Etminan2016]_)
 
     Returns
     -------
     effective_radiative_forcing : np.ndarray
         effective radiative forcing (W/m2) from greenhouse gases
-
-    References
-    ----------
-    .. [1] Etminan, M., Myhre, G., Highwood, E.J., Shine, K.P., (2016).
-        Radiative forcing of carbon dioxide, methane, and nitrous oxide: A
-        significant revision of the methane radiative forcing, Geophysical
-        Research Letters, 43, 12,614–12,623.
     """
     erf_out = np.ones_like(concentration) * np.nan
 
@@ -168,24 +161,24 @@ def meinshausen2020(
 ):
     """Greenhouse gas forcing from concentrations.
 
-    This uses the Meinshausen et al. (2020) [1]_ relationships for CO2, CH4 and
+    This uses the [Meinshausen2020]_ relationships for CO2, CH4 and
     N2O including band overlaps between these three gases. This is a rescaled
-    Etminan et al. (2016) [2]_ function with improved stability outside the
-    range of validity in [2]_. Minor greenhouse gases are a linear function of
+    [Etminan2016]_ function with improved stability outside the
+    range of validity in [Etminan2016]_. Minor greenhouse gases are a linear function of
     their concentration based on their radiative efficiency.
 
     Parameters
     ----------
-    concentration : ndarray
+    concentration : np.ndarray
         concentration of greenhouse gases. "CO2", "CH4" and "N2O" must be
         included in units of [ppm, ppb, ppb]. Other GHGs are units of ppt.
-    reference_concentration : ndarray
+    reference_concentration : np.ndarray
         pre-industrial concentration of the gases (see above) used as the
         reference to calculate the forcing.
-    forcing_scaling : ndarray
+    forcing_scaling : np.ndarray
         scaling of the calculated radiative forcing (e.g. for conversion to
         effective radiative forcing and forcing uncertainty).
-    radiative_efficiency : ndarray
+    radiative_efficiency : np.ndarray
         radiative efficiency to use for linear-forcing gases, in W m-2 ppb-1
     co2_indices : np.ndarray of bool
         index along SPECIES_AXIS relating to CO2.
@@ -195,49 +188,33 @@ def meinshausen2020(
         index along SPECIES AXIS relating to N2O.
     minor_greenhouse_gas_indices : np.ndarray of bool
         indices of other GHGs that are not CO2, CH4 or N2O.
-    a1 : float, default=-2.4785e-07
-        fitting parameter (see Meinshausen et al. 2020)
-    b1 : float, default=0.00075906
-        fitting parameter (see Meinshausen et al. 2020)
-    c1 : float, default=-0.0021492
-        fitting parameter (see Meinshausen et al. 2020)
-    d1 : float, default=5.2488
-        fitting parameter (see Meinshausen et al. 2020)
-    a2 : float, default=-0.00034197
-        fitting parameter (see Meinshausen et al. 2020)
-    b2 : float, default=0.00025455
-        fitting parameter (see Meinshausen et al. 2020)
-    c2 : float, default=-0.00024357
-        fitting parameter (see Meinshausen et al. 2020)
-    d2 : float, default=0.12173
-        fitting parameter (see Meinshausen et al. 2020)
-    a3 : float, default=-8.9603e-05
-        fitting parameter (see Meinshausen et al. 2020)
-    b3 : float, default=-0.00012462
-        fitting parameter (see Meinshausen et al. 2020)
-    d3 : float, default=0.045194
-        fitting parameter (see Meinshausen et al. 2020)
+    a1 : float
+        fitting parameter (see [Meinshausen2020]_)
+    b1 : float
+        fitting parameter (see [Meinshausen2020]_)
+    c1 : float
+        fitting parameter (see [Meinshausen2020]_)
+    d1 : float
+        fitting parameter (see [Meinshausen2020]_)
+    a2 : float
+        fitting parameter (see [Meinshausen2020]_)
+    b2 : float
+        fitting parameter (see [Meinshausen2020]_)
+    c2 : float
+        fitting parameter (see [Meinshausen2020]_)
+    d2 : float
+        fitting parameter (see [Meinshausen2020]_)
+    a3 : float
+        fitting parameter (see [Meinshausen2020]_)
+    b3 : float
+        fitting parameter (see [Meinshausen2020]_)
+    d3 : float
+        fitting parameter (see [Meinshausen2020]_)
 
     Returns
     -------
     effective_radiative_forcing : np.ndarray
         effective radiative forcing (W/m2) from greenhouse gases
-
-    References
-    ----------
-    .. [1] Meinshausen, M., Nicholls, Z.R.J., Lewis, J., Gidden, M.J.,
-       Vogel, E., Freund, M., Beyerle, U., Gessner, C., Nauels, A., Bauer, N.,
-       Canadell, J.G., Daniel, J.S., John, A., Krummel, P.B., Luderer, G.,
-       Meinshausen, N., Montzka, S.A., Rayner, P.J., Reimann, S., Smith, S.J.,
-       van den Berg, M., Velders, G.J.M., Vollmer, M.K., Wang, R.H.J. (2020).
-       The shared socio-economic pathway (SSP) greenhouse gas concentrations
-       and their extensions to 2500, Geoscientific Model Development, 13,
-       3571–3605.
-
-    .. [2] Etminan, M., Myhre, G., Highwood, E.J., Shine, K.P., (2016).
-        Radiative forcing of carbon dioxide, methane, and nitrous oxide: A
-        significant revision of the methane radiative forcing, Geophysical
-        Research Letters, 43, 12,614–12,623.
     """
     erf_out = np.ones_like(concentration) * np.nan
 
@@ -316,21 +293,21 @@ def myhre1998(
     """Greenhouse gas forcing from concentrations.
 
     Band overlaps are included between CH4 and N2O. This relationship comes from
-    Myhre et al. (1998) [1]_, and was used up until the IPCC's Fifth Assessment
+    [Myhre1998]_, and was used up until the IPCC's Fifth Assessment
     Report. Minor greenhouse gases are a linear function of their concentration
     based on their radiative efficiency.
 
     Parameters
     ----------
-    concentration : ndarray
+    concentration : np.ndarray
         concentration of greenhouse gases. "CO2", "CH4" and "N2O" must be
         included in units of [ppm, ppb, ppb]. Other GHGs are units of ppt.
-    baseline_concentration : ndarray
+    baseline_concentration : np.ndarray
         pre-industrial concentration of the gases (see above).
-    forcing_scaling : ndarray
+    forcing_scaling : np.ndarray
         scaling of the calculated radiative forcing (e.g. for conversion to
         effective radiative forcing and forcing uncertainty).
-    radiative_efficiency : ndarray
+    radiative_efficiency : np.ndarray
         radiative efficiency to use for linear-forcing gases, in W m-2 ppb-1
     co2_indices : np.ndarray of bool
         index along SPECIES_AXIS relating to CO2.
@@ -340,23 +317,17 @@ def myhre1998(
         index along SPECIES AXIS relating to N2O.
     minor_greenhouse_gas_indices : np.ndarray of bool
         indices of other GHGs that are not CO2, CH4 or N2O.
-    alpha_co2 : float, default=5.35
+    alpha_co2 : float
         factor relating logarithm of CO2 conentration to radiative forcing.
-    alpha_ch4: float, default=0.0036
+    alpha_ch4: float
         factor relating square root of CH4 conentration to radiative forcing.
-    alpha_n2o : float, default=0.12
+    alpha_n2o : float
         factor relating square root of N2O conentration to radiative forcing.
 
     Returns
     -------
     effective_radiative_forcing : np.ndarray
         effective radiative forcing (W/m2) from greenhouse gases
-
-    References
-    ----------
-    .. [1] Myhre, G., Highwood, E.J., Shine, K. Stordal, F. (1998). New
-        estimates or radiative forcing due to well mixed greenhouse gases.
-        Geophysical Research Letters, 25 (14), 2715-2718.
     """
 
     def ch4_n2o_overlap(ch4, n2o, alpha_ch4_n2o, a1, exp1, a2, exp2):
@@ -427,24 +398,24 @@ def leach2021ghg(
 ):
     """Greenhouse gas forcing from concentrations.
 
-    This uses the Leach et al. (2021) [1]_ relationships for CO2, CH4 and N2O
+    This uses the [Leach2021]_ relationships for CO2, CH4 and N2O
     that do not include band overlaps between these gases, allowing
     single-forcing runs. This is the default treatment in FaIR2.0. This is a
-    re-fit of the Etminan et al. (2016) [2]_ formulation with improved
+    re-fit of the [Etminan2016]_ formulation with improved
     coefficient fits. Minor greenhouse gases are a linear function of their
     concentration based on their radiative efficiency.
 
     Parameters
     ----------
-    concentration : ndarray
+    concentration : np.ndarray
         concentration of greenhouse gases. "CO2", "CH4" and "N2O" must be
         included in units of [ppm, ppb, ppb]. Other GHGs are units of ppt.
-    baseline_concentration : ndarray
+    baseline_concentration : np.ndarray
         pre-industrial concentration of the gases (see above).
-    forcing_scaling : ndarray
+    forcing_scaling : np.ndarray
         scaling of the calculated radiative forcing (e.g. for conversion to
         effective radiative forcing and forcing uncertainty).
-    radiative_efficiency : ndarray
+    radiative_efficiency : np.ndarray
         radiative efficiency to use for linear-forcing gases, in W m-2 ppb-1
     co2_indices : np.ndarray of bool
         index along SPECIES_AXIS relating to CO2.
@@ -467,18 +438,6 @@ def leach2021ghg(
     -------
     effective_radiative_forcing : np.ndarray
         effective radiative forcing (W/m2) from greenhouse gases
-
-    References
-    ----------
-    .. [1] Leach, N.J., Jenkins, S., Nicholls, Z., Smith, C.J., Lynch, J.,
-        Cain, M., Walsh, T., Wu, B., Tsutsui, J., Allen, M.R. (2021). FaIRv2.0.0:
-        a generalized impulse response model for climate uncertainty and future
-        scenario exploration, Geoscientific Model Development, 14, 3007–3036.
-
-    .. [2] Etminan, M., Myhre, G., Highwood, E.J., Shine, K.P., (2016).
-        Radiative forcing of carbon dioxide, methane, and nitrous oxide: A
-        significant revision of the methane radiative forcing, Geophysical
-        Research Letters, 43, 12,614–12,623.
     """
     erf_out = np.ones_like(concentration) * np.nan
 

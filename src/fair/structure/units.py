@@ -22,6 +22,7 @@ DEFAULT_PROPERTIES_FILE = os.path.join(
     HERE, "..", "defaults", "data", "ar6", "species_configs_properties.csv"
 )
 
+#: Desired emissions units for each specie.
 desired_emissions_units = {
     "CO2 FFI": "Gt CO2/yr",
     "CO2 AFOLU": "Gt CO2/yr",
@@ -79,6 +80,7 @@ desired_emissions_units = {
     "NOx aviation": "Mt NO2/yr",
 }
 
+#: Desired concentration units for each default specie.
 desired_concentration_units = {
     "CO2": "ppm",
     "CH4": "ppb",

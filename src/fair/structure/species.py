@@ -1,5 +1,6 @@
 """Define the types of beasts in FaIR, how they roar, and whether they are friendly."""
 
+#: Species types recognised by FaIR.
 species_types = [
     "co2 ffi",
     "co2 afolu",
@@ -27,6 +28,7 @@ species_types = [
     "unspecified",
 ]
 
+#: Valid run modes for each species.
 valid_input_modes = {
     "co2 ffi": ["emissions"],
     "co2 afolu": ["emissions"],
@@ -54,6 +56,7 @@ valid_input_modes = {
     "unspecified": ["forcing"],
 }
 
+#: Whether multiple instances are allowed for each specie type.
 multiple_allowed = {
     "co2 ffi": False,
     "co2 afolu": False,

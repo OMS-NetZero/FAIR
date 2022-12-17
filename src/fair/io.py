@@ -71,10 +71,10 @@ def read_properties(filename=DEFAULT_PROPERTIES_FILE, species=None):
 
     Parameters
     ----------
-    filename : str, optional
+    filename : str
         path to a csv file. Default is an AR6 WG1-like config for FaIR
         covering all of the species considered in CMIP6.
-    species : list of str or None, optional
+    species : list of str or None
         the species that are to be included in the FaIR run. All of these
         species should be present in the index (first column) of the csv. If
         None (default), return all of the species in the defaults.

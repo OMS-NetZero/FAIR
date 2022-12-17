@@ -22,32 +22,32 @@ def unstep_concentration(
 
     Parameters
     ----------
-    concentration : ndarray
+    concentration : np.ndarray
         greenhouse gas concentration at the centre of the timestep.
-    gas_boxes_old : ndarray
+    gas_boxes_old : np.ndarray
         the greenhouse gas atmospheric burden in each lifetime box at the end of
         the previous timestep.
-    airborne_emissions_old : ndarray
+    airborne_emissions_old : np.ndarray
         The total airborne emissions at the beginning of the timestep. This is
         the concentrations above the pre-industrial control. It is also the sum
         of gas_boxes_old if this is an array.
-    alpha_lifetime : ndarray
+    alpha_lifetime : np.ndarray
         scaling factor for `lifetime`. Necessary where there is a state-
         dependent feedback.
-    baseline_concentration : ndarray
+    baseline_concentration : np.ndarray
         baseline (possibly pre-industrial) concentration of gas in question.
-    baseline_emissions : ndarray
+    baseline_emissions : np.ndarray
         baseline (possibly pre-industrial) emissions of gas in question.
-    concentration_per_emission : ndarray
+    concentration_per_emission : np.ndarray
         how much atmospheric concentrations grow (e.g. in ppm) per unit (e.g.
         GtCO2) emission.
-    lifetime : ndarray
+    lifetime : np.ndarray
         atmospheric burden lifetime of greenhouse gas (yr). For multiple
         lifetimes gases, it is the lifetime of each box.
-    partition_fraction : ndarray
+    partition_fraction : np.ndarray
         the partition fraction of emissions into each gas box. If array, the
         entries should be individually non-negative and sum to one.
-    timestep : float, default=1
+    timestep : float
         emissions timestep in years.
 
     Notes
@@ -66,12 +66,12 @@ def unstep_concentration(
 
     Returns
     -------
-    emissions_out : ndarray
+    emissions_out : np.ndarray
         emissions in timestep.
-    gas_boxes_new : ndarray
+    gas_boxes_new : np.ndarray
         the greenhouse gas atmospheric burden in each lifetime box at the end of
         the timestep.
-    airborne_emissions_new : ndarray
+    airborne_emissions_new : np.ndarray
         airborne emissions (concentrations above pre-industrial control level)
         at the end of the timestep.
     """

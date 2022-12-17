@@ -17,7 +17,7 @@ class EnergyBalanceModel:
     (hence the IR part of FaIR) to allow efficient evaluation. The benefits of
     this are increased as once derived, the "layers" of the energy balance
     model do not communicate with each other. The model description can be
-    found in references [1]_, [2]_, [3]_ and [4]_.
+    found in [Leach2021]_, [Cummins2020]_, [Tsutsui2017]_ and [Geoffroy2013]_.
 
     Parameters
     ----------
@@ -30,20 +30,20 @@ class EnergyBalanceModel:
         positive (opposite to most climate sensitivity literature).
         W m-2 K-1
     deep_ocean_efficacy : float
-        efficacy of deepest ocean layer. See e.g. [4]_.
+        efficacy of deepest ocean layer. See e.g. [Geoffroy2013]_.
     forcing_4co2 : float
         effective radiative forcing from a quadrupling of atmospheric
         CO2 concentrations above pre-industrial.
     stochastic_run : bool
-        Activate the stochastic variability component from [2]_.
+        Activate the stochastic variability component from [Cummins2020]_.
     sigma_eta : float
-        Standard deviation of stochastic forcing component from [2]_.
+        Standard deviation of stochastic forcing component from [Cummins2020]_.
     sigma_xi : float
         Standard deviation of stochastic disturbance applied to surface
-        layer. See [2]_.
+        layer. See [Cummins2020]_.
     gamma_autocorrelation : float
         Stochastic forcing continuous-time autocorrelation parameter.
-        See [2]_.
+        See [Cummins2020]_.
     seed : int or None
         Random seed to use for stochastic variability.
     timestep : float
@@ -55,26 +55,6 @@ class EnergyBalanceModel:
         if the shapes of ``ocean_heat_capacity`` and ``ocean_heat_transfer`` differ.
     ValueError
         if there are not at least two layers in the energy balance model.
-
-
-    References
-    ----------
-    .. [1] Leach, N. J., Jenkins, S., Nicholls, Z., Smith, C. J., Lynch, J.,
-        Cain, M., Walsh, T., Wu, B., Tsutsui, J., and Allen, M. R. (2021).
-        FaIRv2.0.0: a generalized impulse response model for climate uncertainty
-        and future scenario exploration. Geoscientific Model Development, 14,
-        3007–3036
-    .. [2] Cummins, D. P., Stephenson, D. B., & Stott, P. A. (2020). Optimal
-        Estimation of Stochastic Energy Balance Model Parameters, Journal of
-        Climate, 33(18), 7909-7926.
-    .. [3] Tsutsui (2017): Quantification of temperature response to CO2 forcing
-        in atmosphere–ocean general circulation models. Climatic Change, 140,
-        287–305
-    .. [4] Geoffroy, O., Saint-Martin, D., Bellon, G., Voldoire, A., Olivié,
-        D. J. L., & Tytéca, S. (2013). Transient Climate Response in a Two-
-        Layer Energy-Balance Model. Part II: Representation of the Efficacy
-        of Deep-Ocean Heat Uptake and Validation for CMIP5 AOGCMs, Journal
-        of Climate, 26(6), 1859-1876
     """
 
     def __init__(
@@ -385,17 +365,17 @@ def multi_ebm(
         positive (opposite to most climate sensitivity literature).
         W m-2 K-1
     deep_ocean_efficacy : float
-        efficacy of deepest ocean layer. See e.g. [1]_.
+        efficacy of deepest ocean layer. See e.g. [Geoffroy2013]_.
     stochastic_run : bool
-        Activate the stochastic variability component from [2]_.
+        Activate the stochastic variability component from [Cummins2020]_.
     sigma_eta : float
-        Standard deviation of stochastic forcing component from [2]_.
+        Standard deviation of stochastic forcing component from [Cummins2020]_.
     sigma_xi : float
         Standard deviation of stochastic disturbance applied to surface
-        layer. See [2]_.
+        layer. See [Cummins2020]_.
     gamma_autocorrelation : float
         Stochastic forcing continuous-time autocorrelation parameter.
-        See [2]_.
+        See [Cummins2020]_.
     seed : int or None
         Random seed to use for stochastic variability.
     use_seed : bool

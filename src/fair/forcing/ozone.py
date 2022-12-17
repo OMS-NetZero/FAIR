@@ -19,24 +19,24 @@ def thornhill2021(
 
     Calculates total ozone forcing from precursor emissions and
     concentrations based on AerChemMIP and CMIP6 Historical behaviour in
-    Skeie et al. (2020) [1]_ and Thornhill et al. (2021) [2]_.
+    [Skeie2020]_ and [Thornhill2021a]_.
 
-    The treatment is identical to FaIR2.0 [3]_.
+    The treatment is identical to FaIR2.0 [Leach2021]_.
 
     Parameters
     ----------
-    emissions : ndarray
+    emissions : np.ndarray
         emissions in timestep
-    concentration: ndarray
+    concentration: np.ndarray
         concentrations in timestep
-    baseline_emissions : ndarray
+    baseline_emissions : np.ndarray
         reference, possibly pre-industrial, emissions
-    baseline_concentration : ndarray
+    baseline_concentration : np.ndarray
         reference, possibly pre-industrial, concentrations
-    forcing_scaling : ndarray
+    forcing_scaling : np.ndarray
         scaling of the calculated radiative forcing (e.g. for conversion to
         effective radiative forcing and forcing uncertainty).
-    ozone_radiative_efficiency : ndarray
+    ozone_radiative_efficiency : np.ndarray
         the radiative efficiency at which ozone precursor emissions or
         concentrations are converted to ozone radiative forcing. The unit is
         W m-2 (<native emissions or concentration unit>)-1, where the
@@ -53,31 +53,8 @@ def thornhill2021(
 
     Returns
     -------
-    _erf_out : ndarray
+    _erf_out : np.ndarray
         ozone forcing
-
-    References
-    ----------
-    .. [1] Skeie, R.B., Myhre, G., Hodnebrog, Ø., Cameron-Smith, P.J.,
-        Deushi, M., Hegglin, M.I., Horowitz, L.W., Kramer, R.J., Michou, M.,
-        Mills, M.J., Olivié, D.J., Connor, F.M., Paynter, D., Samset, B.H.,
-        Sellar, A., Shindell, D., Takemura, T., Tilmes, S., Wu, T., 2020.
-        Historical total ozone radiative forcing derived from CMIP6 simulations,
-        npj Climate and Atmospheric Science, 3, 1–10.
-
-    .. [2] Thornhill, G.D., Collins, W.J., Kramer, R.J., Olivié, D., Skeie,
-        R.B., O'Connor, F.M., Abraham, N.L., Checa-Garcia, R., Bauer, S.E.,
-        Deushi, M., Emmons, L.K., Forster, P.M., Horowitz, L.W., Johnson, B.,
-        Keeble, J., Lamarque, J.-F., Michou, M., Mills, M.J., Mulcahy, J.P.,
-        Myhre, G., Nabat, P., Naik, V., Oshima, N., Schulz, M., Smith, C.J.,
-        Takemura, T., Tilmes, S., Wu, T., Zeng, G., Zhang, J. (2021). Effective
-        radiative forcing from emissions of reactive gases and aerosols – a
-        multi-model comparison, Atmospheric Chemistry and  Physics, 21, 853–874
-
-    .. [3] Leach, N.J., Jenkins, S., Nicholls, Z., Smith, C.J., Lynch, J.,
-        Cain, M., Walsh, T., Wu, B., Tsutsui, J., Allen, M.R. (2021). FaIRv2.0.0:
-        a generalized impulse response model for climate uncertainty and future
-        scenario exploration, Geoscientific Model Development, 14, 3007–3036.
     """
     array_shape = emissions.shape
     n_timesteps, n_scenarios, n_configs, n_species = array_shape

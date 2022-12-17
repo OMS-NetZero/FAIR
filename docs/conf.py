@@ -35,4 +35,5 @@ release = version
 nitpicky = True
 nitpick_ignore_regex = [
     (r'py:.*', 'np.ndarray'),
+    (r'py:class', 'attr'),
 ]
