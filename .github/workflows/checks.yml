@@ -40,6 +40,7 @@ jobs:
       # treat warnings as errors (-W)...
       # ...but not when being nitpicky (-n)
       run: |
+        sudo apt-get pandoc
         jupyter-nbconvert --to rst examples/*.ipynb --output-dir="./docs/examples"
         sphinx-build -M html docs/source docs/build -qW
         sphinx-build -M html docs/source docs/build -Eqn -b coverage
