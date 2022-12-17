@@ -24,7 +24,8 @@ def calculate_linear_forcing(
         scaling of the calculated radiative forcing (e.g. for conversion to
         effective radiative forcing and forcing uncertainty).
     radiative_efficiency : np.ndarray
-        radiative efficiency (W m\ :sup:`-2` (<driver unit>)\ :sup:`-1`) of each species.
+        radiative efficiency (W m\ :sup:`-2` (<driver unit>)\ :sup:`-1`) of each
+        species.
 
     Returns
     -------

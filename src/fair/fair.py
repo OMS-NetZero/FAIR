@@ -114,8 +114,8 @@ class FAIR:
             self._ch4_method = value.lower()
         else:
             raise ValueError(
-                f"ch4_method should be ``thornhill2021`` or ``leach2021``; you provided "
-                f"{value.lower()}."
+                f"ch4_method should be ``thornhill2021`` or ``leach2021``; you "
+                f"provided {value.lower()}."
             )
 
     @property
@@ -188,7 +188,7 @@ class FAIR:
         properties : dict
             mapping of each specie to particular run properties. This is a
             nested dict, where each dict key contains a dict of 5 keys as follows:
-            
+
             ``type`` : str
                 the type of specie that is being provided. Valid inputs are
                 "co2 ffi", "co2 afolu", "co2", "ch4", "n2o", "cfc-11",
@@ -273,8 +273,8 @@ class FAIR:
         for attr, method in required_attributes_and_uncalled_method.items():
             if not hasattr(self, attr):
                 raise AttributeError(
-                    f"``FAIR`` object has no attribute '{attr}'. Did you forget to call "
-                    f"``{method}``?"
+                    f"``FAIR`` object has no attribute '{attr}'. Did you forget to "
+                    f"call ``{method}``?"
                 )
 
         # driver/output variables
@@ -728,8 +728,8 @@ class FAIR:
         r"""Convert greenhouse gas lifetime to time-integrated airborne fraction.
 
         iirf_0 is the 100-year time-integrated airborne fraction to a pulse
-        emission. We know that the gas's atmospheric airborne fraction :math:`a(t)` for a
-        gas with lifetime :math:`\tau` after time :math:`t` is therefore
+        emission. We know that the gas's atmospheric airborne fraction :math:`a(t)` for
+        a gas with lifetime :math:`\tau` after time :math:`t` is therefore
 
         .. math::
             a(t) = \exp(-t/tau)
@@ -739,8 +739,8 @@ class FAIR:
         .. math::
             r_0(t) = \int_0^{H} \exp(-t/\tau) dt = \tau (1 - \exp (-H / \tau)).
 
-        :math:`H` = 100 years is the default time horizon in FaIR but this can be set to any
-        value.
+        :math:`H` = 100 years is the default time horizon in FaIR but this can be set to
+        any value.
 
         Parameters
         ----------

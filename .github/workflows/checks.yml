@@ -36,41 +36,14 @@ jobs:
         pydocstyle src
         flake8 src setup.py
 #        pylint src
-#    - name: Build docs
-#      # treat warnings as errors (-W)...
-#      # ...but not when being nitpicky (-n)
-#      run: |
-#          sphinx-build -M html docs/source docs/build -qW
-#          sphinx-build -M html docs/source docs/build -Eqn -b coverage
-#          if [[ -s docs/build/html/python.txt ]]
-#          then
-#              echo
-#              echo \"Error: Documentation missing:\"
-#              echo
-#              cat docs/build/html/python.txt
-#              exit 1
-#          fi
-#
-#
-#  build:
-#    needs: linting-and-docs
-#
-#    runs-on: ubuntu-latest
-#    strategy:
-#      matrix:
-#        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
-#
-#    steps:
-#    - name: Checkout repository
-#      uses: actions/checkout@v3
-#    - name: Setup python
-#      uses: actions/setup-python@v3
-#      with:
-#        python-version: ${{ matrix.python-version }}
-#    - name: Install test dependencies
-#      run: |
-#        pip install --upgrade pip wheel
-#        pip install -e .[tests]
+    - name: Build docs
+      # treat warnings as errors (-W)...
+      # ...but not when being nitpicky (-n)
+      run: |
+        jupyter-nbconvert --to rst examples/*.ipynb --output-dir="./docs/examples"
+        sphinx-build -M html docs/source docs/build -qW
+        sphinx-build -M html docs/source docs/build -Eqn -b coverage
+
     - name: Test with pytest
       env:
         MIN_COVERAGE: 90

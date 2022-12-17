@@ -32,8 +32,8 @@ def logsum(
     for the baseline. The difference between the two values is the forcing.
 
     This relationship is a generalisation of [Stevens2015]_. To recover [Stevens2015]_,
-    set :math:`s_i` to zero for all except SO\ :sub:`2`, and :math:`s_{\text{SO2}} = 1/Q_n`
-    where :math:`Q_n` is the natural emissions source in [Stevens2015]_.
+    set :math:`s_i` to zero for all except SO\ :sub:`2`, and :math:`s_{\text{SO2}} =
+    1/Q_n` where :math:`Q_n` is the natural emissions source in [Stevens2015]_.
 
     Parameters
     ----------
