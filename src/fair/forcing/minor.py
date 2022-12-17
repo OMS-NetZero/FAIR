@@ -11,7 +11,7 @@ def calculate_linear_forcing(
     forcing_scaling,
     radiative_efficiency,
 ):
-    """
+    r"""
     Calculate effective radiative forcing from a linear relationship.
 
     Parameters
