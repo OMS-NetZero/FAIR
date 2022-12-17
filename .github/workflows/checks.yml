@@ -17,7 +17,7 @@ jobs:
       matrix:
         #python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
         python-version: ["3.9"]
-        
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -37,14 +37,6 @@ jobs:
         pydocstyle src
         flake8 src setup.py
 #        pylint src
-    - name: Build docs
-      # treat warnings as errors (-W)...
-      # ...but not when being nitpicky (-n)
-      run: |
-        #sudo apt-get pandoc
-        #jupyter-nbconvert --to rst examples/*.ipynb --output-dir="./docs/examples"
-        sphinx-build -M html docs docs/_build -qW
-        sphinx-build -M html docs docs/_build -Eqn -b coverage
 
     - name: Test with pytest
       env:
