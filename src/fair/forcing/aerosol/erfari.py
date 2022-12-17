@@ -15,7 +15,7 @@ def calculate_erfari_forcing(
     emissions_indices,
     concentration_indices,
 ):
-    """Calculate effective radiative forcing from aerosol-radiation interactions.
+    r"""Calculate effective radiative forcing from aerosol-radiation interactions.
 
     Parameters
     ----------
