@@ -1,7 +1,9 @@
 import fair
 from fair._version import get_versions
 import sphinx_rtd_theme
+import sys, os
 
+sys.path.insert(0, os.path.abspath('../'))
 
 extensions = [
     'sphinx_rtd_theme',
