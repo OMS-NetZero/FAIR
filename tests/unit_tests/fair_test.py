@@ -1,5 +1,7 @@
 """Module for unit test of fair."""
 
+import os
+
 import numpy as np
 import pytest
 
@@ -112,3 +114,81 @@ def test_ghg_routines():
         ftest.run(progress=False)
         forcing_out = ftest.forcing.squeeze()
         np.testing.assert_allclose(forcing_out[1, ...], results)
+
+
+def test_calculate_iirf0():
+    EXPECTED_RESULTS=np.array([52.35538747, 8.2499551, 65.44969575])
+    ftest = minimal_ghg_run()
+    ftest.calculate_iirf0()
+    np.testing.assert_allclose(
+        np.squeeze(ftest.species_configs['iirf_0']),
+        EXPECTED_RESULTS
+    )
+
+
+def test_calculate_g():
+    EXPECTED_RESULTS = {
+        "g0": np.array([0.01017828826538349, 0.36785516988915923, 0.07675558835522626]),
+        "g1": np.array([11.412622431258765,  8.24941081407049, 25.495288175200994])
+    }
+    ftest = minimal_ghg_run()
+    ftest.calculate_g()
+    for variable, results in EXPECTED_RESULTS.items():
+        np.testing.assert_allclose(
+            np.squeeze(ftest.species_configs[variable]),
+            results
+        )
+
+
+def test_from_rcmip():
+    ftest = minimal_ghg_run()
+    ftest.fill_from_rcmip()
+
+
+def test_fill_from_rcmip_missing_concentration_data():
+    ftest = minimal_ghg_run()
+    ftest.scenarios = ["ADVANCE"]
+    with pytest.raises(ValueError):
+        ftest.fill_from_rcmip()
+
+
+def test_fill_from_rcmip_missing_emissions_data():
+    fair_obj = FAIR()
+    species = ["CO2", "CH4", "N2O"]
+    species, properties = read_properties(species=species)
+    for specie in species:
+        properties[specie]["input_mode"] = "emissions"
+    fair_obj.define_species(species, properties)
+    fair_obj.define_time(1750, 2020, 270)
+    fair_obj.define_scenarios(["ADVANCE"])
+    fair_obj.define_configs(["UKESM1-0-LL"])
+    fair_obj.allocate()
+    with pytest.raises(ValueError):
+        fair_obj.fill_from_rcmip()
+
+
+def test_fill_from_rcmip_missing_forcing_data():
+    fair_obj = FAIR()
+    species = ["CO2", "CH4", "N2O"]
+    species, properties = read_properties(species=species)
+    for specie in species:
+        properties[specie]["input_mode"] = "forcing"
+    fair_obj.define_species(species, properties)
+    fair_obj.define_time(1750, 2020, 270)
+    fair_obj.define_scenarios(["ADVANCE"])
+    fair_obj.define_configs(["UKESM1-0-LL"])
+    fair_obj.allocate()
+    with pytest.raises(ValueError):
+        fair_obj.fill_from_rcmip()
+
+
+def test__make_ebms_climate_configs_nan():
+    ftest = minimal_ghg_run()
+    ftest.climate_configs["ocean_heat_transfer"][0, :] = np.nan
+    with pytest.raises(ValueError):
+        ftest._make_ebms()
+
+
+def test_to_netcdf():
+    ftest = minimal_ghg_run()
+    ftest.to_netcdf(os.devnull)

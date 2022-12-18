@@ -11,7 +11,7 @@ import xarray as xr
 from scipy.interpolate import interp1d
 from tqdm.auto import tqdm
 
-from .constants import SPECIES_AXIS, TIME_AXIS
+from .constants import SPECIES_AXIS, TIME_AXIS, GASBOX_AXIS
 from .earth_params import (
     earth_radius,
     mass_atmosphere,
@@ -51,7 +51,7 @@ DEFAULT_SPECIES_CONFIG_FILE = os.path.join(
 
 
 class FAIR:
-    """Initialise FaIR.
+    r"""Initialise FaIR.
 
     Parameters
     ----------
@@ -66,9 +66,9 @@ class FAIR:
         factor describing the ratio of efficiency that each bromine atom
         has as an ozone depleting substance relative to each chlorine atom.
     ghg_method : str
-        method to use for calculating greenhouse gas forcing from CO2, CH4
-        and N2O. Valid options are {"leach2021", "meinshausen2020", "etminan2016",
-        "myhre1998"}
+        method to use for calculating greenhouse gas forcing from CO\ :sub:`2`,
+        CH\ :sub:`4` and N\ :sub:`2`O. Valid options are {"leach2021",
+        "meinshausen2020", "etminan2016", "myhre1998"}
     ch4_method : str
         method to use for calculating methane lifetime change. Valid options are
         {"leach2021", "thornhill2021"}.

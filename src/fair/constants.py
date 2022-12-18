@@ -17,5 +17,6 @@ CONFIG_AXIS = 2
 #: Axis of emissions, concentration and forcing data arrays representing species.
 SPECIES_AXIS = 3
 
-#: Axis of atmopsheric gas box for the gas partition data array.
+#: Axis of atmopsheric gas box for the gas partition data array in full emissions to
+#: concentration mode.
 GASBOX_AXIS = 4
