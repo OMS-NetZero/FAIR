@@ -50,14 +50,13 @@ jobs:
           fi
       # we could run the notebook tests, but we probably don't want to do this every
       # time and use all our minutes.
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        verbose: true
+        file: ./coverage.xml
 
     - name: Test docs
       uses: readthedocs/actions/preview@v1
       with:
         project-slug: "readthedocs-preview"
-
-    - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        verbose: true
-        files: ./coverage.xml
