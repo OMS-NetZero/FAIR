@@ -48,10 +48,16 @@ jobs:
               echo "Error: Test coverage has to be at least ${MIN_COVERAGE}"
               exit 1
           fi
+      # we could run the notebook tests, but we probably don't want to do this every
+      # time and use all our minutes.
 
     - name: Test docs
       uses: readthedocs/actions/preview@v1
       with:
         project-slug: "readthedocs-preview"
-      # we could run the notebook tests, but we probably don't want to do this every
-      # time and use all our minutes.
+
+    - name: Upload coverage reports to Codecov
+      run: |
+        curl -Os https://uploader.codecov.io/latest/linux/codecov
+        chmod +x codecov
+        ./codecov -t ${CODECOV_TOKEN}
