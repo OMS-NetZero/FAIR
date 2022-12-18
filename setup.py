@@ -20,7 +20,9 @@ long_description = (here / "README.rst").read_text(encoding="utf-8")
 
 # using climate-assessment as a template here
 REQUIREMENTS_INSTALL = [
+    "h5py",
     "matplotlib",  # not a requirement of fair, but needed for binder examples
+    "netcdf4",  # should be bundled with xarray, but explicitly needed for CI/CD
     "numpy",
     "pandas",
     "pooch",
@@ -32,7 +34,6 @@ REQUIREMENTS_NOTEBOOKS = ["nbstripout", "notebook", "ipywidgets"]
 REQUIREMENTS_TESTS = [
     "codecov",
     "nbmake",
-    "netCDF4",
     "pytest-cov",
     "pytest-console-scripts",
     "pytest>=4.0",
