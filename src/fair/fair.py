@@ -11,7 +11,7 @@ import xarray as xr
 from scipy.interpolate import interp1d
 from tqdm.auto import tqdm
 
-from .constants import SPECIES_AXIS, TIME_AXIS, GASBOX_AXIS
+from .constants import SPECIES_AXIS, TIME_AXIS
 from .earth_params import (
     earth_radius,
     mass_atmosphere,

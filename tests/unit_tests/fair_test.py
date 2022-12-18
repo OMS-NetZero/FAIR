@@ -117,27 +117,23 @@ def test_ghg_routines():
 
 
 def test_calculate_iirf0():
-    EXPECTED_RESULTS=np.array([52.35538747, 8.2499551, 65.44969575])
+    EXPECTED_RESULTS = np.array([52.35538747, 8.2499551, 65.44969575])
     ftest = minimal_ghg_run()
     ftest.calculate_iirf0()
     np.testing.assert_allclose(
-        np.squeeze(ftest.species_configs['iirf_0']),
-        EXPECTED_RESULTS
+        np.squeeze(ftest.species_configs["iirf_0"]), EXPECTED_RESULTS
     )
 
 
 def test_calculate_g():
     EXPECTED_RESULTS = {
         "g0": np.array([0.01017828826538349, 0.36785516988915923, 0.07675558835522626]),
-        "g1": np.array([11.412622431258765,  8.24941081407049, 25.495288175200994])
+        "g1": np.array([11.412622431258765, 8.24941081407049, 25.495288175200994]),
     }
     ftest = minimal_ghg_run()
     ftest.calculate_g()
     for variable, results in EXPECTED_RESULTS.items():
-        np.testing.assert_allclose(
-            np.squeeze(ftest.species_configs[variable]),
-            results
-        )
+        np.testing.assert_allclose(np.squeeze(ftest.species_configs[variable]), results)
 
 
 def test_from_rcmip():
