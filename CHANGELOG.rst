@@ -4,6 +4,8 @@ Changelog
 v2.1.0
 ------
 
+(`#112 <https://github.com/OMS-NetZero/FAIR/pull/112>`_) Write docs for v2.1
+
 (`#111 <https://github.com/OMS-NetZero/FAIR/pull/111>`_) Large overhaul of FaIR including adding most features from v2.0.0-alpha, plus species-dependent methane lifetime and new interface
 
 v1.6.4
