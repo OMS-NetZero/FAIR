@@ -1,9 +1,10 @@
 .. image:: https://github.com/OMS-NetZero/FAIR/actions/workflows/checks.yml/badge.svg
+   :target: https://github.com/OMS-NetZero/FAIR/actions
 
 .. image:: https://mybinder.org/badge.svg
    :target: https://mybinder.org/v2/gh/OMS-NetZero/FAIR/master?filepath=examples/basic_run_example.ipynb
 
-.. image:: https://readthedocs.org/projects/fair/badge/?version=v2.1
+.. image:: https://readthedocs.org/projects/fair/badge/?version=latest
    :target: http://fair.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
@@ -36,7 +37,7 @@ Refer to `The Docs <https://fair.readthedocs.io/en/latest/installation.html>`_
 Usage
 -----
 
-FaIR can be driven by emissions of greenhouse gases (GHGs) and short-lived forcers (SLCFs), concentrations of GHGs, or effective radiative forcing (ERF), with different input methods for different species possible in the same run. If run concentration-driven, emissions are back-calculated. Custom GHGs and SLCFs can be defined, and all components are optional allowing experiments such as pulse-response analyses to single forcers or gathering up non-CO:sub:`2` species as an aggregate forcing.
+FaIR can be driven by emissions of greenhouse gases (GHGs) and short-lived forcers (SLCFs), concentrations of GHGs, or effective radiative forcing (ERF), with different input methods for different species possible in the same run. If run concentration-driven, emissions are back-calculated. Custom GHGs and SLCFs can be defined, and all components are optional allowing experiments such as pulse-response analyses to single forcers or gathering up non-CO\ :sub:`2` species as an aggregate forcing.
 
 A really basic example
 ----------------------
@@ -59,4 +60,4 @@ If you use FaIR in your work, please cite the following reference depending on t
 
 - **v2.0+:** Leach, N. J., Jenkins, S., Nicholls, Z., Smith, C. J., Lynch, J., Cain, M., Walsh, T., Wu, B., Tsutsui, J., and Allen, M. R.: FaIRv2.0.0: a generalized impulse response model for climate uncertainty and future scenario exploration, Geosci. Model Dev., 14, 3007–3036, https://doi.org/10.5194/gmd-14-3007-2021, 2021
 - **v1.1-v1.6**: Smith, C. J., Forster, P. M., Allen, M., Leach, N., Millar, R. J., Passerello, G. A., and Regayre, L. A.: FAIR v1.3: A simple emissions-based impulse response and carbon cycle model, Geosci. Model Dev., https://doi.org/10.5194/gmd-11-2273-2018, 2018.
-- **v1.0** (or the concept of the state-dependent impulse-response function for CO2): Millar, R. J., Nicholls, Z. R., Friedlingstein, P., and Allen, M. R.: A modified impulse-response representation of the global near-surface air temperature and atmospheric concentration response to carbon dioxide emissions, Atmos. Chem. Phys., 17, 7213-7228, https://doi.org/10.5194/acp-17-7213-2017, 2017.
+- **v1.0** (or the concept of the state-dependent impulse-response function for CO\ :sub:`2`): Millar, R. J., Nicholls, Z. R., Friedlingstein, P., and Allen, M. R.: A modified impulse-response representation of the global near-surface air temperature and atmospheric concentration response to carbon dioxide emissions, Atmos. Chem. Phys., 17, 7213-7228, https://doi.org/10.5194/acp-17-7213-2017, 2017.
