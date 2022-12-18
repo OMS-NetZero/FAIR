@@ -41,7 +41,7 @@ jobs:
       env:
         MIN_COVERAGE: 90
       run: |
-          pytest tests -r a --cov=fair --cov-report=xml
+          pytest tests -r a --cov=./src/fair --cov-report=xml
           if ! coverage report --fail-under=${MIN_COVERAGE} --show-missing
           then
               echo

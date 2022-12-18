@@ -1,6 +1,6 @@
 [run]
 branch = True
-source = fair
+source = src/fair
 omit = *_version.py
 
 [report]
