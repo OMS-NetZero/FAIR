@@ -57,7 +57,5 @@ jobs:
         project-slug: "readthedocs-preview"
 
     - name: Upload coverage reports to Codecov
-      run: |
-        curl -Os https://uploader.codecov.io/latest/linux/codecov
-        chmod +x codecov
-        ./codecov -t ${CODECOV_TOKEN}
+      uses: actions/checkout@master
+      uses: codecov/codecov-action@v3
