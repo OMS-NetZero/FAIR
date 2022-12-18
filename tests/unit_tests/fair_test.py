@@ -1,6 +1,6 @@
 """Module for unit test of fair."""
 
-import os
+import tempfile
 
 import numpy as np
 import pytest
@@ -187,4 +187,5 @@ def test__make_ebms_climate_configs_nan():
 
 def test_to_netcdf():
     ftest = minimal_ghg_run()
-    ftest.to_netcdf(os.devnull)
+    with tempfile.TemporaryFile() as tf:
+        ftest.to_netcdf(tf)
