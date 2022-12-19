@@ -48,7 +48,7 @@ Examples
 
 The `examples <examples/>`_ folder contains Jupyter notebooks with some simple examples showing how to run FaIR and the standalone energy balance model.
 
-If you want to try this out online, `go here <https://mybinder.org/v2/gh/OMS-NetZero/FAIR/master?filepath=examples/basic_run_example.ipynb>`.
+If you want to try this out online, `go here <https://mybinder.org/v2/gh/OMS-NetZero/FAIR/master?filepath=examples/basic_run_example.ipynb>`_.
 
 
 Important: A note about calibrating and constraining
