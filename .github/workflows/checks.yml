@@ -26,19 +26,6 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dev dependencies
       run: |
-        # sudo apt-get update
-        # sudo apt-get install mpich libmpich-dev libhdf5-mpich-dev libcurl4-openssl-dev bzip2 libsnappy-dev libblosc-dev libzstd-dev
-        # echo "Download and build netCDF github master"
-        # git clone https://github.com/Unidata/netcdf-c
-        # pushd netcdf-c
-        # export CPPFLAGS="-I/usr/include/hdf5/mpich -I${NETCDF_DIR}/include"
-        # export LDFLAGS="-L${NETCDF_DIR}/lib"
-        # export LIBS="-lhdf5_mpich_hl -lhdf5_mpich -lm -lz"
-        # autoreconf -i
-        # ./configure --prefix $NETCDF_DIR --enable-netcdf-4 --enable-shared --enable-dap --enable-parallel4
-        # make -j 2
-        # make install
-        # popd
         pip install --upgrade pip wheel
         pip install -e .[dev]
     - name: Formatting and linters
@@ -49,6 +36,7 @@ jobs:
         pydocstyle src
         flake8 src setup.py
 #        pylint src
+# test readthedocs build... how?
 
     - name: Test with pytest
       env:
@@ -68,8 +56,3 @@ jobs:
       with:
         verbose: true
         file: ./coverage.xml
-
-    - name: Test docs
-      uses: readthedocs/actions/preview@v1
-      with:
-        project-slug: "readthedocs-preview"
