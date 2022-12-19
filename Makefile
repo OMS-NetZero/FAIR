@@ -69,6 +69,6 @@ test_notebooks: $(VENV_DIR)
 
 .PHONY: docs
 docs:
-	#$(VENV_DIR)/bin/sphinx-build -M html docs docs/_build
-        $(VENV_DIR)/bin/nbstripout examples/basic_run_example.ipynb
-	$(VENV_DIR)/bin/jupyter-nbconvert --to rst examples/basic_run_example.ipynb --output-dir="./docs"
+	$(VENV_DIR)/bin/nbstripout examples/*.ipynb
+	$(VENV_DIR)/bin/jupyter-nbconvert --to rst examples/*.ipynb --output-dir="./docs/examples"
+	$(VENV_DIR)/bin/sphinx-build -M html docs docs/_build

@@ -15,22 +15,22 @@ def calculate_erfari_forcing(
     emissions_indices,
     concentration_indices,
 ):
-    """Calculate effective radiative forcing from aerosol-radiation interactions.
+    r"""Calculate effective radiative forcing from aerosol-radiation interactions.
 
-    Inputs
-    ------
-    emissions : ndarry
+    Parameters
+    ----------
+    emissions : np.ndarray
         emissions in timestep
-    concentration: ndarray
+    concentration: np.ndarray
         concentrations in timestep
-    baseline_emissions : ndarray
+    baseline_emissions : np.ndarray
         baseline emissions to evaluate forcing against
-    baseline_concentration : ndarray
+    baseline_concentration : np.ndarray
         baseline concentrations to evaluate forcing against
-    forcing_scaling : ndarray
+    forcing_scaling : np.ndarray
         scaling of the calculated radiative forcing (e.g. for conversion to
         effective radiative forcing and forcing uncertainty).
-    radiative_efficiency : ndarray
+    radiative_efficiency : np.ndarray
         radiative efficiency (W m-2 (emission_unit yr-1)-1) of each species.
     emissions_indices : list of int
         provides a mapping of which aerosol species corresponds to which emitted
@@ -41,8 +41,8 @@ def calculate_erfari_forcing(
 
     Returns
     -------
-    effective_radiative_forcing : ndarray
-        effective radiative forcing (W/m2) from aerosol-radiation interactions
+    effective_radiative_forcing : np.ndarray
+        effective radiative forcing (W m\ :sup:`-2`) from aerosol-radiation interactions
     """
     erf_out = np.ones_like(emissions) * np.nan
 

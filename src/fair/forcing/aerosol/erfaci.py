@@ -20,36 +20,37 @@ def logsum(
 
     This uses the relationship to calculate ERFaci as follows
 
-    F = \beta \log \left( 1 + \sum_{i} s_i A_i \right)
+    .. math::
 
-    where
-        $A_i$ is the emissions or concentration of a specie
-        $\beta$ is the scale factor
-        $s_i$ describes how sensitive a specie is in contributing to ERFaci
+        F = \beta \log \left( 1 + \sum_{i} s_i A_i \right)
+
+    where :math:`A_i` is the emissions or concentration of a specie, :math:`\beta` is
+    the scale factor and :math:`s_i` describes how sensitive a specie is in contributing
+    to ERFaci.
 
     The calculation is performed for the emissions/concentration of interest and then
     for the baseline. The difference between the two values is the forcing.
 
-    This relationship is a generalisation of Stevens (2015) [1]_. To recover Stevens
-    (2015), set $s_i$ to zero for all except SO2, and $s_{\{textrm{SO2}}$ = $1/Q_n$
-    where $Q_n$ is the natural emissions source in Stevens (2015).
+    This relationship is a generalisation of [Stevens2015]_. To recover [Stevens2015]_,
+    set :math:`s_i` to zero for all except SO\ :sub:`2`, and :math:`s_{\text{SO2}} =
+    1/Q_n` where :math:`Q_n` is the natural emissions source in [Stevens2015]_.
 
-    Inputs
-    ------
-    emissions : ndarray
+    Parameters
+    ----------
+    emissions : np.ndarray
         input emissions
-    concentration : ndarray
+    concentration : np.ndarray
         input emissions
-    baseline_emissions : ndarray
+    baseline_emissions : np.ndarray
         baseline emissions
-    baseline_concentration : ndarray
+    baseline_concentration : np.ndarray
         baseline concentration
-    forcing_scaling : ndarray
+    forcing_scaling : np.ndarray
         scaling of the calculated radiative forcing (e.g. for conversion to
         effective radiative forcing and forcing uncertainty).
-    scale : ndarray
+    scale : np.ndarray
         per-species scaling factor to apply to the logarithm
-    sensitivity : ndarray
+    sensitivity : np.ndarray
         per-species sensitivity factor for the logarithm
     slcf_indices : list of int
         provides a mapping of which aerosol species corresponds to which emitted
@@ -60,13 +61,8 @@ def logsum(
 
     Returns
     -------
-    effective_radiative_forcing : ndarray
-        effective radiative forcing (W/m2) from aerosol-cloud interactions
-
-    References
-    ----------
-    .. [1] Stevens, B. (2015). Rethinking the Lower Bound on Aerosol Radiative
-        Forcing, Journal of Climate, 28(12), 4794-4819.
+    effective_radiative_forcing : np.ndarray
+        effective radiative forcing (W m\ :sup:`-2`) from aerosol-cloud interactions
     """
     radiative_effect = scale * (
         np.log(

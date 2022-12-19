@@ -18,26 +18,26 @@ def calculate_eesc(
 
     Parameters
     ----------
-    concentration : ndarray
+    concentration : np.ndarray
         concentrations in timestep
-    fractional_release : ndarray
+    fractional_release : np.ndarray
         fractional release describing the proportion of available ODS that
         actually contributes to ozone depletion.
-    cl_atoms : ndarray
+    cl_atoms : np.ndarray
         Chlorine atoms in each species
-    br_atoms : ndarray
+    br_atoms : np.ndarray
         Bromine atoms in each species
     cfc_11_index : int or None
         array index along SPECIES_AXIS corresponding to CFC-11.
     halogen_indices : list of int
         provides a mapping of which halogen species corresponds to which
         index along the SPECIES_AXIS.
-    br_cl_ratio : float, default=45
+    br_cl_ratio : float
         how much more effective bromine is as an ozone depletor than chlorine.
 
     Returns
     -------
-    eesc_out : ndarray
+    eesc_out : np.ndarray
         equivalent effective stratospheric chlorine
 
     Notes
