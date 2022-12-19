@@ -72,7 +72,8 @@ time steps, and ``timepoints`` are nominally at the centre of the model time ste
   :alt: Timebounds and timepoints in FaIR
 
   Timebounds (red) and timepoints (blue) in FaIR, showing associated state variables
-  defined on each time variable.
+  defined on each time variable. FaIR can be run with prescibed emissions (blue arrows)
+  and/or with prescribed concentrations for greenhouse gases (green arrows).
 
 Time is specified in years, but you are not forced to use integer years. This can be
 useful for coupling directly with integrated assessment model derived emissions (often
@@ -197,7 +198,7 @@ By default, there are 4 boxes, but this can be modified in the initialisation::
 
     f = FAIR(n_gasboxes=3)
 
-or by accessing the attribute directly after initialisation:
+or by accessing the attribute directly after initialisation::
 
     f.n_gasboxes=3
 
@@ -216,11 +217,7 @@ State variables
 ---------------
 
 State variables are attributes of the ``FAIR`` class. All state variables are outputs, and many are valid inputs (particularly for the
-first ``timebound`` in which many must be provided with an initial condition). A
-``FAIR`` world can be dumped to ``netcdf`` which will include all variables included
-in this section::
-
-    f.to_netcdf(filename.nc)
+first ``timebound`` in which many must be provided with an initial condition).
 
 After problem setup (see ref:`Dimensionality`), these ``xarrays`` will be created inside
 FaIR with::
@@ -260,14 +257,9 @@ You could also directly modify the ``f.concentration`` ``xarray`` by label::
 
     f.concentration.loc[dict(timebound=1750, specie='CO2')] = 278.3
 
-or position::
+or position, if you know that CO\ :sub:`2` is index 0 of the `specie` axis::
 
-    f.concentration[0, :, :, 2] = 278.3
-
-You can see the drawbacks of these alternatives: the first is clunky and requires you
-to specifically input the initial year, and the second requires you to know the array
-index of the species in question (here 2), which can become intractible when you have many
-species.
+    f.concentration[0, :, :, 0] = 278.3
 
 Effective radiative forcing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -362,7 +354,7 @@ Stochastic forcing
 ~~~~~~~~~~~~~~~~~~
 
 If using stochastic internal variability, this is the stochastic component of the
-total effective radiative forcing (see [Cummins2020]_). Its dimensionality is
+total effective radiative forcing (see [Cummins2020]_). Its dimensionality is::
 
     f.stochastic_forcing :: [timebound, scenario, config]
 
@@ -381,7 +373,7 @@ Gas box partition fractions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The partition fraction is the only state variable where the ``timebound`` is not
-carried, which would necessitate a 5-dimensional array and use up useful memory.
+carried, which would necessitate a 5-dimensional array and use up useful memory. So we have::
 
     f.gasbox_fractions :: [scenario, config, specie, gasbox]
 
