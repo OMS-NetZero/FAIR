@@ -38,7 +38,6 @@ jobs:
 #        pylint src
 
     - name: "Test docs"
-      uses: actions/checkout@v1
       uses: ammaraskar/sphinx-action@master
       with:
         docs-folder: "docs/"
