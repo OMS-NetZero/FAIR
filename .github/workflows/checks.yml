@@ -36,11 +36,7 @@ jobs:
         pydocstyle src
         flake8 src setup.py
 #        pylint src
-
-    - name: "Test docs"
-      uses: ammaraskar/sphinx-action@master
-      with:
-        docs-folder: "docs/"
+# test readthedocs build... how?
 
     - name: Test with pytest
       env:
