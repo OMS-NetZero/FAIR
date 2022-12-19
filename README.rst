@@ -36,7 +36,7 @@ From the Python Package Index::
 
     pip install fair
 
-For other options refer to `the documentation <https://fair.readthedocs.io/en/latest/installation.html>`_
+For other options refer to `the documentation <https://fair.readthedocs.io/en/latest/install.html>`_
 
 Usage
 -----
