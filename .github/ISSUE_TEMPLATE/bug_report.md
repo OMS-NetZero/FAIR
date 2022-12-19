@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Write a report to help us improve
+about: Issue tracker for bugs
 
 ---
 
@@ -24,7 +24,7 @@ If applicable, add screenshots to help explain your problem.
 **System (please complete the following information):**
 
  - OS: [e.g. Windows, Linux, macOS]
- - Python and FaIR version [e.g. Python 3.5]
+ - Python and FaIR version [e.g. Python 3.7, FaIR 2.1.0]
 
 **Additional context**
 

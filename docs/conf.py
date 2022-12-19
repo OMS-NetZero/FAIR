@@ -28,11 +28,12 @@ html_static_path = ['_static']
 version = get_versions()["version"]
 release = version
 
-
-
 # Be strict about any broken references
 nitpicky = True
 nitpick_ignore_regex = [
     (r'py:.*', 'np.ndarray'),
     (r'py:class', 'attr'),
 ]
+
+# Number figures
+numfig = True

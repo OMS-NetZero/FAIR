@@ -1,15 +1,9 @@
 FaIR: Finite Amplitude Impulse Response simple climate model
 ============================================================
 
-FaIR is a reduced-complexity climate model.
+FaIR is a reduced-complexity climate model useful for scenario assessment and idealised
+climate runs.
 
-FaIR produces global mean temperature projections from various forcers. Input datasets can be provided in terms of emissions, concentrations (for greenhouse gases) or effective radiative forcing. Species can be mixed and matched (e.g. if you want to provide CO:sub:`2` and short-lived climate forcer emissions, with concentrations of non-CO:sub:`2` greenhouse gases and prescribed forcing for volcanic and solar forcing, like the esm-hist runs of CMIP6 Earth System Models).
-
-.. figure:: outline.png
-  :width: 600
-  :alt: Process diagram
-
-  Simplified outline of available processes in FaIR. Some processes have been omitted for clarity.
 
 Contents
 ========
@@ -61,6 +55,11 @@ References
     The shared socio-economic pathway (SSP) greenhouse gas concentrations
     and their extensions to 2500, Geoscientific Model Development, 13,
     3571–3605.
+
+.. [Millar2017] Millar, R. J., Nicholls, Z. R., Friedlingstein, P., and Allen, M. R.
+    (2017) A modified impulse-response representation of the global near-surface air
+    temperature and atmospheric concentration response to carbon dioxide emissions.
+    Atmospheric Chemistry and Physics, 17, 7213–7228.
 
 .. [Myhre1998] Myhre, G., Highwood, E.J., Shine, K. Stordal, F. (1998). New
     estimates or radiative forcing due to well mixed greenhouse gases.
