@@ -208,7 +208,7 @@ class::
 
     f = FAIR(n_layers=2)
 
-or by accessing the attribute directly:
+or by accessing the attribute directly::
 
     f.n_layers=3
 

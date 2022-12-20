@@ -7,6 +7,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.mathjax',
     'sphinx.ext.napoleon',
+    'sphinx.ext.autosectionlabel',
     'IPython.sphinxext.ipython_console_highlighting',
 ]
 
