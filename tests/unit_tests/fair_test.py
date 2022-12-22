@@ -1,6 +1,7 @@
 """Module for unit test of fair."""
 
 import tempfile
+import warnings
 
 import numpy as np
 import pytest
@@ -220,6 +221,18 @@ def test__make_ebms_climate_configs_nan():
     ftest.climate_configs["ocean_heat_transfer"][0, :] = np.nan
     with pytest.raises(ValueError):
         ftest._make_ebms()
+
+
+def test_run_runtime_warning():
+    ftest = minimal_ghg_run()
+    # I want a warning (Idlewild; 2005)
+    with pytest.warns(RuntimeWarning):
+        ftest.run(suppress_warnings=False)
+    # I don't want a warning
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        ftest.run(suppress_warnings=True)
+        ftest.run()
 
 
 def test_to_netcdf():

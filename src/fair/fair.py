@@ -1387,7 +1387,11 @@ class FAIR:
         if self._routine_flags["temperature"]:
             with warnings.catch_warnings():
                 if suppress_warnings:
-                    warnings.filterwarnings("ignore", message="positive-semidefinite")
+                    warnings.filterwarnings(
+                        "ignore",
+                        category=RuntimeWarning,
+                        module="scipy.stats._multivariate",
+                    )
                 self._make_ebms()
 
         # part of pre-run: TODO move to a new method
