@@ -1388,7 +1388,7 @@ class FAIR:
             with warnings.catch_warnings():
                 if suppress_warnings:
                     warnings.filterwarnings(
-                        "ignore", message="covariance is not positive-semidefinite."
+                        "ignore", message="positive-semidefinite"
                     )
                 self._make_ebms()
 
