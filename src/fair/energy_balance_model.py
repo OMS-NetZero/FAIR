@@ -2,7 +2,6 @@
 
 import numpy as np
 import scipy.linalg
-import scipy.sparse.linalg
 import scipy.stats
 import xarray as xr
 
@@ -209,7 +208,7 @@ class EnergyBalanceModel:
             h_mat[: self.n_matrix, : self.n_matrix] = -eb_matrix
             h_mat[: self.n_matrix, self.n_matrix :] = q_mat
             h_mat[self.n_matrix :, self.n_matrix :] = eb_matrix.T
-            g_mat = scipy.sparse.linalg.expm(h_mat)
+            g_mat = scipy.linalg.expm(h_mat)
             q_mat_d = (
                 g_mat[self.n_matrix :, self.n_matrix :].T
                 @ g_mat[: self.n_matrix, self.n_matrix :]
