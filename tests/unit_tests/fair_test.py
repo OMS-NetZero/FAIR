@@ -29,13 +29,9 @@ def minimal_ghg_run():
         [0.65576633, 2.597877675, 0.612933889]
     )
     fair_obj.climate_configs["deep_ocean_efficacy"][0] = 1.133708775
-    fair_obj.climate_configs["gamma_autocorrelation"][0] = 28.2398724
-    fair_obj.climate_configs["sigma_xi"][0] = 0.439133746
-    fair_obj.climate_configs["sigma_eta"][0] = 0.497438603
+    fair_obj.climate_configs["gamma_autocorrelation"][0] = 3.548407499
     fair_obj.climate_configs["forcing_4co2"][0] = 7.378788155
-    fair_obj.climate_configs["seed"][0] = 23
-    fair_obj.climate_configs["use_seed"][0] = True
-    fair_obj.climate_configs["stochastic_run"][0] = True
+    fair_obj.climate_configs["stochastic_run"][0] = False
     fair_obj.fill_species_configs()
     fair_obj.species_configs["baseline_concentration"][0, :] = [277, 731, 270]
     fair_obj.species_configs["forcing_reference_concentration"][0, :] = [277, 731, 270]
@@ -46,7 +42,6 @@ def minimal_ghg_run():
     fair_obj.cumulative_emissions[0, 0, 0, :] = 0
     fair_obj.airborne_emissions[0, 0, 0, :] = 0
     return fair_obj
-
 
 def test_ghg_method():
     f.ghg_method = "LEACH2021"
