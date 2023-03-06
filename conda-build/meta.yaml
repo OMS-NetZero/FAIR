@@ -2,7 +2,7 @@
 
 package:
   name: fair
-  version: {{ version[1:] }}
+  version: {{ version[1:].split("+")[0] }}
 
 source:
   git_url: ../
