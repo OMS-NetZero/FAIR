@@ -1,12 +1,8 @@
-# wow, this is faffy
-{% set version = GIT_DESCRIBE_TAG %}
-{% set parts = version.split("+") %}
-{% set clean = parts[0] %}
-{% set naked_version = clean[1:] %}
+{% set version = environ.get('GIT_DESCRIBE_TAG', 'default').lstrip('v') %}
 
 package:
   name: fair
-  version: {{ naked_version }}
+  version: {{ version.split("+")[0] }}
 
 source:
   git_url: ../
