@@ -1526,7 +1526,7 @@ class FAIR:
                     "FAIR.species_configs['forcing_reference_concentration'] which "
                     "means that I can't calculate greenhouse gas forcing."
                 )
-            ghg_forcing_offset = meinshausen2020(
+            self.ghg_forcing_offset = meinshausen2020(
                 baseline_concentration_array[None, None, ...],
                 forcing_reference_concentration_array[None, None, ...],
                 forcing_scale_array[None, None, ...],
@@ -1742,7 +1742,7 @@ class FAIR:
                         forcing_array[
                             i_timepoint + 1 : i_timepoint + 2, ..., self._ghg_indices
                         ]
-                        - ghg_forcing_offset[..., self._ghg_indices]
+                        - self.ghg_forcing_offset[..., self._ghg_indices]
                     )
                 elif self.ghg_method == "etminan2016":
                     forcing_array[
