@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 from fair import FAIR
+from fair.forcing.ghg import meinshausen2020
 from fair.io import read_properties
 
 f = FAIR()
@@ -97,6 +98,8 @@ def test_allocate_before_definitions():
         f.allocate()
 
 
+# If there is a numerics issue with scipy.sparse.linalg, this is often the first test
+# to fail (for reasons unknown) and may be unrelated to the GHG formulae.
 def test_ghg_routines():
     EXPECTED_RESULTS = {
         "myhre1998": np.array([2.2028445, 0.44916397, 0.19313647]),
@@ -110,6 +113,44 @@ def test_ghg_routines():
         ftest.run(progress=False)
         forcing_out = ftest.forcing.squeeze()
         np.testing.assert_allclose(forcing_out[1, ...], results)
+
+
+def test_ghg_forcing_offset():
+    EXPECTED_RESULTS = {
+        "no_offset": np.array([2.1849852, 0.55574659, 0.18577101]),
+        "offset": np.array([2.1849852, 1.7776573, 2.09247788]),
+    }
+    # test that providing the offset gives the same results as not providing it.
+    ftest = minimal_ghg_run()
+    ftest.ghg_forcing_offset = meinshausen2020(
+        np.array([277, 731, 270]).reshape((1, 1, 1, 3)),
+        np.array([277, 731, 270]).reshape((1, 1, 1, 3)),
+        np.array([1, 1, 1]).reshape((1, 1, 1, 3)),
+        np.ones((1, 1, 1, 3)),
+        0,
+        1,
+        2,
+        [],
+    )
+    ftest.run(progress=False)
+    forcing_out = ftest.forcing.squeeze()
+    np.testing.assert_allclose(forcing_out[1, ...], EXPECTED_RESULTS["no_offset"])
+
+    # now check the results differ if the user-specified offset is different.
+    ftest = minimal_ghg_run()
+    ftest.ghg_forcing_offset = meinshausen2020(
+        np.array([277, 0, 0]).reshape((1, 1, 1, 3)),
+        np.array([277, 731, 270]).reshape((1, 1, 1, 3)),
+        np.array([1, 1, 1]).reshape((1, 1, 1, 3)),
+        np.ones((1, 1, 1, 3)),
+        0,
+        1,
+        2,
+        [],
+    )
+    ftest.run(progress=False)
+    forcing_out = ftest.forcing.squeeze()
+    np.testing.assert_allclose(forcing_out[1, ...], EXPECTED_RESULTS["offset"])
 
 
 def test_calculate_iirf0():

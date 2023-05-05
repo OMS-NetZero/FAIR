@@ -1526,16 +1526,23 @@ class FAIR:
                     "FAIR.species_configs['forcing_reference_concentration'] which "
                     "means that I can't calculate greenhouse gas forcing."
                 )
-            ghg_forcing_offset = meinshausen2020(
-                baseline_concentration_array[None, None, ...],
-                forcing_reference_concentration_array[None, None, ...],
-                forcing_scale_array[None, None, ...],
-                greenhouse_gas_radiative_efficiency_array[None, None, ...],
-                self._co2_indices,
-                self._ch4_indices,
-                self._n2o_indices,
-                self._minor_ghg_indices,
-            )
+
+            # Allow for a user-specified offset (provided through self). This will allow
+            # different baseline and pre-industrial concentrations, for example if we
+            # want to include natural emissions in CH4. In this case
+            # baseline_concentration is zero, but the offset should be w.r.t initial
+            # (usually pre-industrial) concentration.
+            if not hasattr(self, "ghg_forcing_offset"):
+                self.ghg_forcing_offset = meinshausen2020(
+                    baseline_concentration_array[None, None, ...],
+                    forcing_reference_concentration_array[None, None, ...],
+                    forcing_scale_array[None, None, ...],
+                    greenhouse_gas_radiative_efficiency_array[None, None, ...],
+                    self._co2_indices,
+                    self._ch4_indices,
+                    self._n2o_indices,
+                    self._minor_ghg_indices,
+                )
 
         # Do we also need to check Leach2021 and ozone forcing?
 
@@ -1742,7 +1749,7 @@ class FAIR:
                         forcing_array[
                             i_timepoint + 1 : i_timepoint + 2, ..., self._ghg_indices
                         ]
-                        - ghg_forcing_offset[..., self._ghg_indices]
+                        - self.ghg_forcing_offset[..., self._ghg_indices]
                     )
                 elif self.ghg_method == "etminan2016":
                     forcing_array[
