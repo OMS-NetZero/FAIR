@@ -4,7 +4,7 @@ Changelog
 v2.1.1
 ------
 
-(`#120 <https://github.com/OMS-NetZero/FAIR/pull/120>`_) Fix a weird bug with scipy-1.10 and linear algebra
+(`#120 <https://github.com/OMS-NetZero/FAIR/pull/120>`_) Fix a weird bug with scipy-1.10 and linear algebra. Remove support for python 3.6, add support for 3.11
 
 v2.1.0
 ------
