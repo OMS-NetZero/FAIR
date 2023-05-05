@@ -28,7 +28,7 @@ REQUIREMENTS_INSTALL = [
     "tqdm",
     "xarray",
 ]
-REQUIREMENTS_NOTEBOOKS = ["nbstripout", "notebook", "ipywidgets"]
+REQUIREMENTS_NOTEBOOKS = ["nbstripout", "notebook", "ipywidgets", "ipython"]
 REQUIREMENTS_TESTS = [
     "codecov",
     "nbmake",
