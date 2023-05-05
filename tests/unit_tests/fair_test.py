@@ -43,6 +43,7 @@ def minimal_ghg_run():
     fair_obj.airborne_emissions[0, 0, 0, :] = 0
     return fair_obj
 
+
 def test_ghg_method():
     f.ghg_method = "LEACH2021"
     assert f.ghg_method == "leach2021"
