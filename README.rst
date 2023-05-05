@@ -26,7 +26,7 @@ FaIR (the Finite-amplitude Impulse-Response) climate model is a simple climate m
 Requirements
 ------------
 
-- python 3.6+
+- python 3.7+
 
 
 Installation

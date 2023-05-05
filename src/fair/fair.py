@@ -1546,7 +1546,6 @@ class FAIR:
             desc=f"Running {self._n_scenarios*self._n_configs} projections in parallel",
             unit="timesteps",
         ):
-
             if self._routine_flags["ghg"]:
                 # 1. alpha scaling
                 alpha_lifetime_array[
