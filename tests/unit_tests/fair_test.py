@@ -99,10 +99,10 @@ def test_allocate_before_definitions():
 
 def test_ghg_routines():
     EXPECTED_RESULTS = {
-        #"myhre1998": np.array([2.2028445, 0.44916397, 0.19313647]),
-        #"etminan2016": np.array([2.21891894, 0.55302311, 0.18624564]),
+        "myhre1998": np.array([2.2028445, 0.44916397, 0.19313647]),
+        "etminan2016": np.array([2.21891894, 0.55302311, 0.18624564]),
         "meinshausen2020": np.array([2.1849852, 0.55574659, 0.18577101]),
-        #"leach2021": np.array([2.20722625, 0.54091863, 0.18102735]),
+        "leach2021": np.array([2.20722625, 0.54091863, 0.18102735]),
     }
     for method, results in EXPECTED_RESULTS.items():
         ftest = minimal_ghg_run()
