@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+v2.1.1
+------
+
+(`#120 <https://github.com/OMS-NetZero/FAIR/pull/120>`_) Fix a weird bug with scipy-1.10 and linear algebra
+
 v2.1.0
 ------
 
