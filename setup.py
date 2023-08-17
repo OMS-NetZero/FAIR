@@ -28,24 +28,29 @@ REQUIREMENTS_INSTALL = [
     "tqdm",
     "xarray",
 ]
-REQUIREMENTS_NOTEBOOKS = ["nbstripout", "notebook", "ipywidgets", "ipython"]
+REQUIREMENTS_NOTEBOOKS = [
+    "nbstripout",
+    "jupyter", 
+    "ipywidgets", 
+    "ipython"
+]
 REQUIREMENTS_TESTS = [
     "codecov",
     "nbmake",
     "netCDF4",
     "pytest-cov",
     "pytest-console-scripts",
-    "pytest>=4.0",
+    "pytest",
 ]
-REQUIREMENTS_DOCS = ["ipython", "pandoc", "sphinx>=1.4", "sphinx_rtd_theme"]
+REQUIREMENTS_DOCS = ["ipython", "pandoc", "sphinx", "sphinx_rtd_theme"]
 REQUIREMENTS_DEPLOY = [
-    "twine>=1.11.0",
-    "setuptools>=41.0",
-    "wheel>=0.31.0",
+    "twine",
+    "setuptools",
+    "wheel",
 ]  # plus conda
 
 requirements_dev = [
-    *["bandit", "black", "flake8>=4.0.0", "isort>=5.0,<5.11", "pydocstyle"],
+    *["bandit", "black", "flake8", "isort", "pydocstyle"],
     *REQUIREMENTS_NOTEBOOKS,
     *REQUIREMENTS_TESTS,
     *REQUIREMENTS_DOCS,
@@ -85,7 +90,7 @@ setup(
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     package_data={"": ["*.csv"]},
-    python_requires=">=3.6, <4",
+    python_requires=">=3.7, <4",
     install_requires=REQUIREMENTS_INSTALL,
     extras_require=requirements_extras,
 )
