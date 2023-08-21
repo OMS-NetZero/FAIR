@@ -67,7 +67,7 @@ class FAIR:
         has as an ozone depleting substance relative to each chlorine atom.
     ghg_method : str
         method to use for calculating greenhouse gas forcing from CO\ :sub:`2`,
-        CH\ :sub:`4` and N\ :sub:`2`O. Valid options are {"leach2021",
+        CH\ :sub:`4` and N\ :sub:`2`\ O. Valid options are {"leach2021",
         "meinshausen2020", "etminan2016", "myhre1998"}
     ch4_method : str
         method to use for calculating methane lifetime change. Valid options are
