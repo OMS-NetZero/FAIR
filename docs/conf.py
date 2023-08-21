@@ -37,3 +37,6 @@ nitpick_ignore_regex = [
 
 # Number figures
 numfig = True
+
+# readthedocs being a pain
+master_doc = 'index'
