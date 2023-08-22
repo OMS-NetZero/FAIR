@@ -11,7 +11,7 @@ extensions = [
 ]
 
 project = 'FaIR'
-copyright = '2022, FaIR Development Team'
+copyright = '2023, FaIR Development Team'
 author = 'FaIR Development Team'
 
 # -- General configuration ---------------------------------------------------
