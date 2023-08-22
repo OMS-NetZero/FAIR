@@ -42,7 +42,7 @@ REQUIREMENTS_TESTS = [
     "pytest-console-scripts",
     "pytest",
 ]
-REQUIREMENTS_DOCS = ["ipython", "pandoc", "sphinx", "sphinx_rtd_theme"]
+REQUIREMENTS_DOCS = ["ipython", "pandoc", "sphinx>=6.2.1", "sphinx_rtd_theme"]
 REQUIREMENTS_DEPLOY = [
     "twine",
     "setuptools",
