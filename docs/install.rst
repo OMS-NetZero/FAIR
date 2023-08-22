@@ -12,6 +12,8 @@ Probably the easiest way to get up and running::
 From anaconda
 -------------
 
+::
+
     conda install -c chrisroadmap fair
 
 

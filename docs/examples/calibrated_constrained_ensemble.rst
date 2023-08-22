@@ -244,18 +244,21 @@ We download the RCMIP emissions file, and pull out the relevant sectors,
 update the unit, and finally override the correct entry of
 ``f.emissions``.
 
-Notes on the below: - 46.006 is the molecular weight of NO2 (g/mol). -
-30.006 is the molecular weight of NO (g/mol). - The final
-``[:550, None]`` is to transfer the data coming in from RCMIP (dimension
-(750,), a timeseries of annual emissions) into the correct shape for our
-problem (550, 1001). Since we are looping over the ``scenario``
-dimension and selecting it, and we are selecting NOx from the
-``species`` dimension, these axes are collapsed and we’re left with
-(``timepoints``, ``configs``). The RCMIP data starts in 1750 as does our
-emissions data; if there is a mismatch in the start date, it would be
-necessary to select the correct slice from the RCMIP ``DataFrame`` that
-is loaded in. For a reminder of the dimensioning in FaIR 2.1, see
-https://docs.fairmodel.net/en/latest/intro.html#dimensionality.
+Notes on the below:
+
+-  46.006 is the molecular weight of NO2 (g/mol).
+-  30.006 is the molecular weight of NO (g/mol).
+-  The final ``[:550, None]`` is to transfer the data coming in from
+   RCMIP (dimension (750,), a timeseries of annual emissions) into the
+   correct shape for our problem (550, 1001). Since we are looping over
+   the ``scenario`` dimension and selecting it, and we are selecting NOx
+   from the ``species`` dimension, these axes are collapsed and we’re
+   left with (``timepoints``, ``configs``). The RCMIP data starts in
+   1750 as does our emissions data; if there is a mismatch in the start
+   date, it would be necessary to select the correct slice from the
+   RCMIP ``DataFrame`` that is loaded in. For a reminder of the
+   dimensioning in FaIR 2.1, see
+   https://docs.fairmodel.net/en/latest/intro.html#dimensionality.
 
 .. code:: ipython3
 
@@ -754,6 +757,9 @@ CO2 airborne fraction
     
     pl.suptitle("SSP CO$_2$ airborne fraction")
     fig.tight_layout()
+
+Earth’s energy uptake
+~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: ipython3
 
