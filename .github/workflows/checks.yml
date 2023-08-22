@@ -27,7 +27,7 @@ jobs:
     - name: Install dev dependencies
       run: |
         pip install --upgrade pip wheel
-        pip install -e .[dev]
+        pip install -e .[dev-nodocs]
     - name: Formatting and linters
       run: |
         bandit -c .bandit.yml -r src/fair

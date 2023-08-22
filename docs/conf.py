@@ -11,7 +11,7 @@ extensions = [
 ]
 
 project = 'FaIR'
-copyright = '2022, FaIR Development Team'
+copyright = '2023, FaIR Development Team'
 author = 'FaIR Development Team'
 
 # -- General configuration ---------------------------------------------------
@@ -37,3 +37,6 @@ nitpick_ignore_regex = [
 
 # Number figures
 numfig = True
+
+# readthedocs being a pain
+master_doc = 'index'

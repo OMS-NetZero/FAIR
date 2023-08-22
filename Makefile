@@ -52,16 +52,8 @@ $(VENV_DIR): setup.py
 	$(VENV_DIR)/bin/pip install --upgrade 'pip>=20.3'
 	$(VENV_DIR)/bin/pip install wheel
 	$(VENV_DIR)/bin/pip install -e .[dev]
-	$(VENV_DIR)/bin/jupyter nbextension enable --py widgetsnbextension --sys-prefix
 
 	touch $(VENV_DIR)
-
-first-venv: ## create a new virtual environment for the very first repo setup
-	python3 -m venv $(VENV_DIR)
-
-	$(VENV_DIR)/bin/pip install --upgrade pip
-	$(VENV_DIR)/bin/pip install versioneer
-	# don't touch here as we don't want this venv to persist anyway
 
 .PHONY: test_notebooks
 test_notebooks: $(VENV_DIR)

@@ -1,4 +1,4 @@
-Installation 
+Installation
 ============
 
 From the Python Package Index (PyPI)
@@ -7,6 +7,15 @@ From the Python Package Index (PyPI)
 Probably the easiest way to get up and running::
 
     pip install fair
+
+
+From anaconda
+-------------
+
+::
+
+    conda install -c chrisroadmap fair
+
 
 From GitHub
 -----------
@@ -24,7 +33,7 @@ Developing
 
     git checkout -b <branch_name>
 
-3. Optional, but we highly recommend developing FaIR in a virtual environment to keep your base installation of `python` nice and clean. 
+3. Optional, but we highly recommend developing FaIR in a virtual environment to keep your base installation of `python` nice and clean.
 4. Install `fair` in development mode::
 
     pip install -e .[dev]
@@ -52,8 +61,3 @@ If you find errors at this point, they will need fixing before GitHub will allow
 12. If the codeowners are happy, the branch will be merged in.
 
 TODO: Check out the (currently non-existent) contributing guide, but it's basically this.
-
-
-Conda install
--------------
-Coming soon.

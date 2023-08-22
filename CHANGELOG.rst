@@ -4,6 +4,8 @@ Changelog
 v2.1.1
 ------
 
+(`#127 <https://github.com/OMS-NetZero/FAIR/pull/127>`_) Add a calibrated, constrained example to the documentation
+
 (`#121 <https://github.com/OMS-NetZero/FAIR/pull/121>`_) Make `FAIR.ghg_forcing_offset` an attribute
 
 (`#120 <https://github.com/OMS-NetZero/FAIR/pull/120>`_) Fix a weird bug with scipy-1.10 and linear algebra. Remove support for python 3.6, add support for 3.11
