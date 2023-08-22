@@ -37,19 +37,33 @@ REQUIREMENTS_TESTS = [
     "pytest-console-scripts",
     "pytest",
 ]
-REQUIREMENTS_DOCS = ["ipython", "pandoc", "sphinx", "sphinx_rtd_theme<1.3"]
+REQUIREMENTS_DOCS = ["ipython", "pandoc", "sphinx==6.2.1", "sphinx_rtd_theme==1.2.0"]
 REQUIREMENTS_DEPLOY = [
     "twine",
     "setuptools",
     "wheel",
 ]  # plus conda
+REQUIREMENTS_STYLE = [
+    "bandit",
+    "black",
+    "flake8",
+    "isort",
+    "pydocstyle",
+]
 
 requirements_dev = [
-    *["bandit", "black", "flake8", "isort", "pydocstyle"],
+    *REQUIREMENTS_DOCS,
     *REQUIREMENTS_NOTEBOOKS,
     *REQUIREMENTS_TESTS,
-    *REQUIREMENTS_DOCS,
     *REQUIREMENTS_DEPLOY,
+    *REQUIREMENTS_STYLE,
+]
+
+requirements_dev_nodocs = [
+    *REQUIREMENTS_NOTEBOOKS,
+    *REQUIREMENTS_TESTS,
+    *REQUIREMENTS_DEPLOY,
+    *REQUIREMENTS_STYLE,
 ]
 
 requirements_extras = {
@@ -57,6 +71,7 @@ requirements_extras = {
     "tests": REQUIREMENTS_TESTS,
     "deploy": REQUIREMENTS_DEPLOY,
     "dev": requirements_dev,
+    "dev-nodocs": requirements_dev_nodocs,
 }
 
 setup(
