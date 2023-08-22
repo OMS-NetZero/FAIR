@@ -63,8 +63,8 @@ consistent, and there will be some tradeoff; it is impossible to hit the
 above ranges perfectly. As more constraints are added, this gets harder,
 or will require larger prior sample sizes.
 
-Get required imports
---------------------
+0. Get required imports
+-----------------------
 
 `pooch <https://www.fatiando.org/pooch/latest/>`__ is a useful package
 that allows downloads of external datasets to your cache, meaning that
@@ -84,7 +84,7 @@ reproduciblity, and easy to forget and accidently commit a large file).
     from fair.io import read_properties
 
 1. Create FaIR instance
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 To reproduce an AR6-like run, we want to allow methane lifetime to be
 affected by all its relevant chemical precursors (NOx, VOCs, etc) so we
@@ -97,7 +97,7 @@ all of the options for initialising ``FAIR``).
     f = FAIR(ch4_method="Thornhill2021")
 
 2. Define time horizon
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 A lot of analysis uses 2100 as the time horizon, but 2300 is an
 interesting end point to see the effects of long-term climate change.
@@ -110,7 +110,7 @@ far.
     f.define_time(1750, 2300, 1)  # start, end, step
 
 3. Define scenarios
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 Since the eight tier 1 & tier 2 SSPs are shipped with RCMIP, and they
 are quite familiar, we’ll use these scenarios. We’ll use the
@@ -126,7 +126,7 @@ scenario names that appear in the RCMIP database.
     f.define_scenarios(scenarios)
 
 4. Define configs
-~~~~~~~~~~~~~~~~~
+-----------------
 
 The constrained dataset contains 1001 ensemble members, and 47
 parameters that define the climate response of FaIR. The parameters
@@ -176,7 +176,7 @@ constraining code.
     df_configs.head()
 
 5. Define species and properties
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------
 
 We will use FaIR’s default list of 63 species. They are often run with
 default properties that are included in the model code. However, as part
@@ -202,12 +202,12 @@ are.
     f.define_species(species, properties)
 
 6. Modify run options
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 Not necessary, as we made all of our choices on initialisation (step 1).
 
 7. Create input and output xarrays
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------
 
 If this runs without error, the problem is consistently and completely
 set up: we then just need to add data.
@@ -216,8 +216,11 @@ set up: we then just need to add data.
 
     f.allocate()
 
-8a. Fill in emissions, solar forcing, and volcanic forcing
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+8. Fill in data
+---------------
+
+8a. emissions, solar forcing, and volcanic forcing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We can use the convenience function ``fill_from_rcmip()`` to fill in the
 emissions. Remember that not all ``species`` are things that take
