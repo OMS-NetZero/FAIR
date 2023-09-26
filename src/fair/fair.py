@@ -1406,7 +1406,7 @@ class FAIR:
                 + self.emissions[..., self._co2_afolu_indices].data
             )
         self.cumulative_emissions[1:, ...] = (
-            self.emissions.cumsum(dim='timepoints', skipna=False) * self.timestep
+            self.emissions.cumsum(dim="timepoints", skipna=False) * self.timestep
             + self.cumulative_emissions[0, ...]
         ).data
 
