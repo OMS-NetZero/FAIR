@@ -3,6 +3,7 @@
 import os
 
 import pandas as pd
+import pytest
 import xarray as xr
 
 from fair import FAIR
@@ -10,6 +11,7 @@ from fair.interface import fill, initialise
 from fair.io import read_properties
 
 
+@pytest.mark.filterwarnings("ignore:numpy.ndarray size changed")
 def test_ssp_emissions_cmip6_ebm3_calibrations():
     f = FAIR(ch4_method="thornhill2021")
     f.define_time(1750, 2100, 1)
