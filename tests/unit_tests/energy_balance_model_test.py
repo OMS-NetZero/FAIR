@@ -87,7 +87,7 @@ def test_ebm_emergent_parameters():
     )
 
 
-@pytest.mark.filterwarnings("ignore:covariance is not positive-semidefinite")
+@pytest.mark.filterwarnings("ignore:covariance")
 def test_ebm_run():
     EBM_CAMS_STOCHASTIC.add_forcing(np.zeros(5), timestep=1)
     EBM_CAMS_STOCHASTIC.run()
