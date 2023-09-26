@@ -14,18 +14,18 @@ contains all information about the scenario(s), the forcer(s) we want to
 investigate, and any configurations specific to each species and the
 response of the climate.
 
-.. raw:: html
+Note
+----
 
-   <div class="alert alert-block alert-info">
+The code in this introductory block is explanatory and if you try to
+copy and paste it it you’ll get errors. The code in this file is
+self-contained below the heading “1. Create FaIR instance” below.
+Alternatively, check out the repository from GitHub and run this example
+notebook in ``jupyter``. Details
+`here <https://docs.fairmodel.net/en/latest/install.html>`__.
 
-The code in this introductory block is explanatory and if you try to run
-it you’ll get errors. The code is self-contained below the heading “1.
-Create FaIR instance” below. Alternatively, check out the repository
-from GitHub and run this example notebook in ``jupyter``. Details here.
-
-.. raw:: html
-
-   </div>
+Some basics
+-----------
 
 A run is initialised as follows:
 
