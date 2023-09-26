@@ -32,8 +32,8 @@ def minimal_ghg_run(timestep=270, stochastic_run=False, seed=37):
     )
     fair_obj.climate_configs["deep_ocean_efficacy"][0] = 1.133708775
     fair_obj.climate_configs["gamma_autocorrelation"][0] = 3.548407499
-    fair_obj.climate_configs["sigma_xi"][0] = 0.439126403/np.sqrt(timestep)
-    fair_obj.climate_configs["sigma_eta"][0] = 0.497441140/np.sqrt(timestep)
+    fair_obj.climate_configs["sigma_xi"][0] = 0.439126403 / np.sqrt(timestep)
+    fair_obj.climate_configs["sigma_eta"][0] = 0.497441140 / np.sqrt(timestep)
     fair_obj.climate_configs["forcing_4co2"][0] = 7.378788155
     fair_obj.climate_configs["stochastic_run"][0] = stochastic_run
     fair_obj.climate_configs["use_seed"][0] = True
