@@ -1,40 +1,37 @@
 [![image](https://github.com/OMS-NetZero/FAIR/actions/workflows/checks.yml/badge.svg)](https://github.com/OMS-NetZero/FAIR/actions)
-
 [![image](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/OMS-NetZero/FAIR/master?filepath=examples/basic_run_example.ipynb)
-
 [![Documentation Status](https://readthedocs.org/projects/fair/badge/?version=latest)](http://fair.readthedocs.io/en/latest/?badge=latest)
-
 [![image](https://zenodo.org/badge/DOI/10.5281/zenodo.1247898.svg)](https://doi.org/10.5281/zenodo.1247898)
-
 [![image](https://codecov.io/gh/OMS-NetZero/FAIR/branch/master/graph/badge.svg)](https://codecov.io/gh/OMS-NetZero/FAIR)
+[![image](https://img.shields.io/pypi/v/fair)](https://pypi.org/project/fair/) [![Anaconda-Server Badge](https://anaconda.org/chrisroadmap/fair/badges/version.svg)](https://anaconda.org/chrisroadmap/fair)
 
-[![image](https://img.shields.io/pypi/v/fair)](https://pypi.org/project/fair/)
-
-FaIR
-====
+# FaIR
 
 FaIR (the Finite-amplitude Impulse-Response) climate model is a simple
 climate model, or *emulator*, useful for producing global mean
 temperature projections from a wide range of emissions or prescribed
 forcing scenarios.
 
-Requirements
-------------
+## Requirements
 
 -   python 3.7+
 
-Installation
-------------
+## Installation
 
-From the Python Package Index:
+### From the Python Package Index
 
     pip install fair
 
-For other options refer to [the
+### From anaconda
+
+    conda install -c chrisroadmap fair
+
+### From source
+
+Refer to [the
 documentation](https://fair.readthedocs.io/en/latest/install.html)
 
-Usage
------
+## Usage
 
 FaIR can be driven by emissions of greenhouse gases (GHGs) and
 short-lived forcers (SLCFs), concentrations of GHGs, or effective
@@ -45,18 +42,16 @@ components are optional allowing experiments such as pulse-response
 analyses to single forcers or gathering up non-CO~2~ species as an
 aggregate forcing.
 
-Examples
---------
+## Examples
 
-The [examples](examples/) folder contains Jupyter notebooks with some
+The examples directory contains Jupyter notebooks with some
 simple examples showing how to run FaIR and the standalone energy
 balance model.
 
 If you want to try this out online, [go
 here](https://mybinder.org/v2/gh/OMS-NetZero/FAIR/master?filepath=examples/basic_run_example.ipynb).
 
-Important: A note about calibrating and constraining
-----------------------------------------------------
+## Important: A note about calibrating and constraining
 
 FaIR is naive. It will run whatever climate scenario and climate
 configuration you give it. If you violate the laws of physics, FaIR
@@ -78,8 +73,7 @@ example](https://docs.fairmodel.net/en/latest/examples/calibrated_constrained_en
 If you\'re writing a paper using FaIR, you should use these. There\'ll
 be a paper on this at some point, for now please cite the Zenodo DOI.
 
-Citation
---------
+## Citation
 
 If you use FaIR in your work, please cite the following references
 depending on the version:
@@ -95,7 +89,7 @@ depending on the version:
     Geosci. Model Dev.,
     <https://doi.org/10.5194/gmd-11-2273-2018>, 2018.
 -   **v1.0** (or the concept of the state-dependent impulse-response
-    function for CO~2~): Millar, R. J., Nicholls, Z. R., Friedlingstein,
+    function for CO<sub>2</sub>): Millar, R. J., Nicholls, Z. R., Friedlingstein,
     P., and Allen, M. R.: A modified impulse-response representation of
     the global near-surface air temperature and atmospheric
     concentration response to carbon dioxide emissions, Atmos. Chem.
