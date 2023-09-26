@@ -40,16 +40,16 @@ format:  ## re-format files
 
 .PHONY: black
 black: $(VENV_DIR)  ## use black to autoformat code
-	$(VENV_DIR)/bin/black --target-version py37 $(FILES_TO_FORMAT_PYTHON)
+	$(VENV_DIR)/bin/black --target-version py311 $(FILES_TO_FORMAT_PYTHON)
 
 isort: $(VENV_DIR)  ## format the code
 	$(VENV_DIR)/bin/isort $(FILES_TO_FORMAT_PYTHON)
 
 virtual-environment: $(VENV_DIR)  ## update venv, create a new venv if it doesn't exist
 $(VENV_DIR): setup.py
-	[ -d $(VENV_DIR) ] || python3 -m venv $(VENV_DIR)
+	[ -d $(VENV_DIR) ] || python3.11 -m venv $(VENV_DIR)
 
-	$(VENV_DIR)/bin/pip install --upgrade 'pip>=20.3'
+	$(VENV_DIR)/bin/pip install --upgrade pip
 	$(VENV_DIR)/bin/pip install wheel
 	$(VENV_DIR)/bin/pip install -e .[dev]
 

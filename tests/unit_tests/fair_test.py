@@ -1,6 +1,7 @@
 """Module for unit test of fair."""
 
 import tempfile
+import warnings
 
 import numpy as np
 import pytest
@@ -12,14 +13,14 @@ from fair.io import read_properties
 f = FAIR()
 
 
-def minimal_ghg_run():
+def minimal_ghg_run(timestep=270, stochastic_run=False, seed=37):
     fair_obj = FAIR()
     species = ["CO2", "CH4", "N2O"]
     species, properties = read_properties(species=species)
     for specie in species:
         properties[specie]["input_mode"] = "concentration"
     fair_obj.define_species(species, properties)
-    fair_obj.define_time(1750, 2020, 270)
+    fair_obj.define_time(1750, 2020, timestep)
     fair_obj.define_scenarios(["historical"])
     fair_obj.define_configs(["UKESM1-0-LL"])
     fair_obj.allocate()
@@ -31,13 +32,17 @@ def minimal_ghg_run():
     )
     fair_obj.climate_configs["deep_ocean_efficacy"][0] = 1.133708775
     fair_obj.climate_configs["gamma_autocorrelation"][0] = 3.548407499
+    fair_obj.climate_configs["sigma_xi"][0] = 0.439126403 / np.sqrt(timestep)
+    fair_obj.climate_configs["sigma_eta"][0] = 0.497441140 / np.sqrt(timestep)
     fair_obj.climate_configs["forcing_4co2"][0] = 7.378788155
-    fair_obj.climate_configs["stochastic_run"][0] = False
+    fair_obj.climate_configs["stochastic_run"][0] = stochastic_run
+    fair_obj.climate_configs["use_seed"][0] = True
+    fair_obj.climate_configs["seed"][0] = seed
     fair_obj.fill_species_configs()
     fair_obj.species_configs["baseline_concentration"][0, :] = [277, 731, 270]
     fair_obj.species_configs["forcing_reference_concentration"][0, :] = [277, 731, 270]
     fair_obj.concentration[0, 0, 0, :] = [277, 731, 270]
-    fair_obj.concentration[1, 0, 0, :] = [410, 1900, 325]
+    fair_obj.concentration[1:, 0, 0, :] = [410, 1900, 325]
     fair_obj.forcing[0, 0, 0, :] = 0
     fair_obj.temperature[0, 0, 0, :] = 0
     fair_obj.cumulative_emissions[0, 0, 0, :] = 0
@@ -220,6 +225,21 @@ def test__make_ebms_climate_configs_nan():
     ftest.climate_configs["ocean_heat_transfer"][0, :] = np.nan
     with pytest.raises(ValueError):
         ftest._make_ebms()
+
+
+def test_run_runtime_warning():
+    # need to run stochastic (to trigger the problem in the first place) and at a
+    # big enough time step to trigger the warning but not too big, else the matrix
+    # really is wrong. Doesn't seem the most robust test to future scipy whims.
+    ftest = minimal_ghg_run(stochastic_run=True, timestep=27)
+    # I want a warning (Idlewild; 2005)
+    with pytest.warns(RuntimeWarning):
+        ftest.run(suppress_warnings=False)
+    # I don't want a warning
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        ftest.run(suppress_warnings=True)
+        ftest.run()
 
 
 def test_to_netcdf():

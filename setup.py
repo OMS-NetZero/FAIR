@@ -16,7 +16,7 @@ AUTHORS = [
 here = pathlib.Path(__file__).parent.resolve()
 
 # Get the long description from the README file
-long_description = (here / "README.rst").read_text(encoding="utf-8")
+long_description = (here / "README.md").read_text(encoding="utf-8")
 
 # using climate-assessment as a template here
 REQUIREMENTS_INSTALL = [
@@ -39,6 +39,7 @@ REQUIREMENTS_TESTS = [
 ]
 REQUIREMENTS_DOCS = ["ipython", "pandoc", "sphinx==6.2.1", "sphinx_rtd_theme==1.2.0"]
 REQUIREMENTS_DEPLOY = [
+    "build",
     "twine",
     "setuptools",
     "wheel",

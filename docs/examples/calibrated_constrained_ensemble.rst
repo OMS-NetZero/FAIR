@@ -12,6 +12,13 @@ reproduce both observed climate change since pre-industrial and assessed
 climate metrics such as the equilibrium climate sensitivity from the
 IPCC Sixth Assessement Report.
 
+**Note**: if you are reading this tutorial online and want to reproduce
+the results, you will need one additional file. Grab this from
+https://github.com/OMS-NetZero/FAIR/blob/master/examples/data/species_configs_properties_calibration1.1.0.csv.
+In Step 5 below, this is read in from the ``data/`` directory relative
+to here. This does not apply if you are running this notebook from
+Binder or have cloned it from GitHub - it should run out of the box.
+
 The calibrations will be continually updated, as new data for surface
 temperature, ocean heat content, external forcing and emissions become
 available. For now, we have an IPCC AR6 WG1 version (where observational

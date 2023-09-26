@@ -1388,7 +1388,9 @@ class FAIR:
             with warnings.catch_warnings():
                 if suppress_warnings:
                     warnings.filterwarnings(
-                        "ignore", message="covariance is not positive-semidefinite."
+                        "ignore",
+                        category=RuntimeWarning,
+                        module="scipy.stats._multivariate",
                     )
                 self._make_ebms()
 
@@ -1404,9 +1406,9 @@ class FAIR:
                 + self.emissions[..., self._co2_afolu_indices].data
             )
         self.cumulative_emissions[1:, ...] = (
-            self.emissions.cumsum(axis=0, skipna=False) * self.timestep
+            self.emissions.cumsum(dim="timepoints", skipna=False) * self.timestep
             + self.cumulative_emissions[0, ...]
-        )
+        ).data
 
         # create numpy arrays
         alpha_lifetime_array = self.alpha_lifetime.data
