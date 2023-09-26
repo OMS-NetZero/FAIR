@@ -4,6 +4,10 @@ Changelog
 v2.1.1
 ------
 
+(`#118 <https://github.com/OMS-NetZero/FAIR/pull/118>`_) Development branch merged in
+
+(`#130 <https://github.com/OMS-NetZero/FAIR/issues/130>`_) Fixed breaking change in xarray 2023.9.0
+
 (`#127 <https://github.com/OMS-NetZero/FAIR/pull/127>`_) Add a calibrated, constrained example to the documentation
 
 (`#121 <https://github.com/OMS-NetZero/FAIR/pull/121>`_) Make `FAIR.ghg_forcing_offset` an attribute
