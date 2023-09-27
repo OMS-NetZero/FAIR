@@ -1768,12 +1768,13 @@ class FAIR:
                 )
 
             # 12. concentration to stratospheric water vapour forcing
+            # 12. concentration to stratospheric water vapour forcing
             if self._routine_flags["h2o stratospheric"]:
                 forcing_array[
                     i_timepoint + 1 : i_timepoint + 2, ..., self._h2ostrat_indices
                 ] = calculate_linear_forcing(
                     concentration_array[i_timepoint + 1 : i_timepoint + 2, ...],
-                    baseline_concentration_array[None, None, ...],
+                    0,
                     forcing_scale_array[None, None, ..., self._h2ostrat_indices],
                     h2o_stratospheric_factor_array[None, None, ...],
                 )
