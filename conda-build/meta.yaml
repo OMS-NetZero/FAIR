@@ -1,0 +1,36 @@
+{% set version = environ.get('GIT_DESCRIBE_TAG', 'default').lstrip('v') %}
+
+package:
+  name: fair
+  version: {{ version.split("+")[0] }}
+
+source:
+  git_url: ../
+
+build:
+  noarch: python
+
+requirements:
+  host:
+    - python
+    - setuptools
+  build:
+    - python  {{ python }}
+  run:
+    - python
+    - numpy
+    - pandas
+    - pooch
+    - scipy
+    - tqdm
+    - xarray
+
+about:
+  home: https://github.com/OMS-NetZero/FAIR
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: "Finite-amplitude Impulse Response simple climate model."
+
+extra:
+  recipe-maintainers:
+    - chrisroadmap
