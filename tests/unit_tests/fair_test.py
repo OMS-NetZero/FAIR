@@ -13,6 +13,20 @@ from fair.io import read_properties
 f = FAIR()
 
 
+def minimal_empty_run(mode="concentration"):
+    fair_obj = FAIR()
+    species = ["CO2", "CH4", "N2O"]
+    species, properties = read_properties(species=species)
+    for specie in species:
+        properties[specie]["input_mode"] = mode
+    fair_obj.define_species(species, properties)
+    fair_obj.define_time(1750, 2020, 270)
+    fair_obj.define_scenarios(["historical"])
+    fair_obj.define_configs(["UKESM1-0-LL"])
+    fair_obj.allocate()
+    return fair_obj
+
+
 def minimal_ghg_run(timestep=270, stochastic_run=False, seed=37):
     fair_obj = FAIR()
     species = ["CO2", "CH4", "N2O"]
@@ -225,6 +239,20 @@ def test__make_ebms_climate_configs_nan():
     ftest.climate_configs["ocean_heat_transfer"][0, :] = np.nan
     with pytest.raises(ValueError):
         ftest._make_ebms()
+
+
+def test__make_ebms_stochastic_climate_configs_nan():
+    ftest = minimal_ghg_run(stochastic_run=True)
+    ftest.climate_configs["sigma_eta"][0] = np.nan
+    with pytest.raises(ValueError):
+        ftest._make_ebms()
+
+
+def test__check_properties_raise_if_nan():
+    for mode in ["emissions", "concentration", "forcing"]:
+        ftest = minimal_empty_run(mode)
+        with pytest.raises(ValueError):
+            ftest._check_properties()
 
 
 def test_run_runtime_warning():
