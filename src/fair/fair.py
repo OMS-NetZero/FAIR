@@ -1774,7 +1774,7 @@ class FAIR:
                     i_timepoint + 1 : i_timepoint + 2, ..., self._h2ostrat_indices
                 ] = calculate_linear_forcing(
                     concentration_array[i_timepoint + 1 : i_timepoint + 2, ...],
-                    0,
+                    baseline_concentration_array[None, None, ...],
                     forcing_scale_array[None, None, ..., self._h2ostrat_indices],
                     h2o_stratospheric_factor_array[None, None, ...],
                 )
