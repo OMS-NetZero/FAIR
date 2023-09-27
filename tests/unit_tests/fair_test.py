@@ -13,8 +13,8 @@ from fair.io import read_properties
 f = FAIR()
 
 
-def minimal_empty_run(mode="concentration", timestep=270):
-    fair_obj = FAIR()
+def minimal_empty_run(mode="concentration", timestep=270, temperature_prescribed=False):
+    fair_obj = FAIR(temperature_prescribed=temperature_prescribed)
     species = ["CO2", "CH4", "N2O"]
     species, properties = read_properties(species=species)
     for specie in species:
@@ -27,8 +27,16 @@ def minimal_empty_run(mode="concentration", timestep=270):
     return fair_obj
 
 
-def minimal_fair_run(stochastic_run=False, seed=37, mode="concentration", timestep=270):
-    fair_obj = minimal_empty_run(mode=mode, timestep=timestep)
+def minimal_fair_run(
+    stochastic_run=False,
+    seed=37,
+    mode="concentration",
+    timestep=270,
+    temperature_prescribed=False,
+):
+    fair_obj = minimal_empty_run(
+        mode=mode, timestep=timestep, temperature_prescribed=temperature_prescribed
+    )
     fair_obj.climate_configs["ocean_heat_capacity"][0, :] = np.array(
         [2.917300055, 11.28317472, 73.2487238]
     )
@@ -244,6 +252,10 @@ def test__check_properties_raise_if_nan():
         ftest = minimal_empty_run(mode=mode)
         with pytest.raises(ValueError):
             ftest._check_properties()
+    ftest = minimal_fair_run(temperature_prescribed=True)
+    ftest.temperature[:] = np.nan
+    with pytest.raises(ValueError):
+        ftest._check_properties()
 
 
 def test_run_runtime_warning():
