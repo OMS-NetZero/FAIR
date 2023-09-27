@@ -13,31 +13,22 @@ from fair.io import read_properties
 f = FAIR()
 
 
-def minimal_empty_run(mode="concentration"):
+def minimal_empty_run(mode="concentration", timestep=270):
     fair_obj = FAIR()
     species = ["CO2", "CH4", "N2O"]
     species, properties = read_properties(species=species)
     for specie in species:
         properties[specie]["input_mode"] = mode
     fair_obj.define_species(species, properties)
-    fair_obj.define_time(1750, 2020, 270)
+    fair_obj.define_time(1750, 2020, timestep)
     fair_obj.define_scenarios(["historical"])
     fair_obj.define_configs(["UKESM1-0-LL"])
     fair_obj.allocate()
     return fair_obj
 
 
-def minimal_ghg_run(timestep=270, stochastic_run=False, seed=37):
-    fair_obj = FAIR()
-    species = ["CO2", "CH4", "N2O"]
-    species, properties = read_properties(species=species)
-    for specie in species:
-        properties[specie]["input_mode"] = "concentration"
-    fair_obj.define_species(species, properties)
-    fair_obj.define_time(1750, 2020, timestep)
-    fair_obj.define_scenarios(["historical"])
-    fair_obj.define_configs(["UKESM1-0-LL"])
-    fair_obj.allocate()
+def minimal_fair_run(stochastic_run=False, seed=37, mode="concentration", timestep=270):
+    fair_obj = minimal_empty_run(mode=mode, timestep=timestep)
     fair_obj.climate_configs["ocean_heat_capacity"][0, :] = np.array(
         [2.917300055, 11.28317472, 73.2487238]
     )
@@ -127,7 +118,7 @@ def test_ghg_routines():
         "leach2021": np.array([2.20722625, 0.54091863, 0.18102735]),
     }
     for method, results in EXPECTED_RESULTS.items():
-        ftest = minimal_ghg_run()
+        ftest = minimal_fair_run()
         ftest.ghg_method = method
         ftest.run(progress=False)
         forcing_out = ftest.forcing.squeeze()
@@ -140,7 +131,7 @@ def test_ghg_forcing_offset():
         "offset": np.array([2.1849852, 1.7776573, 2.09247788]),
     }
     # test that providing the offset gives the same results as not providing it.
-    ftest = minimal_ghg_run()
+    ftest = minimal_fair_run()
     ftest.ghg_forcing_offset = meinshausen2020(
         np.array([277, 731, 270]).reshape((1, 1, 1, 3)),
         np.array([277, 731, 270]).reshape((1, 1, 1, 3)),
@@ -156,7 +147,7 @@ def test_ghg_forcing_offset():
     np.testing.assert_allclose(forcing_out[1, ...], EXPECTED_RESULTS["no_offset"])
 
     # now check the results differ if the user-specified offset is different.
-    ftest = minimal_ghg_run()
+    ftest = minimal_fair_run()
     ftest.ghg_forcing_offset = meinshausen2020(
         np.array([277, 0, 0]).reshape((1, 1, 1, 3)),
         np.array([277, 731, 270]).reshape((1, 1, 1, 3)),
@@ -174,7 +165,7 @@ def test_ghg_forcing_offset():
 
 def test_calculate_iirf0():
     EXPECTED_RESULTS = np.array([52.35538747, 8.2499551, 65.44969575])
-    ftest = minimal_ghg_run()
+    ftest = minimal_fair_run()
     ftest.calculate_iirf0()
     np.testing.assert_allclose(
         np.squeeze(ftest.species_configs["iirf_0"]), EXPECTED_RESULTS
@@ -186,19 +177,19 @@ def test_calculate_g():
         "g0": np.array([0.01017828826538349, 0.36785516988915923, 0.07675558835522626]),
         "g1": np.array([11.412622431258765, 8.24941081407049, 25.495288175200994]),
     }
-    ftest = minimal_ghg_run()
+    ftest = minimal_fair_run()
     ftest.calculate_g()
     for variable, results in EXPECTED_RESULTS.items():
         np.testing.assert_allclose(np.squeeze(ftest.species_configs[variable]), results)
 
 
 def test_from_rcmip():
-    ftest = minimal_ghg_run()
+    ftest = minimal_fair_run()
     ftest.fill_from_rcmip()
 
 
 def test_fill_from_rcmip_missing_concentration_data():
-    ftest = minimal_ghg_run()
+    ftest = minimal_fair_run()
     ftest.scenarios = ["ADVANCE"]
     with pytest.raises(ValueError):
         ftest.fill_from_rcmip()
@@ -235,14 +226,14 @@ def test_fill_from_rcmip_missing_forcing_data():
 
 
 def test__make_ebms_climate_configs_nan():
-    ftest = minimal_ghg_run()
+    ftest = minimal_fair_run()
     ftest.climate_configs["ocean_heat_transfer"][0, :] = np.nan
     with pytest.raises(ValueError):
         ftest._make_ebms()
 
 
 def test__make_ebms_stochastic_climate_configs_nan():
-    ftest = minimal_ghg_run(stochastic_run=True)
+    ftest = minimal_fair_run(stochastic_run=True)
     ftest.climate_configs["sigma_eta"][0] = np.nan
     with pytest.raises(ValueError):
         ftest._make_ebms()
@@ -250,7 +241,7 @@ def test__make_ebms_stochastic_climate_configs_nan():
 
 def test__check_properties_raise_if_nan():
     for mode in ["emissions", "concentration", "forcing"]:
-        ftest = minimal_empty_run(mode)
+        ftest = minimal_empty_run(mode=mode)
         with pytest.raises(ValueError):
             ftest._check_properties()
 
@@ -259,7 +250,7 @@ def test_run_runtime_warning():
     # need to run stochastic (to trigger the problem in the first place) and at a
     # big enough time step to trigger the warning but not too big, else the matrix
     # really is wrong. Doesn't seem the most robust test to future scipy whims.
-    ftest = minimal_ghg_run(stochastic_run=True, timestep=27)
+    ftest = minimal_fair_run(stochastic_run=True, timestep=27)
     # I want a warning (Idlewild; 2005)
     with pytest.warns(RuntimeWarning):
         ftest.run(suppress_warnings=False)
@@ -271,6 +262,6 @@ def test_run_runtime_warning():
 
 
 def test_to_netcdf():
-    ftest = minimal_ghg_run()
+    ftest = minimal_fair_run()
     with tempfile.TemporaryFile() as tf:
         ftest.to_netcdf(tf)
