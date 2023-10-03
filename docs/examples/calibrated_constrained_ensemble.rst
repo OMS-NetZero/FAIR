@@ -14,7 +14,7 @@ IPCC Sixth Assessement Report.
 
 **Note**: if you are reading this tutorial online and want to reproduce
 the results, you will need one additional file. Grab this from
-https://github.com/OMS-NetZero/FAIR/blob/master/examples/data/species_configs_properties_calibration1.1.0.csv.
+https://github.com/OMS-NetZero/FAIR/blob/master/examples/data/species_configs_properties_calibration1.2.0.csv.
 In Step 5 below, this is read in from the ``data/`` directory relative
 to here. This does not apply if you are running this notebook from
 Binder or have cloned it from GitHub - it should run out of the box.
@@ -33,15 +33,15 @@ DOI link below.
 
 A two-step constraining process is produced. The first step ensures that
 historical simulations match observed climate change to a
-root-mean-square error of less than 0.16°C. The second step
+root-mean-square error of less than 0.17°C. The second step
 simultaneously distribution-fits to the following assessed ranges:
 
 -  equilibrium climate sensitivity (ECS), very likely range 2-5°C, best
    estimate 3°C
 -  transient climate response (TCR), very likely range 1.2-2.4°C, best
    estimate 1.8°C
--  global mean surface temperature change 1850-1900 to 1995-2014, very
-   likely range 0.67-0.98°C, best estimate 0.85°C
+-  global mean surface temperature change 1850-1900 to 2003-2022, very
+   likely range 0.87-1.13°C, best estimate 1.03°C
 -  effective radiative forcing from aerosol-radiation interactions 1750
    to 2005-2014, very likely range -0.6 to 0 W/m², best estimate -0.3
    W/m²
@@ -50,13 +50,10 @@ simultaneously distribution-fits to the following assessed ranges:
    W/m²
 -  effective radiative forcing from aerosols 1750 to 2005-2014, very
    likely range -2.0 to -0.6 W/m², best estimate -1.3 W/m²
--  ocean heat content change 1971 to 2018, likely range 329-463 ZJ, best
-   estimate 396 ZJ
--  CO2 concentrations in 2014, very likely range 396.95-398.15 ppm, best
-   estimate 397.55 ppm
--  future warming in SSP245 1995-2014 to 2081-2100, 1.24-2.59°C, best
-   estimate 1.81°C. Note the IPCC constraint was concentration driven,
-   in fair-calibrate v1.1.0 an emissions-driven constraint was used.
+-  earth energy uptake change 1971 to 2020, very likely range 358-573
+   ZJ, best estimate 465 ZJ
+-  CO2 concentrations in 2014, very likely range 416.2-417.8 ppm, best
+   estimate 417.0 ppm
 
 1001 posterior ensemble members are produced from an initial prior of
 1.5 million.
@@ -163,14 +160,14 @@ constraining code.
 
 .. code:: ipython3
 
-    fair_params_1_1_0_obj = pooch.retrieve(
-        url = 'https://zenodo.org/record/7694879/files/calibrated_constrained_parameters.csv',
-        known_hash = 'md5:9f236c43dd18a36b7b63b94e05f3caab',
+    fair_params_1_2_0_obj = pooch.retrieve(
+        url = 'https://zenodo.org/record/8399112/files/calibrated_constrained_parameters.csv',
+        known_hash = 'md5:de3b83432b9d071efdd1427ad31e9076',
     )
 
 .. code:: ipython3
 
-    df_configs = pd.read_csv(fair_params_1_1_0_obj, index_col=0)
+    df_configs = pd.read_csv(fair_params_1_2_0_obj, index_col=0)
     configs = df_configs.index  # this is used as a label for the "config" axis
     f.define_configs(configs)
 
@@ -205,7 +202,7 @@ are.
 
 .. code:: ipython3
 
-    species, properties = read_properties(filename='data/species_configs_properties_calibration1.1.0.csv')
+    species, properties = read_properties(filename='data/species_configs_properties_calibration1.2.0.csv')
     f.define_species(species, properties)
 
 6. Modify run options
@@ -326,8 +323,8 @@ https://github.com/OMS-NetZero/FAIR/issues/126).
 .. code:: ipython3
 
     volcanic_obj = pooch.retrieve(
-        url = 'https://raw.githubusercontent.com/chrisroadmap/fair-add-hfc/main/data/volcanic_ERF_monthly_174901-201912.csv',
-        known_hash = 'md5:d3ac469ee7d2c2c75fbb656c2c67c4aa',
+        url = 'https://raw.githubusercontent.com/chrisroadmap/fair-calibrate/main/data/forcing/volcanic_ERF_1750-2101_timebounds.csv',
+        known_hash = 'md5:c0801f80f70195eb9567dbd70359219d',
     )
 
 .. code:: ipython3
@@ -350,13 +347,7 @@ little bit of ninja skill with indexing is needed.
 
     solar_forcing = np.zeros(551)
     volcanic_forcing = np.zeros(551)
-    for i, year in enumerate(np.arange(1750, 2021)):
-        volcanic_forcing[i] = np.mean(
-            df_volcanic.loc[
-                ((year - 1) <= df_volcanic["year"]) & (df_volcanic["year"] < year)
-            ].erf
-        )
-    volcanic_forcing[271:281] = np.linspace(1, 0, 10) * volcanic_forcing[270]
+    volcanic_forcing[:352] = df_volcanic.erf.values
     solar_forcing = df_solar["erf"].loc[1750:2300].values
     
     trend_shape = np.ones(551)
@@ -369,13 +360,13 @@ the volcanic forcing time series, and the solar amplitude and trend:
 
     fill(
         f.forcing,
-        volcanic_forcing[:, None, None] * df_configs["scale Volcanic"].values.squeeze(),
+        volcanic_forcing[:, None, None] * df_configs["fscale_Volcanic"].values.squeeze(),
         specie="Volcanic",
     )
     fill(
         f.forcing,
-        solar_forcing[:, None, None] * df_configs["solar_amplitude"].values.squeeze()
-        + trend_shape[:, None, None] * df_configs["solar_trend"].values.squeeze(),
+        solar_forcing[:, None, None] * df_configs["fscale_solar_amplitude"].values.squeeze()
+        + trend_shape[:, None, None] * df_configs["fscale_solar_trend"].values.squeeze(),
         specie="Solar",
     )
 
@@ -391,19 +382,19 @@ dataset.
 
 .. code:: ipython3
 
-    fill(f.climate_configs["ocean_heat_capacity"], df_configs.loc[:, "c1":"c3"].values)
+    fill(f.climate_configs["ocean_heat_capacity"], df_configs.loc[:, "clim_c1":"clim_c3"].values)
     fill(
         f.climate_configs["ocean_heat_transfer"],
-        df_configs.loc[:, "kappa1":"kappa3"].values,
+        df_configs.loc[:, "clim_kappa1":"clim_kappa3"].values,
     )
-    fill(f.climate_configs["deep_ocean_efficacy"], df_configs["epsilon"].values.squeeze())
-    fill(f.climate_configs["gamma_autocorrelation"], df_configs["gamma"].values.squeeze())
-    fill(f.climate_configs["sigma_eta"], df_configs["sigma_eta"].values.squeeze())
-    fill(f.climate_configs["sigma_xi"], df_configs["sigma_xi"].values.squeeze())
+    fill(f.climate_configs["deep_ocean_efficacy"], df_configs["clim_epsilon"].values.squeeze())
+    fill(f.climate_configs["gamma_autocorrelation"], df_configs["clim_gamma"].values.squeeze())
+    fill(f.climate_configs["sigma_eta"], df_configs["clim_sigma_eta"].values.squeeze())
+    fill(f.climate_configs["sigma_xi"], df_configs["clim_sigma_xi"].values.squeeze())
     fill(f.climate_configs["seed"], df_configs["seed"])
     fill(f.climate_configs["stochastic_run"], True)
     fill(f.climate_configs["use_seed"], True)
-    fill(f.climate_configs["forcing_4co2"], df_configs["F_4xCO2"])
+    fill(f.climate_configs["forcing_4co2"], df_configs["clim_F_4xCO2"])
 
 8c. Fill in species_configs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -413,7 +404,7 @@ species/properties/configs file
 
 .. code:: ipython3
 
-    f.fill_species_configs(filename='data/species_configs_properties_calibration1.1.0.csv')
+    f.fill_species_configs(filename='data/species_configs_properties_calibration1.2.0.csv')
 
 Then, we overwrite the ``species_configs`` that are varies as part of
 the probablistic sampling. This makes heavy use of the ``fill()``
@@ -422,16 +413,16 @@ convenience function.
 .. code:: ipython3
 
     # carbon cycle
-    fill(f.species_configs["iirf_0"], df_configs["r0"].values.squeeze(), specie="CO2")
-    fill(f.species_configs["iirf_airborne"], df_configs["rA"].values.squeeze(), specie="CO2")
-    fill(f.species_configs["iirf_uptake"], df_configs["rU"].values.squeeze(), specie="CO2")
-    fill(f.species_configs["iirf_temperature"], df_configs["rT"].values.squeeze(), specie="CO2")
+    fill(f.species_configs["iirf_0"], df_configs["cc_r0"].values.squeeze(), specie="CO2")
+    fill(f.species_configs["iirf_airborne"], df_configs["cc_rA"].values.squeeze(), specie="CO2")
+    fill(f.species_configs["iirf_uptake"], df_configs["cc_rU"].values.squeeze(), specie="CO2")
+    fill(f.species_configs["iirf_temperature"], df_configs["cc_rT"].values.squeeze(), specie="CO2")
     
     # aerosol indirect
-    fill(f.species_configs["aci_scale"], df_configs["beta"].values.squeeze())
-    fill(f.species_configs["aci_shape"], df_configs["shape Sulfur"].values.squeeze(), specie="Sulfur")
-    fill(f.species_configs["aci_shape"], df_configs["shape BC"].values.squeeze(), specie="BC")
-    fill(f.species_configs["aci_shape"], df_configs["shape OC"].values.squeeze(), specie="OC")
+    fill(f.species_configs["aci_scale"], df_configs["aci_beta"].values.squeeze())
+    fill(f.species_configs["aci_shape"], df_configs["aci_shape_so2"].values.squeeze(), specie="Sulfur")
+    fill(f.species_configs["aci_shape"], df_configs["aci_shape_bc"].values.squeeze(), specie="BC")
+    fill(f.species_configs["aci_shape"], df_configs["aci_shape_oc"].values.squeeze(), specie="OC")
     
     # aerosol direct
     for specie in [
@@ -445,7 +436,7 @@ convenience function.
         "VOC",
         "Equivalent effective stratospheric chlorine"
     ]:
-        fill(f.species_configs["erfari_radiative_efficiency"], df_configs[f"ari {specie}"], specie=specie)
+        fill(f.species_configs["erfari_radiative_efficiency"], df_configs[f"ari_{specie}"], specie=specie)
     
     # forcing scaling
     for specie in [
@@ -457,7 +448,7 @@ convenience function.
         "Light absorbing particles on snow and ice", 
         "Land use"
     ]:
-        fill(f.species_configs["forcing_scale"], df_configs[f"scale {specie}"].values.squeeze(), specie=specie)
+        fill(f.species_configs["forcing_scale"], df_configs[f"fscale_{specie}"].values.squeeze(), specie=specie)
     # the halogenated gases all take the same scale factor
     for specie in [
         "CFC-11",
@@ -501,16 +492,16 @@ convenience function.
         "HFC-365mfc",
         "HFC-4310mee",
     ]:
-        fill(f.species_configs["forcing_scale"], df_configs["scale minorGHG"].values.squeeze(), specie=specie)
+        fill(f.species_configs["forcing_scale"], df_configs["fscale_minorGHG"].values.squeeze(), specie=specie)
     
     # ozone
     for specie in ["CH4", "N2O", "Equivalent effective stratospheric chlorine", "CO", "VOC", "NOx"]:
-        fill(f.species_configs["ozone_radiative_efficiency"], df_configs[f"o3 {specie}"], specie=specie)
+        fill(f.species_configs["ozone_radiative_efficiency"], df_configs[f"o3_{specie}"], specie=specie)
     
     # initial value of CO2 concentration (but not baseline for forcing calculations)
     fill(
         f.species_configs["baseline_concentration"], 
-        df_configs["co2_concentration_1750"].values.squeeze(), 
+        df_configs["cc_co2_concentration_1750"].values.squeeze(), 
         specie="CO2"
     )
 
