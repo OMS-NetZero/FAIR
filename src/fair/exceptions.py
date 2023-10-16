@@ -5,3 +5,6 @@
 
 # Then I got even lazier and purged the two remaining errors that weren't
 # ValueErrors. We'll leave this module as a placeholder.
+
+class FromCsvError(Exception):
+    pass

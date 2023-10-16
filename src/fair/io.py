@@ -8,6 +8,7 @@ import pandas as pd
 import pooch
 from scipy.interpolate import interp1d
 
+from .exceptions import FromCsvError
 from .interface import fill
 from .structure.units import (
     compound_convert,
@@ -127,23 +128,76 @@ def fill_from_csv(self, filename):
     Parameters
     ----------
     filename : str
-        path to a csv file. The
+        path to a csv file.
     """
 
+    # I only require Scenario, Variable and Unit. FaIR may also use Specie.
+    # Check present.
+    df_input = pd.read_csv(filename)
+    df_input.columns = df_input.columns.str.lower()
+    df_input.rename(columns={"variable": "specie"}, inplace=True)
+    required_columns = ["scenario", "specie", "unit"]
+    if not (set(required_columns) < set(df_input.columns)):
+        raise FromCsvError(
+            f"Input file {filename} must contain 'scenario', 'specie' and 'unit' "
+            f"column headers, and at least one timepoint or two timebounds."
+        )
+
+    # Now check scenarios
+    if not (set(self.scenarios) <= set(df_input["scenario"].unique())):
+        raise FromCsvError(
+            f"Defined {set(self.scenarios) - set(df_input['scenario'].unique())} scenarios "
+            f"were not found in {filename}."
+        )
+
+    time = []
+    first_time_column = 0
+    for column in df_input.columns:
+        try:
+            time.append(float(column))
+        except:
+            first_time_column = first_time_column + 1
+            # String column afer numeric is an error, probably mis-typed input.
+            # Either way, I don't know how to interpolate that, so I won't try.
+            if len(time) > 0:
+                raise FromCsvError(
+                    f"Input file {filename} contains a string column {column} after "
+                    f"{time[-1]}. "
+                )
+    if len(time) < 2:
+        raise FromCsvError(
+            f"Input file {filename} must contain at least two timepoints or "
+            f"timebounds."
+        )
+    first_time = time[0]
+    last_time = time[-1]
+    time = np.array(time)
+
+    # Check monotonicity of time axis
+    if not np.all(time[1:] >= time[:-1]):
+        raise FromCsvError(
+            f"Input file {filename} does not have monotonically increasing time "
+            f"indices."
+        )
+
+    # Use Scipy's interpolate rather than pandas, because the columns are not numeric
+    # grab a 1D numpy array with NaNs removed
     for scenario in self.scenarios:
-        for specie in species:
+        for specie in self.species:
             if self.properties_df.loc[specie, "input_mode"] == "emissions":
-                # Grab raw emissions from dataframe
                 emis_in = (
-                    df_emis.loc[
-                        (df_emis["Scenario"] == scenario)
-                        & (df_emis["Variable"].str.endswith("|" + specie_rcmip_name))
-                        & (df_emis["Region"] == "World"),
-                        "1750":"2500",
+                    df_input.loc[
+                        (df_input["scenario"] == scenario)
+                        & (df_input["specie"] == specie),
+                        str(first_time):str(last_time),
                     ]
-                    .interpolate(axis=1)
+                    .dropna(axis=1)
                     .values.squeeze()
                 )
+                print(specie)
+                print(emis_in)
+                print(df_input)
+
 
                 # throw error if data missing
                 if emis_in.shape[0] == 0:
