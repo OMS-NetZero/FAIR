@@ -12,7 +12,7 @@ def minimal_init():
     species, properties = read_properties()
     fair_obj.define_species(species, properties)
     fair_obj.define_time(1750, 2030, 1)
-    fair_obj.define_scenarios(["historical"])
+    fair_obj.define_scenarios(["charlie", "delta"])
     fair_obj.define_configs(["UKESM1-0-LL"])
     fair_obj.allocate()
     return fair_obj
@@ -24,13 +24,13 @@ def test_read_properties():
 
 def test_fill_from_csv_wrong_columns():
     ftest = minimal_init()
-    with pytest.raises(DataInputError):
+    with pytest.raises(FromCsvError):
         ftest.fill_from_csv("/home/mencsm/Downloads/wrong_columns_demo.csv")
 
 
 def test_fill_from_csv():
     ftest = minimal_init()
-    ftest.fill_from_csv("/home/mencsm/Downloads/demo.csv")
+    ftest.fill_from_csv("/home/mencsm/Downloads/demo.csv", "emissions")
 
 
 def test_from_rcmip():

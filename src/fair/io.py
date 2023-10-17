@@ -81,6 +81,20 @@ _default_ghg_and_slcfs = [
 ]
 
 
+def _check_time_def(to_verify, mode, time):
+    var_name = "timepoint" if mode=="emissions" else "timebound"
+    if to_verify[0] < time[0]:
+        raise FromCsvError(
+            f"The first {var_name} defined in FaIR ({to_verify[0]}) is earlier "
+            f"than the first {var_name} in {filename} ({time[0]})."
+        )
+    if to_verify[-1] > time[-1]:
+        raise FromCsvError(
+            f"The last {var_name} defined in FaIR ({to_verify[0]}) is later "
+            f"than the last {var_name} in {filename} ({time[0]})."
+        )
+
+
 def read_properties(filename=DEFAULT_PROPERTIES_FILE, species=None):
     """Get a properties file.
 
@@ -122,14 +136,32 @@ def read_properties(filename=DEFAULT_PROPERTIES_FILE, species=None):
     return species, properties
 
 
-def fill_from_csv(self, filename):
+def fill_from_csv(self, filename, mode, style="pyam"):
     """Fill emissions, concentrations and/or forcing from a CSV file.
 
     Parameters
     ----------
     filename : str
         path to a csv file.
+    mode : str
+        "emissions", "concentration" or "forcing"
+    style : str
+        "pyam" : horizontal, five header columns (Model, Scenario, Region, Variable,
+            Unit). Only Scenario, Variable and Unit are required. Variable is
+            internally renamed to Specie, which is also allowed.
+        "fair1.3" : vertical, one header row (Specie). First column is time, other
+            columns relate to the species headed up by each column. Only default
+            units can be used here.
+        "fair2.1" : vertical, five header rows (Model, Scenario, Region, Variable,
+            Unit). Same as pyam, but transposed.
     """
+
+    if style in ["fair1.3", "fair2.1"]:
+        raise NotImplementedError(f"input style {style} is not yet implemented.")
+    elif style != "pyam":
+        raise ValueError(
+            f"input style {style} not recognised. Valid choices are 'pyam'."
+        )
 
     # I only require Scenario, Variable and Unit. FaIR may also use Specie.
     # Check present.
@@ -140,7 +172,7 @@ def fill_from_csv(self, filename):
     if not (set(required_columns) < set(df_input.columns)):
         raise FromCsvError(
             f"Input file {filename} must contain 'scenario', 'specie' and 'unit' "
-            f"column headers, and at least one timepoint or two timebounds."
+            f"column headers."
         )
 
     # Now check scenarios
@@ -180,179 +212,76 @@ def fill_from_csv(self, filename):
             f"indices."
         )
 
+    # Check timebounds and timepoints are within problem definition
+    to_verify = self.timepoints if mode=="emissions" else self.timebounds
+    _check_time_def(to_verify, mode, time)
+
     # Use Scipy's interpolate rather than pandas, because the columns are not numeric
     # grab a 1D numpy array with NaNs removed
     for scenario in self.scenarios:
         for specie in self.species:
-            if self.properties_df.loc[specie, "input_mode"] == "emissions":
-                emis_in = (
+            if self.properties_df.loc[specie, "input_mode"] == mode:
+                row = (
                     df_input.loc[
                         (df_input["scenario"] == scenario)
                         & (df_input["specie"] == specie),
                         str(first_time):str(last_time),
                     ]
                     .dropna(axis=1)
-                    .values.squeeze()
                 )
-                print(specie)
-                print(emis_in)
-                print(df_input)
-
+                data_in = row.values.squeeze()
+                time_in = pd.to_numeric(row.columns).to_numpy()
 
                 # throw error if data missing
-                if emis_in.shape[0] == 0:
+                if data_in.shape[0] == 0:
                     raise ValueError(
                         f"I can't find a value for scenario={scenario}, variable "
-                        f"name {specie} in the RCMIP "
-                        f"emissions database."
+                        f"name {specie} in {filename}."
                     )
 
-                # avoid NaNs from outside the interpolation range being mixed into
-                # the results
-                notnan = np.nonzero(~np.isnan(emis_in))
-
-                # RCMIP are "annual averages"; for emissions this is basically
-                # the emissions over the year, for concentrations and forcing
-                # it would be midyear values. In every case, we can assume
-                # midyear values and interpolate to our time grid.
-                rcmip_index = np.arange(1750.5, 2501.5)
-                interpolator = interp1d(
-                    rcmip_index[notnan],
-                    emis_in[notnan],
-                    fill_value="extrapolate",
-                    bounds_error=False,
-                )
-                emis = interpolator(self.timepoints)
-
-                # We won't throw an error if the time is out of range for RCMIP,
-                # but we will fill with NaN to allow a user to manually specify
-                # pre- and post- emissions.
-                emis[self.timepoints < 1750] = np.nan
-                emis[self.timepoints > 2501] = np.nan
+                # If timepoints in the problem setup differ from that given in the
+                # CSV file, or there are NaN entries (common in RCMIP data), interpolate
+                # them. Similar to what pandas does for interpolation after we have now
+                # converted the index to numeric.
+                interpolator = interp1d(time_in, data_in)
+                data = interpolator(self.timepoints)
 
                 # Parse and possibly convert unit in input file to what FaIR wants
-                unit = df_emis.loc[
-                    (df_emis["Scenario"] == scenario)
-                    & (df_emis["Variable"].str.endswith("|" + specie_rcmip_name))
-                    & (df_emis["Region"] == "World"),
-                    "Unit",
-                ].values[0]
-                emis = emis * (
-                    prefix_convert[unit.split()[0]][
-                        desired_emissions_units[specie].split()[0]
-                    ]
-                    * compound_convert[unit.split()[1].split("/")[0]][
-                        desired_emissions_units[specie].split()[1].split("/")[0]
-                    ]
-                    * time_convert[unit.split()[1].split("/")[1]][
-                        desired_emissions_units[specie].split()[1].split("/")[1]
-                    ]
-                )  # * self.timestep
-
-                # fill FaIR xarray
-                fill(self.emissions, emis[:, None], specie=specie, scenario=scenario)
-
-            if self.properties_df.loc[specie, "input_mode"] == "concentration":
-                # Grab raw concentration from dataframe
-                conc_in = (
-                    df_conc.loc[
-                        (df_conc["Scenario"] == scenario)
-                        & (df_conc["Variable"].str.endswith("|" + specie_rcmip_name))
-                        & (df_conc["Region"] == "World"),
-                        "1700":"2500",
-                    ]
-                    .interpolate(axis=1)
-                    .values.squeeze()
+                unit = (
+                    df_input.loc[
+                        (df_input["scenario"] == scenario)
+                        & (df_input["specie"] == specie),
+                        "unit",
+                    ].values[0]
                 )
 
-                # throw error if data missing
-                if conc_in.shape[0] == 0:
-                    raise ValueError(
-                        f"I can't find a value for scenario={scenario}, variable "
-                        f"name ending with {specie_rcmip_name} in the RCMIP "
-                        f"concentration database."
+                # apply unit conversion
+                if mode=="emissions":
+                    emis = data * (
+                        prefix_convert[unit.split()[0]][
+                            desired_emissions_units[specie].split()[0]
+                        ]
+                        * compound_convert[unit.split()[1].split("/")[0]][
+                            desired_emissions_units[specie].split()[1].split("/")[0]
+                        ]
+                        * time_convert[unit.split()[1].split("/")[1]][
+                            desired_emissions_units[specie].split()[1].split("/")[1]
+                        ]
                     )
-
-                # avoid NaNs from outside the interpolation range being mixed into
-                # the results
-                notnan = np.nonzero(~np.isnan(conc_in))
-
-                # interpolate: this time to timebounds
-                rcmip_index = np.arange(1700.5, 2501.5)
-                interpolator = interp1d(
-                    rcmip_index[notnan],
-                    conc_in[notnan],
-                    fill_value="extrapolate",
-                    bounds_error=False,
-                )
-                conc = interpolator(self.timebounds)
-
-                # strip out pre- and post-
-                conc[self.timebounds < 1700] = np.nan
-                conc[self.timebounds > 2501] = np.nan
-
-                # Parse and possibly convert unit in input file to what FaIR wants
-                unit = df_conc.loc[
-                    (df_conc["Scenario"] == scenario)
-                    & (df_conc["Variable"].str.endswith("|" + specie_rcmip_name))
-                    & (df_conc["Region"] == "World"),
-                    "Unit",
-                ].values[0]
-                conc = conc * (
-                    mixing_ratio_convert[unit][desired_concentration_units[specie]]
-                )
-
-                # fill FaIR xarray
-                fill(
-                    self.concentration,
-                    conc[:, None],
-                    specie=specie,
-                    scenario=scenario,
-                )
-
-            if self.properties_df.loc[specie, "input_mode"] == "forcing":
-                # Grab raw concentration from dataframe
-                forc_in = (
-                    df_forc.loc[
-                        (df_forc["Scenario"] == scenario)
-                        & (df_forc["Variable"].str.endswith("|" + specie_rcmip_name))
-                        & (df_forc["Region"] == "World"),
-                        "1750":"2500",
-                    ]
-                    .interpolate(axis=1)
-                    .values.squeeze()
-                )
-
-                # throw error if data missing
-                if forc_in.shape[0] == 0:
-                    raise ValueError(
-                        f"I can't find a value for scenario={scenario}, variable "
-                        f"name ending with {specie_rcmip_name} in the RCMIP "
-                        f"radiative forcing database."
+                    fill(self.emissions, emis[:, None], specie=specie, scenario=scenario)
+                elif mode=="concentration":
+                    conc = unit * (
+                        mixing_ratio_convert[unit][desired_concentration_units[specie]]
                     )
-
-                # avoid NaNs from outside the interpolation range being mixed into
-                # the results
-                notnan = np.nonzero(~np.isnan(forc_in))
-
-                # interpolate: this time to timebounds
-                rcmip_index = np.arange(1750.5, 2501.5)
-                interpolator = interp1d(
-                    rcmip_index[notnan],
-                    forc_in[notnan],
-                    fill_value="extrapolate",
-                    bounds_error=False,
-                )
-                forc = interpolator(self.timebounds)
-
-                # strip out pre- and post-
-                forc[self.timebounds < 1750] = np.nan
-                forc[self.timebounds > 2501] = np.nan
-
-                # Forcing so far is always W m-2, but perhaps this will change.
-
-                # fill FaIR xarray
-                fill(self.forcing, forc[:, None], specie=specie, scenario=scenario)
+                    fill(
+                        self.concentration,
+                        conc[:, None],
+                        specie=specie,
+                        scenario=scenario,
+                    )
+                else:
+                    # Forcing so far is always W m-2, but perhaps this will change.
+                    fill(self.forcing, forc[:, None], specie=specie, scenario=scenario)
 
 
 def fill_from_rcmip(self):
