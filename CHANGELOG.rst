@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+v2.1.2
+------
+
+(`#138 <https://github.com/OMS-NetZero/FAIR/pull/138>`_) Zenodo DOI error when using `pooch` fixed 
+
 v2.1.1
 ------
 
