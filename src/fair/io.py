@@ -81,7 +81,7 @@ _default_ghg_and_slcfs = [
 ]
 
 
-def _check_time_def(to_verify, mode, time):
+def _check_time_def(to_verify, mode, time, filename):
     var_name = "timepoint" if mode=="emissions" else "timebound"
     if to_verify[0] < time[0]:
         raise FromCsvError(
@@ -214,7 +214,7 @@ def fill_from_csv(self, filename, mode, style="pyam"):
 
     # Check timebounds and timepoints are within problem definition
     to_verify = self.timepoints if mode=="emissions" else self.timebounds
-    _check_time_def(to_verify, mode, time)
+    _check_time_def(to_verify, mode, time, filename)
 
     # Use Scipy's interpolate rather than pandas, because the columns are not numeric
     # grab a 1D numpy array with NaNs removed

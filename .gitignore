@@ -10,6 +10,7 @@ Thumbs.db
 
 # temporary backup files
 *.swp
+*.~lock.*
 
 # coverage reports and intermediate files
 .coverage.*

@@ -1,5 +1,7 @@
 """Module for io tests."""
 
+import os
+
 import pytest
 
 from fair import FAIR
@@ -7,11 +9,13 @@ from fair.exceptions import FromCsvError
 from fair.io import read_properties
 from fair_test import minimal_ghg_run
 
-def minimal_init():
+HERE = os.path.dirname(os.path.realpath(__file__))
+
+def minimal_init(startyear=2010, endyear=2030):
     fair_obj = FAIR()
     species, properties = read_properties()
     fair_obj.define_species(species, properties)
-    fair_obj.define_time(1750, 2030, 1)
+    fair_obj.define_time(startyear, endyear, 1)
     fair_obj.define_scenarios(["charlie", "delta"])
     fair_obj.define_configs(["UKESM1-0-LL"])
     fair_obj.allocate()
@@ -23,14 +27,29 @@ def test_read_properties():
 
 
 def test_fill_from_csv_wrong_columns():
-    ftest = minimal_init()
+    ftest = minimal_init(endyear=2012)
     with pytest.raises(FromCsvError):
-        ftest.fill_from_csv("/home/mencsm/Downloads/wrong_columns_demo.csv")
+        ftest.fill_from_csv(
+            os.path.join(HERE, "..", "test_data", "emissions_pyam_style_wrong_columns.csv"), 
+            "emissions"
+        )
+
+
+def test_fill_from_csv_time_out_of_range():
+    ftest = minimal_init(startyear=2000)
+    with pytest.raises(FromCsvError):
+        ftest.fill_from_csv(
+            os.path.join(HERE, "..", "test_data", "emissions_pyam_style.csv"), 
+            "emissions"
+        )
 
 
 def test_fill_from_csv():
     ftest = minimal_init()
-    ftest.fill_from_csv("/home/mencsm/Downloads/demo.csv", "emissions")
+    ftest.fill_from_csv(
+        os.path.join(HERE, "..", "test_data", "emissions_pyam_style.csv"), 
+        "emissions"
+    )
 
 
 def test_from_rcmip():
