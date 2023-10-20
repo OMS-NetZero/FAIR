@@ -70,7 +70,7 @@ class FAIR:
         if ``ghg_method`` or ``ch4_method`` given are not valid options.
     """
 
-    from .io import fill_from_rcmip, fill_from_csv
+    from .io import fill_from_csv, fill_from_rcmip
 
     def __init__(
         self,

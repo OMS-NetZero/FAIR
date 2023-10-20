@@ -82,7 +82,7 @@ _default_ghg_and_slcfs = [
 
 
 def _check_time_def(to_verify, mode, time, filename):
-    var_name = "timepoint" if mode=="emissions" else "timebound"
+    var_name = "timepoint" if mode == "emissions" else "timebound"
     if to_verify[0] < time[0]:
         raise FromCsvError(
             f"The first {var_name} defined in FaIR ({to_verify[0]}) is earlier "
@@ -110,18 +110,39 @@ def read_properties(filename=DEFAULT_PROPERTIES_FILE, species=None):
 
     Returns
     -------
-    species : list
-        a list of species names that are included in the FaIR run.
+    species : list or None
+        a list of species names that are included in the FaIR run. If None, use all
+        available species in the supplied file.
     properties : dict
         species properties that control the FaIR run
+
+    Raises
+    ------
+    FromCsvError
+        if a specie is not in filename (first column of CSV)
+    FromCsvError
+        if a required property name is not in filename (column headings of CSV)
     """
     df = pd.read_csv(filename, index_col=0)
+    for col in [
+        "type",
+        "input_mode",
+        "greenhouse_gas",
+        "aerosol_chemistry_from_emissions",
+        "aerosol_chemistry_from_concentration",
+    ]:
+        if col not in df.columns:
+            raise FromCsvError(
+                f"There is no required column labelled {col} in the species properties file {filename}."
+            )
 
     if species is None:
         species = list(df.index)
 
     properties = {}
     for specie in species:
+        if specie not in df.index:
+            raise FromCsvError(f"The specie {specie} is not found in {filename}.")
         properties[specie] = {
             "type": df.loc[specie].type,
             "input_mode": df.loc[specie].input_mode,
@@ -147,19 +168,24 @@ def fill_from_csv(self, filename, mode, style="pyam"):
         "emissions", "concentration" or "forcing"
     style : str
         "pyam" : horizontal, five header columns (Model, Scenario, Region, Variable,
-            Unit). Only Scenario, Variable and Unit are required. Variable is
-            internally renamed to Specie, which is also allowed.
+            Unit). Only Scenario, Variable and Unit are required. Variable names in
+            the CSV file follow the pyam pipe convention using mode|specie, for
+            example Emissions|BC. Omitting mode raises an error.
         "fair1.3" : vertical, one header row (Specie). First column is time, other
             columns relate to the species headed up by each column. Only default
             units can be used here.
         "fair2.1" : vertical, five header rows (Model, Scenario, Region, Variable,
             Unit). Same as pyam, but transposed.
+
+    Raises
+    ------
+    FromCsvError
     """
 
-    if style in ["fair1.3", "fair2.1"]:
-        raise NotImplementedError(f"input style {style} is not yet implemented.")
-    elif style != "pyam":
-        raise ValueError(
+    # if style in ["fair1.3", "fair2.1"]:
+    #    raise NotImplementedError(f"input style {style} is not yet implemented.")
+    if style != "pyam":
+        raise FromCsvError(
             f"input style {style} not recognised. Valid choices are 'pyam'."
         )
 
@@ -189,7 +215,7 @@ def fill_from_csv(self, filename, mode, style="pyam"):
             time.append(float(column))
         except:
             first_time_column = first_time_column + 1
-            # String column afer numeric is an error, probably mis-typed input.
+            # String column after numeric is an error, probably mis-typed input.
             # Either way, I don't know how to interpolate that, so I won't try.
             if len(time) > 0:
                 raise FromCsvError(
@@ -213,7 +239,7 @@ def fill_from_csv(self, filename, mode, style="pyam"):
         )
 
     # Check timebounds and timepoints are within problem definition
-    to_verify = self.timepoints if mode=="emissions" else self.timebounds
+    to_verify = self.timepoints if mode == "emissions" else self.timebounds
     _check_time_def(to_verify, mode, time, filename)
 
     # Use Scipy's interpolate rather than pandas, because the columns are not numeric
@@ -221,22 +247,25 @@ def fill_from_csv(self, filename, mode, style="pyam"):
     for scenario in self.scenarios:
         for specie in self.species:
             if self.properties_df.loc[specie, "input_mode"] == mode:
-                row = (
-                    df_input.loc[
-                        (df_input["scenario"] == scenario)
-                        & (df_input["specie"] == specie),
-                        str(first_time):str(last_time),
-                    ]
-                    .dropna(axis=1)
-                )
+                row = df_input.loc[
+                    (df_input["scenario"] == scenario)
+                    & (df_input["specie"].str.startswith(f"{mode.title()}"))
+                    & (df_input["specie"].str.endswith(f"|{specie}")),
+                    str(first_time) : str(last_time),
+                ].dropna(axis=1)
                 data_in = row.values.squeeze()
                 time_in = pd.to_numeric(row.columns).to_numpy()
 
-                # throw error if data missing
+                # throw error if data missing or duplicated
                 if data_in.shape[0] == 0:
-                    raise ValueError(
-                        f"I can't find a value for scenario={scenario}, variable "
-                        f"name {specie} in {filename}."
+                    raise FromCsvError(
+                        f"I can't find a value for scenario='{scenario}', variable="
+                        f"'{mode.title()}|{specie}' in {filename}."
+                    )
+                if data_in.ndim > 1:
+                    raise FromCsvError(
+                        f"You have duplicate values for scenario='{scenario}', variable="
+                        f"'{mode.title()}|{specie}' in {filename}."
                     )
 
                 # If timepoints in the problem setup differ from that given in the
@@ -247,16 +276,15 @@ def fill_from_csv(self, filename, mode, style="pyam"):
                 data = interpolator(self.timepoints)
 
                 # Parse and possibly convert unit in input file to what FaIR wants
-                unit = (
-                    df_input.loc[
-                        (df_input["scenario"] == scenario)
-                        & (df_input["specie"] == specie),
-                        "unit",
-                    ].values[0]
-                )
+                unit = df_input.loc[
+                    (df_input["scenario"] == scenario)
+                    & (df_input["specie"].str.startswith(f"{mode.title()}"))
+                    & (df_input["specie"].str.endswith(f"|{specie}")),
+                    "unit",
+                ].values[0]
 
                 # apply unit conversion
-                if mode=="emissions":
+                if mode == "emissions":
                     emis = data * (
                         prefix_convert[unit.split()[0]][
                             desired_emissions_units[specie].split()[0]
@@ -268,8 +296,10 @@ def fill_from_csv(self, filename, mode, style="pyam"):
                             desired_emissions_units[specie].split()[1].split("/")[1]
                         ]
                     )
-                    fill(self.emissions, emis[:, None], specie=specie, scenario=scenario)
-                elif mode=="concentration":
+                    fill(
+                        self.emissions, emis[:, None], specie=specie, scenario=scenario
+                    )
+                elif mode == "concentration":
                     conc = unit * (
                         mixing_ratio_convert[unit][desired_concentration_units[specie]]
                     )
@@ -284,6 +314,7 @@ def fill_from_csv(self, filename, mode, style="pyam"):
                     fill(self.forcing, forc[:, None], specie=specie, scenario=scenario)
 
 
+# TODO: make this a wrapper of fill_from_csv()
 def fill_from_rcmip(self):
     """Fill emissions, concentrations and/or forcing from RCMIP scenarios."""
     # lookup converting FaIR default names to RCMIP names
