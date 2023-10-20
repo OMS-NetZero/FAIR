@@ -1,7 +1,7 @@
 [![image](https://github.com/OMS-NetZero/FAIR/actions/workflows/checks.yml/badge.svg)](https://github.com/OMS-NetZero/FAIR/actions)
 [![image](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/OMS-NetZero/FAIR/master?filepath=examples/basic_run_example.ipynb)
 [![Documentation Status](https://readthedocs.org/projects/fair/badge/?version=latest)](http://fair.readthedocs.io/en/latest/?badge=latest)
-[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.1247898.svg)](https://doi.org/10.5281/zenodo.1247898)
+[![image](https://zenodo.org/badge/DOI/10.5281/zenodo.1340643.svg)](https://doi.org/10.5281/zenodo.1340643)
 [![image](https://codecov.io/gh/OMS-NetZero/FAIR/branch/master/graph/badge.svg)](https://codecov.io/gh/OMS-NetZero/FAIR)
 [![image](https://img.shields.io/pypi/v/fair)](https://pypi.org/project/fair/) [![Anaconda-Server Badge](https://anaconda.org/chrisroadmap/fair/badges/version.svg)](https://anaconda.org/chrisroadmap/fair)
 
