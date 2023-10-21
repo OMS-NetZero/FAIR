@@ -6,7 +6,7 @@ import pytest
 from fair_test import minimal_ghg_run
 
 from fair import FAIR
-from fair.exceptions import FromCsvError
+from fair.exceptions import FromCsvError, InvalidValueError
 from fair.io import read_properties
 
 HERE = os.path.dirname(os.path.realpath(__file__))
@@ -75,13 +75,21 @@ def test_fill_from_csv_raises():
             "emissions",
         )
     ftest = minimal_init(startyear=2000)
-    with pytest.raises(FromCsvError):
+    with pytest.raises(InvalidValueError):
         ftest.fill_from_csv(
             os.path.join(
                 HERE, "..", "test_data", "io_test", "emissions_pyam_style.csv"
             ),
             mode="emissions",
             style="magicc",
+        )
+    ftest = minimal_init(startyear=2000)
+    with pytest.raises(InvalidValueError):
+        ftest.fill_from_csv(
+            os.path.join(
+                HERE, "..", "test_data", "io_test", "emissions_pyam_style.csv"
+            ),
+            mode="x",
         )
     ftest = minimal_init(scenarios=["alpha"])
     with pytest.raises(FromCsvError):
@@ -160,6 +168,38 @@ def test_fill_from_csv():
     ftest.fill_from_csv(
         os.path.join(HERE, "..", "test_data", "io_test", "emissions_pyam_style.csv"),
         "emissions",
+    )
+
+
+def test_fill_from_csv_conc():
+    ftest = FAIR()
+    species, properties = read_properties(species=["CO2"])
+    properties["CO2"]["input_mode"] = "concentration"
+    ftest.define_species(species, properties)
+    ftest.define_time(2000, 2005, 1)
+    ftest.define_scenarios(["test"])
+    ftest.define_configs(["UKESM1-0-LL"])
+    ftest.allocate()
+    ftest.fill_from_csv(
+        os.path.join(
+            HERE, "..", "test_data", "io_test", "concentration_pyam_style.csv"
+        ),
+        "concentration",
+    )
+
+
+def test_fill_from_csv_forc():
+    ftest = FAIR()
+    species, properties = read_properties(species=["Volcanic"])
+    properties["Volcanic"]["input_mode"] = "forcing"
+    ftest.define_species(species, properties)
+    ftest.define_time(2000, 2005, 1)
+    ftest.define_scenarios(["test"])
+    ftest.define_configs(["UKESM1-0-LL"])
+    ftest.allocate()
+    ftest.fill_from_csv(
+        os.path.join(HERE, "..", "test_data", "io_test", "forcing_pyam_style.csv"),
+        "forcing",
     )
 
 

@@ -9,3 +9,7 @@
 
 class FromCsvError(Exception):
     pass
+
+
+class InvalidValueError(ValueError):
+    pass

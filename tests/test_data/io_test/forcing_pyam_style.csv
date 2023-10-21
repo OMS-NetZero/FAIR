@@ -1,0 +1,2 @@
+﻿model,scenario,region,variable,unit,1999.5,2000.5,2001.5,2002.5,2003.5,2004.5,2005.5
+fake,test,world,Forcing|Volcanic,W/m2,-0.1,0.1,-0.2,-0.5,-0.1,0,0.1

@@ -8,7 +8,7 @@ import pandas as pd
 import pooch
 from scipy.interpolate import interp1d
 
-from .exceptions import FromCsvError
+from .exceptions import FromCsvError, InvalidValueError
 from .interface import fill
 from .structure.units import (
     compound_convert,
@@ -133,7 +133,8 @@ def read_properties(filename=DEFAULT_PROPERTIES_FILE, species=None):
     ]:
         if col not in df.columns:
             raise FromCsvError(
-                f"There is no required column labelled {col} in the species properties file {filename}."
+                f"There is no required column labelled {col} in the species "
+                f"properties file {filename}."
             )
 
     if species is None:
@@ -179,14 +180,20 @@ def fill_from_csv(self, filename, mode, style="pyam"):
 
     Raises
     ------
+    InvalidValueError
     FromCsvError
     """
 
     # if style in ["fair1.3", "fair2.1"]:
     #    raise NotImplementedError(f"input style {style} is not yet implemented.")
     if style != "pyam":
-        raise FromCsvError(
-            f"input style {style} not recognised. Valid choices are 'pyam'."
+        raise InvalidValueError(
+            f"input style={style} not recognised. Valid choices are 'pyam'."
+        )
+
+    if mode not in ["emissions", "concentration", "forcing"]:
+        raise InvalidValueError(
+            "mode keyword must be 'emissions', 'concentration' or 'forcing'."
         )
 
     # I only require Scenario, Variable and Unit. FaIR may also use Specie.
@@ -204,8 +211,8 @@ def fill_from_csv(self, filename, mode, style="pyam"):
     # Now check scenarios
     if not (set(self.scenarios) <= set(df_input["scenario"].unique())):
         raise FromCsvError(
-            f"Defined {set(self.scenarios) - set(df_input['scenario'].unique())} scenarios "
-            f"were not found in {filename}."
+            f"Defined {set(self.scenarios) - set(df_input['scenario'].unique())} "
+            f"scenarios were not found in {filename}."
         )
 
     time = []
@@ -213,7 +220,7 @@ def fill_from_csv(self, filename, mode, style="pyam"):
     for column in df_input.columns:
         try:
             time.append(float(column))
-        except:
+        except ValueError:
             first_time_column = first_time_column + 1
             # String column after numeric is an error, probably mis-typed input.
             # Either way, I don't know how to interpolate that, so I won't try.
@@ -239,8 +246,8 @@ def fill_from_csv(self, filename, mode, style="pyam"):
         )
 
     # Check timebounds and timepoints are within problem definition
-    to_verify = self.timepoints if mode == "emissions" else self.timebounds
-    _check_time_def(to_verify, mode, time, filename)
+    time_def = self.timepoints if mode == "emissions" else self.timebounds
+    _check_time_def(time_def, mode, time, filename)
 
     # Use Scipy's interpolate rather than pandas, because the columns are not numeric
     # grab a 1D numpy array with NaNs removed
@@ -255,6 +262,9 @@ def fill_from_csv(self, filename, mode, style="pyam"):
                 ].dropna(axis=1)
                 data_in = row.values.squeeze()
                 time_in = pd.to_numeric(row.columns).to_numpy()
+                print(data_in)
+                print(time_in)
+                print(time)
 
                 # throw error if data missing or duplicated
                 if data_in.shape[0] == 0:
@@ -264,8 +274,8 @@ def fill_from_csv(self, filename, mode, style="pyam"):
                     )
                 if data_in.ndim > 1:
                     raise FromCsvError(
-                        f"You have duplicate values for scenario='{scenario}', variable="
-                        f"'{mode.title()}|{specie}' in {filename}."
+                        f"You have duplicate values for scenario='{scenario}', "
+                        f"variable='{mode.title()}|{specie}' in {filename}."
                     )
 
                 # If timepoints in the problem setup differ from that given in the
@@ -273,7 +283,7 @@ def fill_from_csv(self, filename, mode, style="pyam"):
                 # them. Similar to what pandas does for interpolation after we have now
                 # converted the index to numeric.
                 interpolator = interp1d(time_in, data_in)
-                data = interpolator(self.timepoints)
+                data = interpolator(time_def)
 
                 # Parse and possibly convert unit in input file to what FaIR wants
                 unit = df_input.loc[
@@ -300,7 +310,7 @@ def fill_from_csv(self, filename, mode, style="pyam"):
                         self.emissions, emis[:, None], specie=specie, scenario=scenario
                     )
                 elif mode == "concentration":
-                    conc = unit * (
+                    conc = data * (
                         mixing_ratio_convert[unit][desired_concentration_units[specie]]
                     )
                     fill(
@@ -311,7 +321,7 @@ def fill_from_csv(self, filename, mode, style="pyam"):
                     )
                 else:
                     # Forcing so far is always W m-2, but perhaps this will change.
-                    fill(self.forcing, forc[:, None], specie=specie, scenario=scenario)
+                    fill(self.forcing, data[:, None], specie=specie, scenario=scenario)
 
 
 # TODO: make this a wrapper of fill_from_csv()
