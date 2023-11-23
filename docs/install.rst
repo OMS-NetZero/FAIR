@@ -4,7 +4,7 @@ Installation
 From the Python Package Index (PyPI)
 ------------------------------------
 
-Requires `python` 3.7+. Probably the easiest way to get up and running.
+Requires `python` 3.8, 3.9, 3.10 or 3.11. Probably the easiest way to get up and running.
 ::
 
     pip install fair

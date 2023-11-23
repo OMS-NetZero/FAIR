@@ -4,7 +4,7 @@ Changelog
 v2.1.3
 ------
 
-(`#147 <https://github.com/OMS-NetZero/FAIR/pull/147>`_) Remove support for python 3.6, add support for 3.11
+(`#147 <https://github.com/OMS-NetZero/FAIR/pull/147>`_) Remove support for python 3.7
 
 v2.1.2
 ------
