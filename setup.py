@@ -91,7 +91,6 @@ setup(
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
@@ -101,7 +100,7 @@ setup(
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     package_data={"": ["*.csv"]},
-    python_requires=">=3.7, <4",
+    python_requires=">=3.8, <4",
     install_requires=REQUIREMENTS_INSTALL,
     extras_require=requirements_extras,
 )
