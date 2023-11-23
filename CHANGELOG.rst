@@ -6,6 +6,8 @@ v2.1.3
 
 (`#147 <https://github.com/OMS-NetZero/FAIR/pull/147>`_) Remove support for python 3.7
 
+(`#146 <https://github.com/OMS-NetZero/FAIR/pull/146>`_) Restarts for ocean heat content working correctly
+
 v2.1.2
 ------
 
