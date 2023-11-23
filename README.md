@@ -14,7 +14,7 @@ forcing scenarios.
 
 ## Requirements
 
--   python 3.7+
+-   python 3.8+
 
 ## Installation
 
