@@ -1,11 +1,12 @@
 """Module for integration test of fair."""
 
 import copy
-from fair.interface import initialise
-import numpy as np
-from fair import FAIR
-from fair.io import read_properties
 
+import numpy as np
+
+from fair import FAIR
+from fair.interface import initialise
+from fair.io import read_properties
 
 
 def minimal_ghg_run(start=1750, end=2020, timestep=27, stochastic_run=False, seed=37):
@@ -55,6 +56,4 @@ def test_ohc_restart():
     initialise(ffut.ocean_heat_content_change, ohc_out)
     ffut.run()
     # check if first OHC timebound in restart is same as last in historical
-    np.testing.assert_allclose(
-        ffut.ocean_heat_content_change[0, ...], ohc_out
-    )
+    np.testing.assert_allclose(ffut.ocean_heat_content_change[0, ...], ohc_out)

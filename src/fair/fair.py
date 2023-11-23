@@ -378,8 +378,9 @@ class FAIR:
             coords=(self.timebounds, self.scenarios, self.configs, self.species),
             dims=("timebounds", "scenario", "config", "specie"),
         )
+        # init with NaNs better than zeros, but makes code cleaner later
         self.ocean_heat_content_change = xr.DataArray(
-            np.ones((self._n_timebounds, self._n_scenarios, self._n_configs)) * np.nan,
+            np.zeros((self._n_timebounds, self._n_scenarios, self._n_configs)),
             coords=(self.timebounds, self.scenarios, self.configs),
             dims=("timebounds", "scenario", "config"),
         )
@@ -1941,8 +1942,15 @@ class FAIR:
         )
 
         # 18. Ocean heat content change
-        ocean_heat_content_change_array = (
-            np.cumsum(toa_imbalance_array * self.timestep, axis=TIME_AXIS)
+        # if a restart value is present, include it and subtract off the TOA
+        # imbalance from the restart as this would be double counting
+        # in non-restart runs, both OHC and N are zero in first timebound
+        ocean_heat_content_change_array = self.ocean_heat_content_change[0:1, ...] + (
+            (
+                np.cumsum(toa_imbalance_array, axis=TIME_AXIS)
+                - toa_imbalance_array[0:1, ...]
+            )
+            * self.timestep
             * earth_radius**2
             * 4
             * np.pi
