@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+master
+------
+
+(`#150 <https://github.com/OMS-NetZero/FAIR/pull/150>`_) Reformat for black update
+
+(`#149 <https://github.com/OMS-NetZero/FAIR/pull/149>`_) Add nightly tests
+
+
 v2.1.3
 ------
 
