@@ -809,17 +809,17 @@ class FAIR:
         species_to_rcmip["CO2 FFI"] = "CO2|MAGICC Fossil and Industrial"
         species_to_rcmip["CO2 AFOLU"] = "CO2|MAGICC AFOLU"
         species_to_rcmip["NOx aviation"] = "NOx|MAGICC Fossil and Industrial|Aircraft"
-        species_to_rcmip[
-            "Aerosol-radiation interactions"
-        ] = "Aerosols-radiation interactions"
-        species_to_rcmip[
-            "Aerosol-cloud interactions"
-        ] = "Aerosols-radiation interactions"
+        species_to_rcmip["Aerosol-radiation interactions"] = (
+            "Aerosols-radiation interactions"
+        )
+        species_to_rcmip["Aerosol-cloud interactions"] = (
+            "Aerosols-radiation interactions"
+        )
         species_to_rcmip["Contrails"] = "Contrails and Contrail-induced Cirrus"
         species_to_rcmip["Light absorbing particles on snow and ice"] = "BC on Snow"
-        species_to_rcmip[
-            "Stratospheric water vapour"
-        ] = "CH4 Oxidation Stratospheric H2O"
+        species_to_rcmip["Stratospheric water vapour"] = (
+            "CH4 Oxidation Stratospheric H2O"
+        )
         species_to_rcmip["Land use"] = "Albedo Change"
 
         species_to_rcmip_copy = copy.deepcopy(species_to_rcmip)
@@ -1910,26 +1910,28 @@ class FAIR:
             forcing_sum_array[i_timepoint + 1 : i_timepoint + 2, ...] = np.nansum(
                 forcing_array[i_timepoint + 1 : i_timepoint + 2, ...], axis=SPECIES_AXIS
             )
-            forcing_efficacy_sum_array[
-                i_timepoint + 1 : i_timepoint + 2, ...
-            ] = np.nansum(
-                forcing_array[i_timepoint + 1 : i_timepoint + 2, ...]
-                * forcing_efficacy_array[None, None, ...],
-                axis=SPECIES_AXIS,
+            forcing_efficacy_sum_array[i_timepoint + 1 : i_timepoint + 2, ...] = (
+                np.nansum(
+                    forcing_array[i_timepoint + 1 : i_timepoint + 2, ...]
+                    * forcing_efficacy_array[None, None, ...],
+                    axis=SPECIES_AXIS,
+                )
             )
 
             # 16. forcing to temperature
             if self._routine_flags["temperature"]:
-                cummins_state_array[
-                    i_timepoint + 1 : i_timepoint + 2, ...
-                ] = step_temperature(
-                    cummins_state_array[i_timepoint : i_timepoint + 1, ...],
-                    eb_matrix_d_array[None, None, ...],
-                    forcing_vector_d_array[None, None, ...],
-                    stochastic_d_array[i_timepoint + 1 : i_timepoint + 2, None, ...],
-                    forcing_efficacy_sum_array[
-                        i_timepoint + 1 : i_timepoint + 2, ..., None
-                    ],
+                cummins_state_array[i_timepoint + 1 : i_timepoint + 2, ...] = (
+                    step_temperature(
+                        cummins_state_array[i_timepoint : i_timepoint + 1, ...],
+                        eb_matrix_d_array[None, None, ...],
+                        forcing_vector_d_array[None, None, ...],
+                        stochastic_d_array[
+                            i_timepoint + 1 : i_timepoint + 2, None, ...
+                        ],
+                        forcing_efficacy_sum_array[
+                            i_timepoint + 1 : i_timepoint + 2, ..., None
+                        ],
+                    )
                 )
 
         # 17. TOA imbalance
