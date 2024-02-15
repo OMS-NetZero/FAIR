@@ -35,6 +35,7 @@ from .gas_cycle.forward import step_concentration
 from .gas_cycle.inverse import unstep_concentration
 from .interface import fill
 from .structure.species import multiple_allowed, species_types, valid_input_modes
+from .structure.species_configs import SPECIES_CONFIGS_EXCL_GASBOX
 from .structure.units import (
     compound_convert,
     desired_concentration_units,
@@ -582,26 +583,12 @@ class FAIR:
         """
         df = pd.read_csv(filename, index_col=0)
         for specie in self.species:
-            fill(
-                self.species_configs["tropospheric_adjustment"],
-                df.loc[specie].tropospheric_adjustment,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["forcing_efficacy"],
-                df.loc[specie].forcing_efficacy,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["forcing_temperature_feedback"],
-                df.loc[specie].forcing_temperature_feedback,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["forcing_scale"],
-                df.loc[specie].forcing_scale,
-                specie=specie,
-            )
+            for config in SPECIES_CONFIGS_EXCL_GASBOX:
+                fill(
+                    self.species_configs[config],
+                    df.loc[specie, config],
+                    specie=specie,
+                )
             for gasbox in range(self._n_gasboxes):
                 fill(
                     self.species_configs["partition_fraction"],
@@ -615,105 +602,6 @@ class FAIR:
                     specie=specie,
                     gasbox=gasbox,
                 )
-            fill(
-                self.species_configs["molecular_weight"],
-                df.loc[specie].molecular_weight,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["baseline_concentration"],
-                df.loc[specie].baseline_concentration,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["forcing_scale"],
-                df.loc[specie].forcing_scale,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["forcing_reference_concentration"],
-                df.loc[specie].forcing_reference_concentration,
-                specie=specie,
-            )
-            fill(self.species_configs["iirf_0"], df.loc[specie].iirf_0, specie=specie)
-            fill(
-                self.species_configs["iirf_airborne"],
-                df.loc[specie].iirf_airborne,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["iirf_uptake"],
-                df.loc[specie].iirf_uptake,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["iirf_temperature"],
-                df.loc[specie].iirf_temperature,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["baseline_emissions"],
-                df.loc[specie].baseline_emissions,
-                specie=specie,
-            )
-            fill(self.species_configs["g0"], df.loc[specie].g0, specie=specie)
-            fill(self.species_configs["g1"], df.loc[specie].g1, specie=specie)
-            fill(
-                self.species_configs["greenhouse_gas_radiative_efficiency"],
-                df.loc[specie].greenhouse_gas_radiative_efficiency,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["contrails_radiative_efficiency"],
-                df.loc[specie].contrails_radiative_efficiency,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["erfari_radiative_efficiency"],
-                df.loc[specie].erfari_radiative_efficiency,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["h2o_stratospheric_factor"],
-                df.loc[specie].h2o_stratospheric_factor,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["lapsi_radiative_efficiency"],
-                df.loc[specie].lapsi_radiative_efficiency,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["land_use_cumulative_emissions_to_forcing"],
-                df.loc[specie].land_use_cumulative_emissions_to_forcing,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["ozone_radiative_efficiency"],
-                df.loc[specie].ozone_radiative_efficiency,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["cl_atoms"], df.loc[specie].cl_atoms, specie=specie
-            )
-            fill(
-                self.species_configs["br_atoms"], df.loc[specie].br_atoms, specie=specie
-            )
-            fill(
-                self.species_configs["fractional_release"],
-                df.loc[specie].fractional_release,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["ch4_lifetime_chemical_sensitivity"],
-                df.loc[specie].ch4_lifetime_chemical_sensitivity,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["aci_shape"],
-                df.loc[specie].aci_shape,
-                specie=specie,
-            )
         fill(
             self.species_configs["aci_scale"],
             df.loc[df["type"] == "aci"].aci_scale,
