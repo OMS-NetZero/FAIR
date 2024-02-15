@@ -1,5 +1,6 @@
 """Module for unit test of fair."""
 
+import os
 import tempfile
 import warnings
 
@@ -11,6 +12,7 @@ from fair.forcing.ghg import meinshausen2020
 from fair.io import read_properties
 
 f = FAIR()
+HERE = os.path.dirname(os.path.realpath(__file__))
 
 
 def minimal_empty_run(mode="concentration", timestep=270, temperature_prescribed=False):
@@ -277,3 +279,29 @@ def test_to_netcdf():
     ftest = minimal_fair_run()
     with tempfile.TemporaryFile() as tf:
         ftest.to_netcdf(tf)
+
+
+def test_fill_species_configs_aci_skips():
+    f.define_time(2000, 2003, 1)
+    f.define_configs(["high"])
+    f.define_scenarios(["abrupt"])
+    species_properties_filepath = os.path.join(
+        HERE, "..", "test_data", "species_configs_properties_ch4.csv"
+    )
+    species, properties = read_properties(species_properties_filepath)
+    f.define_species(species, properties)
+    f.allocate()
+    f.fill_species_configs(species_properties_filepath)
+
+
+def test_fill_species_configs_ch4_skips():
+    f.define_time(2000, 2003, 1)
+    f.define_configs(["high"])
+    f.define_scenarios(["abrupt"])
+    species_properties_filepath = os.path.join(
+        HERE, "..", "test_data", "species_configs_properties_aci.csv"
+    )
+    species, properties = read_properties(species_properties_filepath)
+    f.define_species(species, properties)
+    f.allocate()
+    f.fill_species_configs(species_properties_filepath)
