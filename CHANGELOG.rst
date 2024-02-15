@@ -4,6 +4,8 @@ Changelog
 master
 ------
 
+(`#152 <https://github.com/OMS-NetZero/FAIR/pull/152>`_) Refactor
+
 (`#150 <https://github.com/OMS-NetZero/FAIR/pull/150>`_) Reformat for black update
 
 (`#149 <https://github.com/OMS-NetZero/FAIR/pull/149>`_) Add nightly tests
@@ -19,7 +21,7 @@ v2.1.3
 v2.1.2
 ------
 
-(`#138 <https://github.com/OMS-NetZero/FAIR/pull/138>`_) Zenodo DOI error when using `pooch` fixed 
+(`#138 <https://github.com/OMS-NetZero/FAIR/pull/138>`_) Zenodo DOI error when using `pooch` fixed
 
 v2.1.1
 ------
