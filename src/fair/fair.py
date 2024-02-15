@@ -195,7 +195,7 @@ class FAIR:
                 "co2 ffi", "co2 afolu", "co2", "ch4", "n2o", "cfc-11",
                 "other halogen", "f-gas", "sulfur", "black carbon",
                 "organic carbon", "other slcf", "nox aviation", "eesc", "ozone",
-                "ari", "aci", "contrails", "lapsi","h2o stratospheric", "land use",
+                "ari", "aci", "contrails", "lapsi", "h2o stratospheric", "land use",
                 "volcanic", "solar", "unspecified",
             ``input_mode`` : {'emissions', 'concentration', 'forcing', 'calculated'}
                 describes how the specie is input into the model.
@@ -602,14 +602,16 @@ class FAIR:
                     specie=specie,
                     gasbox=gasbox,
                 )
-        fill(
-            self.species_configs["aci_scale"],
-            df.loc[df["type"] == "aci"].aci_scale,
-        )
-        fill(
-            self.species_configs["lifetime_temperature_sensitivity"],
-            df.loc[df["type"] == "ch4"].lifetime_temperature_sensitivity,
-        )
+        if len(df.loc[df["type"] == "aci"]) > 0:
+            fill(
+                self.species_configs["aci_scale"],
+                df.loc[df["type"] == "aci"].aci_scale,
+            )
+        if len(df.loc[df["type"] == "ch4"]) > 0:
+            fill(
+                self.species_configs["lifetime_temperature_sensitivity"],
+                df.loc[df["type"] == "ch4"].lifetime_temperature_sensitivity,
+            )
         self.calculate_concentration_per_emission()
 
     # greenhouse gas convenience functions
