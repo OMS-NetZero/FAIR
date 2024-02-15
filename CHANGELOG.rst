@@ -4,7 +4,7 @@ Changelog
 master
 ------
 
-(`#151 <https://github.com/OMS-NetZero/FAIR/pull/151>`_) Refactor
+(`#152 <https://github.com/OMS-NetZero/FAIR/pull/152>`_) Refactor
 
 (`#150 <https://github.com/OMS-NetZero/FAIR/pull/150>`_) Reformat for black update
 
