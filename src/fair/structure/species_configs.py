@@ -1,6 +1,4 @@
-"""
-Module that lists the species_configs
-"""
+"""Module that lists the species_configs"""
 
 SPECIES_CONFIGS_EXCL_GASBOX = [
     "tropospheric_adjustment",
