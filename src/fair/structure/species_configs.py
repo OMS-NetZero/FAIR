@@ -1,3 +1,7 @@
+"""
+Module that lists the species_configs
+"""
+
 SPECIES_CONFIGS_EXCL_GASBOX = [
     "tropospheric_adjustment",
     "forcing_efficacy",
