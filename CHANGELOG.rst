@@ -1,10 +1,10 @@
 Changelog
 ---------
 
-master
+v2.1.4
 ------
 
-(`#152 <https://github.com/OMS-NetZero/FAIR/pull/152>`_) Refactor
+(`#152 <https://github.com/OMS-NetZero/FAIR/pull/152>`_) Fix bug in reading in species_configs CSV file when either ch4 or aci are omitted
 
 (`#150 <https://github.com/OMS-NetZero/FAIR/pull/150>`_) Reformat for black update
 
