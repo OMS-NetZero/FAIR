@@ -64,33 +64,36 @@ def fill_from_rcmip(
         if specie not in self.species:
             del species_to_rcmip[specie]
 
-    rcmip_emissions_file = pooch.retrieve(
-        url=(
-            "https://zenodo.org/records/4589756/files/"
-            "rcmip-emissions-annual-means-v5-1-0.csv"
-        ),
-        known_hash="md5:4044106f55ca65b094670e7577eaf9b3",
-    )
+    if emissions_file is None:
+        emissions_file = pooch.retrieve(
+            url=(
+                "https://zenodo.org/records/4589756/files/"
+                "rcmip-emissions-annual-means-v5-1-0.csv"
+            ),
+            known_hash="md5:4044106f55ca65b094670e7577eaf9b3",
+        )
 
-    rcmip_concentration_file = pooch.retrieve(
-        url=(
-            "https://zenodo.org/records/4589756/files/"
-            "rcmip-concentrations-annual-means-v5-1-0.csv"
-        ),
-        known_hash="md5:0d82c3c3cdd4dd632b2bb9449a5c315f",
-    )
+    if concentration_file is None:
+        concentration_file = pooch.retrieve(
+            url=(
+                "https://zenodo.org/records/4589756/files/"
+                "rcmip-concentrations-annual-means-v5-1-0.csv"
+            ),
+            known_hash="md5:0d82c3c3cdd4dd632b2bb9449a5c315f",
+        )
 
-    rcmip_forcing_file = pooch.retrieve(
-        url=(
-            "https://zenodo.org/records/4589756/files/"
-            "rcmip-radiative-forcing-annual-means-v5-1-0.csv"
-        ),
-        known_hash="md5:87ef6cd4e12ae0b331f516ea7f82ccba",
-    )
+    if forcing_file is None:
+        forcing_file = pooch.retrieve(
+            url=(
+                "https://zenodo.org/records/4589756/files/"
+                "rcmip-radiative-forcing-annual-means-v5-1-0.csv"
+            ),
+            known_hash="md5:87ef6cd4e12ae0b331f516ea7f82ccba",
+        )
 
-    df_emis = pd.read_csv(rcmip_emissions_file)
-    df_conc = pd.read_csv(rcmip_concentration_file)
-    df_forc = pd.read_csv(rcmip_forcing_file)
+    df_emis = pd.read_csv(emissions_file)
+    df_conc = pd.read_csv(concentration_file)
+    df_forc = pd.read_csv(forcing_file)
 
     for scenario in self.scenarios:
         for specie, specie_rcmip_name in species_to_rcmip.items():
