@@ -18,8 +18,32 @@ from .structure.units import (
 )
 
 
-def fill_from_rcmip(self):
-    """Fill emissions, concentrations and/or forcing from RCMIP scenarios."""
+def fill_from_rcmip(
+    self,
+    emissions_file=None,
+    concentration_file=None,
+    forcing_file=None,
+):
+    """Fill emissions, concentrations and/or forcing from CSV scenarios.
+
+    This method is part of the `FAIR` class. It uses self.scenarios to look up
+    the scenario to extract from the given files. If None, the emissions/concentration/
+    forcing is filled in from the RCMIP database.
+
+    Parameters
+    ----------
+    emissions_file : str
+        filename of emissions to fill.
+    concentration_file : str
+        filename of concentrations to fill.
+    forcing_file : str
+        filename of effective radiative forcing to fill.
+
+    Raises
+    ------
+    ValueError:
+        if the scenario isn't found in the emissions database.
+    """
     # lookup converting FaIR default names to RCMIP names
     species_to_rcmip = {specie: specie.replace("-", "") for specie in self.species}
     species_to_rcmip["CO2 FFI"] = "CO2|MAGICC Fossil and Industrial"
