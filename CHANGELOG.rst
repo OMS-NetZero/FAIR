@@ -1,6 +1,34 @@
 Changelog
 ---------
 
+master
+------
+
+(`#134 <https://github.com/OMS-NetZero/FAIR/pull/134>`_) Increase code coverage to 100%
+
+
+v2.1.4
+------
+
+(`#152 <https://github.com/OMS-NetZero/FAIR/pull/152>`_) Fix bug in reading in species_configs CSV file when either ch4 or aci are omitted
+
+(`#150 <https://github.com/OMS-NetZero/FAIR/pull/150>`_) Reformat for black update
+
+(`#149 <https://github.com/OMS-NetZero/FAIR/pull/149>`_) Add nightly tests
+
+
+v2.1.3
+------
+
+(`#147 <https://github.com/OMS-NetZero/FAIR/pull/147>`_) Remove support for python 3.7
+
+(`#146 <https://github.com/OMS-NetZero/FAIR/pull/146>`_) Restarts for ocean heat content working correctly
+
+v2.1.2
+------
+
+(`#138 <https://github.com/OMS-NetZero/FAIR/pull/138>`_) Zenodo DOI error when using `pooch` fixed
+
 v2.1.1
 ------
 

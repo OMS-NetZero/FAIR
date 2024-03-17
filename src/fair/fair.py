@@ -35,6 +35,7 @@ from .gas_cycle.forward import step_concentration
 from .gas_cycle.inverse import unstep_concentration
 from .interface import fill
 from .structure.species import multiple_allowed, species_types, valid_input_modes
+from .structure.species_configs import SPECIES_CONFIGS_EXCL_GASBOX
 from .structure.units import (
     compound_convert,
     desired_concentration_units,
@@ -194,7 +195,7 @@ class FAIR:
                 "co2 ffi", "co2 afolu", "co2", "ch4", "n2o", "cfc-11",
                 "other halogen", "f-gas", "sulfur", "black carbon",
                 "organic carbon", "other slcf", "nox aviation", "eesc", "ozone",
-                "ari", "aci", "contrails", "lapsi","h2o stratospheric", "land use",
+                "ari", "aci", "contrails", "lapsi", "h2o stratospheric", "land use",
                 "volcanic", "solar", "unspecified",
             ``input_mode`` : {'emissions', 'concentration', 'forcing', 'calculated'}
                 describes how the specie is input into the model.
@@ -378,8 +379,9 @@ class FAIR:
             coords=(self.timebounds, self.scenarios, self.configs, self.species),
             dims=("timebounds", "scenario", "config", "specie"),
         )
+        # init with NaNs better than zeros, but makes code cleaner later
         self.ocean_heat_content_change = xr.DataArray(
-            np.ones((self._n_timebounds, self._n_scenarios, self._n_configs)) * np.nan,
+            np.zeros((self._n_timebounds, self._n_scenarios, self._n_configs)),
             coords=(self.timebounds, self.scenarios, self.configs),
             dims=("timebounds", "scenario", "config"),
         )
@@ -581,26 +583,12 @@ class FAIR:
         """
         df = pd.read_csv(filename, index_col=0)
         for specie in self.species:
-            fill(
-                self.species_configs["tropospheric_adjustment"],
-                df.loc[specie].tropospheric_adjustment,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["forcing_efficacy"],
-                df.loc[specie].forcing_efficacy,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["forcing_temperature_feedback"],
-                df.loc[specie].forcing_temperature_feedback,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["forcing_scale"],
-                df.loc[specie].forcing_scale,
-                specie=specie,
-            )
+            for config in SPECIES_CONFIGS_EXCL_GASBOX:
+                fill(
+                    self.species_configs[config],
+                    df.loc[specie, config],
+                    specie=specie,
+                )
             for gasbox in range(self._n_gasboxes):
                 fill(
                     self.species_configs["partition_fraction"],
@@ -614,113 +602,16 @@ class FAIR:
                     specie=specie,
                     gasbox=gasbox,
                 )
+        if len(df.loc[df["type"] == "aci"]) > 0:
             fill(
-                self.species_configs["molecular_weight"],
-                df.loc[specie].molecular_weight,
-                specie=specie,
+                self.species_configs["aci_scale"],
+                df.loc[df["type"] == "aci"].aci_scale,
             )
+        if len(df.loc[df["type"] == "ch4"]) > 0:
             fill(
-                self.species_configs["baseline_concentration"],
-                df.loc[specie].baseline_concentration,
-                specie=specie,
+                self.species_configs["lifetime_temperature_sensitivity"],
+                df.loc[df["type"] == "ch4"].lifetime_temperature_sensitivity,
             )
-            fill(
-                self.species_configs["forcing_scale"],
-                df.loc[specie].forcing_scale,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["forcing_reference_concentration"],
-                df.loc[specie].forcing_reference_concentration,
-                specie=specie,
-            )
-            fill(self.species_configs["iirf_0"], df.loc[specie].iirf_0, specie=specie)
-            fill(
-                self.species_configs["iirf_airborne"],
-                df.loc[specie].iirf_airborne,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["iirf_uptake"],
-                df.loc[specie].iirf_uptake,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["iirf_temperature"],
-                df.loc[specie].iirf_temperature,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["baseline_emissions"],
-                df.loc[specie].baseline_emissions,
-                specie=specie,
-            )
-            fill(self.species_configs["g0"], df.loc[specie].g0, specie=specie)
-            fill(self.species_configs["g1"], df.loc[specie].g1, specie=specie)
-            fill(
-                self.species_configs["greenhouse_gas_radiative_efficiency"],
-                df.loc[specie].greenhouse_gas_radiative_efficiency,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["contrails_radiative_efficiency"],
-                df.loc[specie].contrails_radiative_efficiency,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["erfari_radiative_efficiency"],
-                df.loc[specie].erfari_radiative_efficiency,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["h2o_stratospheric_factor"],
-                df.loc[specie].h2o_stratospheric_factor,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["lapsi_radiative_efficiency"],
-                df.loc[specie].lapsi_radiative_efficiency,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["land_use_cumulative_emissions_to_forcing"],
-                df.loc[specie].land_use_cumulative_emissions_to_forcing,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["ozone_radiative_efficiency"],
-                df.loc[specie].ozone_radiative_efficiency,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["cl_atoms"], df.loc[specie].cl_atoms, specie=specie
-            )
-            fill(
-                self.species_configs["br_atoms"], df.loc[specie].br_atoms, specie=specie
-            )
-            fill(
-                self.species_configs["fractional_release"],
-                df.loc[specie].fractional_release,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["ch4_lifetime_chemical_sensitivity"],
-                df.loc[specie].ch4_lifetime_chemical_sensitivity,
-                specie=specie,
-            )
-            fill(
-                self.species_configs["aci_shape"],
-                df.loc[specie].aci_shape,
-                specie=specie,
-            )
-        fill(
-            self.species_configs["aci_scale"],
-            df.loc[df["type"] == "aci"].aci_scale,
-        )
-        fill(
-            self.species_configs["lifetime_temperature_sensitivity"],
-            df.loc[df["type"] == "ch4"].lifetime_temperature_sensitivity,
-        )
         self.calculate_concentration_per_emission()
 
     # greenhouse gas convenience functions
@@ -808,17 +699,17 @@ class FAIR:
         species_to_rcmip["CO2 FFI"] = "CO2|MAGICC Fossil and Industrial"
         species_to_rcmip["CO2 AFOLU"] = "CO2|MAGICC AFOLU"
         species_to_rcmip["NOx aviation"] = "NOx|MAGICC Fossil and Industrial|Aircraft"
-        species_to_rcmip[
-            "Aerosol-radiation interactions"
-        ] = "Aerosols-radiation interactions"
-        species_to_rcmip[
-            "Aerosol-cloud interactions"
-        ] = "Aerosols-radiation interactions"
+        species_to_rcmip["Aerosol-radiation interactions"] = (
+            "Aerosols-radiation interactions"
+        )
+        species_to_rcmip["Aerosol-cloud interactions"] = (
+            "Aerosols-radiation interactions"
+        )
         species_to_rcmip["Contrails"] = "Contrails and Contrail-induced Cirrus"
         species_to_rcmip["Light absorbing particles on snow and ice"] = "BC on Snow"
-        species_to_rcmip[
-            "Stratospheric water vapour"
-        ] = "CH4 Oxidation Stratospheric H2O"
+        species_to_rcmip["Stratospheric water vapour"] = (
+            "CH4 Oxidation Stratospheric H2O"
+        )
         species_to_rcmip["Land use"] = "Albedo Change"
 
         species_to_rcmip_copy = copy.deepcopy(species_to_rcmip)
@@ -828,13 +719,16 @@ class FAIR:
                 del species_to_rcmip[specie]
 
         rcmip_emissions_file = pooch.retrieve(
-            url="doi:10.5281/zenodo.4589756/rcmip-emissions-annual-means-v5-1-0.csv",
+            url=(
+                "https://zenodo.org/records/4589756/files/"
+                "rcmip-emissions-annual-means-v5-1-0.csv"
+            ),
             known_hash="md5:4044106f55ca65b094670e7577eaf9b3",
         )
 
         rcmip_concentration_file = pooch.retrieve(
             url=(
-                "doi:10.5281/zenodo.4589756/"
+                "https://zenodo.org/records/4589756/files/"
                 "rcmip-concentrations-annual-means-v5-1-0.csv"
             ),
             known_hash="md5:0d82c3c3cdd4dd632b2bb9449a5c315f",
@@ -842,7 +736,7 @@ class FAIR:
 
         rcmip_forcing_file = pooch.retrieve(
             url=(
-                "doi:10.5281/zenodo.4589756/"
+                "https://zenodo.org/records/4589756/files/"
                 "rcmip-radiative-forcing-annual-means-v5-1-0.csv"
             ),
             known_hash="md5:87ef6cd4e12ae0b331f516ea7f82ccba",
@@ -1906,26 +1800,28 @@ class FAIR:
             forcing_sum_array[i_timepoint + 1 : i_timepoint + 2, ...] = np.nansum(
                 forcing_array[i_timepoint + 1 : i_timepoint + 2, ...], axis=SPECIES_AXIS
             )
-            forcing_efficacy_sum_array[
-                i_timepoint + 1 : i_timepoint + 2, ...
-            ] = np.nansum(
-                forcing_array[i_timepoint + 1 : i_timepoint + 2, ...]
-                * forcing_efficacy_array[None, None, ...],
-                axis=SPECIES_AXIS,
+            forcing_efficacy_sum_array[i_timepoint + 1 : i_timepoint + 2, ...] = (
+                np.nansum(
+                    forcing_array[i_timepoint + 1 : i_timepoint + 2, ...]
+                    * forcing_efficacy_array[None, None, ...],
+                    axis=SPECIES_AXIS,
+                )
             )
 
             # 16. forcing to temperature
             if self._routine_flags["temperature"]:
-                cummins_state_array[
-                    i_timepoint + 1 : i_timepoint + 2, ...
-                ] = step_temperature(
-                    cummins_state_array[i_timepoint : i_timepoint + 1, ...],
-                    eb_matrix_d_array[None, None, ...],
-                    forcing_vector_d_array[None, None, ...],
-                    stochastic_d_array[i_timepoint + 1 : i_timepoint + 2, None, ...],
-                    forcing_efficacy_sum_array[
-                        i_timepoint + 1 : i_timepoint + 2, ..., None
-                    ],
+                cummins_state_array[i_timepoint + 1 : i_timepoint + 2, ...] = (
+                    step_temperature(
+                        cummins_state_array[i_timepoint : i_timepoint + 1, ...],
+                        eb_matrix_d_array[None, None, ...],
+                        forcing_vector_d_array[None, None, ...],
+                        stochastic_d_array[
+                            i_timepoint + 1 : i_timepoint + 2, None, ...
+                        ],
+                        forcing_efficacy_sum_array[
+                            i_timepoint + 1 : i_timepoint + 2, ..., None
+                        ],
+                    )
                 )
 
         # 17. TOA imbalance
@@ -1938,8 +1834,15 @@ class FAIR:
         )
 
         # 18. Ocean heat content change
-        ocean_heat_content_change_array = (
-            np.cumsum(toa_imbalance_array * self.timestep, axis=TIME_AXIS)
+        # if a restart value is present, include it and subtract off the TOA
+        # imbalance from the restart as this would be double counting
+        # in non-restart runs, both OHC and N are zero in first timebound
+        ocean_heat_content_change_array = self.ocean_heat_content_change[0:1, ...] + (
+            (
+                np.cumsum(toa_imbalance_array, axis=TIME_AXIS)
+                - toa_imbalance_array[0:1, ...]
+            )
+            * self.timestep
             * earth_radius**2
             * 4
             * np.pi
