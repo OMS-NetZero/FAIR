@@ -10,6 +10,7 @@ import pytest
 from fair import FAIR
 from fair.forcing.ghg import meinshausen2020
 from fair.io import read_properties
+from fair.interface import fill
 
 f = FAIR()
 HERE = os.path.dirname(os.path.realpath(__file__))
@@ -305,3 +306,254 @@ def test_fill_species_configs_ch4_skips():
     f.define_species(species, properties)
     f.allocate()
     f.fill_species_configs(species_properties_filepath)
+
+
+def test_ghg_method_raise():
+    fair_obj = FAIR(ghg_method='Meinshausen2020')
+    species = ["CO2 FFI", "CO2 AFOLU", "CO2", "CH4", "N2O"]
+    species, properties = read_properties(species=species)
+    fair_obj.define_species(species, properties)
+    fair_obj.define_time(1750, 2020, 27)
+    fair_obj.define_scenarios(["historical"])
+    fair_obj.define_configs(["UKESM1-0-LL"])
+    fair_obj.allocate()
+    fair_obj.climate_configs["ocean_heat_capacity"][0, :] = np.array(
+        [2.917300055, 11.28317472, 73.2487238]
+    )
+    fair_obj.climate_configs["ocean_heat_transfer"][0, :] = np.array(
+        [0.65576633, 2.597877675, 0.612933889]
+    )
+    fair_obj.climate_configs["deep_ocean_efficacy"][0] = 1.133708775
+    fair_obj.climate_configs["gamma_autocorrelation"][0] = 3.548407499
+    fair_obj.climate_configs["sigma_xi"][0] = 0.439126403 / np.sqrt(27)
+    fair_obj.climate_configs["sigma_eta"][0] = 0.497441140 / np.sqrt(27)
+    fair_obj.climate_configs["forcing_4co2"][0] = 7.378788155
+    fair_obj.climate_configs["stochastic_run"][0] = False
+    fair_obj.climate_configs["use_seed"][0] = True
+    fair_obj.climate_configs["seed"][0] = 0
+    fair_obj.fill_species_configs()
+    fair_obj.species_configs["baseline_concentration"][0, :] = [np.nan, np.nan, 277, 731, 270]
+    fair_obj.species_configs['forcing_reference_concentration'][:] = np.nan
+    fair_obj.emissions[:, 0, 0, :] = 0
+    fair_obj.forcing[0, 0, 0, :] = 0
+    fair_obj.temperature[0, 0, 0, :] = 0
+    fair_obj.cumulative_emissions[0, 0, 0, :] = 0
+    fair_obj.airborne_emissions[0, 0, 0, :] = 0
+    with pytest.raises(ValueError):
+        fair_obj.run()
+
+
+def test_co2_run_mode_incompatible_raise():
+    fair_obj = FAIR()
+    species = ["CO2"]
+    species, properties = read_properties(species=species)
+    fair_obj.define_species(species, properties)
+    fair_obj.define_time(1750, 2020, 27)
+    fair_obj.define_scenarios(["historical"])
+    fair_obj.define_configs(["UKESM1-0-LL"])
+    fair_obj.allocate()
+    fair_obj.climate_configs["ocean_heat_capacity"][0, :] = np.array(
+        [2.917300055, 11.28317472, 73.2487238]
+    )
+    fair_obj.climate_configs["ocean_heat_transfer"][0, :] = np.array(
+        [0.65576633, 2.597877675, 0.612933889]
+    )
+    fair_obj.climate_configs["deep_ocean_efficacy"][0] = 1.133708775
+    fair_obj.climate_configs["gamma_autocorrelation"][0] = 3.548407499
+    fair_obj.climate_configs["sigma_xi"][0] = 0.439126403 / np.sqrt(27)
+    fair_obj.climate_configs["sigma_eta"][0] = 0.497441140 / np.sqrt(27)
+    fair_obj.climate_configs["forcing_4co2"][0] = 7.378788155
+    fair_obj.climate_configs["stochastic_run"][0] = False
+    fair_obj.climate_configs["use_seed"][0] = True
+    fair_obj.climate_configs["seed"][0] = 0
+    fair_obj.fill_species_configs()
+    fair_obj.species_configs["baseline_concentration"][0, :] = [277]
+    fair_obj.species_configs['forcing_reference_concentration'][0, :] = [277]
+    fair_obj.emissions[:, 0, 0, :] = 0
+    fair_obj.forcing[0, 0, 0, :] = 0
+    fair_obj.temperature[0, 0, 0, :] = 0
+    fair_obj.cumulative_emissions[0, 0, 0, :] = 0
+    fair_obj.airborne_emissions[0, 0, 0, :] = 0
+    with pytest.raises(ValueError):
+        fair_obj.run()
+
+
+def test_landuse_run_mode_incompatible_raise():
+    fair_obj = FAIR()
+    species = ["Land use"]
+    species, properties = read_properties(species=species)
+    fair_obj.define_species(species, properties)
+    fair_obj.define_time(1750, 2020, 27)
+    fair_obj.define_scenarios(["historical"])
+    fair_obj.define_configs(["UKESM1-0-LL"])
+    fair_obj.allocate()
+    fair_obj.climate_configs["ocean_heat_capacity"][0, :] = np.array(
+        [2.917300055, 11.28317472, 73.2487238]
+    )
+    fair_obj.climate_configs["ocean_heat_transfer"][0, :] = np.array(
+        [0.65576633, 2.597877675, 0.612933889]
+    )
+    fair_obj.climate_configs["deep_ocean_efficacy"][0] = 1.133708775
+    fair_obj.climate_configs["gamma_autocorrelation"][0] = 3.548407499
+    fair_obj.climate_configs["sigma_xi"][0] = 0.439126403 / np.sqrt(27)
+    fair_obj.climate_configs["sigma_eta"][0] = 0.497441140 / np.sqrt(27)
+    fair_obj.climate_configs["forcing_4co2"][0] = 7.378788155
+    fair_obj.climate_configs["stochastic_run"][0] = False
+    fair_obj.climate_configs["use_seed"][0] = True
+    fair_obj.climate_configs["seed"][0] = 0
+    fair_obj.fill_species_configs()
+    fair_obj.forcing[0, 0, 0, :] = 0
+    fair_obj.temperature[0, 0, 0, :] = 0
+    with pytest.raises(ValueError):
+        fair_obj.run()
+
+
+def test_thornhill_raises():
+    fair_obj = FAIR(ch4_method="thornhill2021")
+    species = ["Equivalent effective stratospheric chlorine", "Ozone"]
+    species, properties = read_properties(species=species)
+    fair_obj.define_species(species, properties)
+    fair_obj.define_time(1750, 2020, 27)
+    fair_obj.define_scenarios(["historical"])
+    fair_obj.define_configs(["UKESM1-0-LL"])
+    fair_obj.allocate()
+    fair_obj.climate_configs["ocean_heat_capacity"][0, :] = np.array(
+        [2.917300055, 11.28317472, 73.2487238]
+    )
+    fair_obj.climate_configs["ocean_heat_transfer"][0, :] = np.array(
+        [0.65576633, 2.597877675, 0.612933889]
+    )
+    fair_obj.climate_configs["deep_ocean_efficacy"][0] = 1.133708775
+    fair_obj.climate_configs["gamma_autocorrelation"][0] = 3.548407499
+    fair_obj.climate_configs["sigma_xi"][0] = 0.439126403 / np.sqrt(27)
+    fair_obj.climate_configs["sigma_eta"][0] = 0.497441140 / np.sqrt(27)
+    fair_obj.climate_configs["forcing_4co2"][0] = 7.378788155
+    fair_obj.climate_configs["stochastic_run"][0] = False
+    fair_obj.climate_configs["use_seed"][0] = True
+    fair_obj.climate_configs["seed"][0] = 0
+    fair_obj.fill_species_configs()
+    fair_obj.species_configs["baseline_concentration"][0, :] = [277]
+    fair_obj.species_configs['forcing_reference_concentration'][0, :] = [277]
+    fair_obj.forcing[0, 0, 0, :] = 0
+    fair_obj.temperature[0, 0, 0, :] = 0
+    fair_obj.cumulative_emissions[0, 0, 0, :] = 0
+    fair_obj.airborne_emissions[0, 0, 0, :] = 0
+    with pytest.raises(ValueError):
+        fair_obj.run()
+
+
+def test_leach_raises():
+    fair_obj = FAIR(ch4_method="leach2021")
+    species = ["Equivalent effective stratospheric chlorine", "Ozone"]
+    species, properties = read_properties(species=species)
+    fair_obj.define_species(species, properties)
+    fair_obj.define_time(1750, 2020, 27)
+    fair_obj.define_scenarios(["historical"])
+    fair_obj.define_configs(["UKESM1-0-LL"])
+    fair_obj.allocate()
+    fair_obj.climate_configs["ocean_heat_capacity"][0, :] = np.array(
+        [2.917300055, 11.28317472, 73.2487238]
+    )
+    fair_obj.climate_configs["ocean_heat_transfer"][0, :] = np.array(
+        [0.65576633, 2.597877675, 0.612933889]
+    )
+    fair_obj.climate_configs["deep_ocean_efficacy"][0] = 1.133708775
+    fair_obj.climate_configs["gamma_autocorrelation"][0] = 3.548407499
+    fair_obj.climate_configs["sigma_xi"][0] = 0.439126403 / np.sqrt(27)
+    fair_obj.climate_configs["sigma_eta"][0] = 0.497441140 / np.sqrt(27)
+    fair_obj.climate_configs["forcing_4co2"][0] = 7.378788155
+    fair_obj.climate_configs["stochastic_run"][0] = False
+    fair_obj.climate_configs["use_seed"][0] = True
+    fair_obj.climate_configs["seed"][0] = 0
+    fair_obj.fill_species_configs()
+    fair_obj.species_configs["baseline_concentration"][0, :] = [277]
+    fair_obj.species_configs['forcing_reference_concentration'][0, :] = [277]
+    fair_obj.forcing[0, 0, 0, :] = 0
+    fair_obj.temperature[0, 0, 0, :] = 0
+    fair_obj.cumulative_emissions[0, 0, 0, :] = 0
+    fair_obj.airborne_emissions[0, 0, 0, :] = 0
+    with pytest.raises(ValueError):
+        fair_obj.run()
+
+
+def test_meinshausen_raises():
+    fair_obj = FAIR(ghg_method='Meinshausen2020')
+    species = ["CO2", "CH4", "N2O"]
+    species, properties = read_properties(species=species)
+    properties["CO2"]["input_mode"] = "forcing"
+    fair_obj.define_species(species, properties)
+    fair_obj.define_time(1750, 2020, 27)
+    fair_obj.define_scenarios(["historical"])
+    fair_obj.define_configs(["UKESM1-0-LL"])
+    fair_obj.allocate()
+    fair_obj.climate_configs["ocean_heat_capacity"][0, :] = np.array(
+        [2.917300055, 11.28317472, 73.2487238]
+    )
+    fair_obj.climate_configs["ocean_heat_transfer"][0, :] = np.array(
+        [0.65576633, 2.597877675, 0.612933889]
+    )
+    fair_obj.climate_configs["deep_ocean_efficacy"][0] = 1.133708775
+    fair_obj.climate_configs["gamma_autocorrelation"][0] = 3.548407499
+    fair_obj.climate_configs["sigma_xi"][0] = 0.439126403 / np.sqrt(27)
+    fair_obj.climate_configs["sigma_eta"][0] = 0.497441140 / np.sqrt(27)
+    fair_obj.climate_configs["forcing_4co2"][0] = 7.378788155
+    fair_obj.climate_configs["stochastic_run"][0] = False
+    fair_obj.climate_configs["use_seed"][0] = True
+    fair_obj.climate_configs["seed"][0] = 0
+    fair_obj.fill_species_configs()
+    fair_obj.species_configs["baseline_concentration"][0, :] = [277, 731, 270]
+    fair_obj.species_configs['forcing_reference_concentration'][0, :] = [277, 731, 270]
+    fair_obj.emissions[:, 0, 0, :] = 0
+    fair_obj.forcing[:, 0, 0, :] = 0
+    fair_obj.temperature[0, 0, 0, :] = 0
+    fair_obj.cumulative_emissions[0, 0, 0, :] = 0
+    fair_obj.airborne_emissions[0, 0, 0, :] = 0
+    with pytest.raises(ValueError):
+        fair_obj.run()
+
+
+def test_myhre_raises():
+    fair_obj = FAIR(ghg_method='Myhre1998')
+    species = ["CH4"]
+    species, properties = read_properties(species=species)
+    fair_obj.define_species(species, properties)
+    fair_obj.define_time(1750, 2020, 27)
+    fair_obj.define_scenarios(["historical"])
+    fair_obj.define_configs(["UKESM1-0-LL"])
+    fair_obj.allocate()
+    fair_obj.climate_configs["ocean_heat_capacity"][0, :] = np.array(
+        [2.917300055, 11.28317472, 73.2487238]
+    )
+    fair_obj.climate_configs["ocean_heat_transfer"][0, :] = np.array(
+        [0.65576633, 2.597877675, 0.612933889]
+    )
+    fair_obj.climate_configs["deep_ocean_efficacy"][0] = 1.133708775
+    fair_obj.climate_configs["gamma_autocorrelation"][0] = 3.548407499
+    fair_obj.climate_configs["sigma_xi"][0] = 0.439126403 / np.sqrt(27)
+    fair_obj.climate_configs["sigma_eta"][0] = 0.497441140 / np.sqrt(27)
+    fair_obj.climate_configs["forcing_4co2"][0] = 7.378788155
+    fair_obj.climate_configs["stochastic_run"][0] = False
+    fair_obj.climate_configs["use_seed"][0] = True
+    fair_obj.climate_configs["seed"][0] = 0
+    fair_obj.fill_species_configs()
+    fair_obj.species_configs["baseline_concentration"][0, :] = [731]
+    fair_obj.species_configs['forcing_reference_concentration'][0, :] = [731]
+    fair_obj.emissions[:, 0, 0, :] = 0
+    fair_obj.forcing[:, 0, 0, :] = 0
+    fair_obj.temperature[0, 0, 0, :] = 0
+    fair_obj.cumulative_emissions[0, 0, 0, :] = 0
+    fair_obj.airborne_emissions[0, 0, 0, :] = 0
+    with pytest.raises(ValueError):
+        fair_obj.run()
+
+
+def test_run_forcing_driven():
+    ftest = minimal_fair_run(mode='forcing')
+    fill(ftest.forcing, 0)
+    ftest.run()
+
+
+def test_run_temperature_prescribed():
+    ftest = minimal_fair_run(temperature_prescribed=True)
+    fill(ftest.temperature, 0)
+    ftest.run()
