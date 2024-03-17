@@ -8,6 +8,8 @@ master
 
 (`#153 <https://github.com/OMS-NetZero/FAIR/pull/153>`_) Add support for python 3.12
 
+(`#134 <https://github.com/OMS-NetZero/FAIR/pull/134>`_) Increase code coverage to 100%
+
 v2.1.4
 ------
 
