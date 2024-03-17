@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+master
+------
+
+(`#134 <https://github.com/OMS-NetZero/FAIR/pull/134>`_) Increase code coverage to 100%
+
+
 v2.1.4
 ------
 
