@@ -5,3 +5,12 @@
 
 # Then I got even lazier and purged the two remaining errors that weren't
 # ValueErrors. We'll leave this module as a placeholder.
+
+class MetaAfterValueError(Exception):
+    pass
+
+class MissingColumnError(Exception):
+    pass
+
+class TimeNotMonotonicError(Exception):
+    pass
