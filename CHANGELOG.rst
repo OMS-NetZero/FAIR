@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+master
+------
+
+Add support for python 3.12
+
 v2.1.4
 ------
 
