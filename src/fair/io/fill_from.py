@@ -7,6 +7,7 @@ import pandas as pd
 import pooch
 from scipy.interpolate import interp1d
 
+from ..exceptions import MissingColumnError
 from ..interface import fill
 from ..structure.units import (
     compound_convert,
@@ -18,8 +19,36 @@ from ..structure.units import (
 )
 
 
-def _check_csv(df):
-    pass
+def _check_csv(df, runmode):
+    # check our three metadata columns are present
+    required_columns = ['scenario', 'variable', 'unit']
+    for required_column in required_columns:
+        if required_columns not in df.columns:
+            raise MissingColumnError(
+                f"{required_column} is not in the {runmode} file. Please ensure you "
+                f"have {required_columns} defined."
+            )
+
+    # check that dates come after all metadata and are in chrological order
+    # there's no critical reason for erroring here; we can always do sorting on dates
+    # and delete columns that shouldn't be there, but there's a chance the user has
+    # made a mistake if not.
+    input_years = []
+    first_time = False
+    for col in df.columns:
+         try:
+             print(float(col))
+             first_time = True
+         except ValueError:
+             if not first_time:
+                pass
+             else:
+                raise MetaAfterValueError(
+                    f"There is a column {col} in the {runmode} file that comes after "
+                    f"the first time value. Please check your input file and ensure "
+                    f"time values are uninterrupted and monotonic."
+                )
+
 
 
 def fill_from_csv(
@@ -53,7 +82,7 @@ def fill_from_csv(
     """
     if emissions_file is not None:
         df_emis = pd.read_csv(emissions_file)
-        _check_csv(df_emis)
+        _check_csv(df_emis, runmode="emissions")
 
 
     if concentration_file is not None:
