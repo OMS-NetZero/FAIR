@@ -6,7 +6,7 @@ import pandas as pd
 
 HERE = os.path.dirname(os.path.realpath(__file__))
 DEFAULT_PROPERTIES_FILE = os.path.join(
-    HERE, "defaults", "data", "ar6", "species_configs_properties.csv"
+    HERE, "..", "defaults", "data", "ar6", "species_configs_properties.csv"
 )
 
 _default_ghg_and_slcfs = [
