@@ -6,6 +6,8 @@ master
 
 (`#158 <https://github.com/OMS-NetZero/FAIR/pull/158>`_) Add `fair` to `conda-forge`
 
+(`#153 <https://github.com/OMS-NetZero/FAIR/pull/153>`) Add support for python 3.12
+
 v2.1.4
 ------
 
