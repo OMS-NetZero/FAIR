@@ -25,7 +25,7 @@ def _check_csv(self, df, runmode):
     # check our three metadata columns are present
     required_columns = ['scenario', 'variable', 'unit']
     for required_column in required_columns:
-        if required_columns not in df.columns:
+        if required_column not in df.columns:
             raise MissingColumnError(
                 f"{required_column} is not in the {runmode} file. Please ensure you "
                 f"have {required_columns} defined."
@@ -38,13 +38,14 @@ def _check_csv(self, df, runmode):
     times = []
     first_time = False
     for col in df.columns:
-         try:
-             times.append(float(col))
-             first_time = True
-         except ValueError:
-             if not first_time:
+        try:
+            float(col)
+            times.append(col)
+            first_time = True
+        except ValueError:
+            if not first_time:
                 pass
-             else:
+            else:
                 raise MetaAfterValueError(
                     f"There is a string-value column label {col} in the {runmode} file "
                     "that comes after the first time value. Please check your input "
@@ -52,7 +53,7 @@ def _check_csv(self, df, runmode):
                 )
 
     # check strictly monotonicly increasing
-    if np.any(np.diff(a) <= 0):
+    if np.any(np.diff(np.array(times)) <= 0):
         raise NonMonotonicError(
             f"Time values in the {runmode} file must be strictly monotonically "
             "increasing."
@@ -61,16 +62,41 @@ def _check_csv(self, df, runmode):
     return times
 
 
-def _bounds_warning(firstlast, pointbound, runmode, filetime, problemtime):
+def _bounds_warning(firstlast, runmode, filetime, problemtime):
+    # Don't raise error if time is out of range because we can still fill in emissions
+    # by directly modifying attributes, but user might have made a mistake so warn
     earlierlater = {
         'first': 'later',
         'last': 'earlier'
     }
     return logger.warning(
-        f"The {firstlast} {pointbound} in the {runmode} file ({filetime}) is "
-        f"{earlierlater[firstlast]} than the {firstlast} {pointbound} in the problem "
+        f"The {firstlast} time in the {runmode} file ({filetime}) is "
+        f"{earlierlater[firstlast]} than the {firstlast} time in the problem "
         f"definition ({problemtime})."
     )
+
+
+def _emissions_unit_convert(emissions, unit, specie):
+    # parse the unit
+    prefix = unit.split()[0]
+    compound = unit.split()[1].split("/")[0]
+    time = unit.split()[1].split("/")[1]
+
+    # need to do something here to check whether compound is in expected list
+    # a test should be whether it is not
+
+    emissions = emissions * (
+        prefix_convert[unit.split()[0]][
+            desired_emissions_units[specie].split()[0]
+        ]
+        * compound_convert[unit.split()[1].split("/")[0]][
+            desired_emissions_units[specie].split()[1].split("/")[0]
+        ]
+        * time_convert[unit.split()[1].split("/")[1]][
+            desired_emissions_units[specie].split()[1].split("/")[1]
+        ]
+    )  # * self.timestep
+    return emissions
 
 
 def fill_from_csv(
@@ -102,36 +128,77 @@ def fill_from_csv(
     forcing_file : str
         filename of effective radiative forcing to fill.
     """
-    # Don't raise error if time is out of range because we can still fill in emissions
-    # by directly modifying attributes, but user might have made a mistake so warn
-    if emissions_file is not None:
-        df_emis = pd.read_csv(emissions_file)
-        times = self._check_csv(df_emis, runmode="emissions")
-        if times[0] > self.timepoints[0]:
-            _bounds_warning("first", "timepoint", "emissions", times[0], self.timepoints[0])
-        if times[-1] < self.timepoints[-1]:
-            _bounds_warning("last", "timepoint", "emissions", times[0], self.timepoints[0])
+    mode_options = {
+        'emissions': {
+            'file': emissions_file,
+            'time': self.timepoints,
+            'var': self.emissions
+        },
+        'concentration': {
+            'file': concentration_file,
+            'time': self.timebounds,
+            'var': self.concentration
+        },
+        'forcing': {
+            'file': forcing_file,
+            'time': self.timebounds,
+        },
+    }
+    for mode in mode_options:
+        if mode_options[mode]['file'] is not None:
+            df = pd.read_csv(mode_options[mode]['file'])
+            df.columns = dfs.columns.str.lower()
+            times = self._check_csv(df, runmode=mode)  # list of strings
+            if times[0] > mode_options[mode]['time'][0]:
+                _bounds_warning("first", mode, times[0], mode_options[mode]['time'][0])
+            if times[-1] < self.timepoints[-1]:
+                _bounds_warning("last", mode, times[-1], mode_options[mode]['time'][-1])
+            times_array = np.array(times, dtype=float)
 
-    if concentration_file is not None:
-        df_conc = pd.read_csv(concentration_file)
-    if forcing_file is not None:
-        df_forc = pd.read_csv(forcing_file)
+            for scenario in self.scenarios:
+                for specie in self.species:
+                    if self.properties_df.loc[specie, "input_mode"] == "emissions":
+                        # Grab raw emissions from dataframe
+                        data_in = (
+                            df.loc[
+                                (df["scenario"] == scenario)
+                                & (df["variable"] == specie),
+                                times[0]:times[-1],
+                            ].values.squeeze()
+                        )
+                        
+                        # warn if data missing
+                        if data_in.shape[0] == 0:
+                            logger.warning(
+                                f"I can't find a value for scenario={scenario}, variable="
+                                f"{specie} in the {mode} file."
+                            )
+
+                        # interpolate from the supplied file to our desired timepoints
+                        interpolator = interp1d(times_array, data_in)
+                        data = interpolator(mode_options[mode][time])
+
+                        # Parse and possibly convert unit in input file to what FaIR wants
+                        unit = df.loc[
+                            (df["scenario"] == scenario)
+                            & (df["variable"] == specie),
+                            "unit",
+                        ].values[0]
+                        if mode=='emissions':
+                            data = _emissions_unit_convert(data, unit, specie)
+
+
+                        conc = conc * (
+                            mixing_ratio_convert[unit][desired_concentration_units[specie]]
+                        )
 
 
 
-    for scenario in self.scenarios:
-        for specie in self.species:
-            if self.properties_df.loc[specie, "input_mode"] == "emissions":
-                # Grab raw emissions from dataframe
-                emis_in = (
-                    df_emis.loc[
-                        (df_emis["Scenario"] == scenario)
-                        & (df_emis["Variable"] == specie),
-                        "1750":"2500",
-                    ]  # check fractionals
-                    .interpolate(axis=1)
-                    .values.squeeze()
-                )
+                        # fill FaIR xarray
+                        fill(getattr(self, mode), data[:, None], specie=specie, scenario=scenario)
+
+
+
 
 # TO DO: make part of fill_from_csv
 def fill_from_rcmip(
