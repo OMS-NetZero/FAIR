@@ -12,5 +12,8 @@ class MetaAfterValueError(Exception):
 class MissingColumnError(Exception):
     pass
 
+class MissingDataError(Exception):
+    pass
+
 class TimeNotMonotonicError(Exception):
     pass
