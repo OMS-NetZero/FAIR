@@ -1,6 +1,7 @@
 """Methods for filling data from scenario files."""
 
 import copy
+import logging
 
 import numpy as np
 import pandas as pd
@@ -18,8 +19,9 @@ from ..structure.units import (
     time_convert,
 )
 
+logger = logging.getLogger(__name__)
 
-def _check_csv(df, runmode):
+def _check_csv(self, df, runmode):
     # check our three metadata columns are present
     required_columns = ['scenario', 'variable', 'unit']
     for required_column in required_columns:
@@ -33,22 +35,42 @@ def _check_csv(df, runmode):
     # there's no critical reason for erroring here; we can always do sorting on dates
     # and delete columns that shouldn't be there, but there's a chance the user has
     # made a mistake if not.
-    input_years = []
+    times = []
     first_time = False
     for col in df.columns:
          try:
-             print(float(col))
+             times.append(float(col))
              first_time = True
          except ValueError:
              if not first_time:
                 pass
              else:
                 raise MetaAfterValueError(
-                    f"There is a column {col} in the {runmode} file that comes after "
-                    f"the first time value. Please check your input file and ensure "
-                    f"time values are uninterrupted and monotonic."
+                    f"There is a string-value column label {col} in the {runmode} file "
+                    "that comes after the first time value. Please check your input "
+                    "file and ensure time values are uninterrupted."
                 )
 
+    # check strictly monotonicly increasing
+    if np.any(np.diff(a) <= 0):
+        raise NonMonotonicError(
+            f"Time values in the {runmode} file must be strictly monotonically "
+            "increasing."
+        )
+
+    return times
+
+
+def _bounds_warning(firstlast, pointbound, runmode, filetime, problemtime):
+    earlierlater = {
+        'first': 'later',
+        'last': 'earlier'
+    }
+    return logger.warning(
+        f"The {firstlast} {pointbound} in the {runmode} file ({filetime}) is "
+        f"{earlierlater[firstlast]} than the {firstlast} {pointbound} in the problem "
+        f"definition ({problemtime})."
+    )
 
 
 def fill_from_csv(
@@ -80,10 +102,15 @@ def fill_from_csv(
     forcing_file : str
         filename of effective radiative forcing to fill.
     """
+    # Don't raise error if time is out of range because we can still fill in emissions
+    # by directly modifying attributes, but user might have made a mistake so warn
     if emissions_file is not None:
         df_emis = pd.read_csv(emissions_file)
-        _check_csv(df_emis, runmode="emissions")
-
+        times = self._check_csv(df_emis, runmode="emissions")
+        if times[0] > self.timepoints[0]:
+            _bounds_warning("first", "timepoint", "emissions", times[0], self.timepoints[0])
+        if times[-1] < self.timepoints[-1]:
+            _bounds_warning("last", "timepoint", "emissions", times[0], self.timepoints[0])
 
     if concentration_file is not None:
         df_conc = pd.read_csv(concentration_file)
