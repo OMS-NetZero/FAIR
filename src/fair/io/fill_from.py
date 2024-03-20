@@ -27,9 +27,9 @@ from ..structure.units import (
 logger = logging.getLogger(__name__)
 
 
-def _check_csv(self, df, runmode):
+def _check_csv(df, runmode):
     # check our three metadata columns are present
-    required_columns = ["scenario", "variable", "unit"]
+    required_columns = ["scenario", "region", "variable", "unit"]
     for required_column in required_columns:
         if required_column not in df.columns:
             raise MissingColumnError(
@@ -197,7 +197,7 @@ def fill_from_csv(
         if mode_options[mode]["file"] is not None:
             df = pd.read_csv(mode_options[mode]["file"])
             df.columns = df.columns.str.lower()
-            times = self._check_csv(df, runmode=mode)  # list of strings
+            times = _check_csv(df, runmode=mode)  # list of strings
             if times[0] > mode_options[mode]["time"][0]:
                 _bounds_warning("first", mode, times[0], mode_options[mode]["time"][0])
             if times[-1] < self.timepoints[-1]:
@@ -209,15 +209,18 @@ def fill_from_csv(
                     if self.properties_df.loc[specie, "input_mode"] == "emissions":
                         # Grab raw emissions from dataframe
                         data_in = df.loc[
-                            (df["scenario"] == scenario) & (df["variable"] == specie),
+                            (df["scenario"] == scenario) & 
+                            (df["variable"] == specie) &
+                            (df["region"].lower() == "world"),
                             times[0] : times[-1],
                         ].values.squeeze()
 
                         # warn if data missing
                         if data_in.shape[0] == 0:
                             logger.warning(
-                                f"I can't find a value for scenario={scenario}, "
-                                f"variable={specie} in the {mode} file."
+                                f"I can't find a value for scenario='{scenario}', "
+                                f"variable='{specie}', region='World' in the {mode} "
+                                "file."
                             )
 
                         # interpolate from the supplied file to our desired timepoints
@@ -226,7 +229,9 @@ def fill_from_csv(
 
                         # Parse and possibly convert unit in input to what FaIR wants
                         unit = df.loc[
-                            (df["scenario"] == scenario) & (df["variable"] == specie),
+                            (df["scenario"] == scenario) & 
+                            (df["variable"] == specie) &
+                            (df["region"].lower() == "world"),
                             "unit",
                         ].values[0]
                         is_ghg = self.properties_df.loc[specie, "greenhouse_gas"]
