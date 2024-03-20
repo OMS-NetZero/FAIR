@@ -8,7 +8,12 @@ import pandas as pd
 import pooch
 from scipy.interpolate import interp1d
 
-from ..exceptions import MissingColumnError, UnitParseError
+from ..exceptions import (
+    MetaAfterValueError,
+    MissingColumnError,
+    NonMonotonicError,
+    UnitParseError,
+)
 from ..interface import fill
 from ..structure.units import (
     compound_convert,
@@ -21,9 +26,10 @@ from ..structure.units import (
 
 logger = logging.getLogger(__name__)
 
+
 def _check_csv(self, df, runmode):
     # check our three metadata columns are present
-    required_columns = ['scenario', 'variable', 'unit']
+    required_columns = ["scenario", "variable", "unit"]
     for required_column in required_columns:
         if required_column not in df.columns:
             raise MissingColumnError(
@@ -65,10 +71,7 @@ def _check_csv(self, df, runmode):
 def _bounds_warning(firstlast, runmode, filetime, problemtime):
     # Don't raise error if time is out of range because we can still fill in emissions
     # by directly modifying attributes, but user might have made a mistake so warn
-    earlierlater = {
-        'first': 'later',
-        'last': 'earlier'
-    }
+    earlierlater = {"first": "later", "last": "earlier"}
     return logger.warning(
         f"The {firstlast} time in the {runmode} file ({filetime}) is "
         f"{earlierlater[firstlast]} than the {firstlast} time in the problem "
@@ -82,26 +85,37 @@ def _parse_unit(unit, specie, is_ghg):
         compound = unit.split()[1].split("/")[0]
         time = unit.split()[1].split("/")[1]
     except IndexError:
-        raise UnitParseError("Units must be given in the format MASS SPECIE/TIME (with a whitespace between MASS and SPECIE)")
-    
+        raise UnitParseError(
+            "Units must be given in the format MASS SPECIE/TIME (with a whitespace "
+            "between MASS and SPECIE)"
+        )
+
     # prefix and time need to be from pre-defined list
     if prefix not in prefix_convert:
-        raise UnitParseError(f"Unit mass given ({prefix}) is not in the list of recognised values, which are {list(prefix_convert.keys())}.")
+        raise UnitParseError(
+            f"Unit mass given ({prefix}) is not in the list of recognised values, "
+            f"which are {list(prefix_convert.keys())}."
+        )
     if time not in time_convert:
-        raise UnitParseError(f"Unit time given ({time}) is not in the list of recognised values, which are {list(time_convert.keys())}.")
-        
-    # compound may be novel if it is user defined, but we can't convert it if so. In which case add to our desired unit lists to prevent later errors.
+        raise UnitParseError(
+            f"Unit time given ({time}) is not in the list of recognised values, which "
+            f"are {list(time_convert.keys())}."
+        )
+
+    # compound may be novel if it is user defined, but we can't convert it if so. In
+    # which case add to our desired unit lists to prevent later errors.
     if compound not in compound_convert:
         logger.warning(
-            f"{compound} is not in fair's default list of species masses for {specie}, so I can't convert it. "
-            "For my non-native species, greenhouse gas emissions are reported in kt/yr, short-lived forcer emissions in Mt/yr, greenhouse gas "
-            "concentrations in ppt, and forcings in W/m2."
+            f"{compound} is not in fair's default list of species masses for "
+            f"{specie}, so I can't convert it. For my non-native species, greenhouse "
+            "gas emissions are reported in kt/yr, short-lived forcer emissions in "
+            "Mt/yr, greenhouse gas concentrations in ppt, and forcings in W/m2."
         )
         if is_ghg:
-            desired_emissions_units[specie] = f'kt {compound}/yr'
-            desired_concentration_units[specie] = 'ppt'
+            desired_emissions_units[specie] = f"kt {compound}/yr"
+            desired_concentration_units[specie] = "ppt"
         else:
-            desired_emissions_units[specie] = f'Mt {compound}/yr'
+            desired_emissions_units[specie] = f"Mt {compound}/yr"
         compound_convert[compound] = {compound: 1}
 
     return prefix, compound, time
@@ -109,28 +123,31 @@ def _parse_unit(unit, specie, is_ghg):
 
 def _emissions_unit_convert(emissions, unit, specie, is_ghg):
     # parse the unit
-    prefix, compound, time =_parse_unit(unit, specie, is_ghg)
+    prefix, compound, time = _parse_unit(unit, specie, is_ghg)
 
     emissions = emissions * (
-        prefix_convert[prefix][
-            desired_emissions_units[specie].split()[0]
-        ]
+        prefix_convert[prefix][desired_emissions_units[specie].split()[0]]
         * compound_convert[compound][
             desired_emissions_units[specie].split()[1].split("/")[0]
         ]
-        * time_convert[time][
-            desired_emissions_units[specie].split()[1].split("/")[1]
-        ]
+        * time_convert[time][desired_emissions_units[specie].split()[1].split("/")[1]]
     )  # * self.timestep
     return emissions
 
 
 def _concentration_unit_convert(concentration, unit, specie):
     if unit not in mixing_ratio_convert:
-        raise UnitParseError(f"Unit mixing ratio given ({unit}) is not in the list of recognised values, which are {list(mixing_ratio_convert.keys())}.")
+        raise UnitParseError(
+            f"Unit mixing ratio given ({unit}) is not in the list of recognised "
+            f"values, which are {list(mixing_ratio_convert.keys())}."
+        )
     if specie not in desired_concentration_units:
-        logger.warning(f"{specie} is not in the default list of greenhouse gases known to fair, so I'm going to convert concentrations to ppt and report back-calculated emissions in kt/yr.")
-        desired_concentration_units[specie] = 'ppt'
+        logger.warning(
+            f"{specie} is not in the default list of greenhouse gases known to fair, "
+            "so I'm going to convert concentrations to ppt and report back-calculated "
+            "emissions in kt/yr."
+        )
+        desired_concentration_units[specie] = "ppt"
     concentration = concentration * (
         mixing_ratio_convert[unit][desired_concentration_units[specie]]
     )
@@ -138,10 +155,7 @@ def _concentration_unit_convert(concentration, unit, specie):
 
 
 def fill_from_csv(
-    self,
-    emissions_file=None,
-    concentration_file=None,
-    forcing_file=None
+    self, emissions_file=None, concentration_file=None, forcing_file=None
 ):
     """Fill emissions, concentration and/or forcing from a CSV file.
 
@@ -167,73 +181,68 @@ def fill_from_csv(
         filename of effective radiative forcing to fill.
     """
     mode_options = {
-        'emissions': {
-            'file': emissions_file,
-            'time': self.timepoints,
-            'var': self.emissions
+        "emissions": {
+            "file": emissions_file,
+            "time": self.timepoints,
+            "var": self.emissions,
         },
-        'concentration': {
-            'file': concentration_file,
-            'time': self.timebounds,
-            'var': self.concentration
+        "concentration": {
+            "file": concentration_file,
+            "time": self.timebounds,
+            "var": self.concentration,
         },
-        'forcing': {
-            'file': forcing_file,
-            'time': self.timebounds,
-            'var': self.forcing
-        },
+        "forcing": {"file": forcing_file, "time": self.timebounds, "var": self.forcing},
     }
     for mode in mode_options:
-        if mode_options[mode]['file'] is not None:
-            df = pd.read_csv(mode_options[mode]['file'])
-            df.columns = dfs.columns.str.lower()
+        if mode_options[mode]["file"] is not None:
+            df = pd.read_csv(mode_options[mode]["file"])
+            df.columns = df.columns.str.lower()
             times = self._check_csv(df, runmode=mode)  # list of strings
-            if times[0] > mode_options[mode]['time'][0]:
-                _bounds_warning("first", mode, times[0], mode_options[mode]['time'][0])
+            if times[0] > mode_options[mode]["time"][0]:
+                _bounds_warning("first", mode, times[0], mode_options[mode]["time"][0])
             if times[-1] < self.timepoints[-1]:
-                _bounds_warning("last", mode, times[-1], mode_options[mode]['time'][-1])
+                _bounds_warning("last", mode, times[-1], mode_options[mode]["time"][-1])
             times_array = np.array(times, dtype=float)
 
             for scenario in self.scenarios:
                 for specie in self.species:
                     if self.properties_df.loc[specie, "input_mode"] == "emissions":
                         # Grab raw emissions from dataframe
-                        data_in = (
-                            df.loc[
-                                (df["scenario"] == scenario)
-                                & (df["variable"] == specie),
-                                times[0]:times[-1],
-                            ].values.squeeze()
-                        )
-                        
+                        data_in = df.loc[
+                            (df["scenario"] == scenario) & (df["variable"] == specie),
+                            times[0] : times[-1],
+                        ].values.squeeze()
+
                         # warn if data missing
                         if data_in.shape[0] == 0:
                             logger.warning(
-                                f"I can't find a value for scenario={scenario}, variable="
-                                f"{specie} in the {mode} file."
+                                f"I can't find a value for scenario={scenario}, "
+                                f"variable={specie} in the {mode} file."
                             )
 
                         # interpolate from the supplied file to our desired timepoints
                         interpolator = interp1d(times_array, data_in)
-                        data = interpolator(mode_options[mode][time])
+                        data = interpolator(mode_options[mode]["time"])
 
-                        # Parse and possibly convert unit in input file to what FaIR wants
+                        # Parse and possibly convert unit in input to what FaIR wants
                         unit = df.loc[
-                            (df["scenario"] == scenario)
-                            & (df["variable"] == specie),
+                            (df["scenario"] == scenario) & (df["variable"] == specie),
                             "unit",
                         ].values[0]
                         is_ghg = self.properties_df.loc[specie, "greenhouse_gas"]
-                        if mode=='emissions':
+                        if mode == "emissions":
                             data = _emissions_unit_convert(data, unit, specie, is_ghg)
-                        elif mode=='concentration':
+                        elif mode == "concentration":
                             data = _concentration_unit_convert(data, unit, specie)
                         # forcing always W/m2 for now
 
                         # fill FaIR xarray
-                        fill(getattr(self, mode), data[:, None], specie=specie, scenario=scenario)
-
-
+                        fill(
+                            getattr(self, mode),
+                            data[:, None],
+                            specie=specie,
+                            scenario=scenario,
+                        )
 
 
 # TO DO: make part of fill_from_csv
