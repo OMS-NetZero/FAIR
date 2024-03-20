@@ -8,7 +8,7 @@ import pandas as pd
 import pooch
 from scipy.interpolate import interp1d
 
-from ..exceptions import MissingColumnError
+from ..exceptions import MissingColumnError, UnitParseError
 from ..interface import fill
 from ..structure.units import (
     compound_convert,
@@ -76,27 +76,65 @@ def _bounds_warning(firstlast, runmode, filetime, problemtime):
     )
 
 
-def _emissions_unit_convert(emissions, unit, specie):
-    # parse the unit
-    prefix = unit.split()[0]
-    compound = unit.split()[1].split("/")[0]
-    time = unit.split()[1].split("/")[1]
+def _parse_unit(unit, specie, is_ghg):
+    try:
+        prefix = unit.split()[0]
+        compound = unit.split()[1].split("/")[0]
+        time = unit.split()[1].split("/")[1]
+    except IndexError:
+        raise UnitParseError("Units must be given in the format MASS SPECIE/TIME (with a whitespace between MASS and SPECIE)")
+    
+    # prefix and time need to be from pre-defined list
+    if prefix not in prefix_convert:
+        raise UnitParseError(f"Unit mass given ({prefix}) is not in the list of recognised values, which are {list(prefix_convert.keys())}.")
+    if time not in time_convert:
+        raise UnitParseError(f"Unit time given ({time}) is not in the list of recognised values, which are {list(time_convert.keys())}.")
+        
+    # compound may be novel if it is user defined, but we can't convert it if so. In which case add to our desired unit lists to prevent later errors.
+    if compound not in compound_convert:
+        logger.warning(
+            f"{compound} is not in fair's default list of species masses for {specie}, so I can't convert it. "
+            "For my non-native species, greenhouse gas emissions are reported in kt/yr, short-lived forcer emissions in Mt/yr, greenhouse gas "
+            "concentrations in ppt, and forcings in W/m2."
+        )
+        if is_ghg:
+            desired_emissions_units[specie] = f'kt {compound}/yr'
+            desired_concentration_units[specie] = 'ppt'
+        else:
+            desired_emissions_units[specie] = f'Mt {compound}/yr'
+        compound_convert[compound] = {compound: 1}
 
-    # need to do something here to check whether compound is in expected list
-    # a test should be whether it is not
+    return prefix, compound, time
+
+
+def _emissions_unit_convert(emissions, unit, specie, is_ghg):
+    # parse the unit
+    prefix, compound, time =_parse_unit(unit, specie, is_ghg)
 
     emissions = emissions * (
-        prefix_convert[unit.split()[0]][
+        prefix_convert[prefix][
             desired_emissions_units[specie].split()[0]
         ]
-        * compound_convert[unit.split()[1].split("/")[0]][
+        * compound_convert[compound][
             desired_emissions_units[specie].split()[1].split("/")[0]
         ]
-        * time_convert[unit.split()[1].split("/")[1]][
+        * time_convert[time][
             desired_emissions_units[specie].split()[1].split("/")[1]
         ]
     )  # * self.timestep
     return emissions
+
+
+def _concentration_unit_convert(concentration, unit, specie):
+    if unit not in mixing_ratio_convert:
+        raise UnitParseError(f"Unit mixing ratio given ({unit}) is not in the list of recognised values, which are {list(mixing_ratio_convert.keys())}.")
+    if specie not in desired_concentration_units:
+        logger.warning(f"{specie} is not in the default list of greenhouse gases known to fair, so I'm going to convert concentrations to ppt and report back-calculated emissions in kt/yr.")
+        desired_concentration_units[specie] = 'ppt'
+    concentration = concentration * (
+        mixing_ratio_convert[unit][desired_concentration_units[specie]]
+    )
+    return concentration
 
 
 def fill_from_csv(
@@ -142,6 +180,7 @@ def fill_from_csv(
         'forcing': {
             'file': forcing_file,
             'time': self.timebounds,
+            'var': self.forcing
         },
     }
     for mode in mode_options:
@@ -184,15 +223,12 @@ def fill_from_csv(
                             & (df["variable"] == specie),
                             "unit",
                         ].values[0]
+                        is_ghg = self.properties_df.loc[specie, "greenhouse_gas"]
                         if mode=='emissions':
-                            data = _emissions_unit_convert(data, unit, specie)
-
-
-                        conc = conc * (
-                            mixing_ratio_convert[unit][desired_concentration_units[specie]]
-                        )
-
-
+                            data = _emissions_unit_convert(data, unit, specie, is_ghg)
+                        elif mode=='concentration':
+                            data = _concentration_unit_convert(data, unit, specie)
+                        # forcing always W/m2 for now
 
                         # fill FaIR xarray
                         fill(getattr(self, mode), data[:, None], specie=specie, scenario=scenario)

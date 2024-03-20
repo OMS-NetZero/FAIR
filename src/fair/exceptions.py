@@ -17,3 +17,6 @@ class MissingDataError(Exception):
 
 class TimeNotMonotonicError(Exception):
     pass
+
+class UnitParseError(Exception):
+    pass
