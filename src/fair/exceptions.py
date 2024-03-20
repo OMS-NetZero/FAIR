@@ -19,6 +19,10 @@ class MissingDataError(Exception):
     pass
 
 
+class NonMonotonicError(Exception):
+    pass
+
+
 class TimeNotMonotonicError(Exception):
     pass
 
