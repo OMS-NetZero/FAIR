@@ -24,6 +24,7 @@ from ..structure.units import (
     time_convert,
 )
 
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
@@ -58,8 +59,8 @@ def _check_csv(df, runmode):
                     "file and ensure time values are uninterrupted."
                 )
 
-    # check strictly monotonicly increasing
-    if np.any(np.diff(np.array(times)) <= 0):
+    # check strictly monotonically increasing
+    if np.any(np.diff(np.array(times, dtype=float)) <= 0):
         raise NonMonotonicError(
             f"Time values in the {runmode} file must be strictly monotonically "
             "increasing."
@@ -84,6 +85,7 @@ def _parse_unit(unit, specie, is_ghg):
         prefix = unit.split()[0]
         compound = unit.split()[1].split("/")[0]
         time = unit.split()[1].split("/")[1]
+        logger.debug(f"prefix={prefix}, compound={compound}, time={time}")
     except IndexError:
         raise UnitParseError(
             "Units must be given in the format MASS SPECIE/TIME (with a whitespace "
@@ -180,6 +182,7 @@ def fill_from_csv(
     forcing_file : str
         filename of effective radiative forcing to fill.
     """
+    logging.debug("Starting _fill_from_rcmip")
     mode_options = {
         "emissions": {
             "file": emissions_file,
@@ -194,52 +197,64 @@ def fill_from_csv(
         "forcing": {"file": forcing_file, "time": self.timebounds, "var": self.forcing},
     }
     for mode in mode_options:
+        logger.debug(f"in mode loop for {mode}")
         if mode_options[mode]["file"] is not None:
             df = pd.read_csv(mode_options[mode]["file"])
             df.columns = df.columns.str.lower()
             times = _check_csv(df, runmode=mode)  # list of strings
-            if times[0] > mode_options[mode]["time"][0]:
+            if float(times[0]) > mode_options[mode]["time"][0]:
                 _bounds_warning("first", mode, times[0], mode_options[mode]["time"][0])
-            if times[-1] < self.timepoints[-1]:
+            if float(times[-1]) < self.timepoints[-1]:
                 _bounds_warning("last", mode, times[-1], mode_options[mode]["time"][-1])
             times_array = np.array(times, dtype=float)
 
             for scenario in self.scenarios:
+                logger.debug(f"in scenario loop for {scenario}")
                 for specie in self.species:
-                    if self.properties_df.loc[specie, "input_mode"] == "emissions":
+                    logger.debug(f"in specie loop for {specie}")
+                    if self.properties_df.loc[specie, "input_mode"] == mode:
+                        logger.debug(f"Filling in {mode} for {specie}")
                         # Grab raw emissions from dataframe
                         data_in = df.loc[
-                            (df["scenario"] == scenario) & 
-                            (df["variable"] == specie) &
-                            (df["region"].lower() == "world"),
+                            (df["scenario"] == scenario)
+                            & (df["variable"] == specie)
+                            & (df["region"].str.lower() == "world"),
                             times[0] : times[-1],
                         ].values.squeeze()
+                        logger.debug(f"Grabbed {data_in}")
 
                         # warn if data missing
+                        logger.debug("Checking for missing data")
                         if data_in.shape[0] == 0:
                             logger.warning(
                                 f"I can't find a value for scenario='{scenario}', "
-                                f"variable='{specie}', region='World' in the {mode} "
-                                "file."
+                                f"variable='{specie}', region='World' in "
+                                f"{emissions_file} file."
                             )
 
                         # interpolate from the supplied file to our desired timepoints
-                        interpolator = interp1d(times_array, data_in)
+                        logger.debug("Doing interpolation")
+                        interpolator = interp1d(
+                            times_array, data_in, bounds_error=False
+                        )
                         data = interpolator(mode_options[mode]["time"])
 
                         # Parse and possibly convert unit in input to what FaIR wants
+                        logger.debug("Parsing supplied unit")
                         unit = df.loc[
-                            (df["scenario"] == scenario) & 
-                            (df["variable"] == specie) &
-                            (df["region"].lower() == "world"),
+                            (df["scenario"] == scenario)
+                            & (df["variable"] == specie)
+                            & (df["region"].str.lower() == "world"),
                             "unit",
                         ].values[0]
+                        logger.debug(f"Unit read in is {unit}")
                         is_ghg = self.properties_df.loc[specie, "greenhouse_gas"]
                         if mode == "emissions":
+                            logger.debug("Converting emissions unit")
                             data = _emissions_unit_convert(data, unit, specie, is_ghg)
                         elif mode == "concentration":
+                            logger.debug("Converting concentration unit")
                             data = _concentration_unit_convert(data, unit, specie)
-                        # forcing always W/m2 for now
 
                         # fill FaIR xarray
                         fill(
