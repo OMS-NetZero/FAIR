@@ -7,6 +7,7 @@ import pytest
 
 from fair import FAIR
 from fair.exceptions import (
+    DuplicateScenarioError,
     MetaAfterValueError,
     MissingColumnError,
     NonMonotonicError,
@@ -167,6 +168,15 @@ def test_fill_from_csv(caplog):
         "I can't find a value for scenario='test', variable='CO2', region='World' in"
         in caplog.text
     )
+
+    f = minimal_problem_def()
+    f.fill_from_csv(
+        emissions_file=os.path.join(TEST_DATA_PATH, "minimal-emissions.csv")
+    )
+    with pytest.raises(DuplicateScenarioError):
+        f.fill_from_csv(
+            emissions_file=os.path.join(TEST_DATA_PATH, "duplicate-emissions.csv")
+        )
 
     f = FAIR()
     species = ["CO2", "PF3", "Volcanic"]

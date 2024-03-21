@@ -9,6 +9,7 @@ import pooch
 from scipy.interpolate import interp1d
 
 from ..exceptions import (
+    DuplicateScenarioError,
     MetaAfterValueError,
     MissingColumnError,
     NonMonotonicError,
@@ -220,10 +221,11 @@ def fill_from_csv(
                             & (df["variable"] == specie)
                             & (df["region"].str.lower() == "world"),
                             times[0] : times[-1],
-                        ].values.squeeze()
+                        ].values
                         logger.debug(f"Grabbed {data_in}")
 
-                        # warn if data missing; there's nothing we can do
+                        # warn if data missing; it might be an error by the user, but
+                        # it's not fatal; we can fill in later
                         logger.debug("Checking for missing data")
                         if data_in.shape[0] == 0:
                             logger.warning(
@@ -232,6 +234,14 @@ def fill_from_csv(
                                 f"{mode_options[mode]['file']} file."
                             )
                             continue
+                        # duplicates are ambigious however, and are an error
+                        elif data_in.shape[0] > 1:
+                            raise DuplicateScenarioError(
+                                f"In {mode_options[mode]['file']} there are duplicate "
+                                f"rows for variable='{specie}, scenario='{scenario}'."
+                            )
+                        # now cast to 1D
+                        data_in = data_in.squeeze()
 
                         # interpolate from the supplied file to our desired timepoints
                         logger.debug("Doing interpolation")
