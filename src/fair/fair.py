@@ -93,7 +93,7 @@ class FAIR:
         self.temperature_prescribed = temperature_prescribed
 
     # attach fill_from_rcmip
-    from .io.fill_from import fill_from_rcmip, fill_from_csv
+    from .io.fill_from import fill_from_csv, fill_from_rcmip
 
     # must be a less cumbsersome way to code this
     @property
