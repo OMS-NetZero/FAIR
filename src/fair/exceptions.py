@@ -7,6 +7,10 @@
 # ValueErrors. We'll leave this module as a placeholder.
 
 
+class DuplicateScenarioError(Exception):
+    pass
+
+
 class MetaAfterValueError(Exception):
     pass
 
