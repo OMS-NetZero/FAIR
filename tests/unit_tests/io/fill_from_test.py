@@ -19,11 +19,11 @@ TEST_DATA_PATH = os.path.join(
 )
 
 
-def minimal_problem_def(species=["CO2"]):
+def minimal_problem_def(input_mode="emissions", species=["CO2"]):
     fair_obj = FAIR()
     species, properties = read_properties(species=species)
     for specie in species:
-        properties[specie]["input_mode"] = "emissions"
+        properties[specie]["input_mode"] = input_mode
     fair_obj.define_species(species, properties)
     fair_obj.define_time(1750, 1753, 1)
     fair_obj.define_scenarios(["test"])
@@ -75,14 +75,12 @@ def test__non_default_specie(caplog):
     properties["HFC-152"]["type"] = "f-gas"
     properties["HFC-152"]["aerosol_chemistry_from_emissions"] = False
     properties["HFC-152"]["aerosol_chemistry_from_concentration"] = False
-    properties["HFC-152"]["aerosol_chemistry_from_emissions"] = False
     properties["Hydrogen"] = {}
     properties["Hydrogen"]["input_mode"] = "emissions"
     properties["Hydrogen"]["greenhouse_gas"] = False
     properties["Hydrogen"]["type"] = "other slcf"
     properties["Hydrogen"]["aerosol_chemistry_from_emissions"] = False
     properties["Hydrogen"]["aerosol_chemistry_from_concentration"] = False
-    properties["Hydrogen"]["aerosol_chemistry_from_emissions"] = False
     f.define_species(species, properties)
     f.define_time(1750, 1753, 1)
     f.define_scenarios(["test"])
@@ -93,6 +91,57 @@ def test__non_default_specie(caplog):
     assert "H2 is not in fair's default list" in caplog.text
 
 
+def test__concentration_unit_convert(caplog):
+    caplog.set_level(logging.DEBUG)
+    f = FAIR()
+    species = ["CO2"]
+    properties = {}
+    properties["CO2"] = {}
+    properties["CO2"]["input_mode"] = "concentration"
+    properties["CO2"]["greenhouse_gas"] = True
+    properties["CO2"]["type"] = "co2"
+    properties["CO2"]["aerosol_chemistry_from_emissions"] = False
+    properties["CO2"]["aerosol_chemistry_from_concentration"] = False
+    f.define_species(species, properties)
+    f.define_time(1750, 1753, 1)
+    f.define_scenarios(["test"])
+    f.define_configs(["UKESM1-0-LL"])
+    f.allocate()
+    with pytest.raises(UnitParseError):
+        f.fill_from_csv(
+            concentration_file=os.path.join(TEST_DATA_PATH, "bad-mixing-ratio.csv")
+        )
+
+    f = FAIR()
+    species = ["PF3"]
+    properties = {}
+    properties["PF3"] = {}
+    properties["PF3"]["input_mode"] = "concentration"
+    properties["PF3"]["greenhouse_gas"] = True
+    properties["PF3"]["type"] = "f-gas"
+    properties["PF3"]["aerosol_chemistry_from_emissions"] = False
+    properties["PF3"]["aerosol_chemistry_from_concentration"] = False
+    f.define_species(species, properties)
+    f.define_time(1750, 1753, 1)
+    f.define_scenarios(["test"])
+    f.define_configs(["UKESM1-0-LL"])
+    f.allocate()
+    f.fill_from_csv(
+        concentration_file=os.path.join(TEST_DATA_PATH, "new-concentration-specie.csv")
+    )
+    assert "PF3 is not in the default list of greenhouse gases " in caplog.text
+
+
+def test__bounds_warning(caplog):
+    caplog.set_level(logging.DEBUG)
+    f = minimal_problem_def()
+    f.fill_from_csv(emissions_file=os.path.join(TEST_DATA_PATH, "bounds-early.csv"))
+    assert ("The first time in the emissions file " in caplog.text) & (
+        "is later than the first time in the problem definition" in caplog.text
+    )
+
+
+# this one unfinished
 def test_fill_from_csv(caplog):
     caplog.set_level(logging.DEBUG)
     f = minimal_problem_def()
@@ -102,4 +151,51 @@ def test_fill_from_csv(caplog):
     assert (
         "The last time in the emissions file (1752) is earlier than the last time "
         "in the problem definition (1752.5)" in caplog.text
+    )
+
+    f = minimal_problem_def(input_mode="concentration")
+    f.fill_from_csv(
+        concentration_file=os.path.join(TEST_DATA_PATH, "minimal-concentration.csv")
+    )
+
+    f = minimal_problem_def(input_mode="forcing", species=["Solar", "Volcanic"])
+    f.fill_from_csv(forcing_file=os.path.join(TEST_DATA_PATH, "minimal-forcing.csv"))
+
+    f = minimal_problem_def()
+    f.fill_from_csv(emissions_file=os.path.join(TEST_DATA_PATH, "new-specie.csv"))
+    assert (
+        "I can't find a value for scenario='test', variable='CO2', region='World' in"
+        in caplog.text
+    )
+
+    f = FAIR()
+    species = ["CO2", "PF3", "Volcanic"]
+    properties = {}
+    properties["CO2"] = {}
+    properties["CO2"]["input_mode"] = "emissions"
+    properties["CO2"]["greenhouse_gas"] = True
+    properties["CO2"]["type"] = "co2"
+    properties["CO2"]["aerosol_chemistry_from_emissions"] = False
+    properties["CO2"]["aerosol_chemistry_from_concentration"] = False
+    properties["PF3"] = {}
+    properties["PF3"]["input_mode"] = "concentration"
+    properties["PF3"]["greenhouse_gas"] = True
+    properties["PF3"]["type"] = "f-gas"
+    properties["PF3"]["aerosol_chemistry_from_emissions"] = False
+    properties["PF3"]["aerosol_chemistry_from_concentration"] = False
+    properties["Volcanic"] = {}
+    properties["Volcanic"]["input_mode"] = "forcing"
+    properties["Volcanic"]["greenhouse_gas"] = False
+    properties["Volcanic"]["type"] = "volcanic"
+    properties["Volcanic"]["aerosol_chemistry_from_emissions"] = False
+    properties["Volcanic"]["aerosol_chemistry_from_concentration"] = False
+    f.define_species(species, properties)
+    f.define_time(1750, 1753, 1)
+    f.define_scenarios(["test"])
+    f.define_configs(["UKESM1-0-LL"])
+    f.allocate()
+    f.fill_from_csv(
+        emissions_file=os.path.join(TEST_DATA_PATH, "minimal-emissions.csv"),
+        concentration_file=os.path.join(TEST_DATA_PATH, "new-concentration-specie.csv"),
+        forcing_file=os.path.join(TEST_DATA_PATH, "minimal-forcing.csv"),
     )

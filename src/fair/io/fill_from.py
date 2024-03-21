@@ -223,14 +223,15 @@ def fill_from_csv(
                         ].values.squeeze()
                         logger.debug(f"Grabbed {data_in}")
 
-                        # warn if data missing
+                        # warn if data missing; there's nothing we can do
                         logger.debug("Checking for missing data")
                         if data_in.shape[0] == 0:
                             logger.warning(
                                 f"I can't find a value for scenario='{scenario}', "
                                 f"variable='{specie}', region='World' in "
-                                f"{emissions_file} file."
+                                f"{mode_options[mode]['file']} file."
                             )
+                            continue
 
                         # interpolate from the supplied file to our desired timepoints
                         logger.debug("Doing interpolation")

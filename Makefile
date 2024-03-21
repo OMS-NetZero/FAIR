@@ -23,7 +23,7 @@ help:
 
 .PHONY: test
 test: $(VENV_DIR)  ## run all the tests and produce a coverage report
-	$(VENV_DIR)/bin/pytest -rfsxEX tests -r a --cov=fair --cov-report term-missing:skip-covered
+	$(VENV_DIR)/bin/pytest -rfsxEX tests -r a --cov=fair --cov-report term-missing:skip-covered # -o log_cli=true
 
 .PHONY: checks
 checks: $(VENV_DIR)  ## run all the checks
