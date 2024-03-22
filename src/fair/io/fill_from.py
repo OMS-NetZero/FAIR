@@ -27,6 +27,7 @@ from ..structure.units import (
 
 logger = logging.getLogger(__name__)
 
+
 def _check_csv(df, runmode):
     # check our three metadata columns are present
     required_columns = ["scenario", "region", "variable", "unit"]
@@ -180,6 +181,19 @@ def fill_from_csv(
         filename of concentrations to fill.
     forcing_file : str
         filename of effective radiative forcing to fill.
+
+    Raises
+    ------
+    DuplicateScenarioError
+        if more than one entry appears for a (scenario, specie)
+    MetaAfterValueError
+        if CSV file is not well-ordered
+    MissingColumnError
+        if not all required metadata is provided
+    NonMonotonicError
+        if values are not strictly monotonically ascending
+    UnitParseError
+        if `fair` cannot make sense of the supplied unit
     """
     logging.debug("Starting _fill_from_rcmip")
     mode_options = {

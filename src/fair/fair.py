@@ -92,8 +92,9 @@ class FAIR:
         self._n_layers = n_layers
         self.temperature_prescribed = temperature_prescribed
 
-    # attach fill_from_rcmip
+    # attach fill_from methods
     from .io.fill_from import fill_from_csv, fill_from_rcmip
+    from .io.param_sets import override_defaults
 
     # must be a less cumbsersome way to code this
     @property
