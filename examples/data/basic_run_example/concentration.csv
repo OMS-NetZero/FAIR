@@ -1,0 +1,5 @@
+Scenario,Region,Variable,Unit,2000,2050
+abrupt,World,CH4,ppb,1800,1800
+abrupt,World,N2O,ppb,325,325
+ramp,World,CH4,ppb,729,1800
+ramp,World,N2O,ppb,270,325

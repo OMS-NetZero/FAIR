@@ -1,0 +1,4 @@
+,gamma_autocorrelation,ocean_heat_capacity[0],ocean_heat_capacity[1],ocean_heat_capacity[2],ocean_heat_transfer[0],ocean_heat_transfer[1],ocean_heat_transfer[2],deep_ocean_efficacy,sigma_eta,sigma_xi,forcing_4co2,seed,stochastic_run,use_seed,iirf_0[CO2],iirf_uptake[CO2],iirf_temperature[CO2],iirf_airborne[CO2],erfari_radiative_efficiency[Sulfur],aci_shape[Sulfur],aci_scale
+high,2,5,15,80,0.6,1.3,1,1.29,0.9,0.4,8,2148576,TRUE,TRUE,29,0.01692,8,0.001638,-0.003616783050909,0.003841035789173,-1.04920716
+central,2,8,14,100,1.3,1.6,0.6,1.1,1.8,0.7,8,11497944,TRUE,TRUE,29,0.00846,4,0.000819,-0.003616783050909,0.003841035789173,-2.09841432
+low,2,6,11,75,2,2,1.1,0.8,0.6,0.4,8,54049698,TRUE,TRUE,29,0,0,0,-0.003616783050909,0.003841035789173,-3.14762148

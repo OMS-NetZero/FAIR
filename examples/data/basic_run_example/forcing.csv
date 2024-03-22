@@ -1,0 +1,3 @@
+Scenario,Region,Variable,Unit,2000,2014,2050
+abrupt,World,Volcanic,W/m2,-0.2,-0.2,-0.2
+ramp,World,Volcanic,W/m2,-0.2,-0.2,0
