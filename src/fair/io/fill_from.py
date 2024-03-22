@@ -25,9 +25,7 @@ from ..structure.units import (
     time_convert,
 )
 
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
 
 def _check_csv(df, runmode):
     # check our three metadata columns are present
