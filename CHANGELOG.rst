@@ -1,8 +1,10 @@
 Changelog
 ---------
 
-master
+v2.2.0
 ------
+
+(`#155 <https://github.com/OMS-NetZero/FAIR/pull/155>`_) Implement general CSV filling function
 
 (`#134 <https://github.com/OMS-NetZero/FAIR/pull/134>`_) Increase code coverage to 100%
 
