@@ -12,6 +12,7 @@ from ..exceptions import (
     DuplicateScenarioError,
     MetaAfterValueError,
     MissingColumnError,
+    MissingDataError,
     NonMonotonicError,
     UnitParseError,
 )
@@ -195,7 +196,6 @@ def fill_from_csv(
     UnitParseError
         if `fair` cannot make sense of the supplied unit
     """
-    logging.debug("Starting _fill_from_rcmip")
     mode_options = {
         "emissions": {
             "file": emissions_file,
@@ -210,7 +210,6 @@ def fill_from_csv(
         "forcing": {"file": forcing_file, "time": self.timebounds, "var": self.forcing},
     }
     for mode in mode_options:
-        logger.debug(f"in mode loop for {mode}")
         if mode_options[mode]["file"] is not None:
             df = pd.read_csv(mode_options[mode]["file"])
             df.columns = df.columns.str.lower()
@@ -222,11 +221,8 @@ def fill_from_csv(
             times_array = np.array(times, dtype=float)
 
             for scenario in self.scenarios:
-                logger.debug(f"in scenario loop for {scenario}")
                 for specie in self.species:
-                    logger.debug(f"in specie loop for {specie}")
                     if self.properties_df.loc[specie, "input_mode"] == mode:
-                        logger.debug(f"Filling in {mode} for {specie}")
                         # Grab raw emissions from dataframe
                         data_in = df.loc[
                             (df["scenario"] == scenario)
@@ -234,11 +230,9 @@ def fill_from_csv(
                             & (df["region"].str.lower() == "world"),
                             times[0] : times[-1],
                         ].values
-                        logger.debug(f"Grabbed {data_in}")
 
                         # warn if data missing; it might be an error by the user, but
                         # it's not fatal; we can fill in later
-                        logger.debug("Checking for missing data")
                         if data_in.shape[0] == 0:
                             logger.warning(
                                 f"I can't find a value for scenario='{scenario}', "
@@ -256,27 +250,22 @@ def fill_from_csv(
                         data_in = data_in.squeeze()
 
                         # interpolate from the supplied file to our desired timepoints
-                        logger.debug("Doing interpolation")
                         interpolator = interp1d(
                             times_array, data_in, bounds_error=False
                         )
                         data = interpolator(mode_options[mode]["time"])
 
                         # Parse and possibly convert unit in input to what FaIR wants
-                        logger.debug("Parsing supplied unit")
                         unit = df.loc[
                             (df["scenario"] == scenario)
                             & (df["variable"] == specie)
                             & (df["region"].str.lower() == "world"),
                             "unit",
                         ].values[0]
-                        logger.debug(f"Unit read in is {unit}")
                         is_ghg = self.properties_df.loc[specie, "greenhouse_gas"]
                         if mode == "emissions":
-                            logger.debug("Converting emissions unit")
                             data = _emissions_unit_convert(data, unit, specie, is_ghg)
                         elif mode == "concentration":
-                            logger.debug("Converting concentration unit")
                             data = _concentration_unit_convert(data, unit, specie)
 
                         # fill FaIR xarray
@@ -289,30 +278,16 @@ def fill_from_csv(
 
 
 # TO DO: make part of fill_from_csv
-def fill_from_rcmip(
-    self,
-    emissions_file=None,
-    concentration_file=None,
-    forcing_file=None,
-):
+def fill_from_rcmip(self):
     """Fill emissions, concentrations and/or forcing from RCMIP scenarios.
 
     This method is part of the `FAIR` class. It uses self.scenarios to look up
     the scenario to extract from the given files. If None, the emissions/concentration/
     forcing is filled in from the RCMIP database.
 
-    Parameters
-    ----------
-    emissions_file : str
-        filename of emissions to fill.
-    concentration_file : str
-        filename of concentrations to fill.
-    forcing_file : str
-        filename of effective radiative forcing to fill.
-
     Raises
     ------
-    ValueError:
+    MissingDataError:
         if the scenario isn't found in the emissions database.
     """
     # lookup converting FaIR default names to RCMIP names
@@ -335,32 +310,29 @@ def fill_from_rcmip(
         if specie not in self.species:
             del species_to_rcmip[specie]
 
-    if emissions_file is None:
-        emissions_file = pooch.retrieve(
-            url=(
-                "https://zenodo.org/records/4589756/files/"
-                "rcmip-emissions-annual-means-v5-1-0.csv"
-            ),
-            known_hash="md5:4044106f55ca65b094670e7577eaf9b3",
-        )
+    emissions_file = pooch.retrieve(
+        url=(
+            "https://zenodo.org/records/4589756/files/"
+            "rcmip-emissions-annual-means-v5-1-0.csv"
+        ),
+        known_hash="md5:4044106f55ca65b094670e7577eaf9b3",
+    )
 
-    if concentration_file is None:
-        concentration_file = pooch.retrieve(
-            url=(
-                "https://zenodo.org/records/4589756/files/"
-                "rcmip-concentrations-annual-means-v5-1-0.csv"
-            ),
-            known_hash="md5:0d82c3c3cdd4dd632b2bb9449a5c315f",
-        )
+    concentration_file = pooch.retrieve(
+        url=(
+            "https://zenodo.org/records/4589756/files/"
+            "rcmip-concentrations-annual-means-v5-1-0.csv"
+        ),
+        known_hash="md5:0d82c3c3cdd4dd632b2bb9449a5c315f",
+    )
 
-    if forcing_file is None:
-        forcing_file = pooch.retrieve(
-            url=(
-                "https://zenodo.org/records/4589756/files/"
-                "rcmip-radiative-forcing-annual-means-v5-1-0.csv"
-            ),
-            known_hash="md5:87ef6cd4e12ae0b331f516ea7f82ccba",
-        )
+    forcing_file = pooch.retrieve(
+        url=(
+            "https://zenodo.org/records/4589756/files/"
+            "rcmip-radiative-forcing-annual-means-v5-1-0.csv"
+        ),
+        known_hash="md5:87ef6cd4e12ae0b331f516ea7f82ccba",
+    )
 
     df_emis = pd.read_csv(emissions_file)
     df_conc = pd.read_csv(concentration_file)
@@ -383,7 +355,7 @@ def fill_from_rcmip(
 
                 # throw error if data missing
                 if emis_in.shape[0] == 0:
-                    raise ValueError(
+                    raise MissingDataError(
                         f"I can't find a value for scenario={scenario}, variable "
                         f"name ending with {specie_rcmip_name} in the RCMIP "
                         f"emissions database."
@@ -449,7 +421,7 @@ def fill_from_rcmip(
 
                 # throw error if data missing
                 if conc_in.shape[0] == 0:
-                    raise ValueError(
+                    raise MissingDataError(
                         f"I can't find a value for scenario={scenario}, variable "
                         f"name ending with {specie_rcmip_name} in the RCMIP "
                         f"concentration database."
@@ -507,7 +479,7 @@ def fill_from_rcmip(
 
                 # throw error if data missing
                 if forc_in.shape[0] == 0:
-                    raise ValueError(
+                    raise MissingDataError(
                         f"I can't find a value for scenario={scenario}, variable "
                         f"name ending with {specie_rcmip_name} in the RCMIP "
                         f"radiative forcing database."
