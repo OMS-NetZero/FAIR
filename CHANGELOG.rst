@@ -1,10 +1,12 @@
 Changelog
 ---------
 
-master
+v2.2.0
 ------
 
 (`#158 <https://github.com/OMS-NetZero/FAIR/pull/158>`_) Add `fair` to `conda-forge`
+
+(`#155 <https://github.com/OMS-NetZero/FAIR/pull/155>`_) Implement general CSV filling function
 
 (`#153 <https://github.com/OMS-NetZero/FAIR/pull/153>`_) Add support for python 3.12
 
