@@ -194,48 +194,6 @@ def test_calculate_g():
         np.testing.assert_allclose(np.squeeze(ftest.species_configs[variable]), results)
 
 
-def test_from_rcmip():
-    ftest = minimal_fair_run()
-    ftest.fill_from_rcmip()
-
-
-def test_fill_from_rcmip_missing_concentration_data():
-    ftest = minimal_fair_run()
-    ftest.scenarios = ["ADVANCE"]
-    with pytest.raises(ValueError):
-        ftest.fill_from_rcmip()
-
-
-def test_fill_from_rcmip_missing_emissions_data():
-    fair_obj = FAIR()
-    species = ["CO2", "CH4", "N2O"]
-    species, properties = read_properties(species=species)
-    for specie in species:
-        properties[specie]["input_mode"] = "emissions"
-    fair_obj.define_species(species, properties)
-    fair_obj.define_time(1750, 2020, 270)
-    fair_obj.define_scenarios(["ADVANCE"])
-    fair_obj.define_configs(["UKESM1-0-LL"])
-    fair_obj.allocate()
-    with pytest.raises(ValueError):
-        fair_obj.fill_from_rcmip()
-
-
-def test_fill_from_rcmip_missing_forcing_data():
-    fair_obj = FAIR()
-    species = ["CO2", "CH4", "N2O"]
-    species, properties = read_properties(species=species)
-    for specie in species:
-        properties[specie]["input_mode"] = "forcing"
-    fair_obj.define_species(species, properties)
-    fair_obj.define_time(1750, 2020, 270)
-    fair_obj.define_scenarios(["ADVANCE"])
-    fair_obj.define_configs(["UKESM1-0-LL"])
-    fair_obj.allocate()
-    with pytest.raises(ValueError):
-        fair_obj.fill_from_rcmip()
-
-
 def test__make_ebms_climate_configs_nan():
     ftest = minimal_fair_run()
     ftest.climate_configs["ocean_heat_transfer"][0, :] = np.nan

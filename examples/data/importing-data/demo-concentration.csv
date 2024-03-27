@@ -1,0 +1,5 @@
+﻿Model,Scenario,Region,Variable,Unit,2000,2010,2020,2030,2040,2050
+demo,renewable,World,CH4,ppb,1600,1700,1900,1700,1600,1500
+demo,renewable,World,N2O,ppb,315,325,335,344,353,361
+demo,fossil,World,CH4,ppb,1600,1700,1900,2100,2300,2500
+demo,fossil,World,N2O,ppb,315,325,335,345,355,365
