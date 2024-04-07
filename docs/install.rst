@@ -1,31 +1,32 @@
 Installation
 ============
 
-From the Python Package Index (PyPI)
-------------------------------------
+`fair` requires `python` 3.8-3.11. `python` 3.12 will probably work but is not extensively tested yet.
 
-Requires `python` 3.8, 3.9, 3.10 or 3.11. Probably the easiest way to get up and running.
-::
-
-    pip install fair
-
-From anaconda
+From anaconda (recommended)
 -------------
 
 ::
 
-    conda install -c chrisroadmap fair
+    conda install -c conda-forge fair
 
+
+From the Python Package Index (PyPI)
+------------------------------------
+
+::
+
+    pip install fair
 
 From GitHub
 -----------
 
-The latest release can be obtained from https://github.com/OMS-NetZero/FAIR/releases as zip or tarball files, or the most current unreleased version can be cloned from https://github.com/OMS-NetZero/FAIR. 
+The latest release can be obtained from https://github.com/OMS-NetZero/FAIR/releases as zip or tarball files, or the most current unreleased version can be cloned from https://github.com/OMS-NetZero/FAIR.
 
 To install::
 
     pip install -e .[dev]
-    
+
 This will also give access to the notebooks in the `examples` directory, so you can experiment with the model using these as a starting point. For this to work, you should launch notebooks from the same directory in which you install `FAIR` locally.
 
 Guide for developers
