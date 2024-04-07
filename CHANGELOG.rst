@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+master
+------
+
+(`#158 <https://github.com/OMS-NetZero/FAIR/pull/158>`_) Add `fair` to `conda-forge`
+
 v2.1.4
 ------
 
