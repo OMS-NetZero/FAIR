@@ -31,7 +31,7 @@ A run is initialised as follows:
 
 ::
 
-    f = FAIR()
+   f = FAIR()
 
 To this we need to add some information about the time horizon of our
 model, forcers we want to run with, their configuration (and the
@@ -40,38 +40,38 @@ options:
 
 ::
 
-    f.define_time(2000, 2050, 1)
-    f.define_scenarios(['abrupt', 'ramp'])
-    f.define_configs(['high', 'central', 'low'])
-    f.define_species(species, properties)
-    f.ghg_method='Myhre1998'
+   f.define_time(2000, 2050, 1)
+   f.define_scenarios(['abrupt', 'ramp'])
+   f.define_configs(['high', 'central', 'low'])
+   f.define_species(species, properties)
+   f.ghg_method='Myhre1998'
 
 We generate some variables: emissions, concentrations, forcing,
 temperature etc.:
 
 ::
 
-    f.allocate()
+   f.allocate()
 
 which creates ``xarray`` DataArrays that we can fill in:
 
 ::
 
-    fill(f.emissions, 40, scenario='abrupt', specie='CO2 FFI')
-    ...
+   fill(f.emissions, 40, scenario='abrupt', specie='CO2 FFI')
+   ...
 
 Finally, the model is run with
 
 ::
 
-    f.run()
+   f.run()
 
 Results are stored within the ``FAIR`` instance as ``xarray`` DataArrays
 or Dataset, and can be obtained such as
 
 ::
 
-    print(fair.temperature)
+   print(fair.temperature)
 
 Multiple ``scenarios`` and ``configs`` can be supplied in a ``FAIR``
 instance, and due to internal parallelisation is the fastest way to run
@@ -255,7 +255,7 @@ the properties; but
 -  ``type`` defines the species type such as CO2, an aerosol precursor,
    or volcanic forcing; there’s around 20 pre-defined types in FaIR.
    Some can only be defined once in a run, some can have multiple
-   instances (e.g. ``f-gas``). See ``fair.structure.species`` for a
+   instances (e.g. ``f-gas``). See ``fair.structure.species`` for a
    list.
 -  ``input_mode``: how the model should be driven with this ``specie``.
    Valid values are ``emissions``, ``concentration``, ``forcing`` or
@@ -464,8 +464,8 @@ future.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This defines how the model responds to a forcing: the default behaviour
-is the three-layer energy balance model as described in Cummins et al.
-(2020). The number of layers can be changed in ``run_control``.
+is the three-layer energy balance model as described in Cummins et
+al. (2020). The number of layers can be changed in ``run_control``.
 
 ``climate_configs`` is an ``xarray`` Dataset.
 

@@ -3,7 +3,7 @@
 [![Documentation Status](https://readthedocs.org/projects/fair/badge/?version=latest)](http://fair.readthedocs.io/en/latest/?badge=latest)
 [![image](https://zenodo.org/badge/DOI/10.5281/zenodo.1340643.svg)](https://doi.org/10.5281/zenodo.1340643)
 [![image](https://codecov.io/gh/OMS-NetZero/FAIR/branch/master/graph/badge.svg)](https://codecov.io/gh/OMS-NetZero/FAIR)
-[![image](https://img.shields.io/pypi/v/fair)](https://pypi.org/project/fair/) [![Anaconda-Server Badge](https://anaconda.org/chrisroadmap/fair/badges/version.svg)](https://anaconda.org/chrisroadmap/fair)
+[![image](https://img.shields.io/pypi/v/fair)](https://pypi.org/project/fair/) [![Anaconda-Server Badge](https://anaconda.org/conda-forge/fair/badges/version.svg)](https://anaconda.org/conda-forge/fair)
 
 # FaIR
 
@@ -18,13 +18,19 @@ forcing scenarios.
 
 ## Installation
 
+### From anaconda (recommended)
+
+**NEW!** from v2.1.4, `fair` is available on `conda-forge`:
+
+    conda install -c conda-forge fair
+
+Older versions of `fair` (1.6.2+, 2.1.0-4) can be installed from the `chrisroadmap` channel:
+
+    conda install -c chrisroadmap fair==X.Y.Z
+
 ### From the Python Package Index
 
     pip install fair
-
-### From anaconda
-
-    conda install -c chrisroadmap fair
 
 ### From source
 
@@ -64,14 +70,13 @@ looks right.
 
 We have produced IPCC AR6 Working Group 1 consistent probabilistic
 ensembles to run with. The calibration data can be obtained
-[here](https://doi.org/10.5281/zenodo.7694879). These parameter sets are
+[here](https://doi.org/10.5281/zenodo.7112539). These parameter sets are
 calibrated to CMIP6 models, run in a large Monte Carlo ensemble, and
 constrained based on observed and assessed climate metrics. For an
 example of how to use this calibration data set with SSP emissions, see
 [this
 example](https://docs.fairmodel.net/en/latest/examples/calibrated_constrained_ensemble.html).
-If you\'re writing a paper using FaIR, you should use these. There\'ll
-be a paper on this at some point, for now please cite the Zenodo DOI.
+If you\'re writing a paper using FaIR, you should use these. A paper describing this method has been submitted, but for now please cite the Zenodo DOI.
 
 ## Citation
 

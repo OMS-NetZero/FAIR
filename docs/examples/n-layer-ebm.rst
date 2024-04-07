@@ -5,7 +5,7 @@ This notebook shows examples of extending the 3-layer energy balance
 model to general n.
 
 For the two and three layer cases we’ll take the MLE estimates from
-Cummins et al. (2020) for HadGEM2-ES, and we’ll use the GISS forcing.
+Cummins et al. (2020) for HadGEM2-ES, and we’ll use the GISS forcing.
 Where n > 3 the data is fake.
 
 .. code:: ipython3
