@@ -2,6 +2,15 @@ import fair
 from fair._version import get_versions
 import sphinx_rtd_theme
 
+import os
+
+# Set canonical URL from the Read the Docs Domain
+html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "")
+
+# Tell Jinja2 templates the build is running on Read the Docs
+if os.environ.get("READTHEDOCS", "") == "True":
+    html_context["READTHEDOCS"] = True
+
 extensions = [
     'sphinx_rtd_theme',
     'sphinx.ext.autodoc',
