@@ -3,9 +3,8 @@
 import logging
 import os
 
-import pooch
-import pytest
 import numpy as np
+import pytest
 
 from fair import FAIR
 from fair.exceptions import (

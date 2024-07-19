@@ -3,8 +3,6 @@
 import logging
 import os
 
-import pytest
-
 from fair import FAIR
 from fair.io import read_properties
 
