@@ -4,6 +4,8 @@ Changelog
 v2.2.0
 ------
 
+(`#125 <https://github.com/OMS-NetZero/FAIR/pull/125>`_) Stratospheric water vapour forcing is now a function of concentration or emissions, rather than forcing
+
 (`#158 <https://github.com/OMS-NetZero/FAIR/pull/158>`_) Add `fair` to `conda-forge`
 
 (`#155 <https://github.com/OMS-NetZero/FAIR/pull/155>`_) Implement general CSV filling function
