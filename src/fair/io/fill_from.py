@@ -182,19 +182,6 @@ def fill_from_csv(
         filename of concentrations to fill.
     forcing_file : str
         filename of effective radiative forcing to fill.
-
-    Raises
-    ------
-    DuplicateScenarioError
-        if more than one entry appears for a (scenario, specie)
-    MetaAfterValueError
-        if CSV file is not well-ordered
-    MissingColumnError
-        if not all required metadata is provided
-    NonMonotonicError
-        if values are not strictly monotonically ascending
-    UnitParseError
-        if `fair` cannot make sense of the supplied unit
     """
     mode_options = {
         "emissions": {
@@ -284,11 +271,6 @@ def fill_from_rcmip(self):
     This method is part of the `FAIR` class. It uses self.scenarios to look up
     the scenario to extract from the given files. If None, the emissions/concentration/
     forcing is filled in from the RCMIP database.
-
-    Raises
-    ------
-    MissingDataError:
-        if the scenario isn't found in the emissions database.
     """
     # lookup converting FaIR default names to RCMIP names
     species_to_rcmip = {specie: specie.replace("-", "") for specie in self.species}

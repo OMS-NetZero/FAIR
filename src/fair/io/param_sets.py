@@ -44,11 +44,6 @@ def override_defaults(self, filename):
     ----------
     filename : str
         file location of the configs file
-
-    Raises
-    ------
-    UndefinedConfigError
-        if a config label cannot be
     """
     df_configs = pd.read_csv(filename, index_col=0)
     for config in self.configs:

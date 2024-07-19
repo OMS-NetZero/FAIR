@@ -2,7 +2,10 @@ import fair
 from fair._version import get_versions
 import sphinx_rtd_theme
 
+import sys
 import os
+
+sys.path.insert(0, os.path.abspath('../src'))
 
 html_context = {}  # correct?
 
