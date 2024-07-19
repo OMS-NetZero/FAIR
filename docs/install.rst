@@ -4,7 +4,7 @@ Installation
 `fair` requires `python` 3.8-3.11. `python` 3.12 will probably work but is not extensively tested yet.
 
 From anaconda (recommended)
--------------
+---------------------------
 
 ::
 
