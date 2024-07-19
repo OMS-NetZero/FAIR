@@ -20,13 +20,13 @@ of the FaIR simple climate model for reliable future climate
 projections, EGUsphere [preprint],
 https://doi.org/10.5194/egusphere-2024-708, 2024.
 
-**TODO: update** **Note**: if you are reading this tutorial online and
-want to reproduce the results, you will need one additional file. Grab
-this from
-https://github.com/OMS-NetZero/FAIR/blob/master/examples/data/species_configs_properties_calibration1.4.1.csv.
-In Step 5 below, this is read in from the ``data/`` directory relative
-to here. This does not apply if you are running this notebook from
-Binder or have cloned it from GitHub - it should run out of the box.
+**Note**: if you are reading this tutorial online and want to reproduce
+the results, you will need a few additional files. Grab these from
+https://github.com/OMS-NetZero/FAIR/tree/master/examples/data/calibrated_constrained_ensemble
+and put them in a new folder relative to this notebook
+(``./data/calibrated_constrained_ensemble/``). This does not apply if
+you are running this notebook from Binder or have cloned it from GitHub
+- it should run out of the box.
 
 The calibrations will be continually updated, as new data for surface
 temperature, ocean heat content, external forcing and emissions become
