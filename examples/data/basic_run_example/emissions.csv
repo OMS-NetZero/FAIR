@@ -1,0 +1,7 @@
+Scenario,Region,Variable,Unit,2000.5,2049.5
+abrupt,World,CO2 FFI,Gt CO2/yr,38,38
+abrupt,World,CO2 AFOLU,Gt CO2/yr,3,3
+abrupt,World,Sulfur,Mt SO2/yr,100,100
+ramp,World,CO2 FFI,Gt CO2/yr,0,38
+ramp,World,CO2 AFOLU,Gt CO2/yr,0,3
+ramp,World,Sulfur,Mt SO2/yr,2.2,100

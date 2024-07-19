@@ -1,10 +1,10 @@
 Installation
 ============
 
-`fair` requires `python` 3.8-3.11. `python` 3.12 will probably work but is not extensively tested yet.
+`fair` requires `python` 3.8-3.12.
 
 From anaconda (recommended)
--------------
+---------------------------
 
 ::
 
@@ -17,6 +17,7 @@ From the Python Package Index (PyPI)
 ::
 
     pip install fair
+
 
 From GitHub
 -----------
