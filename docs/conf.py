@@ -21,6 +21,9 @@ extensions = [
     'IPython.sphinxext.ipython_console_highlighting',
 ]
 
+# Getting build warnings about custom exceptions. Don't know why, but we'll just ignore!
+nitpick_ignore = [('py:exc', 'type')]
+
 project = 'fair'
 copyright = '2024, fair development team'
 author = 'fair development team'

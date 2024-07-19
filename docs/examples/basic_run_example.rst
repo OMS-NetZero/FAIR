@@ -1,15 +1,15 @@
 Basic example
 =============
 
-FaIR v2.1 is object-oriented and designed to be more flexible than its
+FaIR v2.2 is object-oriented and designed to be more flexible than its
 predecessors. This does mean that setting up a problem is different to
 before - gone are the days of 60 keyword arguments to ``fair_scm`` and
 we now use classes and functions with fewer arguments that in the long
 run should be easier to use. Of course, there is a learning curve, and
 will take some getting used to. This tutorial aims to walk through a
-simple problem using FaIR 2.1.
+simple problem using FaIR 2.2.
 
-The structure of FaIR 2.1 centres around the ``FAIR`` class, which
+The structure of FaIR 2.2 centres around the ``FAIR`` class, which
 contains all information about the scenario(s), the forcer(s) we want to
 investigate, and any configurations specific to each species and the
 response of the climate.
@@ -27,38 +27,67 @@ notebook in ``jupyter``. Details
 Some basics
 -----------
 
-A run is initialised as follows:
+There are two main parts to running fair. The first is setting up the
+problem definition. This tells fair what you’re including in the run,
+how long you are running for, how many scenarios and how many (climate)
+ensemble members (known as configs).
+
+Setting up the run
+~~~~~~~~~~~~~~~~~~
+
+First make a new instance:
 
 ::
 
+   from fair import FAIR
    f = FAIR()
 
-To this we need to add some information about the time horizon of our
+Then, we need to add some information about the time horizon of our
 model, forcers we want to run with, their configuration (and the
 configuration of the climate), and optionally some model control
 options:
 
 ::
 
+   from fair.io import read_properties
    f.define_time(2000, 2050, 1)
    f.define_scenarios(['abrupt', 'ramp'])
    f.define_configs(['high', 'central', 'low'])
+   species, properties = read_properties()
    f.define_species(species, properties)
    f.ghg_method='Myhre1998'
 
-We generate some variables: emissions, concentrations, forcing,
-temperature etc.:
+Finally, we tell fair to generate some empty (all NaN) array variables:
+emissions, concentrations, forcing, temperature etc.:
 
 ::
 
    f.allocate()
 
-which creates ``xarray`` DataArrays that we can fill in:
+That’s all you need to set up the run.
+
+Fill in data
+~~~~~~~~~~~~
+
+The ``f.allocate()`` step creates ``xarray`` DataArrays, some of which
+need to be populated. For example, to fill a constant 40 GtCO2/yr
+emissions rate for fossil CO2 emissions into the ‘abrupt’ scenario, we
+can do
 
 ::
 
+   from fair.interface import fill
    fill(f.emissions, 40, scenario='abrupt', specie='CO2 FFI')
    ...
+
+In this section we also want to tell fair things such as the climate
+feedback parameter, carbon cycle sensitivities, aerosol forcing
+parameters, and literally hundreds of other things you can vary. There
+are convenience functions for reading in emissions and parameter sets
+from external files.
+
+Run and analyse model
+~~~~~~~~~~~~~~~~~~~~~
 
 Finally, the model is run with
 
@@ -83,13 +112,6 @@ and SSP3-7.0 – using climate calibrations (``configs``) from the UKESM,
 GFDL, MIROC and NorESM climate models. This would give us a total of 12
 ensemble members in total which are run in parallel.
 
-The most difficult part to learning FaIR 2.1 is correctly defining the
-``scenarios`` and ``configs``. As in previous versions of FaIR, there is
-a lot of flexibility, and simplifying the calling interface
-(``fair_scm`` in v1.x) has come at the cost of switching this around to
-the ``FAIR`` class, and things have to be defined in the right order
-usually.
-
 Recommended order for setting up a problem
 ------------------------------------------
 
@@ -113,8 +135,8 @@ set out step by step, and is as follows:
 7.  Create input and output ``DataArrays`` with ``FAIR.allocate()``.
 8.  Fill in the DataArrays (e.g. emissions), climate configs, and
     species configs, by either working directly with the ``xarray`` API,
-    or using FaIR-packaged convenience functions like ``fill`` and
-    ``initialise``.
+    or using FaIR-packaged convenience functions like ``fill``,
+    ``initialise``, ``f.fill_from_csv`` and ``f.override_defaults``.
 9.  Run: ``FAIR.run()``.
 10. Analyse results by accessing the DataArrays that are attributes of
     ``FAIR``.
@@ -204,22 +226,37 @@ as long as you are consistent. We also pass a dictionary of
 ``properties`` that defines how each specie behaves in the model.
 
 In this example we’ll start off running a scenario with CO2 from fossil
-fuels and industry, CO2 from AFOLU, CH4, N2O, and Sulfur (note you don’t
-need the full 40 species used in v1.1-1.6, and some additional default
-ones are included). From these inputs we also want to determine forcing
-from aerosol-radiation and aerosol-cloud interactions, as well as CO2,
-CH4 and N2O.
+fuels and industry, CO2 from AFOLU, CH4, N2O, and Sulfur, and Volcanic
+forcing (note you don’t need the full 40 species used in v1.1-1.6, and
+some additional default ones are included). From these inputs we also
+want to determine forcing from aerosol-radiation and aerosol-cloud
+interactions, as well as CO2, CH4 and N2O.
 
 To highlight some of the functionality we’ll run CO2 and Sulfur
 emissions-driven, and CH4 and N2O concentration-driven. (This is akin to
 an ``esm-ssp585`` kind of run from CMIP6, though with fewer species).
 We’ll use totally fake data here - this is not intended to represent a
-real-world scenario but just to highlight how FaIR works. Full
-simulations may have 50 or more species included and the ``properties``
-dictionary can get quite large, so it can be beneficial to edit it in a
-CSV and load it in.
+real-world scenario but just to highlight how FaIR works.
 
-In total, we have 8 species in this model. We want to run
+Full simulations may have 50 or more species included and the
+``properties`` dictionary can get quite large, so it can be beneficial
+to edit it in a CSV and load it in. This is what is done here - we have
+taken the default ``species_configs_properties`` file and cut it down to
+keep only the species we care about.
+
+Note the label you have given each specie must appear in the first
+column of this file.
+
+.. code:: ipython3
+
+    from fair.io import read_properties
+
+.. code:: ipython3
+
+    species, properties = read_properties('data/importing-data/species_configs_properties.csv')
+    f.define_species(species, properties)
+
+In total, we have 9 species in this model. We want to run
 
 1. CO2 fossil and industry
 2. CO2 AFOLU
@@ -232,31 +269,46 @@ We want to run
 4. CH4
 5. N2O
 
-with specified concentrations. We also want to calculate forcing from
-CO2, so we need to declare the CO2 as a greenhouse gas in addition to
-its emitted components:
+with specified concentrations. We want to include an external time
+series from
 
-6. CO2
+6. Volcanic
+
+We also want to calculate forcing from CO2, so we need to declare the
+CO2 as a greenhouse gas in addition to its emitted components:
+
+7. CO2
 
 and we want to calculate forcing from aerosol radiation and aerosol
 cloud interactions
 
-7. ERFari
-8. ERFaci
+8. ERFari
+9. ERFaci
+
+Let’s examine them:
 
 .. code:: ipython3
 
-    species = ['CO2 fossil emissions', 'CO2 AFOLU emissions', 'Sulfur', 'CH4', 'N2O', 'CO2', 'ERFari', 'ERFaci']
+    f.species
 
-In the ``properties`` dictionary, the keys must match the ``species``
-that you have declared. I should do another tutorial on changing some of
-the properties; but
+.. code:: ipython3
+
+    f.properties
+
+``properties`` is just a dictionary and ``species`` just a list. You can
+define them from scratch, though as you can see even with nine species
+the dictionary gets quite long so it is easier to read it in. In the
+``properties`` dictionary, the keys must match the ``species`` that you
+have declared.
+
+The ``properties`` dictionary contains five keys:
 
 -  ``type`` defines the species type such as CO2, an aerosol precursor,
-   or volcanic forcing; there’s around 20 pre-defined types in FaIR.
-   Some can only be defined once in a run, some can have multiple
-   instances (e.g. ``f-gas``). See ``fair.structure.species`` for a
-   list.
+   or volcanic forcing; there’s around 20 pre-defined types in FaIR, and
+   the ``type`` defines several hard-coded properties about what the
+   specie does. Some can only be defined once per scenario, some can
+   have multiple species attached to its type (e.g. ``f-gas``). See the
+   cell below for a list.
 -  ``input_mode``: how the model should be driven with this ``specie``.
    Valid values are ``emissions``, ``concentration``, ``forcing`` or
    ``calculated`` and not all options are valid for all ``type``\ s
@@ -278,68 +330,20 @@ the properties; but
 
 .. code:: ipython3
 
-    properties = {
-        'CO2 fossil emissions': {
-            'type': 'co2 ffi',
-            'input_mode': 'emissions',
-            'greenhouse_gas': False,  # it doesn't behave as a GHG itself in the model, but as a precursor
-            'aerosol_chemistry_from_emissions': False,
-            'aerosol_chemistry_from_concentration': False,
-        },
-        'CO2 AFOLU emissions': {
-            'type': 'co2 afolu',
-            'input_mode': 'emissions',
-            'greenhouse_gas': False,  # it doesn't behave as a GHG itself in the model, but as a precursor
-            'aerosol_chemistry_from_emissions': False,
-            'aerosol_chemistry_from_concentration': False,
-        },
-        'CO2': {
-            'type': 'co2',
-            'input_mode': 'calculated',
-            'greenhouse_gas': True,
-            'aerosol_chemistry_from_emissions': False,
-            'aerosol_chemistry_from_concentration': False,
-        },
-        'CH4': {
-            'type': 'ch4',
-            'input_mode': 'concentration',
-            'greenhouse_gas': True,
-            'aerosol_chemistry_from_emissions': False,
-            'aerosol_chemistry_from_concentration': True, # we treat methane as a reactive gas
-        },
-        'N2O': {
-            'type': 'n2o',
-            'input_mode': 'concentration',
-            'greenhouse_gas': True,
-            'aerosol_chemistry_from_emissions': False,
-            'aerosol_chemistry_from_concentration': True, # we treat nitrous oxide as a reactive gas
-        },
-        'Sulfur': {
-            'type': 'sulfur',
-            'input_mode': 'emissions',
-            'greenhouse_gas': False,
-            'aerosol_chemistry_from_emissions': True,
-            'aerosol_chemistry_from_concentration': False,
-        },
-        'ERFari': {
-            'type': 'ari',
-            'input_mode': 'calculated',
-            'greenhouse_gas': False,
-            'aerosol_chemistry_from_emissions': False,
-            'aerosol_chemistry_from_concentration': False,
-        },
-        'ERFaci': {
-            'type': 'aci',
-            'input_mode': 'calculated',
-            'greenhouse_gas': False,
-            'aerosol_chemistry_from_emissions': False,
-            'aerosol_chemistry_from_concentration': False,
+    # Here's a list of the species types: this cell not necessary for running fair
+    
+    import pandas as pd
+    from fair.structure.species import species_types, valid_input_modes, multiple_allowed
+    
+    types = pd.DataFrame(
+        {
+            'type': species_types,
+            'valid_input_modes': [valid_input_modes[specie] for specie in species_types],
+            'multiple_allowed': [multiple_allowed[specie] for specie in species_types]
         }
-    }
-
-.. code:: ipython3
-
-    f.define_species(species, properties)
+    )
+    types.set_index('type', inplace=True)
+    types
 
 6. Modify run options
 ~~~~~~~~~~~~~~~~~~~~~
@@ -348,9 +352,9 @@ When we initialise the FAIR class, a number of options are given as
 defaults.
 
 Let’s say we want to change the greenhouse gas forcing treatment from
-Meinshausen et al. 2020 to Myhre et al. 1998. While this could have been
-done when initialising the class, we can also do it by setting the
-appropriate attribute.
+Meinshausen et al. 2020 default to Myhre et al. 1998. While this could
+have been done when initialising the class, we can also do it by setting
+the appropriate attribute.
 
 .. code:: ipython3
 
@@ -362,11 +366,11 @@ appropriate attribute.
 
 .. code:: ipython3
 
-    f.aci_method='myhre1998'
+    f.ghg_method='myhre1998'
 
 .. code:: ipython3
 
-    f.aci_method
+    f.ghg_method
 
 7. Create input and output data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -394,194 +398,124 @@ the ``FAIR`` class:
 8. Fill in the data
 ~~~~~~~~~~~~~~~~~~~
 
-The data created is nothing more special than ``xarray`` DataArrays, and
-using ``xarray`` methods we can allocate values to the emissions:
-
-.. code:: ipython3
-
-    f.emissions.loc[(dict(specie="CO2 fossil emissions", scenario="abrupt"))] = 38
-
-.. code:: ipython3
-
-    f.emissions[:,0,0,0]
-
-I think this method is a tiny bit clunky with ``loc`` and ``dict`` so
-two helper functions have been created; ``fill`` and ``initialise``.
-It’s personal preference if you use them or not, the only thing that
-matters is that the data is there.
-
-.. code:: ipython3
-
-    from fair.interface import fill, initialise
+The data created is nothing more special than ``xarray`` DataArrays.
 
 8a. fill emissions, concentrations …
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Remember that some species in our problem are emissions driven, some are
-concentration driven, and you might have species which are forcing
-driven (though not in this problem).
+Using ``xarray`` methods we can allocate values to the emissions. For
+example, to fill CO2 fossil emissions in the abrupt scenario with a
+constant emissions rate of 38 GtCO2/yr (about present-day levels), do:
 
-You will need to populate the datasets to ensure that all of the
-required species are there, in their specified driving mode.
+::
+
+   f.emissions.loc[(dict(specie="CO2 FFI", scenario="abrupt"))] = 38
+
+To do this for every specie, especially if you want to create
+time-varying scenarios and dimension the scenarios correctly, is very
+fiddly and time consuming. Therefore, we have a way to read in scenarios
+from CSV files:
 
 .. code:: ipython3
 
-    import numpy as np
+    f.fill_from_csv(
+        emissions_file='data/basic_run_example/emissions.csv',
+        concentration_file='data/basic_run_example/concentration.csv',
+        forcing_file='data/basic_run_example/forcing.csv'
+    )
+
+Let’s have a look at what we’re reading in:
 
 .. code:: ipython3
 
-    fill(f.emissions, 38, scenario='abrupt', specie='CO2 fossil emissions')
-    fill(f.emissions, 3, scenario='abrupt', specie='CO2 AFOLU emissions')
-    fill(f.emissions, 100, scenario='abrupt', specie='Sulfur')
-    fill(f.concentration, 1800, scenario='abrupt', specie='CH4')
-    fill(f.concentration, 325, scenario='abrupt', specie='N2O')
+    pd.read_csv('data/basic_run_example/emissions.csv')
+
+.. code:: ipython3
+
+    pd.read_csv('data/basic_run_example/concentration.csv')
+
+.. code:: ipython3
+
+    pd.read_csv('data/basic_run_example/forcing.csv')
+
+The csv reader will also interpolate, so you don’t have to specify every
+year in your scenario. We have separate functions for reading in files
+from the Reduced Complexity Model Intercomparison Project (the SSPs).
+
+Note also we haven’t filled in every species. CO2 is ``calculated`` (the
+sum of ``CO2 FFI`` and ``CO2 AFOLU``), which will correctly determine
+emissions, concentrations and forcing. Aerosol-radiation interactions
+and Aerosol-cloud interactions are also ``calculated``, from emissions
+of Sulfur. If the ``properties``, particularly ``type`` and
+``input_mode`` are correctly specified for each specie, ``fair`` knows
+what to do with your data.
+
+The other thing that we have to do is define the initial conditions of
+our data. If you forget to do this, you might get NaN value errors in
+``fair``; this is deliberate, we want the user to think about how they
+engage with the model!
+
+Using non-zero initial conditions can be useful for “restart runs”:
+switching from concentration-driven to emissions-driven (ZECMIP);
+running constant forcing commitments; running interative/adaptive
+emissions scenarios; the possibilities are endless.
+
+As CO2 is emissions-driven, we also need to define its starting
+concentration.
+
+Again, we have a convenience function that can handle some of the heavy
+lifting:
+
+.. code:: ipython3
+
+    # Define initial conditions
+    from fair.interface import initialise
     
-    for config in f.configs:
-        fill(f.emissions, np.linspace(0, 38, 50), scenario='ramp', config=config, specie='CO2 fossil emissions')
-        fill(f.emissions, np.linspace(0, 3, 50), scenario='ramp', config=config, specie='CO2 AFOLU emissions')
-        fill(f.emissions, np.linspace(2.2, 100, 50), scenario='ramp', config=config, specie='Sulfur')
-        fill(f.concentration, np.linspace(729, 1800, 51), scenario='ramp', config=config, specie='CH4')
-        fill(f.concentration, np.linspace(270, 325, 51), scenario='ramp', config=config, specie='N2O')
-
-We also need approriate initial conditions. If you are seeing a lot of
-unexpected NaNs in your results, it could be that the first timestep was
-never defined.
-
-Using non-zero values for forcing, temperature, airborne emissions etc.
-such as from the end of a previous run may allow for restart runs in the
-future.
-
-.. code:: ipython3
-
-    # Define first timestep
     initialise(f.concentration, 278.3, specie='CO2')
     initialise(f.forcing, 0)
     initialise(f.temperature, 0)
     initialise(f.cumulative_emissions, 0)
     initialise(f.airborne_emissions, 0)
+    initialise(f.ocean_heat_content_change, 0)
 
-8b. Fill in ``climate_configs``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+8b. Fill in ``configs``
+^^^^^^^^^^^^^^^^^^^^^^^
 
-This defines how the model responds to a forcing: the default behaviour
-is the three-layer energy balance model as described in Cummins et
-al. (2020). The number of layers can be changed in ``run_control``.
+This defines how the forcing is calculated, and how the model responds
+to a forcing.
 
-``climate_configs`` is an ``xarray`` Dataset.
+There are two ``xarray.Dataset``\ s in ``fair`` that define the
+behaviour of the model, which are ``f.climate_configs`` and
+``f.species_configs``.
+
+Many, many ``species_configs`` parameters have sensible defaults that
+would make little impact, or little sense, to change. We can add these
+parameters to the ``species_configs_properties`` file that we read in
+earlier that would autopopulate most fields. Let’s do this.
 
 .. code:: ipython3
 
-    f.climate_configs
-
-.. code:: ipython3
-
-    fill(f.climate_configs["ocean_heat_transfer"], [0.6, 1.3, 1.0], config='high')
-    fill(f.climate_configs["ocean_heat_capacity"], [5, 15, 80], config='high')
-    fill(f.climate_configs["deep_ocean_efficacy"], 1.29, config='high')
-    
-    fill(f.climate_configs["ocean_heat_transfer"], [1.1, 1.6, 0.9], config='central')
-    fill(f.climate_configs["ocean_heat_capacity"], [8, 14, 100], config='central')
-    fill(f.climate_configs["deep_ocean_efficacy"], 1.1, config='central')
-    
-    fill(f.climate_configs["ocean_heat_transfer"], [1.7, 2.0, 1.1], config='low')
-    fill(f.climate_configs["ocean_heat_capacity"], [6, 11, 75], config='low')
-    fill(f.climate_configs["deep_ocean_efficacy"], 0.8, config='low')
-
-8c. Fill in ``species_configs``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This is again an ``xarray`` Dataset, with lots of options. Most of these
-will be made loadable defaults, and indeed you can load up defaults with
-
-``FAIR.fill_species_configs()``
-
-For this example we’ll show the manual editing of the species configs,
-which you will probably want to do anyway in a full run (e.g. to change
-carbon cycle sensitivities).
+    f.fill_species_configs('data/importing-data/species_configs_properties.csv')
 
 .. code:: ipython3
 
     f.species_configs
 
-Greenhouse gas state-dependence
-'''''''''''''''''''''''''''''''
-
-``iirf_0`` is the baseline time-integrated airborne fraction (usually
-over 100 years). It can be calculated from the variables above, but
-sometimes we might want to change these values.
-
-.. code:: ipython3
-
-    fill(f.species_configs["partition_fraction"], [0.2173, 0.2240, 0.2824, 0.2763], specie="CO2")
-    
-    non_co2_ghgs = ["CH4", "N2O"]
-    for gas in non_co2_ghgs:
-        fill(f.species_configs["partition_fraction"], [1, 0, 0, 0], specie=gas)
-    
-    fill(f.species_configs["unperturbed_lifetime"], [1e9, 394.4, 36.54, 4.304], specie="CO2")
-    fill(f.species_configs["unperturbed_lifetime"], 8.25, specie="CH4")
-    fill(f.species_configs["unperturbed_lifetime"], 109, specie="N2O")
-        
-    fill(f.species_configs["baseline_concentration"], 278.3, specie="CO2")
-    fill(f.species_configs["baseline_concentration"], 729, specie="CH4")
-    fill(f.species_configs["baseline_concentration"], 270.3, specie="N2O")
-    
-    fill(f.species_configs["forcing_reference_concentration"], 278.3, specie="CO2")
-    fill(f.species_configs["forcing_reference_concentration"], 729, specie="CH4")
-    fill(f.species_configs["forcing_reference_concentration"], 270.3, specie="N2O")
-    
-    fill(f.species_configs["molecular_weight"], 44.009, specie="CO2")
-    fill(f.species_configs["molecular_weight"], 16.043, specie="CH4")
-    fill(f.species_configs["molecular_weight"], 44.013, specie="N2O")
-    
-    fill(f.species_configs["greenhouse_gas_radiative_efficiency"], 1.3344985680386619e-05, specie='CO2')
-    fill(f.species_configs["greenhouse_gas_radiative_efficiency"], 0.00038864402860869495, specie='CH4')
-    fill(f.species_configs["greenhouse_gas_radiative_efficiency"], 0.00319550741640458, specie='N2O')
+However, there’s no fun if they are all the same for each config - we
+want to use fair to sample an ensemble. Again we can read these in, with
+columns following a naming convention. This also fills the
+``climate_configs``, which are NaN by default (again we don’t want
+people running things without thinking).
 
 .. code:: ipython3
 
-    # some greenhouse gas parameters can be automatically calculated from lifetime, molecular weight and partition fraction:
-    f.calculate_iirf0()
-    f.calculate_g()
-    f.calculate_concentration_per_emission()
+    f.override_defaults('data/basic_run_example/configs_ensemble.csv')
+
+and this is how it looks
 
 .. code:: ipython3
 
-    # but we still want to override sometimes, and because it's just an xarray, we can:
-    fill(f.species_configs["iirf_0"], 29, specie='CO2')
-
-.. code:: ipython3
-
-    # Now we define sensitivities of airborne fraction for each GHG; I'll do this quickly
-    fill(f.species_configs["iirf_airborne"], [0.000819*2, 0.000819, 0], specie='CO2')
-    fill(f.species_configs["iirf_uptake"], [0.00846*2, 0.00846, 0], specie='CO2')
-    fill(f.species_configs["iirf_temperature"], [8, 4, 0], specie='CO2')
-    
-    fill(f.species_configs['iirf_airborne'], 0.00032, specie='CH4')
-    fill(f.species_configs['iirf_airborne'], -0.0065, specie='N2O')
-    
-    fill(f.species_configs['iirf_uptake'], 0, specie='N2O')
-    fill(f.species_configs['iirf_uptake'], 0, specie='CH4')
-    
-    fill(f.species_configs['iirf_temperature'], -0.3, specie='CH4')
-    fill(f.species_configs['iirf_temperature'], 0, specie='N2O')
-
-Aerosol emissions or concentrations to forcing
-''''''''''''''''''''''''''''''''''''''''''''''
-
-Note, both here and with the GHG parameters above, we don’t have to
-change parameters away from NaN if they are not relevant, e.g. Sulfur is
-not a GHG so we don’t care about ``iirf_0``, and CO2 is not an aerosol
-precursor so we don’t care about ``erfari_radiative_efficiency``.
-
-.. code:: ipython3
-
-    fill(f.species_configs["erfari_radiative_efficiency"], -0.0036167830509091486, specie='Sulfur') # W m-2 MtSO2-1 yr
-    fill(f.species_configs["erfari_radiative_efficiency"], -0.002653/1023.2219696044921, specie='CH4') # W m-2 ppb-1
-    fill(f.species_configs["erfari_radiative_efficiency"], -0.00209/53.96694437662762, specie='N2O') # W m-2 ppb-1
-    
-    fill(f.species_configs["aci_scale"], -2.09841432)
-    fill(f.species_configs["aci_shape"], 1/260.34644166, specie='Sulfur')
+    pd.read_csv('data/basic_run_example/configs_ensemble.csv', index_col=0)
 
 9. run FaIR
 ~~~~~~~~~~~
@@ -615,7 +549,7 @@ precursor so we don’t care about ``erfari_radiative_efficiency``.
 
 .. code:: ipython3
 
-    pl.plot(f.timebounds, f.forcing.loc[dict(scenario='ramp', specie='ERFaci')], label=f.configs)
+    pl.plot(f.timebounds, f.forcing.loc[dict(scenario='ramp', specie='Aerosol-cloud interactions')], label=f.configs)
     pl.title('Ramp scenario: forcing')
     pl.xlabel('year')
     pl.ylabel('ERF from aerosol-cloud interactions (W m$^{-2}$)')
