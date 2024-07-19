@@ -20,7 +20,7 @@ class MetaAfterValueError(Exception):
 
 
 class MissingColumnError(Exception):
-    """Used when a required column is missing in an emissions/concentration/forcing 
+    """Used when a required column is missing in an emissions/concentration/forcing
     file.
     """
 
@@ -32,7 +32,7 @@ class MissingDataError(Exception):
 
 
 class MissingRegionError(Exception):
-    """Used when a defined region is not present in an emissions/concentration/forcing 
+    """Used when a defined region is not present in an emissions/concentration/forcing
     file.
     """
 
@@ -44,6 +44,6 @@ class NonMonotonicError(Exception):
 
 
 class UnitParseError(Exception):
-    """Used when the units defined in an emissions/concentration/forcing file for a 
+    """Used when the units defined in an emissions/concentration/forcing file for a
     particular species are unknown to fair.
     """
