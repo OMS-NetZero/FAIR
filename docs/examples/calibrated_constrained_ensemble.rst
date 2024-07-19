@@ -1,40 +1,48 @@
 A calibrated, constrained ensemble
 ==================================
 
-FaIR, like every other simple or complex climate model, is naive. It
+``fair``, like every other simple or complex climate model, is naive. It
 will produce projections for whatever emissions/concentrations/forcing
 scenario you ask it to produce projections for. It is up to the user to
 determine whether these projections are useful and sensible.
 
-We are `developing a set of parameter
+We have `developed a set of parameter
 calibrations <https://github.com/chrisroadmap/fair-calibrate>`__ that
 reproduce both observed climate change since pre-industrial and assessed
 climate metrics such as the equilibrium climate sensitivity from the
-IPCC Sixth Assessement Report.
+IPCC Sixth Assessement Report. These are described in this paper in
+review:
 
-**Note**: if you are reading this tutorial online and want to reproduce
-the results, you will need one additional file. Grab this from
-https://github.com/OMS-NetZero/FAIR/blob/master/examples/data/species_configs_properties_calibration1.2.0.csv.
+Smith, C., Cummins, D. P., Fredriksen, H.-B., Nicholls, Z., Meinshausen,
+M., Allen, M., Jenkins, S., Leach, N., Mathison, C., and Partanen,
+A.-I.: fair-calibrate v1.4.1: calibration, constraining and validation
+of the FaIR simple climate model for reliable future climate
+projections, EGUsphere [preprint],
+https://doi.org/10.5194/egusphere-2024-708, 2024.
+
+**TODO: update** **Note**: if you are reading this tutorial online and
+want to reproduce the results, you will need one additional file. Grab
+this from
+https://github.com/OMS-NetZero/FAIR/blob/master/examples/data/species_configs_properties_calibration1.4.1.csv.
 In Step 5 below, this is read in from the ``data/`` directory relative
 to here. This does not apply if you are running this notebook from
 Binder or have cloned it from GitHub - it should run out of the box.
 
 The calibrations will be continually updated, as new data for surface
 temperature, ocean heat content, external forcing and emissions become
-available. For now, we have an IPCC AR6 WG1 version (where observational
-constraints are generally up to somewhere in the 2014 to 2020 period),
-and assessments of emergent climate metrics are from the IPCC AR6 WG1
-Chapter 7. We use emissions data (historical + SSP) from the Reduced
-Complexity Model Intercomparison Project which was compiled for IPCC AR6
-WG3 Chapter 3. We also have calibration versions for replacing
-historical CO2 emissions by Global Carbon Project estimates. This is
-v1.1.0 of the ``fair-calibrate`` package, and can be obtained from the
-DOI link below.
+available. For now, we have calibration version where emissions and
+climate constraints are updated to 2022, and assessments of emergent
+climate metrics are from the IPCC AR6 WG1 Chapter 7. We use emissions
+data from a variety of sources (Global Carbon Project, PRIMAP-Hist,
+CEDS, GFED), and harmonize SSP scenarios to ensure that the projections
+(which originally started in 2015) have a smooth transition when recent
+emissions are taken into account.
 
-A two-step constraining process is produced. The first step ensures that
-historical simulations match observed climate change to a
-root-mean-square error of less than 0.17°C. The second step
-simultaneously distribution-fits to the following assessed ranges:
+As described in the Smith et al. (2024) paper, a two-step constraining
+process is produced. The first step ensures that historical simulations
+match observed climate change to a root-mean-square error of less than
+0.17°C. The second step simultaneously distribution-fits to the
+following assessed ranges:
 
 -  equilibrium climate sensitivity (ECS), very likely range 2-5°C, best
    estimate 3°C
@@ -52,11 +60,11 @@ simultaneously distribution-fits to the following assessed ranges:
    likely range -2.0 to -0.6 W/m², best estimate -1.3 W/m²
 -  earth energy uptake change 1971 to 2020, very likely range 358-573
    ZJ, best estimate 465 ZJ
--  CO2 concentrations in 2014, very likely range 416.2-417.8 ppm, best
+-  CO2 concentrations in 2022, very likely range 416.2-417.8 ppm, best
    estimate 417.0 ppm
 
-1001 posterior ensemble members are produced from an initial prior of
-1.5 million.
+841 posterior ensemble members are produced from an initial prior of 1.6
+million.
 
 There are many, many, many different calibration and constraining
 possibilities, and it depends on your purposes as to what is
@@ -81,7 +89,6 @@ reproduciblity, and easy to forget and accidently commit a large file).
     import matplotlib.pyplot as pl
     import numpy as np
     import pandas as pd
-    import pooch
     
     from fair import FAIR
     from fair.interface import fill, initialise
@@ -105,9 +112,7 @@ all of the options for initialising ``FAIR``).
 
 A lot of analysis uses 2100 as the time horizon, but 2300 is an
 interesting end point to see the effects of long-term climate change.
-We’ll set 2300 as the last time bound, so the last emissions time point
-is 2299.5. We could even run to 2500, as the scenarios are defined that
-far.
+We’ll set 2300 as the last time bound.
 
 .. code:: ipython3
 
@@ -116,14 +121,56 @@ far.
 3. Define scenarios
 -------------------
 
-Since the eight tier 1 & tier 2 SSPs are shipped with RCMIP, and they
-are quite familiar, we’ll use these scenarios. We’ll use the
-``fill_from_rcmip()`` function from FaIR, so these have to use the same
-scenario names that appear in the RCMIP database.
+The new emissions file reader introduced in ``fair`` v2.2 makes it easy
+to define your own emissions files, and name the scenarios how you like.
+Therefore, you are not limited to using SSPs or any other existing
+scenarios.
+
+In this example, we will use the first draft of the indicative scenario
+extensions proposed for ScenarioMIP for CMIP7
+(https://github.com/chrisroadmap/explore-extensions). **Note:** these
+are draft scenarios and will not be the final ones used for CMIP7, which
+will be produced by integrated assessment models, so please don’t use
+them naively in your own work - they are provided here as an example of
+how to use ``fair`` to read in custom scenarios!
+
+We invite you to inspect the format of the emissions file at
+``/data/calibrated_constrained_ensemble/extensions_1750-2500.csv``. You
+will note that the file format is similar to the ``IamDataFrame`` of
+```pyam`` <https://pyam-iamc.readthedocs.io/en/stable/index.html>`__,
+with two key exceptions:
+
+-  the ``model`` entry is optional. You can provide it, but it will be
+   ignored (as will any other metadata column).
+-  the ``scenario`` entry must be unique for every scenario.
+
+Expanding the second point above, in an ``IamDataFrame`` we may have the
+same ``scenario`` (e.g. ``SSP3-Baseline``) run in different integrated
+assessment models (``model`` could be, for example,
+``MESSAGE-GLOBIOM 1.0`` or ``REMIND-MAgPIE 4.2``). In ``fair``, if you
+want to distinguish similar scenarios run by different IAMs in the same
+emissions data file, then you would want to modify the ``scenario``
+column:
+
+-  ``MESSAGE-GLOBIOM 1.0___SSP3-Baseline``
+-  ``REMIND-MAgPIE 4.2___SSP3-Baseline``
+-  …
+
+(I use a triple underscore - you could use any separator you like, as
+long as it is not a string that that is present in any model or scenario
+name).
 
 .. code:: ipython3
 
-    scenarios = ["ssp119", "ssp126", "ssp245", "ssp370", "ssp434", "ssp460", "ssp534-over", "ssp585"]
+    scenarios = [
+        "high-extension", 
+        "high-overshoot",
+        "medium-overshoot", 
+        "medium-extension", 
+        "low", 
+        "verylow",
+        "verylow-overshoot", 
+    ]
 
 .. code:: ipython3
 
@@ -132,42 +179,48 @@ scenario names that appear in the RCMIP database.
 4. Define configs
 -----------------
 
-The constrained dataset contains 1001 ensemble members, and 47
-parameters that define the climate response of FaIR. The parameters
-pertain to ``climate_configs`` and ``species_configs`` that produce a
-wide range of climate responses. We sample from the 11
-``climate_configs`` parameters that define the `stochastic three-layer
-energy balance
+The constrained dataset contains 841 ensemble members, and 86 parameters
+that define the climate response of ``fair``. The parameters pertain to
+``climate_configs`` and ``species_configs`` that produce a wide range of
+climate responses. These values are given in the CSV file at
+``data/calibrated_constrained_ensemble/calibrated_constrained_parameters_calibration1.4.1.csv``.
+
+This file contains a header row and 841 additional rows. Each row
+corresponds to a parameter set used to probablistically run ``fair``
+with. The first column is a label that we use to refer to that
+particular parameter set (here, is a number between 0 and 1599999, and
+refers to the original prior ensemble).
+
+The column headers refer to specific parameters that we are varying in
+``fair``. These are automatically mapped to the appropriate parameter
+within ``fair`` (so getting the names exactly correct is important).
+
+We sample from the 11 ``climate_configs`` parameters that define the
+`stochastic three-layer energy balance
 model <https://journals.ametsoc.org/view/journals/clim/33/18/jcliD190589.xml>`__,
-plus a random seed. Of the other 35 parameters, three vary the behaviour
-of solar and volcanic forcing and are applied externally. The other 32
-vary the behaviour of individual species and override default values of
-``species_configs`` within FaIR (an example being the parameters
-defining the sensitivity of the carbon cycle feedbacks). Since every
-species has about 30 configs attached, there’s well over a thousand
-potential parameters that could be modified in FaIR. Outside of the 32
-parameters sampled, changing from default values would make little
-difference, would not be relevant to a particular species, or not be
-sensible to change.
+plus a random seed, and two columns that tell the model if we want to
+use the seed and if stochastic response should be turned on (both
+boolean values).
 
-We’ll use ``pooch`` to retrieve the v1.1 calibration data, and external
-datasets of solar and volcanic forcing that were pre-prepared for AR6
-work.
-
-The name of the ``config`` axis will be an integer, which relates to the
-parameter draw from the large prior ensemble used in the calibration and
-constraining code.
+The other 74 parameters are ``species_configs`` and override default
+values of ``species_configs`` within ``fair`` (an example being the
+parameters defining the sensitivity of the carbon cycle feedbacks).
+Since every species has about 30 configs attached, there’s well over a
+thousand potential parameters that could be modified in ``fair``.
+Outside of the 74 parameters sampled, changing from default values would
+make little difference, would not be relevant to a particular species,
+or not be sensible to change.
 
 .. code:: ipython3
 
-    fair_params_1_2_0_obj = pooch.retrieve(
-        url = 'https://zenodo.org/record/8399112/files/calibrated_constrained_parameters.csv',
-        known_hash = 'md5:de3b83432b9d071efdd1427ad31e9076',
-    )
+    fair_params_1_4_1_file = 'data/calibrated_constrained_ensemble/calibrated_constrained_parameters_calibration1.4.1.csv'
+
+Here, we are not actually defining any configs, but we are telling
+``fair`` what the labels of each parameter set are.
 
 .. code:: ipython3
 
-    df_configs = pd.read_csv(fair_params_1_2_0_obj, index_col=0)
+    df_configs = pd.read_csv(fair_params_1_4_1_file, index_col=0)
     configs = df_configs.index  # this is used as a label for the "config" axis
     f.define_configs(configs)
 
@@ -182,9 +235,9 @@ constraining code.
 5. Define species and properties
 --------------------------------
 
-We will use FaIR’s default list of 63 species. They are often run with
+We will use FaIR’s default list of 61 species. They are often run with
 default properties that are included in the model code. However, as part
-of the v1.1 calibration, some defaults are modified, such as the
+of the v1.4.1 calibration, some defaults are modified, such as the
 sensitivity of chemical precursors to methane lifetime. Rather than
 manually overriding this by setting ``species_configs``, it is cleaner
 to modify the defaults in the CSV file that is read in to define the
@@ -192,9 +245,9 @@ to modify the defaults in the CSV file that is read in to define the
 
 In fact, as this only reads in and defines ``species`` and
 ``properties`` (not ``species_configs``), the default (no ``filename``)
-argument could be used here, but it is good practice in my opinion to
-put species, properties and configs in the same file, and to use the
-same file to read in ``properties`` and ``species_configs``.
+argument could be used here, but it is efficient to put species,
+properties and configs in the same file, and to use the same file to
+read in ``properties`` and ``species_configs``.
 
 If you’re following along at home, feel free to insert a new cell after
 this one and inspect what the ``species`` and ``properties`` actually
@@ -202,7 +255,11 @@ are.
 
 .. code:: ipython3
 
-    species, properties = read_properties(filename='data/species_configs_properties_calibration1.2.0.csv')
+    fair_species_configs_1_4_1_file = 'data/calibrated_constrained_ensemble/species_configs_properties_calibration1.4.1.csv'
+
+.. code:: ipython3
+
+    species, properties = read_properties(filename=fair_species_configs_1_4_1_file)
     f.define_species(species, properties)
 
 6. Modify run options
@@ -226,286 +283,68 @@ set up: we then just need to add data.
 8a. emissions, solar forcing, and volcanic forcing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We can use the convenience function ``fill_from_rcmip()`` to fill in the
-emissions. Remember that not all ``species`` are things that take
-emissions, so if you see NaNs below, don’t panic.
+We can use the new (in v2.2) convenience function ``fill_from_csv()`` to
+fill in the emissions from the emissions file that we created offline.
+Remember that not all ``species`` are things that take emissions, so if
+you see some NaN entries below, don’t panic.
+
+There are two species defined - ``solar`` and ``volcanic`` - that take
+offline forcing time series, so they also need to be defined in a file
+and read in using ``fill_from_csv()``. The file structure is similar to
+the emissions file (and we recommend that you inspect it) - but remember
+that forcing is defined on timebounds rather than timepoints.
 
 .. code:: ipython3
 
-    f.fill_from_rcmip()
+    f.fill_from_csv(
+        emissions_file='data/calibrated_constrained_ensemble/extensions_1750-2500.csv',
+        forcing_file='data/calibrated_constrained_ensemble/volcanic_solar.csv',
+    )
 
 .. code:: ipython3
 
     f.emissions
 
-There is an issue with the RCMIP NOx emissions; the units are different
-for biomass burning emissions (Tg NO/yr) to the other emissions from
-fossil fuels, industry and agriculture (Tg NO2/yr). v1.1 of the
-calibration uses the corrected NOx emissions expressed in Tg NO2/yr, so
-we also have to correct them in FaIR for consistency.
-
-We download the RCMIP emissions file, and pull out the relevant sectors,
-update the unit, and finally override the correct entry of
-``f.emissions``.
-
-Notes on the below:
-
--  46.006 is the molecular weight of NO2 (g/mol).
--  30.006 is the molecular weight of NO (g/mol).
--  The final ``[:550, None]`` is to transfer the data coming in from
-   RCMIP (dimension (750,), a timeseries of annual emissions) into the
-   correct shape for our problem (550, 1001). Since we are looping over
-   the ``scenario`` dimension and selecting it, and we are selecting NOx
-   from the ``species`` dimension, these axes are collapsed and we’re
-   left with (``timepoints``, ``configs``). The RCMIP data starts in
-   1750 as does our emissions data; if there is a mismatch in the start
-   date, it would be necessary to select the correct slice from the
-   RCMIP ``DataFrame`` that is loaded in. For a reminder of the
-   dimensioning in FaIR 2.1, see
-   https://docs.fairmodel.net/en/latest/intro.html#dimensionality.
-
 .. code:: ipython3
 
-    rcmip_emissions_file = pooch.retrieve(
-        url="doi:10.5281/zenodo.4589756/rcmip-emissions-annual-means-v5-1-0.csv",
-        known_hash="md5:4044106f55ca65b094670e7577eaf9b3",
-    )
-    df_emis = pd.read_csv(rcmip_emissions_file)
-    gfed_sectors = [
-        "Emissions|NOx|MAGICC AFOLU|Agricultural Waste Burning",
-        "Emissions|NOx|MAGICC AFOLU|Forest Burning",
-        "Emissions|NOx|MAGICC AFOLU|Grassland Burning",
-        "Emissions|NOx|MAGICC AFOLU|Peat Burning",
-    ]
-    for scenario in scenarios:
-        f.emissions.loc[dict(specie="NOx", scenario=scenario)] = (
-            df_emis.loc[
-                (df_emis["Scenario"] == scenario)
-                & (df_emis["Region"] == "World")
-                & (df_emis["Variable"].isin(gfed_sectors)),
-                "1750":"2300",
-            ]
-            .interpolate(axis=1)
-            .values.squeeze()
-            .sum(axis=0)
-            * 46.006
-            / 30.006
-            + df_emis.loc[
-                (df_emis["Scenario"] == scenario)
-                & (df_emis["Region"] == "World")
-                & (df_emis["Variable"] == "Emissions|NOx|MAGICC AFOLU|Agriculture"),
-                "1750":"2300",
-            ]
-            .interpolate(axis=1)
-            .values.squeeze()
-            + df_emis.loc[
-                (df_emis["Scenario"] == scenario)
-                & (df_emis["Region"] == "World")
-                & (df_emis["Variable"] == "Emissions|NOx|MAGICC Fossil and Industrial"),
-                "1750":"2300",
-            ]
-            .interpolate(axis=1)
-            .values.squeeze()
-        )[:550, None]
+    f.forcing.sel(specie="Volcanic")
 
-Now we fetch and fill in the solar and volcanic forcing. As these are
-forcing-driven time series, if we want to vary the uncertainties in the
-forcing, this has to happen before FaIR is run (see
-https://github.com/OMS-NetZero/FAIR/issues/126).
-
-.. code:: ipython3
-
-    solar_obj = pooch.retrieve(
-        url = 'https://raw.githubusercontent.com/chrisroadmap/fair-add-hfc/main/data/solar_erf_timebounds.csv',
-        known_hash = 'md5:98f6f4c5309d848fea89803683441acf',
-    )
-
-.. code:: ipython3
-
-    volcanic_obj = pooch.retrieve(
-        url = 'https://raw.githubusercontent.com/chrisroadmap/fair-calibrate/main/data/forcing/volcanic_ERF_1750-2101_timebounds.csv',
-        known_hash = 'md5:c0801f80f70195eb9567dbd70359219d',
-    )
-
-.. code:: ipython3
-
-    df_solar = pd.read_csv(solar_obj, index_col="year")
-    df_volcanic = pd.read_csv(volcanic_obj)
-
-Remembering that everything that is not emissions is on ``timebounds``,
-there is always one more ``timebounds`` than ``timepoints``, so we
-define arrays of length 551 (1750 to 2300, inclusive).
-
-Volcanic forcing is given monthly, so we average the 12 previous months
-for each ``timebounds`` volcanic forcing.
-
-Volcanic forcing here follows the CMIP6 ScenarioMIP convention of a 10
-year ramp down to zero from the last year of data (here 2019). Again a
-little bit of ninja skill with indexing is needed.
-
-.. code:: ipython3
-
-    solar_forcing = np.zeros(551)
-    volcanic_forcing = np.zeros(551)
-    volcanic_forcing[:352] = df_volcanic.erf.values
-    solar_forcing = df_solar["erf"].loc[1750:2300].values
-    
-    trend_shape = np.ones(551)
-    trend_shape[:271] = np.linspace(0, 1, 271)
-
-We then use our calibrated, constrained ensemble to individually scale
-the volcanic forcing time series, and the solar amplitude and trend:
+There’s one slight adjustment we need to make - in order to ensure that
+the solar and volcanic scale factors are picked up, we have to manually
+adjust the forcing time series. In future, we hope to make this a little
+more automatic. See https://github.com/OMS-NetZero/FAIR/issues/126.
 
 .. code:: ipython3
 
     fill(
         f.forcing,
-        volcanic_forcing[:, None, None] * df_configs["fscale_Volcanic"].values.squeeze(),
+        f.forcing.sel(specie="Volcanic") * df_configs["forcing_scale[Volcanic]"].values.squeeze(),
         specie="Volcanic",
     )
     fill(
         f.forcing,
-        solar_forcing[:, None, None] * df_configs["fscale_solar_amplitude"].values.squeeze()
-        + trend_shape[:, None, None] * df_configs["fscale_solar_trend"].values.squeeze(),
+        f.forcing.sel(specie="Solar") * df_configs["forcing_scale[Solar]"].values.squeeze(),
         specie="Solar",
     )
 
 .. code:: ipython3
 
-    pl.plot(f.timebounds, f.forcing.loc[dict(specie="Solar", scenario="ssp245")]);
+    pl.plot(f.timebounds, f.forcing.loc[dict(specie="Solar", scenario="medium-extension")]);
 
-8b. Fill in climate_configs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+8b. Fill in climate_configs and species_configs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This is relatively straightforward from the calibrated, constrained
-dataset.
-
-.. code:: ipython3
-
-    fill(f.climate_configs["ocean_heat_capacity"], df_configs.loc[:, "clim_c1":"clim_c3"].values)
-    fill(
-        f.climate_configs["ocean_heat_transfer"],
-        df_configs.loc[:, "clim_kappa1":"clim_kappa3"].values,
-    )
-    fill(f.climate_configs["deep_ocean_efficacy"], df_configs["clim_epsilon"].values.squeeze())
-    fill(f.climate_configs["gamma_autocorrelation"], df_configs["clim_gamma"].values.squeeze())
-    fill(f.climate_configs["sigma_eta"], df_configs["clim_sigma_eta"].values.squeeze())
-    fill(f.climate_configs["sigma_xi"], df_configs["clim_sigma_xi"].values.squeeze())
-    fill(f.climate_configs["seed"], df_configs["seed"])
-    fill(f.climate_configs["stochastic_run"], True)
-    fill(f.climate_configs["use_seed"], True)
-    fill(f.climate_configs["forcing_4co2"], df_configs["clim_F_4xCO2"])
-
-8c. Fill in species_configs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Firstly we want to get the defaults from our new
-species/properties/configs file
+The new convenience methods in v2.2 make this very easy indeed. First we
+fill in the default values from the ``species_configs`` file, and then
+we use our 86 parameter set for 841 ensemble members to change all of
+the parameters that are pertinent to the key model responses.
 
 .. code:: ipython3
 
-    f.fill_species_configs(filename='data/species_configs_properties_calibration1.2.0.csv')
+    f.fill_species_configs(fair_species_configs_1_4_1_file)
+    f.override_defaults(fair_params_1_4_1_file)
 
-Then, we overwrite the ``species_configs`` that are varies as part of
-the probablistic sampling. This makes heavy use of the ``fill()``
-convenience function.
-
-.. code:: ipython3
-
-    # carbon cycle
-    fill(f.species_configs["iirf_0"], df_configs["cc_r0"].values.squeeze(), specie="CO2")
-    fill(f.species_configs["iirf_airborne"], df_configs["cc_rA"].values.squeeze(), specie="CO2")
-    fill(f.species_configs["iirf_uptake"], df_configs["cc_rU"].values.squeeze(), specie="CO2")
-    fill(f.species_configs["iirf_temperature"], df_configs["cc_rT"].values.squeeze(), specie="CO2")
-    
-    # aerosol indirect
-    fill(f.species_configs["aci_scale"], df_configs["aci_beta"].values.squeeze())
-    fill(f.species_configs["aci_shape"], df_configs["aci_shape_so2"].values.squeeze(), specie="Sulfur")
-    fill(f.species_configs["aci_shape"], df_configs["aci_shape_bc"].values.squeeze(), specie="BC")
-    fill(f.species_configs["aci_shape"], df_configs["aci_shape_oc"].values.squeeze(), specie="OC")
-    
-    # aerosol direct
-    for specie in [
-        "BC", 
-        "CH4", 
-        "N2O",
-        "NH3", 
-        "NOx",
-        "OC", 
-        "Sulfur", 
-        "VOC",
-        "Equivalent effective stratospheric chlorine"
-    ]:
-        fill(f.species_configs["erfari_radiative_efficiency"], df_configs[f"ari_{specie}"], specie=specie)
-    
-    # forcing scaling
-    for specie in [
-        "CO2", 
-        "CH4", 
-        "N2O", 
-        "Stratospheric water vapour",
-        "Contrails", 
-        "Light absorbing particles on snow and ice", 
-        "Land use"
-    ]:
-        fill(f.species_configs["forcing_scale"], df_configs[f"fscale_{specie}"].values.squeeze(), specie=specie)
-    # the halogenated gases all take the same scale factor
-    for specie in [
-        "CFC-11",
-        "CFC-12",
-        "CFC-113",
-        "CFC-114",
-        "CFC-115",
-        "HCFC-22",
-        "HCFC-141b",
-        "HCFC-142b",
-        "CCl4",
-        "CHCl3",
-        "CH2Cl2",
-        "CH3Cl",
-        "CH3CCl3",
-        "CH3Br",
-        "Halon-1211",
-        "Halon-1301",
-        "Halon-2402",
-        "CF4",
-        "C2F6",
-        "C3F8",
-        "c-C4F8",
-        "C4F10",
-        "C5F12",
-        "C6F14",
-        "C7F16",
-        "C8F18",
-        "NF3",
-        "SF6",
-        "SO2F2",
-        "HFC-125",
-        "HFC-134a",
-        "HFC-143a",
-        "HFC-152a",
-        "HFC-227ea",
-        "HFC-23",
-        "HFC-236fa",
-        "HFC-245fa",
-        "HFC-32",
-        "HFC-365mfc",
-        "HFC-4310mee",
-    ]:
-        fill(f.species_configs["forcing_scale"], df_configs["fscale_minorGHG"].values.squeeze(), specie=specie)
-    
-    # ozone
-    for specie in ["CH4", "N2O", "Equivalent effective stratospheric chlorine", "CO", "VOC", "NOx"]:
-        fill(f.species_configs["ozone_radiative_efficiency"], df_configs[f"o3_{specie}"], specie=specie)
-    
-    # initial value of CO2 concentration (but not baseline for forcing calculations)
-    fill(
-        f.species_configs["baseline_concentration"], 
-        df_configs["cc_co2_concentration_1750"].values.squeeze(), 
-        specie="CO2"
-    )
-
-8d. Initial conditions
+8c. Initial conditions
 ~~~~~~~~~~~~~~~~~~~~~~
 
 It’s important these are defined, as they are NaN by default, and it’s
@@ -518,9 +357,13 @@ likely you’ll run into problems.
     initialise(f.temperature, 0)
     initialise(f.cumulative_emissions, 0)
     initialise(f.airborne_emissions, 0)
+    initialise(f.ocean_heat_content_change, 0)
 
 9. Run
 ------
+
+We have a total of 7 scenarios and 841 ensemble members for 550 years
+and 61 species. This can be a little memory constrained on some systems.
 
 .. code:: ipython3
 
@@ -532,25 +375,23 @@ likely you’ll run into problems.
 .. code:: ipython3
 
     fancy_titles = {
-        "ssp119": "SSP1-1.9",
-        "ssp126": "SSP1-2.6",
-        "ssp245": "SSP2-4.5",
-        "ssp370": "SSP3-7.0",
-        "ssp434": "SSP4-3.4",
-        "ssp460": "SSP4-6.0",
-        "ssp534-over": "SSP5-3.4-overshoot",
-        "ssp585": "SSP5-8.5",
+        'high-extension': 'High extension',
+        'high-overshoot': 'High overshoot',
+        'medium-extension': 'Medium extension',
+        'medium-overshoot': 'Medium overshoot',
+        'low': 'Low',
+        'verylow': 'Very low',
+        'verylow-overshoot': 'Very low overshoot',
     }
     
-    ar6_colors = {
-        "ssp119": "#00a9cf",
-        "ssp126": "#003466",
-        "ssp245": "#f69320",
-        "ssp370": "#df0000",
-        "ssp434": "#2274ae",
-        "ssp460": "#b0724e",
-        "ssp534-over": "#92397a",
-        "ssp585": "#980002",
+    colors = {
+        'high-extension': '#800000',
+        'high-overshoot': '#ff0000',
+        'medium-extension': '#c87820',
+        'medium-overshoot': '#d3a640',
+        'low': '#098740',
+        'verylow': '#0080d0',
+        'verylow-overshoot': '#100060',
     }
 
 Temperature anomaly
@@ -601,7 +442,7 @@ for other ``timebounds``.
                     pp[1],
                     axis=1,
                 ),
-                color=ar6_colors[scenarios[i]],
+                color=colors[scenarios[i]],
                 alpha=0.2,
                 lw=0
             )
@@ -619,15 +460,14 @@ for other ``timebounds``.
                 ),
                 axis=1,
             ),
-            color=ar6_colors[scenarios[i]],
+            color=colors[scenarios[i]],
         )
-    #     ax[i // 4, i % 4].plot(np.arange(1850.5, 2021), gmst, color="k")
         ax[i // 4, i % 4].set_xlim(1850, 2300)
         ax[i // 4, i % 4].set_ylim(-1, 10)
         ax[i // 4, i % 4].axhline(0, color="k", ls=":", lw=0.5)
         ax[i // 4, i % 4].set_title(fancy_titles[scenarios[i]])
     
-    pl.suptitle("SSP temperature anomalies")
+    pl.suptitle("Temperature anomalies")
     fig.tight_layout()
 
 CO2 concentrations
@@ -651,7 +491,7 @@ CO2 concentrations
                     pp[1],
                     axis=1,
                 ),
-                color=ar6_colors[scenarios[i]],
+                color=colors[scenarios[i]],
                 alpha=0.2,
                 lw=0
             )
@@ -662,14 +502,14 @@ CO2 concentrations
                 f.concentration.loc[dict(scenario=scenario, specie='CO2')],
                 axis=1,
             ),
-            color=ar6_colors[scenarios[i]],
+            color=colors[scenarios[i]],
         )
         ax[i // 4, i % 4].set_xlim(1850, 2300)
-        ax[i // 4, i % 4].set_ylim(0, 2500)
+        ax[i // 4, i % 4].set_ylim(0, 2000)
         ax[i // 4, i % 4].axhline(0, color="k", ls=":", lw=0.5)
         ax[i // 4, i % 4].set_title(fancy_titles[scenarios[i]])
     
-    pl.suptitle("SSP CO$_2$ concentration")
+    pl.suptitle("CO$_2$ concentration")
     fig.tight_layout()
 
 Total effective radiative forcing
@@ -693,7 +533,7 @@ Total effective radiative forcing
                     pp[1],
                     axis=1,
                 ),
-                color=ar6_colors[scenarios[i]],
+                color=colors[scenarios[i]],
                 alpha=0.2,
                 lw=0
             )
@@ -704,14 +544,14 @@ Total effective radiative forcing
                 f.forcing_sum.loc[dict(scenario=scenario)],
                 axis=1,
             ),
-            color=ar6_colors[scenarios[i]],
+            color=colors[scenarios[i]],
         )
         ax[i // 4, i % 4].set_xlim(1850, 2300)
-        ax[i // 4, i % 4].set_ylim(0, 15)
+        ax[i // 4, i % 4].set_ylim(-2, 15)
         ax[i // 4, i % 4].axhline(0, color="k", ls=":", lw=0.5)
         ax[i // 4, i % 4].set_title(fancy_titles[scenarios[i]])
     
-    pl.suptitle("SSP effective radiative forcing")
+    pl.suptitle("Effective radiative forcing")
     fig.tight_layout()
 
 CO2 airborne fraction
@@ -735,7 +575,7 @@ CO2 airborne fraction
                     pp[1],
                     axis=1,
                 ),
-                color=ar6_colors[scenarios[i]],
+                color=colors[scenarios[i]],
                 alpha=0.2,
                 lw=0
             )
@@ -746,14 +586,14 @@ CO2 airborne fraction
                 f.airborne_fraction.loc[dict(scenario=scenario, specie='CO2')],
                 axis=1,
             ),
-            color=ar6_colors[scenarios[i]],
+            color=colors[scenarios[i]],
         )
         ax[i // 4, i % 4].set_xlim(1850, 2300)
         ax[i // 4, i % 4].set_ylim(0, 1)
         ax[i // 4, i % 4].axhline(0, color="k", ls=":", lw=0.5)
         ax[i // 4, i % 4].set_title(fancy_titles[scenarios[i]])
     
-    pl.suptitle("SSP CO$_2$ airborne fraction")
+    pl.suptitle("CO$_2$ airborne fraction")
     fig.tight_layout()
 
 Earth’s energy uptake
@@ -777,7 +617,7 @@ Earth’s energy uptake
                     pp[1],
                     axis=1,
                 ),
-                color=ar6_colors[scenarios[i]],
+                color=colors[scenarios[i]],
                 alpha=0.2,
                 lw=0
             )
@@ -788,13 +628,13 @@ Earth’s energy uptake
                 f.ocean_heat_content_change.loc[dict(scenario=scenario)],
                 axis=1,
             ),
-            color=ar6_colors[scenarios[i]],
+            color=colors[scenarios[i]],
         )
         ax[i // 4, i % 4].set_xlim(1850, 2300)
         ax[i // 4, i % 4].set_ylim(0, 1e25)
         ax[i // 4, i % 4].axhline(0, color="k", ls=":", lw=0.5)
         ax[i // 4, i % 4].set_title(fancy_titles[scenarios[i]])
     
-    pl.suptitle("SSP Earth energy uptake")
+    pl.suptitle("Earth energy uptake")
     fig.tight_layout()
 

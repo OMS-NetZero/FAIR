@@ -9,8 +9,8 @@ import pytest
 
 from fair import FAIR
 from fair.forcing.ghg import meinshausen2020
-from fair.io import read_properties
 from fair.interface import fill
+from fair.io import read_properties
 
 f = FAIR()
 HERE = os.path.dirname(os.path.realpath(__file__))
@@ -194,48 +194,6 @@ def test_calculate_g():
         np.testing.assert_allclose(np.squeeze(ftest.species_configs[variable]), results)
 
 
-def test_from_rcmip():
-    ftest = minimal_fair_run()
-    ftest.fill_from_rcmip()
-
-
-def test_fill_from_rcmip_missing_concentration_data():
-    ftest = minimal_fair_run()
-    ftest.scenarios = ["ADVANCE"]
-    with pytest.raises(ValueError):
-        ftest.fill_from_rcmip()
-
-
-def test_fill_from_rcmip_missing_emissions_data():
-    fair_obj = FAIR()
-    species = ["CO2", "CH4", "N2O"]
-    species, properties = read_properties(species=species)
-    for specie in species:
-        properties[specie]["input_mode"] = "emissions"
-    fair_obj.define_species(species, properties)
-    fair_obj.define_time(1750, 2020, 270)
-    fair_obj.define_scenarios(["ADVANCE"])
-    fair_obj.define_configs(["UKESM1-0-LL"])
-    fair_obj.allocate()
-    with pytest.raises(ValueError):
-        fair_obj.fill_from_rcmip()
-
-
-def test_fill_from_rcmip_missing_forcing_data():
-    fair_obj = FAIR()
-    species = ["CO2", "CH4", "N2O"]
-    species, properties = read_properties(species=species)
-    for specie in species:
-        properties[specie]["input_mode"] = "forcing"
-    fair_obj.define_species(species, properties)
-    fair_obj.define_time(1750, 2020, 270)
-    fair_obj.define_scenarios(["ADVANCE"])
-    fair_obj.define_configs(["UKESM1-0-LL"])
-    fair_obj.allocate()
-    with pytest.raises(ValueError):
-        fair_obj.fill_from_rcmip()
-
-
 def test__make_ebms_climate_configs_nan():
     ftest = minimal_fair_run()
     ftest.climate_configs["ocean_heat_transfer"][0, :] = np.nan
@@ -309,7 +267,7 @@ def test_fill_species_configs_ch4_skips():
 
 
 def test_ghg_method_raise():
-    fair_obj = FAIR(ghg_method='Meinshausen2020')
+    fair_obj = FAIR(ghg_method="Meinshausen2020")
     species = ["CO2 FFI", "CO2 AFOLU", "CO2", "CH4", "N2O"]
     species, properties = read_properties(species=species)
     fair_obj.define_species(species, properties)
@@ -332,8 +290,14 @@ def test_ghg_method_raise():
     fair_obj.climate_configs["use_seed"][0] = True
     fair_obj.climate_configs["seed"][0] = 0
     fair_obj.fill_species_configs()
-    fair_obj.species_configs["baseline_concentration"][0, :] = [np.nan, np.nan, 277, 731, 270]
-    fair_obj.species_configs['forcing_reference_concentration'][:] = np.nan
+    fair_obj.species_configs["baseline_concentration"][0, :] = [
+        np.nan,
+        np.nan,
+        277,
+        731,
+        270,
+    ]
+    fair_obj.species_configs["forcing_reference_concentration"][:] = np.nan
     fair_obj.emissions[:, 0, 0, :] = 0
     fair_obj.forcing[0, 0, 0, :] = 0
     fair_obj.temperature[0, 0, 0, :] = 0
@@ -368,7 +332,7 @@ def test_co2_run_mode_incompatible_raise():
     fair_obj.climate_configs["seed"][0] = 0
     fair_obj.fill_species_configs()
     fair_obj.species_configs["baseline_concentration"][0, :] = [277]
-    fair_obj.species_configs['forcing_reference_concentration'][0, :] = [277]
+    fair_obj.species_configs["forcing_reference_concentration"][0, :] = [277]
     fair_obj.emissions[:, 0, 0, :] = 0
     fair_obj.forcing[0, 0, 0, :] = 0
     fair_obj.temperature[0, 0, 0, :] = 0
@@ -433,7 +397,7 @@ def test_thornhill_raises():
     fair_obj.climate_configs["seed"][0] = 0
     fair_obj.fill_species_configs()
     fair_obj.species_configs["baseline_concentration"][0, :] = [277]
-    fair_obj.species_configs['forcing_reference_concentration'][0, :] = [277]
+    fair_obj.species_configs["forcing_reference_concentration"][0, :] = [277]
     fair_obj.forcing[0, 0, 0, :] = 0
     fair_obj.temperature[0, 0, 0, :] = 0
     fair_obj.cumulative_emissions[0, 0, 0, :] = 0
@@ -467,7 +431,7 @@ def test_leach_raises():
     fair_obj.climate_configs["seed"][0] = 0
     fair_obj.fill_species_configs()
     fair_obj.species_configs["baseline_concentration"][0, :] = [277]
-    fair_obj.species_configs['forcing_reference_concentration'][0, :] = [277]
+    fair_obj.species_configs["forcing_reference_concentration"][0, :] = [277]
     fair_obj.forcing[0, 0, 0, :] = 0
     fair_obj.temperature[0, 0, 0, :] = 0
     fair_obj.cumulative_emissions[0, 0, 0, :] = 0
@@ -477,7 +441,7 @@ def test_leach_raises():
 
 
 def test_meinshausen_raises():
-    fair_obj = FAIR(ghg_method='Meinshausen2020')
+    fair_obj = FAIR(ghg_method="Meinshausen2020")
     species = ["CO2", "CH4", "N2O"]
     species, properties = read_properties(species=species)
     properties["CO2"]["input_mode"] = "forcing"
@@ -502,7 +466,7 @@ def test_meinshausen_raises():
     fair_obj.climate_configs["seed"][0] = 0
     fair_obj.fill_species_configs()
     fair_obj.species_configs["baseline_concentration"][0, :] = [277, 731, 270]
-    fair_obj.species_configs['forcing_reference_concentration'][0, :] = [277, 731, 270]
+    fair_obj.species_configs["forcing_reference_concentration"][0, :] = [277, 731, 270]
     fair_obj.emissions[:, 0, 0, :] = 0
     fair_obj.forcing[:, 0, 0, :] = 0
     fair_obj.temperature[0, 0, 0, :] = 0
@@ -513,7 +477,7 @@ def test_meinshausen_raises():
 
 
 def test_myhre_raises():
-    fair_obj = FAIR(ghg_method='Myhre1998')
+    fair_obj = FAIR(ghg_method="Myhre1998")
     species = ["CH4"]
     species, properties = read_properties(species=species)
     fair_obj.define_species(species, properties)
@@ -537,7 +501,7 @@ def test_myhre_raises():
     fair_obj.climate_configs["seed"][0] = 0
     fair_obj.fill_species_configs()
     fair_obj.species_configs["baseline_concentration"][0, :] = [731]
-    fair_obj.species_configs['forcing_reference_concentration'][0, :] = [731]
+    fair_obj.species_configs["forcing_reference_concentration"][0, :] = [731]
     fair_obj.emissions[:, 0, 0, :] = 0
     fair_obj.forcing[:, 0, 0, :] = 0
     fair_obj.temperature[0, 0, 0, :] = 0
@@ -548,7 +512,7 @@ def test_myhre_raises():
 
 
 def test_run_forcing_driven():
-    ftest = minimal_fair_run(mode='forcing')
+    ftest = minimal_fair_run(mode="forcing")
     fill(ftest.forcing, 0)
     ftest.run()
 
