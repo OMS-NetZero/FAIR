@@ -2,6 +2,17 @@ import fair
 from fair._version import get_versions
 import sphinx_rtd_theme
 
+import os
+
+html_context = {}  # correct?
+
+# Set canonical URL from the Read the Docs Domain
+html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "")
+
+# Tell Jinja2 templates the build is running on Read the Docs
+if os.environ.get("READTHEDOCS", "") == "True":
+    html_context["READTHEDOCS"] = True
+
 extensions = [
     'sphinx_rtd_theme',
     'sphinx.ext.autodoc',
@@ -10,9 +21,9 @@ extensions = [
     'IPython.sphinxext.ipython_console_highlighting',
 ]
 
-project = 'FaIR'
-copyright = '2023, FaIR Development Team'
-author = 'FaIR Development Team'
+project = 'fair'
+copyright = '2024, fair development team'
+author = 'fair development team'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
