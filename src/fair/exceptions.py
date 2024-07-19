@@ -8,32 +8,28 @@
 
 
 class DuplicateScenarioError(Exception):
-    pass
+    "Used where scenario label occurs more than once in an emissions/concentration/forcing file."
 
 
 class MetaAfterValueError(Exception):
-    pass
+    "Used where a meta column occurs to the right of time series in an emissions/concentration/forcing file."
 
 
 class MissingColumnError(Exception):
-    pass
+    "Used when a required column is missing in an emissions/concentration/forcing file."
 
 
 class MissingDataError(Exception):
-    pass
+    "Used when a defined scenario or species is not present in an emissions/concentration/forcing file."
 
 
 class MissingRegionError(Exception):
-    pass
+    "Used when a defined region is not present in an emissions/concentration/forcing file."
 
 
 class NonMonotonicError(Exception):
-    pass
-
-
-class TimeNotMonotonicError(Exception):
-    pass
+    "Used when the time axis is not monotonically increasing in an emissions/concentration/forcing file."
 
 
 class UnitParseError(Exception):
-    pass
+    "Used when the units defined in an emissions/concentration/forcing file for a particular species are unknown to fair."
