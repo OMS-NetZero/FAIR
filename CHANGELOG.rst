@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+master
+------
+
+- (`#163 <https://github.com/OMS-NetZero/FAIR/pull/163>`_) Fixed bug with calibrated constained example (`#161 <https://github.com/OMS-NetZero/FAIR/issues/161>`_)
+
 v2.2.0
 ------
 
