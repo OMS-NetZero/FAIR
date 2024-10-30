@@ -1,8 +1,10 @@
 Changelog
 ---------
 
-master
+v2.2.1
 ------
+
+(`#167 <https://github.com/OMS-NetZero/FAIR/pull/167>`_) Add support for python 3.13
 
 (`#163 <https://github.com/OMS-NetZero/FAIR/pull/163>`_) Fixed bug with calibrated constained example (`#161 <https://github.com/OMS-NetZero/FAIR/issues/161>`_)
 
