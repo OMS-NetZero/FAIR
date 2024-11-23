@@ -4,6 +4,8 @@ Changelog
 v2.2.2
 ------
 
+(`#170 <https://github.com/OMS-NetZero/FAIR/pull/170>`_) Fix to the radiative forcing scale factor in aerosol-radiation interactions (`#168 <https://github.com/OMS-NetZero/FAIR/issues/168>`_)
+
 (`#169 <https://github.com/OMS-NetZero/FAIR/pull/169>`_) Removed logging messages which were too annoying and slowed down overrides in all but default cases (`#162 <https://github.com/OMS-NetZero/FAIR/issues/162>`_)
 
 v2.2.1
