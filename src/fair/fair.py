@@ -1448,7 +1448,7 @@ class FAIR:
                     concentration_array[i_timepoint + 1 : i_timepoint + 2, ...],
                     baseline_emissions_array[None, None, ...],
                     baseline_concentration_array[None, None, ...],
-                    forcing_scale_array[None, None, ...],
+                    forcing_scale_array[None, None, ..., self._ari_indices],
                     erfari_radiative_efficiency_array[None, None, ...],
                     self._aerosol_chemistry_from_emissions_indices,
                     self._aerosol_chemistry_from_concentration_indices,
