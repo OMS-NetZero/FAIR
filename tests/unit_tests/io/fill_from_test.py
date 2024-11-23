@@ -1,6 +1,5 @@
 """Module for testing fill_from functions."""
 
-import logging
 import os
 
 import numpy as np
@@ -91,20 +90,6 @@ def test__check_csv():
         )
 
 
-def test__parse_unit(caplog):
-    caplog.set_level(logging.DEBUG)
-    f = minimal_problem_def()
-
-    with pytest.raises(UnitParseError):
-        f.fill_from_csv(emissions_file=os.path.join(TEST_DATA_PATH, "bad-unit.csv"))
-
-    with pytest.raises(UnitParseError):
-        f.fill_from_csv(emissions_file=os.path.join(TEST_DATA_PATH, "bad-prefix.csv"))
-
-    with pytest.raises(UnitParseError):
-        f.fill_from_csv(emissions_file=os.path.join(TEST_DATA_PATH, "bad-time.csv"))
-
-
 def test__non_default_specie(caplog):
     f = FAIR()
     species = ["HFC-152", "Hydrogen"]
@@ -127,12 +112,22 @@ def test__non_default_specie(caplog):
     f.define_configs(["UKESM1-0-LL"])
     f.allocate()
     f.fill_from_csv(emissions_file=os.path.join(TEST_DATA_PATH, "new-specie.csv"))
-    assert "HFC152 is not in fair's default list" in caplog.text
-    assert "H2 is not in fair's default list" in caplog.text
 
 
-def test__concentration_unit_convert(caplog):
-    caplog.set_level(logging.DEBUG)
+def test__parse_unit():
+    f = minimal_problem_def()
+
+    with pytest.raises(UnitParseError):
+        f.fill_from_csv(emissions_file=os.path.join(TEST_DATA_PATH, "bad-unit.csv"))
+
+    with pytest.raises(UnitParseError):
+        f.fill_from_csv(emissions_file=os.path.join(TEST_DATA_PATH, "bad-prefix.csv"))
+
+    with pytest.raises(UnitParseError):
+        f.fill_from_csv(emissions_file=os.path.join(TEST_DATA_PATH, "bad-time.csv"))
+
+
+def test__concentration_unit_convert():
     f = FAIR()
     species = ["CO2"]
     properties = {}
@@ -169,30 +164,10 @@ def test__concentration_unit_convert(caplog):
     f.fill_from_csv(
         concentration_file=os.path.join(TEST_DATA_PATH, "new-concentration-specie.csv")
     )
-    assert "PF3 is not in the default list of greenhouse gases " in caplog.text
-
-
-def test__bounds_warning(caplog):
-    caplog.set_level(logging.DEBUG)
-    f = minimal_problem_def()
-    f.fill_from_csv(emissions_file=os.path.join(TEST_DATA_PATH, "bounds-early.csv"))
-    assert ("The first time in the emissions file " in caplog.text) & (
-        "is later than the first time in the problem definition" in caplog.text
-    )
 
 
 # this one unfinished
-def test_fill_from_csv(caplog):
-    caplog.set_level(logging.DEBUG)
-    f = minimal_problem_def()
-    f.fill_from_csv(
-        emissions_file=os.path.join(TEST_DATA_PATH, "minimal-emissions.csv")
-    )
-    assert (
-        "The last time in the emissions file (1752) is earlier than the last time "
-        "in the problem definition (1752.5)" in caplog.text
-    )
-
+def test_fill_from_csv():
     f = minimal_problem_def(input_mode="concentration")
     f.fill_from_csv(
         concentration_file=os.path.join(TEST_DATA_PATH, "minimal-concentration.csv")
@@ -200,13 +175,6 @@ def test_fill_from_csv(caplog):
 
     f = minimal_problem_def(input_mode="forcing", species=["Solar", "Volcanic"])
     f.fill_from_csv(forcing_file=os.path.join(TEST_DATA_PATH, "minimal-forcing.csv"))
-
-    f = minimal_problem_def()
-    f.fill_from_csv(emissions_file=os.path.join(TEST_DATA_PATH, "new-specie.csv"))
-    assert (
-        "I can't find a value for scenario='test', variable='CO2', region='World' in"
-        in caplog.text
-    )
 
     f = minimal_problem_def()
     f.fill_from_csv(

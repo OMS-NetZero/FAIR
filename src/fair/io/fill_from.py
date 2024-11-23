@@ -1,7 +1,6 @@
 """Methods for filling data from scenario files."""
 
 import copy
-import logging
 
 import numpy as np
 import pandas as pd
@@ -25,8 +24,6 @@ from ..structure.units import (
     prefix_convert,
     time_convert,
 )
-
-logger = logging.getLogger(__name__)
 
 
 def _check_csv(df, runmode):
@@ -70,23 +67,11 @@ def _check_csv(df, runmode):
     return times
 
 
-def _bounds_warning(firstlast, runmode, filetime, problemtime):
-    # Don't raise error if time is out of range because we can still fill in emissions
-    # by directly modifying attributes, but user might have made a mistake so warn
-    earlierlater = {"first": "later", "last": "earlier"}
-    return logger.warning(
-        f"The {firstlast} time in the {runmode} file ({filetime}) is "
-        f"{earlierlater[firstlast]} than the {firstlast} time in the problem "
-        f"definition ({problemtime})."
-    )
-
-
 def _parse_unit(unit, specie, is_ghg):
     try:
         prefix = unit.split()[0]
         compound = unit.split()[1].split("/")[0]
         time = unit.split()[1].split("/")[1]
-        logger.debug(f"prefix={prefix}, compound={compound}, time={time}")
     except IndexError:
         raise UnitParseError(
             "Units must be given in the format MASS SPECIE/TIME (with a whitespace "
@@ -108,12 +93,6 @@ def _parse_unit(unit, specie, is_ghg):
     # compound may be novel if it is user defined, but we can't convert it if so. In
     # which case add to our desired unit lists to prevent later errors.
     if compound not in compound_convert:
-        logger.warning(
-            f"{compound} is not in fair's default list of species masses for "
-            f"{specie}, so I can't convert it. For my non-native species, greenhouse "
-            "gas emissions are reported in kt/yr, short-lived forcer emissions in "
-            "Mt/yr, greenhouse gas concentrations in ppt, and forcings in W/m2."
-        )
         if is_ghg:
             desired_emissions_units[specie] = f"kt {compound}/yr"
             desired_concentration_units[specie] = "ppt"
@@ -145,11 +124,6 @@ def _concentration_unit_convert(concentration, unit, specie):
             f"values, which are {list(mixing_ratio_convert.keys())}."
         )
     if specie not in desired_concentration_units:
-        logger.warning(
-            f"{specie} is not in the default list of greenhouse gases known to fair, "
-            "so I'm going to convert concentrations to ppt and report back-calculated "
-            "emissions in kt/yr."
-        )
         desired_concentration_units[specie] = "ppt"
     concentration = concentration * (
         mixing_ratio_convert[unit][desired_concentration_units[specie]]
@@ -201,10 +175,6 @@ def fill_from_csv(
             df = pd.read_csv(mode_options[mode]["file"])
             df.columns = df.columns.str.lower()
             times = _check_csv(df, runmode=mode)  # list of strings
-            if float(times[0]) > mode_options[mode]["time"][0]:
-                _bounds_warning("first", mode, times[0], mode_options[mode]["time"][0])
-            if float(times[-1]) < self.timepoints[-1]:
-                _bounds_warning("last", mode, times[-1], mode_options[mode]["time"][-1])
             times_array = np.array(times, dtype=float)
 
             for scenario in self.scenarios:
@@ -218,17 +188,8 @@ def fill_from_csv(
                             times[0] : times[-1],
                         ].values
 
-                        # warn if data missing; it might be an error by the user, but
-                        # it's not fatal; we can fill in later
-                        if data_in.shape[0] == 0:
-                            logger.warning(
-                                f"I can't find a value for scenario='{scenario}', "
-                                f"variable='{specie}', region='World' in "
-                                f"{mode_options[mode]['file']} file."
-                            )
-                            continue
-                        # duplicates are ambigious however, and are an error
-                        elif data_in.shape[0] > 1:
+                        # duplicates are ambigious and are an error
+                        if data_in.shape[0] > 1:
                             raise DuplicateScenarioError(
                                 f"In {mode_options[mode]['file']} there are duplicate "
                                 f"rows for variable='{specie}, scenario='{scenario}'."

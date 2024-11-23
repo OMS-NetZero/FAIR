@@ -1,7 +1,8 @@
 """Module for testing fill_from functions."""
 
-import logging
 import os
+
+import pytest
 
 from fair import FAIR
 from fair.io import read_properties
@@ -33,8 +34,7 @@ def minimal_problem_def(configs=["one", "two", "three"]):
     return fair_obj
 
 
-def test_override_defaults(caplog):
-    caplog.set_level(logging.DEBUG)
+def test_override_defaults():
     f = minimal_problem_def()
     f.fill_from_csv(
         emissions_file=os.path.join(EMISSIONS_PATH, "minimal-emissions.csv")
@@ -42,12 +42,11 @@ def test_override_defaults(caplog):
     f.fill_species_configs()
     f.override_defaults(PARAMS_FILE)
 
+    # "four" is not in the configs file, so should raise an error
     f = minimal_problem_def(configs=["four"])
     f.fill_from_csv(
         emissions_file=os.path.join(EMISSIONS_PATH, "minimal-emissions.csv")
     )
     f.fill_species_configs()
-    f.override_defaults(PARAMS_FILE)
-    assert (
-        "I can't find a config with label 'four' in the supplied file " in caplog.text
-    )
+    with pytest.raises(KeyError):
+        f.override_defaults(PARAMS_FILE)
