@@ -50,7 +50,7 @@ def calculate_erfari_forcing(
     erf_out[..., emissions_indices] = (
         (emissions[..., emissions_indices] - baseline_emissions[..., emissions_indices])
         * radiative_efficiency[..., emissions_indices]
-    ) * forcing_scaling[..., emissions_indices]
+    ) * forcing_scaling
 
     # concentration-driven forcers
     erf_out[..., concentration_indices] = (
@@ -59,7 +59,7 @@ def calculate_erfari_forcing(
             - baseline_concentration[..., concentration_indices]
         )
         * radiative_efficiency[..., concentration_indices]
-    ) * forcing_scaling[..., concentration_indices]
+    ) * forcing_scaling
 
     # in future we can retain contributions from each species. Will need one ERFari
     # array index for each species so we don't do this here yet.
