@@ -1,13 +1,8 @@
 """Methods for filling species and climate config parameters in."""
 
-import logging
-
 import pandas as pd
 
 from ..interface import fill
-
-logger = logging.getLogger(__name__)
-
 
 energy_balance_parameters = [
     "gamma_autocorrelation",
@@ -47,17 +42,7 @@ def override_defaults(self, filename):
     """
     df_configs = pd.read_csv(filename, index_col=0)
     for config in self.configs:
-        logger.debug("Checking for missing config label")
-        # warn if config is not present in file; it might be an error by the user, but
-        # its not fatal; it can still be filled in before calling run()
-        if config not in df_configs.index:
-            logger.warning(
-                f"I can't find a config with label '{config}' in the supplied file "
-                f"{filename}."
-            )
-            continue
         for col in df_configs.columns:
-            logger.debug("Checking whether this is an array")
             # should really do some error checking here; hopefully python's default
             # errors will be obvious enough if a user made a mistake
             if len(col.split("[")) > 1:
@@ -68,10 +53,8 @@ def override_defaults(self, filename):
                 param_index = None
 
             if param_name in energy_balance_parameters:
-                logger.debug(f"Found climate_config parameter {param_name}")
                 # error checking required?
                 if param_index is not None:
-                    logger.debug(f"Filling layer {param_index}")
                     fill(
                         self.climate_configs[param_name],
                         df_configs.loc[config, col],
@@ -86,16 +69,10 @@ def override_defaults(self, filename):
                     )
 
             else:
-                logger.debug(f"Found species_config parameter {param_name}")
                 # error checking required?
                 if param_index is not None:
                     if param_index not in self.species:
-                        logger.warning(
-                            f"{param_index} is not a specie defined in this `fair` "
-                            f"instance for column name {col} in {filename}."
-                        )
                         continue
-                    logger.debug(f"Filling specie {param_index}")
                     fill(
                         self.species_configs[param_name],
                         df_configs.loc[config, col],
