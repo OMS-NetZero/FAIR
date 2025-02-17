@@ -1197,7 +1197,7 @@ class FAIR:
 
         # Do we also need to check Leach2021 and ozone forcing?
 
-        # it's all been leading up to this : FaIR MAIN LOOP
+        # it's all been leading up to this : FAIR MAIN LOOP
         for i_timepoint in tqdm(
             range(self._n_timepoints),
             disable=1 - progress,
@@ -1376,7 +1376,7 @@ class FAIR:
                     )[
                         0:1, ..., self._ghg_indices
                     ]
-                if self.ghg_method == "meinshausen2020":
+                elif self.ghg_method == "meinshausen2020":
                     forcing_array[
                         i_timepoint + 1 : i_timepoint + 2, ..., self._ghg_indices
                     ] = meinshausen2020(
