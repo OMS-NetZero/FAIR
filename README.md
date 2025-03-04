@@ -5,6 +5,9 @@
 [![image](https://codecov.io/gh/OMS-NetZero/FAIR/branch/master/graph/badge.svg)](https://codecov.io/gh/OMS-NetZero/FAIR)
 [![image](https://img.shields.io/pypi/v/fair)](https://pypi.org/project/fair/) [![Anaconda-Server Badge](https://anaconda.org/conda-forge/fair/badges/version.svg)](https://anaconda.org/conda-forge/fair)
 
+# DO NOT MERGE INTO MASTER!
+This is just a work in progress for the future carbon cycle in FaIR (developed by Alex Romero Prieto).
+
 # FaIR
 
 FaIR (the Finite-amplitude Impulse-Response) climate model is a simple
