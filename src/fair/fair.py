@@ -8,6 +8,9 @@ import pandas as pd
 import xarray as xr
 from tqdm.auto import tqdm
 
+# TODO: this is just for testing. Delete when done
+import matplotlib.pyplot as plt
+
 from .constants import SPECIES_AXIS, TIME_AXIS
 from .earth_params import (
     earth_radius,
@@ -33,6 +36,10 @@ from .gas_cycle.inverse import unstep_concentration
 from .interface import fill
 from .structure.species import multiple_allowed, species_types, valid_input_modes
 from .structure.species_configs import SPECIES_CONFIGS_EXCL_GASBOX
+
+from .gas_cycle.modules.carbon_cycle_model.src.carbon_cycle_model.carbon_cycle_model import CarbonCycle
+from .gas_cycle.modules.carbon_cycle_model.src.carbon_cycle_model.utils import load_esm_data
+from pathlib import Path
 
 HERE = os.path.dirname(os.path.realpath(__file__))
 DEFAULT_SPECIES_CONFIG_FILE = os.path.join(
@@ -62,6 +69,10 @@ class FAIR:
     ch4_method : str
         method to use for calculating methane lifetime change. Valid options are
         {"leach2021", "thornhill2021"}.
+    carbon_method: str
+        method to use for calculating carbon cycle. Valid options are
+        {"leach2021", "romero-prieto2024"}
+
     temperature_prescribed : bool
         Run FaIR with temperatures prescribed.
 
@@ -79,11 +90,13 @@ class FAIR:
         br_cl_ods_potential=45,
         ghg_method="meinshausen2020",
         ch4_method="leach2021",
+        carbon_method="leach2021",
         temperature_prescribed=False,
     ):
         """Initialise FaIR."""
         self._ghg_method = ghg_method
         self._ch4_method = ch4_method
+        self._carbon_method = carbon_method
         self.gasboxes = range(n_gasboxes)
         self.layers = range(n_layers)
         self.iirf_max = iirf_max
@@ -109,6 +122,21 @@ class FAIR:
         else:
             raise ValueError(
                 f"ch4_method should be ``thornhill2021`` or ``leach2021``; you "
+                f"provided {value.lower()}."
+            )
+        
+    @property
+    def carbon_method(self):
+        """Return carbon cycle method."""
+        return self._carbon_method.lower()
+
+    @carbon_method.setter
+    def carbon_method(self, value):
+        if value.lower() in ["leach2021", "romero-prieto2024"]:
+            self._ch4_method = value.lower()
+        else:
+            raise ValueError(
+                f"carbon_method should be ``leach2021`` or ``romero-prieto2024``; you "
                 f"provided {value.lower()}."
             )
 
@@ -149,6 +177,7 @@ class FAIR:
         self.timestep = step
         self._n_timebounds = len(self.timebounds)
         self._n_timepoints = len(self.timepoints)
+
 
     def define_scenarios(self, scenarios):
         """Define scenarios to analyse in FaIR.
@@ -285,6 +314,43 @@ class FAIR:
             coords=(self.timepoints, self.scenarios, self.configs, self.species),
             dims=("timepoints", "scenario", "config", "specie"),
         )
+        # If we are using romero-prieto carbon cycle, initiliase a DataArray with a
+        # carbon cycle object for each scenario and config
+        if self.carbon_method == "romero-prieto2024":
+            self.carbon_cycle_step = min(self.timestep, 1/8)
+            self.carbon_cycle = xr.DataArray(
+                np.empty((len(self.scenarios), len(self.configs)), dtype=object),
+                coords=[self.scenarios, self.configs],
+                dims=["scenario", "config"]
+            )
+            # Populate the array with instances of CarbonCycle
+
+            # TODO: we want to get rid of that and run it prognostically
+
+            data_file = (
+                Path(__file__).parent / "gas_cycle/modules/carbon_cycle_model/src/carbon_cycle_model/data/scenarios" / f"sce_{"UKESM1-0-LL"}_ssp119.txt"
+            )
+            esm_data = load_esm_data(
+                data_file,
+                recalc_emis=True,
+                ninit=20,
+                smoothing_pars={"type": "savgol", "pars": [21, 3]},
+            )
+
+            for i, scenario in enumerate(self.scenarios):
+                for j, config in enumerate(self.configs):
+                    # I will probably want to change this so it gets populated with
+                    # different configs
+                    self.carbon_cycle.loc[scenario, config] = CarbonCycle(
+                        # {"model": "UKESM1-0-LL",
+                        #  "initial_year": self.timebounds[0],
+                        #  "final_year": self.timebounds[-1]},
+                        esm_data,
+                        self.carbon_cycle_step,
+                        self.carbon_cycle_step,
+                        npp_flag=True,
+                        **{}
+                    )
         self.concentration = xr.DataArray(
             np.ones(
                 (
@@ -1003,6 +1069,7 @@ class FAIR:
         )
 
         # and these ones are more specific, tripping certain behaviours or functions
+        # TODO: ARP to allow for co2 to work with emissions/concentrations
         self._ghg_forward_indices = np.asarray(
             (
                 (
@@ -1198,6 +1265,7 @@ class FAIR:
         # Do we also need to check Leach2021 and ozone forcing?
 
         # it's all been leading up to this : FaIR MAIN LOOP
+        # ARP: running model!
         for i_timepoint in tqdm(
             range(self._n_timepoints),
             disable=1 - progress,
@@ -1244,6 +1312,59 @@ class FAIR:
                     )
 
                 # 3. greenhouse emissions to concentrations; include methane from IIRF
+                
+                # TODO: ARP coupling CC here. Emission to concentrations
+                # Do something like in step 2 for methane.
+                # emissions array has a structure of ["timepoint", "scenario", "config", "specie"],
+                # with the first three emissions related to CO2:
+                # species 1: CO2 FFI (emissions) 
+                # pecies 2: CO2 AFOLU (emissions)
+                # species 3: CO2 (calculated)
+                # So I think I need to take the emissions from the first two emissions, and then
+                # calculate species 3 with my model.
+                # You can check in forward.py/step_concentration for inspiration
+
+                # ["timepoint", "scenario", "config", "specie"],
+                # print(emissions_array.shape) -> (350, 2, 1, 64)
+
+
+                # I think temperature is stored in
+                # cummins_state_array[..., 1]
+                # dims are: timebounds, scenarios, configs, layers,
+                # where I think the first layer (0) has something to do with the added noise (or maye forcing?)
+                # and the second layer is the surface temperature.
+                #
+                # I need a function that feeds the right emissions and temperature for the right
+                # scenario and config. Probably in interface
+
+                # For the time being, only update one CarbonCycle object
+
+                # Input to new carbon cycle
+                # Are these timebounds correct?
+                # Carbon cycle needs a smaller timestep than the typical fair timestep
+                for _ in range(int(self.timestep/self.carbon_cycle_step)):
+                    # cc_input = {
+                    #     "emis": np.sum(emissions_array[i_timepoint : i_timepoint + 1, 0, 0, 0:2])*self.carbon_cycle_step,
+                    #     "dtocn": float(0.869*cummins_state_array[i_timepoint : i_timepoint + 1, 0, 0, 1] + 0.035),
+                    #     "dtglb": float(cummins_state_array[i_timepoint : i_timepoint + 1, 0, 0, 1]),
+                    # }
+                    # This is running my carbon cycle independently, with ESM data, and it works fine
+                    # cc_input = {
+                    #     "emis": self.carbon_cycle.sel(scenario="ssp119", config="UKESM1-0-LL_r1i1p1f2").item().esm_data.emis[i_timepoint : i_timepoint +1 ],
+                    #     "dtocn": self.carbon_cycle.sel(scenario="ssp119", config="UKESM1-0-LL_r1i1p1f2").item().esm_data.dtocn[i_timepoint : i_timepoint +1 ],
+                    #     "dtglb": self.carbon_cycle.sel(scenario="ssp119", config="UKESM1-0-LL_r1i1p1f2").item().esm_data.dtglb[i_timepoint : i_timepoint +1 ],
+                    # }
+                    # cc_input.update({"fcva": self.carbon_cycle.sel(scenario="ssp119", config="UKESM1-0-LL_r1i1p1f2").item().esm_data.fcvegout[i_timepoint : i_timepoint +1 ]})
+                    # cc_input.update({"fcsa": self.carbon_cycle.sel(scenario="ssp119", config="UKESM1-0-LL_r1i1p1f2").item().esm_data.fcsoilout[i_timepoint : i_timepoint +1 ]})
+                    cc_input = {
+                        "emis": np.sum(emissions_array[i_timepoint : i_timepoint + 1, 0, 0, 0])/3.664,
+                        "dtocn": float(0.869*cummins_state_array[i_timepoint : i_timepoint + 1, 0, 0, 1] + 0.035),
+                        "dtglb": float(cummins_state_array[i_timepoint : i_timepoint + 1, 0, 0, 1]),
+                    }
+                    print(np.sum(emissions_array[i_timepoint : i_timepoint + 1, 0, 0, 0:2])*self.carbon_cycle_step, np.sum(emissions_array[i_timepoint : i_timepoint + 1, 0, 0, 0:2]))
+                    cc_input.update({"fcva": self.carbon_cycle.sel(scenario="ssp119", config="UKESM1-0-LL_r1i1p1f2").item().esm_data.fcvegout[i_timepoint : i_timepoint +1 ]})
+                    cc_input.update({"fcsa": self.carbon_cycle.sel(scenario="ssp119", config="UKESM1-0-LL_r1i1p1f2").item().esm_data.fcsoilout[i_timepoint : i_timepoint +1 ]})
+                    self.carbon_cycle.sel(scenario="ssp119", config="UKESM1-0-LL_r1i1p1f2").item().run_one_step(cc_input)
                 (
                     concentration_array[
                         i_timepoint + 1 : i_timepoint + 2,
@@ -1626,6 +1747,21 @@ class FAIR:
         self.ocean_heat_content_change.data = ocean_heat_content_change_array
         self.toa_imbalance.data = toa_imbalance_array
         self.stochastic_forcing.data = cummins_state_array[..., 0]
+
+        # TESTING:
+        # just plotting carbon cycle from the new carbon cycle to see
+        # what is doing
+        # TODO: I need to fix my model so it works on the same timebounds
+        # as FaIR. Currently I have one extra
+        # self.carbon_cycle.sel(scenario="ssp119", config="UKESM1-0-LL_r1i1p1f2").item().interpolate_results(self.timebounds)
+        # plt.plot(self.timebounds, self.carbon_cycle.sel(scenario="ssp119", config="UKESM1-0-LL_r1i1p1f2").item().catm)
+        # plt.show()
+        self.carbon_cycle.sel(scenario="ssp119", config="UKESM1-0-LL_r1i1p1f2").item().interpolate_results(self.timebounds)
+        self.carbon_cycle.sel(scenario="ssp119", config="UKESM1-0-LL_r1i1p1f2").item().create_plots("UKESM1-0-LL")
+        plt.plot(self.temperature.data[:, 0, 0, 0], label="GMST")
+        plt.plot(0.869*self.temperature.data[:, 0, 0, 0] + 0.035, label="SST")
+        plt.legend()
+        plt.show()
 
     def to_netcdf(self, filename):
         """Write out FaIR scenario data to a netCDF file.

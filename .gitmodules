@@ -1,0 +1,3 @@
+[submodule "src/fair/gas_cycle/modules/carbon_cycle_model"]
+	path = src/fair/gas_cycle/modules/carbon_cycle_model
+	url = https://github.com/alejandroromeroprieto/carbon-cycle-model

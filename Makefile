@@ -47,7 +47,7 @@ isort: $(VENV_DIR)  ## format the code
 
 virtual-environment: $(VENV_DIR)  ## update venv, create a new venv if it doesn't exist
 $(VENV_DIR): setup.py
-	[ -d $(VENV_DIR) ] || python3.11 -m venv $(VENV_DIR)
+	[ -d $(VENV_DIR) ] || python3.12 -m venv $(VENV_DIR)
 
 	$(VENV_DIR)/bin/pip install --upgrade pip
 	$(VENV_DIR)/bin/pip install wheel

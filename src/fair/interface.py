@@ -52,3 +52,8 @@ def initialise(var, value, **kwargs):
     """
     # check value is a scalar?
     fill(var[0, ...], value, **kwargs)
+
+
+# # This is probably not the place for it, but couldn't really find a better place
+# def update_all_carbon_cycle_objects():
+    
