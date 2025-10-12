@@ -181,7 +181,6 @@ def fill_from_pandas(self, mode, df):
     df : pd.DataFrame
         data for the infilling
     """
-
     mode_time = {
         "emissions": self.timepoints,
         "concentration": self.timebounds,
