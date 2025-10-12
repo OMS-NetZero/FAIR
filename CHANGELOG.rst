@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+v2.2.3
+------
+(`#173 <https://github.com/OMS-NetZero/FAIR/pull/173>`_) Enable users to fill values (e.g. for solar and volcanic forcing) directly from a pandas.DataFrame.
+
 v2.2.2
 ------
 
