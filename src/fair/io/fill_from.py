@@ -158,71 +158,83 @@ def fill_from_csv(
         filename of effective radiative forcing to fill.
     """
     mode_options = {
-        "emissions": {
-            "file": emissions_file,
-            "time": self.timepoints,
-            "var": self.emissions,
-        },
-        "concentration": {
-            "file": concentration_file,
-            "time": self.timebounds,
-            "var": self.concentration,
-        },
-        "forcing": {"file": forcing_file, "time": self.timebounds, "var": self.forcing},
+        "emissions": {"file": emissions_file, "var": self.emissions},
+        "concentration": {"file": concentration_file, "var": self.concentration},
+        "forcing": {"file": forcing_file, "var": self.forcing},
     }
     for mode in mode_options:
         if mode_options[mode]["file"] is not None:
             df = pd.read_csv(mode_options[mode]["file"])
-            df.columns = df.columns.str.lower()
-            times = _check_csv(df, runmode=mode)  # list of strings
-            times_array = np.array(times, dtype=float)
+            self.fill_from_pandas(mode=mode, df=df)
 
-            for scenario in self.scenarios:
-                for specie in self.species:
-                    if self.properties_df.loc[specie, "input_mode"] == mode:
-                        # Grab raw emissions from dataframe
-                        data_in = df.loc[
-                            (df["scenario"] == scenario)
-                            & (df["variable"] == specie)
-                            & (df["region"].str.lower() == "world"),
-                            times[0] : times[-1],
-                        ].values
 
-                        # duplicates are ambigious and are an error
-                        if data_in.shape[0] > 1:
-                            raise DuplicateScenarioError(
-                                f"In {mode_options[mode]['file']} there are duplicate "
-                                f"rows for variable='{specie}, scenario='{scenario}'."
-                            )
-                        # now cast to 1D
-                        data_in = data_in.squeeze()
+def fill_from_pandas(self, mode, df):
+    """Fill emissions, concentration and/or forcing from a pandas DataFrame.
 
-                        # interpolate from the supplied file to our desired timepoints
-                        interpolator = interp1d(
-                            times_array, data_in, bounds_error=False
-                        )
-                        data = interpolator(mode_options[mode]["time"])
+    This method is part of the `FAIR` class. It uses self.scenarios and self.specie
+    to look up the scenario and variable to extract from the dataframe.
 
-                        # Parse and possibly convert unit in input to what FaIR wants
-                        unit = df.loc[
-                            (df["scenario"] == scenario)
-                            & (df["variable"] == specie)
-                            & (df["region"].str.lower() == "world"),
-                            "unit",
-                        ].values[0]
-                        is_ghg = self.properties_df.loc[specie, "greenhouse_gas"]
-                        if mode == "emissions":
-                            data = _emissions_unit_convert(data, unit, specie, is_ghg)
-                        elif mode == "concentration":
-                            data = _concentration_unit_convert(data, unit, specie)
+    Parameters
+    ----------
+    mode : str
+        can be "emissions", "concentration" or "forcing"
+    df : pd.DataFrame
+        data for the infilling
+    """
+    mode_time = {
+        "emissions": self.timepoints,
+        "concentration": self.timebounds,
+        "forcing": self.timebounds,
+    }
 
-                        # fill FaIR xarray
-                        fill(
-                            getattr(self, mode),
-                            data[:, None],
-                            specie=specie,
-                            scenario=scenario,
-                        )
+    df.columns = df.columns.str.lower()
+    times = _check_csv(df, runmode=mode)  # list of strings
+    times_array = np.array(times, dtype=float)
+
+    for scenario in self.scenarios:
+        for specie in self.species:
+            if self.properties_df.loc[specie, "input_mode"] == mode:
+                # Grab raw emissions from dataframe
+                data_in = df.loc[
+                    (df["scenario"] == scenario)
+                    & (df["variable"] == specie)
+                    & (df["region"].str.lower() == "world"),
+                    times[0] : times[-1],
+                ].values
+
+                # duplicates are ambigious and are an error
+                if data_in.shape[0] > 1:
+                    raise DuplicateScenarioError(
+                        f"Input data for {mode} contains duplicate "
+                        f"rows for variable='{specie}, scenario='{scenario}'."
+                    )
+                # now cast to 1D
+                data_in = data_in.squeeze()
+
+                # interpolate from the supplied file to our desired timepoints
+                interpolator = interp1d(times_array, data_in, bounds_error=False)
+                data = interpolator(mode_time[mode])
+
+                # Parse and possibly convert unit in input to what FaIR wants
+                unit = df.loc[
+                    (df["scenario"] == scenario)
+                    & (df["variable"] == specie)
+                    & (df["region"].str.lower() == "world"),
+                    "unit",
+                ].values[0]
+                is_ghg = self.properties_df.loc[specie, "greenhouse_gas"]
+                if mode == "emissions":
+                    data = _emissions_unit_convert(data, unit, specie, is_ghg)
+                elif mode == "concentration":
+                    data = _concentration_unit_convert(data, unit, specie)
+
+                # fill FaIR xarray
+                fill(
+                    getattr(self, mode),
+                    data[:, None],
+                    specie=specie,
+                    scenario=scenario,
+                )
 
 
 # TO DO: make part of fill_from_csv
