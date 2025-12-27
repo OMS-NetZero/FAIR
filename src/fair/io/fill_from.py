@@ -267,24 +267,24 @@ def fill_from_rcmip(self):
 
     emissions_file = pooch.retrieve(
         url=(
-            "https://zenodo.org/records/4589756/files/"
-            "rcmip-emissions-annual-means-v5-1-0.csv"
+            "https://rcmip-protocols-au.s3-ap-southeast-2.amazonaws.com/"
+            "v5.1.0/rcmip-emissions-annual-means-v5-1-0.csv"
         ),
         known_hash="md5:4044106f55ca65b094670e7577eaf9b3",
     )
 
     concentration_file = pooch.retrieve(
         url=(
-            "https://zenodo.org/records/4589756/files/"
-            "rcmip-concentrations-annual-means-v5-1-0.csv"
+            "https://rcmip-protocols-au.s3-ap-southeast-2.amazonaws.com/"
+            "v5.1.0/rcmip-concentrations-annual-means-v5-1-0.csv"
         ),
         known_hash="md5:0d82c3c3cdd4dd632b2bb9449a5c315f",
     )
 
     forcing_file = pooch.retrieve(
         url=(
-            "https://zenodo.org/records/4589756/files/"
-            "rcmip-radiative-forcing-annual-means-v5-1-0.csv"
+            "https://rcmip-protocols-au.s3-ap-southeast-2.amazonaws.com/"
+            "v5.1.0/rcmip-radiative-forcing-annual-means-v5-1-0.csv"
         ),
         known_hash="md5:87ef6cd4e12ae0b331f516ea7f82ccba",
     )
