@@ -1,7 +1,6 @@
 """Module for testing fill_from functions."""
 
 import os
-import time
 
 import numpy as np
 import pytest
@@ -219,12 +218,9 @@ def test_fill_from_csv():
     )
 
 
-# from here below, we introduce a small pause to override HTTP 429 errors on Zenodo
-# which was causing nightly automated GitHub actions tests to fail.
 def test_from_rcmip():
     ftest = minimal_ghg_run()
     ftest.fill_from_rcmip()
-    time.sleep(2)
 
 
 def test_fill_from_rcmip_missing_concentration_data():
@@ -232,7 +228,6 @@ def test_fill_from_rcmip_missing_concentration_data():
     ftest.scenarios = ["ADVANCE"]
     with pytest.raises(MissingDataError):
         ftest.fill_from_rcmip()
-        time.sleep(2)
 
 
 def test_fill_from_rcmip_missing_emissions_data():
@@ -248,7 +243,6 @@ def test_fill_from_rcmip_missing_emissions_data():
     fair_obj.allocate()
     with pytest.raises(MissingDataError):
         fair_obj.fill_from_rcmip()
-        time.sleep(2)
 
 
 def test_fill_from_rcmip_missing_forcing_data():
@@ -264,4 +258,3 @@ def test_fill_from_rcmip_missing_forcing_data():
     fair_obj.allocate()
     with pytest.raises(MissingDataError):
         fair_obj.fill_from_rcmip()
-        time.sleep(2)
