@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+master
+------
+(`#176 <https://github.com/OMS-NetZero/FAIR/pull/176>`_) Change source of external RCMIP datasets from Zenodo to Amazon AWS.
+
 v2.2.3
 ------
 (`#173 <https://github.com/OMS-NetZero/FAIR/pull/173>`_) Enable users to fill values (e.g. for solar and volcanic forcing) directly from a pandas.DataFrame.
