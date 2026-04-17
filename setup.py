@@ -16,7 +16,7 @@ AUTHORS = [
 
 setup(
     name="fair",
-    version="1.6.2-gcages",
+    version="1.6.2.1",
     # cmdclass=versioneer.get_cmdclass(),
     description="Python package to perform calculations with the FaIR simple climate model",
     long_description=readme(),
