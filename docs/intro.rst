@@ -36,6 +36,7 @@ Typically there are two stages to a FaIR run. The first is to set up the dimensi
 the problem (define time horizon, included species and how to implement them), and the
 second is to fill in the data and do the run.
 
+.. _Dimensionality:
 
 Dimensionality
 --------------
@@ -219,7 +220,7 @@ State variables
 State variables are attributes of the ``FAIR`` class. All state variables are outputs, and many are valid inputs (particularly for the
 first ``timebound`` in which many must be provided with an initial condition).
 
-After problem setup (see ref:`Dimensionality`), these ``xarrays`` will be created inside
+After problem setup (see :ref:`Dimensionality`), these ``xarrays`` will be created inside
 FaIR with::
 
     f.allocate()
