@@ -36,6 +36,7 @@ Typically there are two stages to a FaIR run. The first is to set up the dimensi
 the problem (define time horizon, included species and how to implement them), and the
 second is to fill in the data and do the run.
 
+.. _Dimensionality:
 
 Dimensionality
 --------------
@@ -200,7 +201,7 @@ By default, there are 4 boxes, but this can be modified in the initialisation::
 
 or by accessing the attribute directly after initialisation::
 
-    f.n_gasboxes=3
+    f.n_gasboxes = 3
 
 ``layer`` refers to the ocean layer of the energy balance model.
 By default, FaIR uses 3 layers, though this can be modified in the initialisation of the
@@ -208,9 +209,9 @@ class::
 
     f = FAIR(n_layers=2)
 
-or by accessing the attribute directly:
+or by accessing the attribute directly::
 
-    f.n_layers=3
+    f.n_layers = 3
 
 
 State variables
@@ -219,7 +220,7 @@ State variables
 State variables are attributes of the ``FAIR`` class. All state variables are outputs, and many are valid inputs (particularly for the
 first ``timebound`` in which many must be provided with an initial condition).
 
-After problem setup (see ref:`Dimensionality`), these ``xarrays`` will be created inside
+After problem setup (see :ref:`Dimensionality`), these ``xarrays`` will be created inside
 FaIR with::
 
     f.allocate()
