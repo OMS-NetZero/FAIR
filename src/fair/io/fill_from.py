@@ -212,7 +212,8 @@ def fill_from_pandas(self, mode, df):
                 data_in = data_in.squeeze()
 
                 # interpolate from the supplied file to our desired timepoints
-                interpolator = interp1d(times_array, data_in, bounds_error=False)
+                mask_nan = ~np.isnan(data_in)
+                interpolator = interp1d(times_array[mask_nan], data_in[mask_nan], bounds_error=False, fill_value=0.)
                 data = interpolator(mode_time[mode])
 
                 # Parse and possibly convert unit in input to what FaIR wants
