@@ -34,7 +34,7 @@ jobs:
       run: |
         bandit -c .bandit.yml -r src/fair
         black --check src setup.py --exclude fair/_version.py
-        isort --check-only --quiet --recursive src setup.py
+        isort --check-only --quiet src setup.py
         pydocstyle src
         flake8 src setup.py
 #        pylint src
