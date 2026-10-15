@@ -52,3 +52,6 @@ numfig = True
 
 # readthedocs being a pain
 master_doc = 'index'
+
+# ignore 'py:class reference target not found' warning
+nitpick_ignore = [('py:class', 'pd.DataFrame')]
