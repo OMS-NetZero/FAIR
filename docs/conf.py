@@ -45,6 +45,7 @@ nitpicky = True
 nitpick_ignore_regex = [
     (r'py:.*', 'np.ndarray'),
     (r'py:class', 'attr'),
+    (r'py:class', 'pd.DataFrame')
 ]
 
 # Number figures
