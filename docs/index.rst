@@ -15,6 +15,7 @@ Contents
    intro
    examples
    api_reference
+   changelog
 
 Indices and tables
 ==================
