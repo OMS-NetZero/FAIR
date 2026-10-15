@@ -15,6 +15,7 @@ def calculate_alpha_ch4(
     ch4_lifetime_temperature_sensitivity,
     emissions_indices,
     concentration_indices,
+    floor=0.01,
 ):
     """Calculate methane lifetime scaling factor.
 
@@ -39,38 +40,52 @@ def calculate_alpha_ch4(
         Which species indices to use emissions from.
     concentration_indices : np.ndarray of bool
         Which species indices to use concentration from.
+    floor : float
+        lowest value to use for logarithmic dependence in methane lifetime
+        partial factor (negative values cause errors, and positive values
+        close to zero may cause unrealistically short lifetimes)
 
     Returns
     -------
     alpha_ch4 : np.ndarray
         Scaling factor to baseline methane lifetime.
     """
+    log_floor = np.log(floor)
+
     log_lifetime_scaling = (
         np.sum(
-            np.log(
-                1
-                + (
-                    emissions[..., emissions_indices]
-                    - baseline_emissions[..., emissions_indices]
-                )
-                * ch4_lifetime_chemical_sensitivity[..., emissions_indices]
+            np.fmax(
+                np.log(
+                    1
+                    + (
+                        emissions[..., emissions_indices]
+                        - baseline_emissions[..., emissions_indices]
+                    )
+                    * ch4_lifetime_chemical_sensitivity[..., emissions_indices]
+                ),
+                log_floor,
             ),
             axis=SPECIES_AXIS,
             keepdims=True,
         )
         + np.sum(
-            np.log(
-                1
-                + (
-                    concentration[..., concentration_indices]
-                    - baseline_concentration[..., concentration_indices]
-                )
-                * ch4_lifetime_chemical_sensitivity[..., concentration_indices],
+            np.fmax(
+                np.log(
+                    1
+                    + (
+                        concentration[..., concentration_indices]
+                        - baseline_concentration[..., concentration_indices]
+                    )
+                    * ch4_lifetime_chemical_sensitivity[..., concentration_indices],
+                ),
+                log_floor,
             ),
             axis=SPECIES_AXIS,
             keepdims=True,
         )
-        + np.log(1 + temperature * ch4_lifetime_temperature_sensitivity)
+        + np.log(
+            np.fmax(1 + temperature * ch4_lifetime_temperature_sensitivity, log_floor)
+        )
     )
 
     return np.exp(log_lifetime_scaling)
