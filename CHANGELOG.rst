@@ -1,6 +1,10 @@
 Changelog
 =========
 
+v2.2.5
+------
+(`#190 <https://github.com/OMS-NetZero/FAIR/pull/190>`_) Add a lower bound to the logarthmic factor for partial methane lifetime adjustment to prevent crashes
+
 v2.2.4
 ------
 (`#178 <https://github.com/OMS-NetZero/FAIR/pull/178>`_) Patch to ensure that only halogenated species affect ozone.
