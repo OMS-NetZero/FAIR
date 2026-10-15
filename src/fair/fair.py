@@ -62,6 +62,9 @@ class FAIR:
     ch4_method : str
         method to use for calculating methane lifetime change. Valid options are
         {"leach2021", "thornhill2021"}.
+    ch4_min : float
+        limit for lower bound of partial methane lifetime factor. Only relevant
+        where ch4_method is "thornhill2021".
     temperature_prescribed : bool
         Run FaIR with temperatures prescribed.
 
@@ -79,11 +82,13 @@ class FAIR:
         br_cl_ods_potential=45,
         ghg_method="meinshausen2020",
         ch4_method="leach2021",
+        ch4_min=0.01,
         temperature_prescribed=False,
     ):
         """Initialise FaIR."""
         self._ghg_method = ghg_method
         self._ch4_method = ch4_method
+        self._ch4_min = ch4_min
         self.gasboxes = range(n_gasboxes)
         self.layers = range(n_layers)
         self.iirf_max = iirf_max
@@ -1245,6 +1250,7 @@ class FAIR:
                         lifetime_temperature_sensitivity_array[None, None, :, None],
                         self._aerosol_chemistry_from_emissions_indices,
                         self._aerosol_chemistry_from_concentration_indices,
+                        floor=self._ch4_min,
                     )
 
                 # 3. greenhouse emissions to concentrations; include methane from IIRF
