@@ -50,7 +50,6 @@ def calculate_alpha_ch4(
     alpha_ch4 : np.ndarray
         Scaling factor to baseline methane lifetime.
     """
-
     log_floor = np.log(floor)
 
     log_lifetime_scaling = (
