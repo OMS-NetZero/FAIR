@@ -21,7 +21,8 @@ species_types = [
     "aci",
     "contrails",
     "lapsi",
-    "h2o stratospheric",
+    "h2o stratospheric conc",
+    "h2o stratospheric ems",
     "land use",
     "volcanic",
     "solar",
@@ -51,14 +52,15 @@ valid_input_modes = {
     "aci": ["calculated", "forcing"],
     "contrails": ["calculated", "forcing"],
     "lapsi": ["calculated", "forcing"],
-    "h2o stratospheric": ["calculated", "forcing"],
+    "h2o stratospheric conc": ["calculated", "forcing"],
+    "h2o stratospheric ems": ["calculated", "forcing"],
     "land use": ["calculated", "forcing"],
     "volcanic": ["forcing"],
     "solar": ["forcing"],
     "unspecified": ["forcing"],
     "ari aviation": ["calculated", "forcing"],
     "aci aviation": ["calculated", "forcing"],
-}
+    }
 
 #: Whether multiple instances are allowed for each specie type.
 multiple_allowed = {
@@ -81,7 +83,8 @@ multiple_allowed = {
     "aci": False,
     "contrails": False,
     "lapsi": False,
-    "h2o stratospheric": False,
+    "h2o stratospheric conc": False,
+    "h2o stratospheric ems": False,
     "land use": False,
     "volcanic": False,
     "solar": False,

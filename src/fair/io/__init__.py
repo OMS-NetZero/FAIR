@@ -65,6 +65,7 @@ _default_ghg_and_slcfs = [
     "NOx aviation",
     "Sulfur aviation",
     "BC aviation",
+    "H2O aviation",
 ]
 
 
@@ -92,10 +93,10 @@ def read_properties(filename=DEFAULT_PROPERTIES_FILE, species=None, aviation=Fal
 
     if not aviation:
         aviation_species = [
-            # "NOx aviation",
+            #"NOx aviation",
             "Sulfur aviation",
             "BC aviation",
-            # "Contrails",
+            #"Contrails",
             "Aerosol-radiation interactions aviation",
             "Aerosol-cloud interactions aviation",
         ]
@@ -135,6 +136,7 @@ def read_properties(filename=DEFAULT_PROPERTIES_FILE, species=None, aviation=Fal
             "NOx aviation",
             "Sulfur aviation",
             "BC aviation",
+            "H2O aviation",
         ]
 
         aviation_species = [
