@@ -19,7 +19,7 @@ from ..earth_params import seconds_per_year
 
 HERE = os.path.dirname(os.path.realpath(__file__))
 DEFAULT_PROPERTIES_FILE = os.path.join(
-    HERE, "..", "defaults", "data", "ar6", "species_configs_properties.csv"
+    HERE, "..", "defaults", "data", "with_avi", "species_configs_properties.csv"
 )
 
 #: Desired emissions units for each specie.
@@ -78,6 +78,8 @@ desired_emissions_units = {
     "HFC-365mfc": "kt HFC365mfc/yr",
     "HFC-4310mee": "kt HFC4310mee/yr",
     "NOx aviation": "Mt NO2/yr",
+    "Sulfur aviation": "Mt SO2/yr",
+    "BC aviation": "Mt BC/yr",
 }
 
 #: Desired concentration units for each default specie.

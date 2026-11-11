@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+- Added aviation-specific treatment, with an aviation flag to switch on/off. Including CMIP7 emissions loading. Needs updated species config file.
+
 v2.2.5
 ------
 (`#190 <https://github.com/OMS-NetZero/FAIR/pull/190>`_) Add a lower bound to the logarthmic factor for partial methane lifetime adjustment to prevent crashes

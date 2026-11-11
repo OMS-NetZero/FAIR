@@ -6,7 +6,7 @@ import pandas as pd
 
 HERE = os.path.dirname(os.path.realpath(__file__))
 DEFAULT_PROPERTIES_FILE = os.path.join(
-    HERE, "..", "defaults", "data", "ar6", "species_configs_properties.csv"
+    HERE, "..", "defaults", "data", "with_avi", "species_configs_properties.csv"
 )
 
 _default_ghg_and_slcfs = [
@@ -63,10 +63,13 @@ _default_ghg_and_slcfs = [
     "HFC-365mfc",
     "HFC-4310mee",
     "NOx aviation",
+    "Sulfur aviation",
+    "BC aviation",
+    "H2O aviation",
 ]
 
 
-def read_properties(filename=DEFAULT_PROPERTIES_FILE, species=None):
+def read_properties(filename=DEFAULT_PROPERTIES_FILE, species=None, aviation=False):
     """Get a properties file.
 
     Parameters
@@ -88,6 +91,17 @@ def read_properties(filename=DEFAULT_PROPERTIES_FILE, species=None):
     """
     df = pd.read_csv(filename, index_col=0)
 
+    if not aviation:
+        aviation_species = [
+            # "NOx aviation",
+            "Sulfur aviation",
+            "BC aviation",
+            # "Contrails",
+            "Aerosol-radiation interactions aviation",
+            "Aerosol-cloud interactions aviation",
+        ]
+        df = df.loc[~df.index.isin(aviation_species)]
+
     if species is None:
         species = list(df.index)
 
@@ -103,5 +117,31 @@ def read_properties(filename=DEFAULT_PROPERTIES_FILE, species=None):
             "aerosol_chemistry_from_concentration": bool(
                 df.loc[specie].aerosol_chemistry_from_concentration
             ),
+            "aerosol_rad_linear_from_aviation_emissions": bool(
+                df.loc[specie].aerosol_rad_linear_from_aviation_emissions
+            ),
+            "aerosol_rad_nonlinear_from_aviation_emissions": bool(
+                df.loc[specie].aerosol_rad_nonlinear_from_aviation_emissions
+            ),
+            "aerosol_cloud_linear_from_aviation_emissions": bool(
+                df.loc[specie].aerosol_cloud_linear_from_aviation_emissions
+            ),
         }
+
+    if aviation:
+        potential_aviation_emission_species = [
+            "NOx aviation",
+            "Sulfur aviation",
+            "BC aviation",
+            "H2O aviation",
+        ]
+
+        aviation_species = [
+            s for s in species if s in potential_aviation_emission_species
+        ]
+
+        general_species = [s for s in species if s not in aviation_species]
+
+        species = general_species + aviation_species
+
     return species, properties

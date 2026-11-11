@@ -122,6 +122,44 @@ def test_ssp_emissions_cmip6_ebm3_calibrations():
         os.path.join(HERE, "test_data", "cmip6_ssp_emissions_run_forcing_sum_2100.nc")
     )
 
+    print("\nFORCING BY SPECIES")
+    print("=" * 100)
+
+    scenario = "ssp245"
+    config = f.configs[0]
+
+    for specie in f.species:
+
+        try:
+
+            erf_2015 = float(
+                f.forcing.loc[
+                    dict(
+                        specie=specie,
+                        scenario=scenario,
+                        config=config,
+                        timebounds=2015,
+                    )
+                ]
+            )
+
+            erf_2100 = float(
+                f.forcing.loc[
+                    dict(
+                        specie=specie,
+                        scenario=scenario,
+                        config=config,
+                        timebounds=2100,
+                    )
+                ]
+            )
+
+            if abs(erf_2015) > 1e-12 or abs(erf_2100) > 1e-12:
+                print(f"{specie:50s}" f"{erf_2015:15.10f}" f"{erf_2100:15.10f}")
+
+        except Exception:
+            pass
+
     xr.testing.assert_allclose(expected_temperature, f.temperature[-1, ..., 0])
     xr.testing.assert_allclose(expected_co2_concentration, f.concentration[-1, ..., 2])
     xr.testing.assert_allclose(expected_forcing_sum, f.forcing_sum[-1, ...])
