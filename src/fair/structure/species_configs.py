@@ -32,5 +32,4 @@ SPECIES_CONFIGS_EXCL_GASBOX = [
     "erfariavi_linear_radiative_efficiency",
 	"erfariavi_nonlinear_radiative_efficiency",
 	"erfaciavi_linear_radiative_efficiency",
-    "erfaciavi_nonlinear_radiative_efficiency",
 ]

@@ -583,10 +583,6 @@ class FAIR:
                     ["config", "specie"],
                     np.zeros((self._n_configs, self._n_species)),
                 ),
-                "erfaciavi_nonlinear_radiative_efficiency": (
-                    ["config", "specie"],
-                    np.zeros((self._n_configs, self._n_species)),
-                ),
                 "erfariavi_linear_radiative_efficiency": (
                     ["config", "specie"],
                     np.zeros((self._n_configs, self._n_species)),
@@ -1072,12 +1068,6 @@ class FAIR:
             ].values,
             dtype=bool,
         )
-        self._aerosol_cloud_nonlinear_from_aviation_emissions_indices = np.asarray(
-            self.properties_df.loc[
-                :, "aerosol_cloud_nonlinear_from_aviation_emissions"
-            ].values,
-            dtype=bool,
-        )
         # and these ones are more specific, tripping certain behaviours or functions
         self._ghg_forward_indices = np.asarray(
             (
@@ -1184,9 +1174,6 @@ class FAIR:
         ].data
         erfaciavi_linear_radiative_efficiency_array = self.species_configs[
             "erfaciavi_linear_radiative_efficiency"
-        ].data
-        erfaciavi_nonlinear_radiative_efficiency_array = self.species_configs[
-            "erfaciavi_nonlinear_radiative_efficiency"
         ].data
         forcing_array = self.forcing.data
         forcing_scale_array = self.species_configs["forcing_scale"].data * (
@@ -1583,9 +1570,7 @@ class FAIR:
                     emissions_array[i_timepoint : i_timepoint + 1, ...],
                     forcing_scale_array[None, None, ..., self._aciavi_indices],
                     erfaciavi_linear_radiative_efficiency_array[None, None, ...],
-                    erfaciavi_nonlinear_radiative_efficiency_array[None, None, ...],
                     self._aerosol_cloud_linear_from_aviation_emissions_indices,
-                    self._aerosol_cloud_nonlinear_from_aviation_emissions_indices,
                 )
 
             # 10. calculate EESC this timestep for ozone forcing (and use it for

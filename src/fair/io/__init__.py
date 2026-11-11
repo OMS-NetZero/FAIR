@@ -126,9 +126,6 @@ def read_properties(filename=DEFAULT_PROPERTIES_FILE, species=None, aviation=Fal
             "aerosol_cloud_linear_from_aviation_emissions": bool(
                 df.loc[specie].aerosol_cloud_linear_from_aviation_emissions
             ),
-            "aerosol_cloud_nonlinear_from_aviation_emissions": bool(
-                df.loc[specie].aerosol_cloud_nonlinear_from_aviation_emissions
-            ),
         }
 
     if aviation:
