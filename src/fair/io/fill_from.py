@@ -299,20 +299,24 @@ def fill_from_rcmip(self):
         for specie, specie_rcmip_name in species_to_rcmip.items():
             if self.properties_df.loc[specie, "input_mode"] == "emissions":
                 # Grab raw emissions from dataframe
-                if specie_rcmip_name == "H2O aviation": # not in SSPs
+                if specie_rcmip_name == "H2O aviation":  # not in SSPs
                     emis_in = np.zeros_like(np.arange(1750, 2501))
                 else:
                     emis_in = (
                         df_emis.loc[
                             (df_emis["Scenario"] == scenario)
-                            & (df_emis["Variable"].str.endswith("|" + specie_rcmip_name))
+                            & (
+                                df_emis["Variable"].str.endswith(
+                                    "|" + specie_rcmip_name
+                                )
+                            )
                             & (df_emis["Region"] == "World"),
                             "1750":"2500",
                         ]
                         .interpolate(axis=1)
                         .values.squeeze()
                     )
-    
+
                     # throw error if data missing
                     if emis_in.shape[0] == 0:
                         raise MissingDataError(
@@ -320,11 +324,11 @@ def fill_from_rcmip(self):
                             f"name ending with {specie_rcmip_name} in the RCMIP "
                             f"emissions database."
                         )
-    
+
                     # avoid NaNs from outside the interpolation range being mixed into
                     # the results
                     notnan = np.nonzero(~np.isnan(emis_in))
-    
+
                     # RCMIP are "annual averages"; for emissions this is basically
                     # the emissions over the year, for concentrations and forcing
                     # it would be midyear values. In every case, we can assume
@@ -337,13 +341,13 @@ def fill_from_rcmip(self):
                         bounds_error=False,
                     )
                     emis = interpolator(self.timepoints)
-    
+
                     # We won't throw an error if the time is out of range for RCMIP,
                     # but we will fill with NaN to allow a user to manually specify
                     # pre- and post- emissions.
                     emis[self.timepoints < 1750] = np.nan
                     emis[self.timepoints > 2501] = np.nan
-    
+
                     # Parse and possibly convert unit in input file to what FaIR wants
                     unit = df_emis.loc[
                         (df_emis["Scenario"] == scenario)

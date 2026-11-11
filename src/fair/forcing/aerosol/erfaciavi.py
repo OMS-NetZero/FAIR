@@ -41,5 +41,4 @@ def calculate_erfaciavi_forcing(
         * linear_radiative_efficiency[..., linear_emissions_indices]
     ) * forcing_scaling
 
-
     return np.nansum(erf_out, axis=SPECIES_AXIS, keepdims=True)

@@ -21,19 +21,17 @@ from .energy_balance_model import (
     step_temperature,
 )
 from .forcing.aerosol.erfaci import logsum
+from .forcing.aerosol.erfaciavi import calculate_erfaciavi_forcing
 from .forcing.aerosol.erfari import calculate_erfari_forcing
+from .forcing.aerosol.erfariavi import calculate_erfariavi_forcing
 from .forcing.ghg import etminan2016, leach2021ghg, meinshausen2020, myhre1998
 from .forcing.minor import calculate_linear_forcing
 from .forcing.ozone import thornhill2021
-from .forcing.aerosol.erfaciavi import calculate_erfaciavi_forcing
-from .forcing.aerosol.erfariavi import calculate_erfariavi_forcing
-
 from .gas_cycle import calculate_alpha
 from .gas_cycle.ch4_lifetime import calculate_alpha_ch4
 from .gas_cycle.eesc import calculate_eesc
 from .gas_cycle.forward import step_concentration
 from .gas_cycle.inverse import unstep_concentration
-
 from .interface import fill
 from .structure.species import multiple_allowed, species_types, valid_input_modes
 from .structure.species_configs import SPECIES_CONFIGS_EXCL_GASBOX
@@ -73,7 +71,7 @@ class FAIR:
         Run FaIR with aviation-specific treatment.
     temperature_prescribed : bool
         Run FaIR with temperatures prescribed.
-        
+
 
     Raises
     ------
@@ -203,10 +201,10 @@ class FAIR:
                 "co2 ffi", "co2 afolu", "co2", "ch4", "n2o", "cfc-11",
                 "other halogen", "f-gas", "sulfur", "black carbon",
                 "organic carbon", "other slcf", "nox aviation", "eesc", "ozone",
-                "ari", "aci", "contrails", "lapsi", "h2o stratospheric conc", 
+                "ari", "aci", "contrails", "lapsi", "h2o stratospheric conc",
                 "h2o stratospheric ems", "land use", "ari aviation", "aci aviation",
                 "volcanic", "solar", "unspecified",
-                
+
             ``input_mode`` : {'emissions', 'concentration', 'forcing', 'calculated'}
                 describes how the specie is input into the model.
             ``greenhouse_gas`` : bool
@@ -1010,8 +1008,12 @@ class FAIR:
         )
         self._ari_indices = np.asarray(self.properties_df["type"] == "ari", dtype=bool)
         self._aci_indices = np.asarray(self.properties_df["type"] == "aci", dtype=bool)
-        self._ariavi_indices = np.asarray(self.properties_df["type"] == "ari aviation", dtype=bool)
-        self._aciavi_indices = np.asarray(self.properties_df["type"] == "aci aviation", dtype=bool)
+        self._ariavi_indices = np.asarray(
+            self.properties_df["type"] == "ari aviation", dtype=bool
+        )
+        self._aciavi_indices = np.asarray(
+            self.properties_df["type"] == "aci aviation", dtype=bool
+        )
         self._ozone_indices = np.asarray(
             self.properties_df["type"] == "ozone", dtype=bool
         )
@@ -1548,7 +1550,7 @@ class FAIR:
                     self._aerosol_chemistry_from_emissions_indices,
                     self._aerosol_chemistry_from_concentration_indices,
                 )
-                   
+
             # 8. aviation aerosol direct forcing
             if self._routine_flags["ari aviation"]:
                 forcing_array[
@@ -1561,7 +1563,7 @@ class FAIR:
                     self._aerosol_rad_linear_from_aviation_emissions_indices,
                     self._aerosol_rad_nonlinear_from_aviation_emissions_indices,
                 )
-                         
+
             # 9. aviation aerosol indirect forcing
             if self._routine_flags["aci aviation"]:
                 forcing_array[
@@ -1646,7 +1648,7 @@ class FAIR:
                     forcing_scale_array[None, None, ..., self._h2ostrat_ems_indices],
                     h2o_stratospheric_emissions_factor_array[None, None, ...],
                 )
-                    
+
             # 16. CO2 cumulative emissions to land use change forcing
             if self._routine_flags["land use"]:
                 forcing_array[

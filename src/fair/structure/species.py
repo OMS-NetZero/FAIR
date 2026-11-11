@@ -60,7 +60,7 @@ valid_input_modes = {
     "unspecified": ["forcing"],
     "ari aviation": ["calculated", "forcing"],
     "aci aviation": ["calculated", "forcing"],
-    }
+}
 
 #: Whether multiple instances are allowed for each specie type.
 multiple_allowed = {

@@ -5,7 +5,6 @@ import copy
 import numpy as np
 import pandas as pd
 import pooch
-import xarray as xr
 from scipy.interpolate import interp1d
 
 from ..exceptions import (
@@ -259,7 +258,7 @@ def fill_from_rcmip_cmip7(self):
             "Sulfur aviation": "Sulfur",
             "H2O aviation": "H2O",
         }
-        
+
     species_to_rcmip_copy = copy.deepcopy(species_to_rcmip)
 
     for specie in species_to_rcmip_copy:
@@ -283,31 +282,32 @@ def fill_from_rcmip_cmip7(self):
         ),
         known_hash="md5:0ad44f7166c81690605bd3789191205e",
     )
-        
+
     df_avi_ems = pd.read_csv(aviation_emissions_file)
 
     for scenario in self.scenarios:
         for specie, specie_rcmip_name in species_to_rcmip.items():
             if self.properties_df.loc[specie, "input_mode"] == "emissions":
-                
+
                 # Grab raw emissions from dataframe
                 # aviation species override
-                
+
                 if self.aviation and specie in aviation_map:
 
                     csv_species = aviation_map[specie]
                     csv_scenario = scenario.replace("scen7-", "").lower()
-                    
+
                     # H2O not in CMIP7 output so we fill with zeros
-                    if specie == 'H2O aviation': 
+                    if specie == "H2O aviation":
                         emis_in = np.zeros_like(np.arange(1750, 2501))
                     else:
                         emis_in = (
                             df_avi_ems.loc[
                                 (df_avi_ems["Scenario"] == csv_scenario)
-                                & (df_avi_ems["Variable"
-                                      ] == f"Emissions|{csv_species}|Aircraft"
-                                    )
+                                & (
+                                    df_avi_ems["Variable"]
+                                    == f"Emissions|{csv_species}|Aircraft"
+                                )
                                 & (df_avi_ems["Region"] == "World"),
                                 "1750":"2500",
                             ]
@@ -486,20 +486,17 @@ def fill_from_rcmip_cmip7(self):
 
                 # fill FaIR xarray
                 fill(self.forcing, forc[:, None], specie=specie, scenario=scenario)
-                
+
         # if we have aviation-specific treatment on then we subtract
-        # from the general ones. this doesn't need to be done if the 
-        # aviation treatment isn't on, even for NOx aviation, as this 
+        # from the general ones. this doesn't need to be done if the
+        # aviation treatment isn't on, even for NOx aviation, as this
         # is only included in the other case to emulate contrails
-                
+
         if self.aviation:
             for aviation_species, parent_species in aviation_map.items():
-                if (
-                    aviation_species in self.species
-                    and parent_species in self.species
-                ):
+                if aviation_species in self.species and parent_species in self.species:
                     self.emissions.loc[
                         dict(specie=parent_species, scenario=scenario)
                     ] -= self.emissions.loc[
                         dict(specie=aviation_species, scenario=scenario)
-                    ]         
+                    ]
