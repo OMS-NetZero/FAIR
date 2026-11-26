@@ -238,12 +238,29 @@ def fill_from_pandas(self, mode, df):
 
 
 # TO DO: make part of fill_from_csv
-def fill_from_rcmip(self):
+RCMIP_NOX_BURNING = [
+    "Emissions|NOx|MAGICC AFOLU|Agricultural Waste Burning",
+    "Emissions|NOx|MAGICC AFOLU|Forest Burning",
+    "Emissions|NOx|MAGICC AFOLU|Grassland Burning",
+    "Emissions|NOx|MAGICC AFOLU|Peat Burning",
+]
+MOLECULAR_WEIGHT_NO2 = 46.006
+MOLECULAR_WEIGHT_NO = 30.006
+
+
+def fill_from_rcmip(self, nox_correction=False):
     """Fill emissions, concentrations and/or forcing from RCMIP scenarios.
 
     This method is part of the `FAIR` class. It uses self.scenarios to look up
     the scenario to extract from the given files. If None, the emissions/concentration/
     forcing is filled in from the RCMIP database.
+
+    Parameters
+    ----------
+    nox_correction : bool
+        RCMIP v5.1.0 reports the biomass burning categories of NOx emissions in
+        units of NO rather than NO2. If True, convert them to NO2 before adding
+        them to total NOx, as in the fair-calibrate calibrations.
     """
     # lookup converting FaIR default names to RCMIP names
     species_to_rcmip = {specie: specie.replace("-", "") for specie in self.species}
@@ -307,6 +324,10 @@ def fill_from_rcmip(self):
                     .interpolate(axis=1)
                     .values.squeeze()
                 )
+                if nox_correction and specie == "NOx" and emis_in.shape[0] > 0:
+                    emis_in = emis_in + _nox_burning(df_emis, scenario) * (
+                        MOLECULAR_WEIGHT_NO2 / MOLECULAR_WEIGHT_NO - 1
+                    )
 
                 # throw error if data missing
                 if emis_in.shape[0] == 0:
@@ -462,3 +483,18 @@ def fill_from_rcmip(self):
 
                 # fill FaIR xarray
                 fill(self.forcing, forc[:, None], specie=specie, scenario=scenario)
+
+
+def _nox_burning(df_emis, scenario):
+    """Sum RCMIP's biomass burning NOx emissions, as reported (NO units)."""
+    return (
+        df_emis.loc[
+            (df_emis["Scenario"] == scenario)
+            & (df_emis["Variable"].isin(RCMIP_NOX_BURNING))
+            & (df_emis["Region"] == "World"),
+            "1750":"2500",
+        ]
+        .interpolate(axis=1)
+        .sum(axis=0, min_count=1)
+        .values
+    )
