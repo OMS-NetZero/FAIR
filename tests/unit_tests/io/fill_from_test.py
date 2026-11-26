@@ -258,3 +258,26 @@ def test_fill_from_rcmip_missing_forcing_data():
     fair_obj.allocate()
     with pytest.raises(MissingDataError):
         fair_obj.fill_from_rcmip()
+
+
+def test_fill_from_rcmip_nox_correction():
+    def nox_run():
+        fair_obj = FAIR()
+        species, properties = read_properties(species=["NOx"])
+        properties["NOx"]["input_mode"] = "emissions"
+        fair_obj.define_species(species, properties)
+        fair_obj.define_time(1750, 2100, 1)
+        fair_obj.define_scenarios(["ssp245"])
+        fair_obj.define_configs(["UKESM1-0-LL"])
+        fair_obj.allocate()
+        return fair_obj
+
+    raw, corrected = nox_run(), nox_run()
+    raw.fill_from_rcmip()
+    corrected.fill_from_rcmip(nox_correction=True)
+    added = (corrected.emissions - raw.emissions).sel(
+        scenario="ssp245", config="UKESM1-0-LL", specie="NOx"
+    )
+    # biomass burning NOx is a few Mt NO a year, and NO2/NO is about 1.53
+    assert np.all(added.sel(timepoints=slice(2000, 2100)) > 1)
+    assert np.all(added.sel(timepoints=slice(2000, 2100)) < 10)
