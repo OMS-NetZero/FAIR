@@ -639,7 +639,7 @@ class FAIR:
         gasbox_axis = self.species_configs["partition_fraction"].get_axis_num("gasbox")
         self.species_configs["iirf_0"] = np.sum(
             self.species_configs["unperturbed_lifetime"]
-            * (1 - np.exp(-iirf_horizon / self.species_configs["unperturbed_lifetime"]))
+            * -np.expm1(-iirf_horizon / self.species_configs["unperturbed_lifetime"])
             * self.species_configs["partition_fraction"],
             gasbox_axis,
         )

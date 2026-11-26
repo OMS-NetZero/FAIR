@@ -80,7 +80,7 @@ def step_concentration(
         * (emissions - baseline_emissions)
         * 1
         / decay_rate
-        * (1 - decay_factor)
+        * -np.expm1(-decay_rate)
         * timestep
         + gasboxes_old * decay_factor
     )

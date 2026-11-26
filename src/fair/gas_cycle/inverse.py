@@ -85,7 +85,7 @@ def unstep_concentration(
         airborne_emissions_new - np.sum(gasboxes_old * decay_factor, axis=GASBOX_AXIS)
     ) / (
         np.sum(
-            partition_fraction / decay_rate * (1.0 - decay_factor) * timestep,
+            partition_fraction / decay_rate * -np.expm1(-decay_rate) * timestep,
             axis=GASBOX_AXIS,
         )
     )
@@ -96,7 +96,7 @@ def unstep_concentration(
         * partition_fraction
         * 1
         / decay_rate
-        * (1.0 - decay_factor)
+        * -np.expm1(-decay_rate)
         + gasboxes_old * decay_factor
     )
     emissions_out = emissions + baseline_emissions
