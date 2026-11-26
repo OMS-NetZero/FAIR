@@ -483,6 +483,18 @@ def test_run_forcing_driven():
     ftest.run()
 
 
+def test_run_forcing_driven_warns_on_forcing_scale():
+    ftest = minimal_fair_run(mode="forcing")
+    fill(ftest.forcing, 0)
+    ftest.species_configs["forcing_scale"].loc[dict(specie="CH4")] = 0.5
+    with pytest.warns(UserWarning, match="forcing_scale for CH4"):
+        ftest.run(progress=False)
+    ftest.species_configs["forcing_scale"].loc[dict(specie="CH4")] = 1
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", UserWarning)
+        ftest.run(progress=False)
+
+
 def test_run_temperature_prescribed():
     ftest = minimal_fair_run(temperature_prescribed=True)
     fill(ftest.temperature, 0)

@@ -761,6 +761,14 @@ class FAIR:
                 n_nan = np.isnan(self.forcing.loc[dict(specie=specie)]).sum()
                 if n_nan > 0:
                     _raise_if_nan(specie, "forcing")
+                if np.any(
+                    self.species_configs["forcing_scale"].loc[dict(specie=specie)] != 1
+                ):
+                    warnings.warn(
+                        f"forcing_scale for {specie} is not 1, but it has no effect "
+                        "on a species with prescribed forcing. Scale the forcing "
+                        "time series before running instead."
+                    )
 
         # same for if we are prescribing temperature; we must have non-nan
         # values in the surface level
